@@ -12,10 +12,9 @@ class CreateDeviceMetadata < ActiveRecord::Migration
       t.string :publisher
       t.integer :publication_year
 
-      t.jsonb :owner
-      t.jsonb :manufacturer
-      t.jsonb :owner
-      t.jsonb :date
+      t.jsonb :manufacturers
+      t.jsonb :owners
+      t.jsonb :dates
 
       t.timestamps null: false
       t.datetime :deleted_at, index: true

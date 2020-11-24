@@ -255,9 +255,9 @@ ActiveRecord::Schema.define(version: 20201123234035) do
     t.string   "description"
     t.string   "publisher"
     t.integer  "publication_year"
-    t.jsonb    "owner"
-    t.jsonb    "manufacturer"
-    t.jsonb    "date"
+    t.jsonb    "owners"
+    t.jsonb    "manufacturers"
+    t.jsonb    "dates"
     t.datetime "created_at",       null: false
     t.datetime "updated_at",       null: false
     t.datetime "deleted_at"
