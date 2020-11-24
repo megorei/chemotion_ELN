@@ -4,7 +4,7 @@
 #
 #  id               :integer          not null, primary key
 #  device_id        :integer
-#  poi              :string
+#  doi              :string
 #  url              :string
 #  landing_page     :string
 #  name             :string
@@ -12,9 +12,9 @@
 #  description      :string
 #  publisher        :string
 #  publication_year :integer
-#  owner            :jsonb
-#  manufacturer     :jsonb
-#  date             :jsonb
+#  manufacturers    :jsonb
+#  owners           :jsonb
+#  dates            :jsonb
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
 #  deleted_at       :datetime
