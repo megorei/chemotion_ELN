@@ -19,7 +19,7 @@ FactoryBot.define do
       manufacturer: {
         manufacturerName: Faker::Company.name,
         modelName: 'TES-T 123',
-        manufacturereIdentifier: {}
+        manufacturererIdentifier: {}
       }
     }]}
     dates {[{
