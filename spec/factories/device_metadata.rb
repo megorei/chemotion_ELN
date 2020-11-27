@@ -28,5 +28,5 @@ FactoryBot.define do
         dateType: 'Commissioned'
       }
     }]}
-end
+  end
 end
