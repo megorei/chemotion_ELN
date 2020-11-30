@@ -3,57 +3,12 @@
 require 'rails_helper'
 
 describe Chemotion::AdminAPI do
-  # let(:json_options) do
-  #   {
-  #     only: %i[
-  #       id type reaction_name_prefix email matrix
-  #       last_name first_name
-  #     ],
-  #     methods: %i[name initials is_templates_moderator molecule_editor account_active]
-  #   }
-  # end
+    let!(:admin)  { create(:admin, first_name: 'Jane', last_name: 'Doe') }
 
-#   let(:srlzr) do
-#     { 'samples_count' => 0, 'reactions_count' => 0 }
-#   end
-#   let(:layout) do
-#     {
-#       'sample' => '1',
-#       'reaction' => '2',
-#       'wellplate' => '3',
-#       'screen' => '4',
-#       'research_plan' => '5'
-#     }
-#   end
-#   let(:usrext) do
-#     { 'confirmed_at' => nil, 'current_sign_in_at' => nil, 'email' => nil }
-#   end
-
-#   context 'authorized user-person logged in' do
-#     let!(:p1)  { create(:person, first_name: 'Jane', last_name: 'Doe') }
-#     let!(:p2)  { create(:person, first_name: 'John', last_name: 'Doe') }
-#     let!(:p3)  { create(:person, first_name: 'Jin',  last_name: 'Doe') }
-#     let!(:g1)  { create(:group, first_name: 'Doe', last_name: 'Group Test') }
-#     let!(:g2)  do
-#       create(
-#         :group, admins: [p1], users: [p1, p2],
-#                 first_name: 'Doe', last_name: 'Group Test'
-#       )
-#     end
-#     let!(:g3) do
-#       create(:group, admins: [p1], first_name: 'Doe', last_name: 'Group Test')
-#     end
-#     let!(:g4) do
-#       create(
-#         :group, admins: [p2], users: [p2, p3],
-#                 first_name: 'Doe', last_name: 'Group Test'
-#       )
-#     end
-
-    # before do
-    #   allow_any_instance_of(WardenAuthentication).to receive(:current_user)
-    #     .and_return(p1)
-    # end
+    before do
+      allow_any_instance_of(WardenAuthentication).to receive(:current_user)
+        .and_return(admin)
+    end
 
   describe 'GET /api/v1/admin/device/' do
     let(:device) { create(:device, device_metadata: create(:device_metadata)) }
@@ -70,40 +25,69 @@ describe Chemotion::AdminAPI do
     end
   end
 
-  describe 'POST /api/v1/admin/device/create' do
+  describe 'POST /api/v1/admin/deviceMetadata' do
+    let(:device) { create(:device) }
+
     let(:params) do
       {
-        'group_param' => {
-          'first_name' => 'My', 'last_name' => 'Fanclub',
-          'email' => 'jane.s@fan.club',
-          'name_abbreviation' => 'JFC', 'users' => [p2.id]
-        }
+        device_id: device.id,
+        doi: '10.12345/DEVICE-123',
+        name: 'Metadata',
+        type: 'Test-Type',
+        description: 'Metadata for device',
+        publisher: 'Chemotion',
+        publication_year: Time.current.year,
+        owners: [{
+          owner: {
+            ownerName: Faker::Company.name,
+            ownerContact: Faker::Internet.email,
+            ownerIdentifier: { id: 'test-id' }
+          }
+        }]
       }
     end
 
-    before do
-      post '/api/v1/admin/device/create', params
+    describe 'when updating device metadata' do
+      before do
+        device
+        post '/api/v1/admin/deviceMetadata', params
+      end
+
+      it 'Creates device metadata' do
+        expect(DeviceMetadata.where(doi: '10.12345/DEVICE-123')).not_to be_empty
+        expect(DeviceMetadata.find_by(doi: '10.12345/DEVICE-123').device).to eq device
+        expect(DeviceMetadata.find_by(doi: '10.12345/DEVICE-123')).to have_attributes(params.deep_stringify_keys)
+      end
     end
 
-    it 'Creates a group of persons' do
-      expect(
-        Group.where(
-          last_name: 'Fanclub',
-          first_name: 'My', name_abbreviation: 'JFC'
+    describe 'when updating device metadata' do
+      let(:update_params) do
+        {
+          device_id: device.id,
+          owners: [{
+            owner: {
+              ownerName: Faker::Company.name,
+              ownerContact: Faker::Internet.email,
+              ownerIdentifier: { id: 'test-id-2' }
+            }
+          }]
+        }
+      end
+
+      before do
+        device
+        post '/api/v1/admin/deviceMetadata', params
+        post '/api/v1/admin/deviceMetadata', update_params
+      end
+
+      it 'Updates device metadata' do
+        expect(DeviceMetadata.count).to eq(1)
+        expect(DeviceMetadata.where(doi: '10.12345/DEVICE-123')).not_to be_empty
+        expect(DeviceMetadata.find_by(doi: '10.12345/DEVICE-123').device).to eq device
+        expect(DeviceMetadata.find_by(doi: '10.12345/DEVICE-123')).to have_attributes(
+          params.update(update_params).deep_stringify_keys
         )
-      ).not_to be_empty
-      expect(
-        Group.find_by(name_abbreviation: 'JFC').users.pluck(:id)
-      ).to match_array [p1.id, p2.id]
-      expect(
-        Group.find_by(name_abbreviation: 'JFC').admins
-      ).not_to be_empty
-      expect(
-        Group.find_by(name_abbreviation: 'JFC').admins.first
-      ).to eq p1
-      expect(
-        p1.administrated_accounts.where(name_abbreviation: 'JFC')
-      ).not_to be_empty
+      end
     end
   end
 end

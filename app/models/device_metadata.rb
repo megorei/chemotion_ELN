@@ -26,6 +26,7 @@
 #
 
 class DeviceMetadata < ActiveRecord::Base
+  self.inheritance_column = nil
   acts_as_paranoid
 
   belongs_to :device

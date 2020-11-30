@@ -44,6 +44,37 @@ module Chemotion
         end
       end
 
+      namespace :deviceMetadata do
+        desc 'create/update device metadata'
+        params do
+          requires :device_id, type: Integer, desc: 'device id'
+
+          optional :name, type: String, desc: 'device name'
+          optional :doi, type: String, desc: 'device doi'
+          optional :url, type: String, desc: 'device url'
+          optional :landing_page, type: String, desc: 'device landing_page'
+          optional :type, type: String, desc: 'device type'
+          optional :description, type: String, desc: 'device description'
+          optional :publisher, type: String, desc: 'device publisher'
+          optional :publication_year, type: Integer, desc: 'device publication year'
+
+          optional :owners, desc: 'device owners'
+          optional :manufacturers, desc: 'device manufacturers'
+          optional :dates, desc: 'device dates'
+        end
+        post do
+          attributes = declared(params, include_missing: false)
+          metadata = DeviceMetadata.find_or_create_by!(device_id: attributes.delete(:device_id))
+          metadata.update_attributes!(attributes)
+          status 201
+        rescue ActiveRecord::RecordInvalid => e
+          { error: e.message }
+        end
+        post do
+          present Device.find(params[:device_id]), with: Entities::DeviceEntity, root: 'device'
+        end
+      end
+
       namespace :sftpDevice do
         desc 'Connect device via SFTP'
         params do
