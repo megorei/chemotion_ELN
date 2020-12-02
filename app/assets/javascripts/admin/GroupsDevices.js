@@ -19,6 +19,7 @@ export default class GroupsDevices extends React.Component {
     this.handleSelectUser = this.handleSelectUser.bind(this);
     this.loadUserByNameType = this.loadUserByNameType.bind(this);
     this.handleShowModal = this.handleShowModal.bind(this);
+    // this.handleShowMetadata = this.handleShowMetadata.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleShowCreateModal = this.handleShowCreateModal.bind(this);
     this.handleCloseGroup = this.handleCloseGroup.bind(this);
@@ -496,6 +497,11 @@ export default class GroupsDevices extends React.Component {
           <OverlayTrigger placement="top" overlay={<Tooltip id="groupUsersAdd">Add device permission to groups</Tooltip>}>
             <Button bsSize="xsmall" type="button" onClick={() => this.handleShowModal(device, 'Device', 'Group')} >
               <i className="fa fa-users" /><i className="fa fa-plus" />
+            </Button>
+          </OverlayTrigger>
+          <OverlayTrigger placement="bottom" overlay={<Tooltip id="inchi_tooltip">edit Device Metadata</Tooltip>} >
+            <Button bsSize="xsmall" bsStyle="info" onClick={() => this.handleShowMetadata(device)}>
+              <i className="fa fa-laptop" />
             </Button>
           </OverlayTrigger>
         </ButtonGroup>&nbsp;&nbsp;
