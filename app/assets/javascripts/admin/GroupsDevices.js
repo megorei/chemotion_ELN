@@ -12,15 +12,19 @@ export default class GroupsDevices extends React.Component {
       devices: [],
       showModal: false,
       showCreateModal: false,
+      showDeviceMetadataModal: false,
       rootType: '', // Group, Device
       actionType: 'Person', // Person Group Device Adm
-      root: {}
+      root: {},
+      device: {},
+      deviceMetadata: {}
     };
     this.handleSelectUser = this.handleSelectUser.bind(this);
     this.loadUserByNameType = this.loadUserByNameType.bind(this);
     this.handleShowModal = this.handleShowModal.bind(this);
-    // this.handleShowMetadata = this.handleShowMetadata.bind(this);
+    this.handleShowDeviceMetadataModal = this.handleShowDeviceMetadataModal.bind(this);
     this.handleClose = this.handleClose.bind(this);
+    this.handleCloseDeviceMetadata = this.handleCloseDeviceMetadata.bind(this);
     this.handleShowCreateModal = this.handleShowCreateModal.bind(this);
     this.handleCloseGroup = this.handleCloseGroup.bind(this);
   }
@@ -100,6 +104,21 @@ export default class GroupsDevices extends React.Component {
     });
   }
 
+  handleShowDeviceMetadataModal(device) {
+    this.setState({
+      showDeviceMetadataModal: true,
+      device
+    });
+  }
+
+  handleCloseDeviceMetadata() {
+    this.setState({
+      showDeviceMetadataModal: false,
+      device: {},
+      deviceMetadata: {}
+    });
+  }
+
 
   handleShowCreateModal(rootType) {
     this.setState({
@@ -175,6 +194,40 @@ export default class GroupsDevices extends React.Component {
         }
       });
   }
+
+  // TODO: add save method
+  // // saveDeviceMetadata() {
+  // saveDeviceMetadata(user) {
+  //   // if (!validateEmail(this.u_email.value.trim())) {
+  //   //   this.setState({ editUserMessage: 'You have entered an invalid email address!' });
+  //   //   return false;
+  //   // } else if (this.u_firstname.value.trim() === '' || this.u_lastname.value.trim() === '' || this.u_abbr.value.trim() === '') {
+  //   //   this.setState({ editUserMessage: 'please input first name, last name and name abbreviation!' });
+  //   //   return false;
+  //   // }
+  //   AdminFetcher.updateUser({
+  //     id: user.id,
+  //     email: this.u_email.value.trim(),
+  //     first_name: this.u_firstname.value.trim(),
+  //     last_name: this.u_lastname.value.trim(),
+  //     name_abbreviation: this.u_abbr.value.trim(),
+  //     type: this.u_type.value
+  //   })
+  //     .then((result) => {
+  //       if (result.error) {
+  //         this.setState({ editUserMessage: result.error });
+  //         return false;
+  //       }
+  //       this.setState({ showEditUserModal: false, editUserMessage: '' });
+  //       this.u_email.value = '';
+  //       this.u_firstname.value = '';
+  //       this.u_lastname.value = '';
+  //       this.u_abbr.value = '';
+  //       // this.handleFetchUsers();
+  //       return true;
+  //     });
+  //   return true;
+  // }
 
   confirmDelete(rootType, actionType, groupRec, userRec, isRoot = false) {
     const { groups, devices } = this.state;
@@ -499,8 +552,8 @@ export default class GroupsDevices extends React.Component {
               <i className="fa fa-users" /><i className="fa fa-plus" />
             </Button>
           </OverlayTrigger>
-          <OverlayTrigger placement="bottom" overlay={<Tooltip id="inchi_tooltip">edit Device Metadata</Tooltip>} >
-            <Button bsSize="xsmall" bsStyle="info" onClick={() => this.handleShowMetadata(device)}>
+          <OverlayTrigger placement="bottom" overlay={<Tooltip id="inchi_tooltip">Edit Device Metadata</Tooltip>} >
+            <Button bsSize="xsmall" bsStyle="info" onClick={() => this.handleShowDeviceMetadataModal(device)}>
               <i className="fa fa-laptop" />
             </Button>
           </OverlayTrigger>
@@ -633,6 +686,94 @@ export default class GroupsDevices extends React.Component {
     );
   }
 
+  renderDeviceMetadataModal() {
+    const { showDeviceMetadataModal, device, deviceMetadata } = this.state;
+    const title = 'Edit Device Metadata';
+    return (
+      <Modal
+        show={showDeviceMetadataModal}
+        onHide={this.handleCloseDeviceMetadata}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Panel bsStyle="success">
+            <Panel.Heading>
+              <Panel.Title>
+                {title}
+              </Panel.Title>
+            </Panel.Heading>
+            <Panel.Body>
+              <Form>
+                {/*
+                #  TODO: add fields for:
+                #  type             :string
+                #  description      :string
+                #  publisher        :string
+                #  publication_year :integer
+                #  manufacturers    :jsonb
+                #  owners           :jsonb
+                #  dates            :jsonb
+                */}
+                <FormGroup controlId="metadataFormDOI">
+                  <ControlLabel>DOI*</ControlLabel>&nbsp;&nbsp;
+                  <FormControl
+                    type="text"
+                    inputRef={(m) => { this.doi = m; }}
+                    placeholder="10.*****/**********"
+                  />
+                </FormGroup>
+                <FormGroup controlId="metadataFormURL">
+                  <ControlLabel>URL*</ControlLabel>&nbsp;&nbsp;
+                  <FormControl
+                    type="text"
+                    inputRef={(m) => { this.url = m; }}
+                    placeholder="https://<device.url>"
+                  />
+                </FormGroup>
+                <FormGroup controlId="metadataFormLandingPage">
+                  <ControlLabel>Landing Page*</ControlLabel>&nbsp;&nbsp;
+                  <FormControl
+                    type="text"
+                    inputRef={(m) => { this.landingPage = m; }}
+                    placeholder="https://<device.landing.page>"
+                  />
+                </FormGroup>
+                <FormGroup controlId="metadataFormName">
+                  <ControlLabel>Name*</ControlLabel>&nbsp;&nbsp;
+                  <FormControl
+                    type="text"
+                    inputRef={(m) => { this.name = m; }}
+                    placeholder="Device Name"
+                  />
+                </FormGroup>
+                {/* <FormGroup controlId="formInlineName">
+                  <FormControl
+                    type="text"
+                    inputRef={(m) => { this.lastInput = m; }}
+                    placeholder="J. Moriarty"
+                  />
+                </FormGroup>&nbsp;&nbsp;
+                <FormGroup controlId="formInlineEmail">
+                  <ControlLabel>Email</ControlLabel>&nbsp;&nbsp;
+                  <FormControl
+                    type="text"
+                    inputRef={(m) => { this.emailInput = m; }}
+                    placeholder="eg: abc@kit.edu"
+                  />
+                </FormGroup> */}
+                <Button bsSize="xsmall" bsStyle="success" onClick={() => this.saveDeviceMetadata(deviceMetadata)}>
+                  Save Device Metadata
+                </Button>
+              </Form>
+            </Panel.Body>
+          </Panel>
+        </Modal.Body>
+      </Modal>
+    );
+  }
+
   renderModal() {
     const {
       showModal,
@@ -705,6 +846,7 @@ export default class GroupsDevices extends React.Component {
         { this.renderDevices() }
         { this.renderModal() }
         { this.renderCreateModal() }
+        { this.renderDeviceMetadataModal() }
       </div>
     );
   }
