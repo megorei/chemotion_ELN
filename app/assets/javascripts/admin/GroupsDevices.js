@@ -758,7 +758,7 @@ export default class GroupsDevices extends React.Component {
                     type="text"
                     defaultValue={deviceMetadata.name}
                     inputRef={(m) => { this.name = m; }}
-                    placeholder="Device Name"
+                    placeholder="Name"
                   />
                 </FormGroup>
                 <FormGroup controlId="metadataFormDescription">
@@ -767,33 +767,18 @@ export default class GroupsDevices extends React.Component {
                     type="text"
                     defaultValue={deviceMetadata.description}
                     inputRef={(m) => { this.description = m; }}
-                    placeholder="Device Description"
+                    placeholder="Description"
                   />
                 </FormGroup>
                 <FormGroup controlId="metadataFormPublicationYear">
                   <ControlLabel>Publication Year*</ControlLabel>&nbsp;&nbsp;
                   <FormControl
-                    type="text"
+                    type="number"
                     defaultValue={deviceMetadata.publication_year}
                     inputRef={(m) => { this.publication_year = m; }}
-                    placeholder="Device Publication Year"
+                    placeholder="Publication Year e.g. '2020'"
                   />
                 </FormGroup>
-                {/* <FormGroup controlId="formInlineName">
-                  <FormControl
-                    type="text"
-                    inputRef={(m) => { this.lastInput = m; }}
-                    placeholder="J. Moriarty"
-                  />
-                </FormGroup>&nbsp;&nbsp;
-                <FormGroup controlId="formInlineEmail">
-                  <ControlLabel>Email</ControlLabel>&nbsp;&nbsp;
-                  <FormControl
-                    type="text"
-                    inputRef={(m) => { this.emailInput = m; }}
-                    placeholder="eg: abc@kit.edu"
-                  />
-                </FormGroup> */}
                 <Button bsSize="xsmall" bsStyle="success" onClick={() => this.saveDeviceMetadata(deviceMetadata)}>
                   Save Device Metadata
                 </Button>
