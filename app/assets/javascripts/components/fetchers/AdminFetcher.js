@@ -33,6 +33,14 @@ export default class AdminFetcher {
       .catch((errorMessage) => { console.log(errorMessage); });
   }
 
+  static fetchDeviceMetadataByDeviceId(deviceId) {
+    return fetch(`/api/v1/admin/deviceMetadata/${deviceId}`, {
+      credentials: 'same-origin'
+    }).then(response => response.json())
+      .then(json => json)
+      .catch((errorMessage) => { console.log(errorMessage); });
+  }
+
   static testSFTP(params) {
     return fetch('/api/v1/admin/sftpDevice/', {
       credentials: 'same-origin',

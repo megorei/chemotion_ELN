@@ -86,6 +86,15 @@ export default class GroupsDevices extends React.Component {
       });
   }
 
+  handlefetchDeviceMetadataByDeviceId(deviceID) {
+    AdminFetcher.fetchDeviceMetadataByDeviceId(deviceID)
+      .then((result) => {
+        this.setState({
+          deviceMetadata: result.device_metadata
+        });
+      });
+  }
+
   handleShowModal(root, rootType, actionType) {
     this.setState({
       showModal: true,
@@ -109,6 +118,7 @@ export default class GroupsDevices extends React.Component {
       showDeviceMetadataModal: true,
       device
     });
+    this.handlefetchDeviceMetadataByDeviceId(device.id);
   }
 
   handleCloseDeviceMetadata() {
@@ -695,7 +705,7 @@ export default class GroupsDevices extends React.Component {
         onHide={this.handleCloseDeviceMetadata}
       >
         <Modal.Header closeButton>
-          <Modal.Title>{title}</Modal.Title>
+          <Modal.Title>Edit {device.name} Metadata</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Panel bsStyle="success">
