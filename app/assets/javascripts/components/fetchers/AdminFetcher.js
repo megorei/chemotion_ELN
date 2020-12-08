@@ -41,6 +41,20 @@ export default class AdminFetcher {
       .catch((errorMessage) => { console.log(errorMessage); });
   }
 
+  static postDeviceMetadata(params) {
+    return fetch('/api/v1/admin/deviceMetadata', {
+      credentials: 'same-origin',
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(params)
+    }).then(response => response.json())
+      .then(json => json)
+      .catch((errorMessage) => { console.log(errorMessage); });
+  }
+
   static testSFTP(params) {
     return fetch('/api/v1/admin/sftpDevice/', {
       credentials: 'same-origin',

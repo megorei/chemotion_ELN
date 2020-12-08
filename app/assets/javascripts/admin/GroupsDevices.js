@@ -206,39 +206,31 @@ export default class GroupsDevices extends React.Component {
       });
   }
 
-  // TODO: add save method
-  // // saveDeviceMetadata() {
-  // saveDeviceMetadata(user) {
-  //   // if (!validateEmail(this.u_email.value.trim())) {
-  //   //   this.setState({ editUserMessage: 'You have entered an invalid email address!' });
-  //   //   return false;
-  //   // } else if (this.u_firstname.value.trim() === '' || this.u_lastname.value.trim() === '' || this.u_abbr.value.trim() === '') {
-  //   //   this.setState({ editUserMessage: 'please input first name, last name and name abbreviation!' });
-  //   //   return false;
-  //   // }
-  //   AdminFetcher.updateUser({
-  //     id: user.id,
-  //     email: this.u_email.value.trim(),
-  //     first_name: this.u_firstname.value.trim(),
-  //     last_name: this.u_lastname.value.trim(),
-  //     name_abbreviation: this.u_abbr.value.trim(),
-  //     type: this.u_type.value
-  //   })
-  //     .then((result) => {
-  //       if (result.error) {
-  //         this.setState({ editUserMessage: result.error });
-  //         return false;
-  //       }
-  //       this.setState({ showEditUserModal: false, editUserMessage: '' });
-  //       this.u_email.value = '';
-  //       this.u_firstname.value = '';
-  //       this.u_lastname.value = '';
-  //       this.u_abbr.value = '';
-  //       // this.handleFetchUsers();
-  //       return true;
-  //     });
-  //   return true;
-  // }
+  saveDeviceMetadata(deviceId) {
+    // TODO: add Validations
+    AdminFetcher.postDeviceMetadata({
+      // TODO: add more Attributes:
+      // t.string   "publisher"
+      // t.jsonb    "manufacturers"
+      // t.jsonb    "owners"
+      // t.jsonb    "dates"
+
+      device_id: deviceId,
+      doi: this.doi.value.trim(),
+      url: this.url.value.trim(),
+      landing_page: this.landing_page.value.trim(),
+      name: this.name.value.trim(),
+      description: this.description.value.trim(),
+      publication_year: this.publication_year.value.trim()
+
+    }).then((result) => {
+      if (result.error) {
+        alert(result.error);
+      } else {
+        this.handleCloseDeviceMetadata();
+      }
+    });
+  }
 
   confirmDelete(rootType, actionType, groupRec, userRec, isRoot = false) {
     const { groups, devices } = this.state;
@@ -748,7 +740,7 @@ export default class GroupsDevices extends React.Component {
                   <FormControl
                     type="text"
                     defaultValue={deviceMetadata.landing_page}
-                    inputRef={(m) => { this.landingPage = m; }}
+                    inputRef={(m) => { this.landing_page = m; }}
                     placeholder="https://<device.landing.page>"
                   />
                 </FormGroup>
@@ -761,15 +753,6 @@ export default class GroupsDevices extends React.Component {
                     placeholder="Name"
                   />
                 </FormGroup>
-                <FormGroup controlId="metadataFormDescription">
-                  <ControlLabel>Description*</ControlLabel>&nbsp;&nbsp;
-                  <FormControl
-                    type="text"
-                    defaultValue={deviceMetadata.description}
-                    inputRef={(m) => { this.description = m; }}
-                    placeholder="Description"
-                  />
-                </FormGroup>
                 <FormGroup controlId="metadataFormPublicationYear">
                   <ControlLabel>Publication Year*</ControlLabel>&nbsp;&nbsp;
                   <FormControl
@@ -779,7 +762,16 @@ export default class GroupsDevices extends React.Component {
                     placeholder="Publication Year e.g. '2020'"
                   />
                 </FormGroup>
-                <Button bsSize="xsmall" bsStyle="success" onClick={() => this.saveDeviceMetadata(deviceMetadata)}>
+                <FormGroup controlId="metadataFormDescription">
+                  <ControlLabel>Description</ControlLabel>&nbsp;&nbsp;
+                  <FormControl
+                    type="text"
+                    defaultValue={deviceMetadata.description}
+                    inputRef={(m) => { this.description = m; }}
+                    placeholder="Description"
+                  />
+                </FormGroup>
+                <Button bsSize="xsmall" bsStyle="success" onClick={() => this.saveDeviceMetadata(device.id)}>
                   Save Device Metadata
                 </Button>
               </Form>
