@@ -89,8 +89,9 @@ export default class GroupsDevices extends React.Component {
   handlefetchDeviceMetadataByDeviceId(deviceID) {
     AdminFetcher.fetchDeviceMetadataByDeviceId(deviceID)
       .then((result) => {
+        const deviceMetadata = result.device_metadata ? result.device_metadata : {};
         this.setState({
-          deviceMetadata: result.device_metadata
+          deviceMetadata
         });
       });
   }
@@ -718,10 +719,8 @@ export default class GroupsDevices extends React.Component {
               <Form>
                 {/*
                 #  TODO: add fields for:
-                #  type             :string
-                #  description      :string
-                #  publisher        :string
-                #  publication_year :integer
+                #  type             :string <- maybe just hardcode to 'device'
+                #  publisher        :string <- from global variable 'organization.yaml'
                 #  manufacturers    :jsonb
                 #  owners           :jsonb
                 #  dates            :jsonb
@@ -730,6 +729,7 @@ export default class GroupsDevices extends React.Component {
                   <ControlLabel>DOI*</ControlLabel>&nbsp;&nbsp;
                   <FormControl
                     type="text"
+                    defaultValue={deviceMetadata.doi}
                     inputRef={(m) => { this.doi = m; }}
                     placeholder="10.*****/**********"
                   />
@@ -738,6 +738,7 @@ export default class GroupsDevices extends React.Component {
                   <ControlLabel>URL*</ControlLabel>&nbsp;&nbsp;
                   <FormControl
                     type="text"
+                    defaultValue={deviceMetadata.url}
                     inputRef={(m) => { this.url = m; }}
                     placeholder="https://<device.url>"
                   />
@@ -746,6 +747,7 @@ export default class GroupsDevices extends React.Component {
                   <ControlLabel>Landing Page*</ControlLabel>&nbsp;&nbsp;
                   <FormControl
                     type="text"
+                    defaultValue={deviceMetadata.landing_page}
                     inputRef={(m) => { this.landingPage = m; }}
                     placeholder="https://<device.landing.page>"
                   />
@@ -754,8 +756,27 @@ export default class GroupsDevices extends React.Component {
                   <ControlLabel>Name*</ControlLabel>&nbsp;&nbsp;
                   <FormControl
                     type="text"
+                    defaultValue={deviceMetadata.name}
                     inputRef={(m) => { this.name = m; }}
                     placeholder="Device Name"
+                  />
+                </FormGroup>
+                <FormGroup controlId="metadataFormDescription">
+                  <ControlLabel>Description*</ControlLabel>&nbsp;&nbsp;
+                  <FormControl
+                    type="text"
+                    defaultValue={deviceMetadata.description}
+                    inputRef={(m) => { this.description = m; }}
+                    placeholder="Device Description"
+                  />
+                </FormGroup>
+                <FormGroup controlId="metadataFormPublicationYear">
+                  <ControlLabel>Publication Year*</ControlLabel>&nbsp;&nbsp;
+                  <FormControl
+                    type="text"
+                    defaultValue={deviceMetadata.publication_year}
+                    inputRef={(m) => { this.publication_year = m; }}
+                    placeholder="Device Publication Year"
                   />
                 </FormGroup>
                 {/* <FormGroup controlId="formInlineName">
