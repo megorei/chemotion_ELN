@@ -45,6 +45,16 @@ module Chemotion
       end
 
       namespace :deviceMetadata do
+        desc 'Get deviceMetadata by device id'
+        params do
+          requires :device_id, type: Integer, desc: 'device id'
+        end
+        route_param :device_id do
+          get do
+            present DeviceMetadata.find_by(device_id: params[:device_id]), with: Entities::DeviceMetadataEntity, root: 'device_metadata'
+          end
+        end
+
         desc 'create/update device metadata'
         params do
           requires :device_id, type: Integer, desc: 'device id'
@@ -71,7 +81,7 @@ module Chemotion
           { error: e.message }
         end
         post do
-          present Device.find(params[:device_id]), with: Entities::DeviceEntity, root: 'device'
+          present DeviceMetadata.find(params[:device_id]), with: Entities::DeviceMetadataEntity, root: 'device_metadata'
         end
       end
 

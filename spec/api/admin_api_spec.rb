@@ -25,6 +25,20 @@ describe Chemotion::AdminAPI do
     end
   end
 
+  describe 'GET /api/v1/admin/deviceMetadata/' do
+    let(:device) { create(:device, device_metadata: create(:device_metadata)) }
+    before do
+      device
+      get "/api/v1/admin/deviceMetadata/#{device.id}"
+    end
+
+    it 'returns deviceMetadata' do
+      device_metadata_attributes = JSON.parse(response.body)['device_metadata']
+
+      expect(device_metadata_attributes['device_id']).to eql(device.id)
+    end
+  end
+
   describe 'POST /api/v1/admin/deviceMetadata' do
     let(:device) { create(:device) }
 
