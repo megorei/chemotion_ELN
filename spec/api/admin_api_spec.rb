@@ -51,13 +51,13 @@ describe Chemotion::AdminAPI do
         description: 'Metadata for device',
         publisher: 'Chemotion',
         publication_year: Time.current.year,
-        owners: [{
-          owner: {
+        owners: [
+          {
             ownerName: Faker::Company.name,
             ownerContact: Faker::Internet.email,
             ownerIdentifier: { id: 'test-id' }
           }
-        }]
+        ]
       }
     end
 

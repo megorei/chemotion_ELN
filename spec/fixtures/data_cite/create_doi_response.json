@@ -1,11 +1,11 @@
 {
   "data": {
-    "id": "10.80826/cqek-y374",
+    "id": "10.80826/device-test-2",
     "type": "dois",
     "attributes": {
-      "doi": "10.80826/cqek-y374",
+      "doi": "10.80826/device-test-2",
       "prefix": "10.80826",
-      "suffix": "cqek-y374",
+      "suffix": "device-test-2",
       "identifiers": [],
       "alternateIdentifiers": [],
       "creators": [],
@@ -30,7 +30,7 @@
       "descriptions": [],
       "geoLocations": [],
       "fundingReferences": [],
-      "xml": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHJlc291cmNlIHhtbG5zOnhzaT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEtaW5zdGFuY2UiIHhtbG5zPSJodHRwOi8vZGF0YWNpdGUub3JnL3NjaGVtYS9rZXJuZWwtNCIgeHNpOnNjaGVtYUxvY2F0aW9uPSJodHRwOi8vZGF0YWNpdGUub3JnL3NjaGVtYS9rZXJuZWwtNCBodHRwOi8vc2NoZW1hLmRhdGFjaXRlLm9yZy9tZXRhL2tlcm5lbC00L21ldGFkYXRhLnhzZCI+CiAgPGlkZW50aWZpZXIgaWRlbnRpZmllclR5cGU9IkRPSSI+MTAuODA4MjYvQ1FFSy1ZMzc0PC9pZGVudGlmaWVyPgogIDxjcmVhdG9ycy8+CiAgPHRpdGxlcz4KICAgIDx0aXRsZT5EZXZpY2UgTWV0YWRhdGE8L3RpdGxlPgogIDwvdGl0bGVzPgogIDxwdWJsaXNoZXIvPgogIDxwdWJsaWNhdGlvblllYXIvPgogIDxzaXplcy8+CiAgPGZvcm1hdHMvPgogIDx2ZXJzaW9uLz4KPC9yZXNvdXJjZT4K",
+      "xml": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHJlc291cmNlIHhtbG5zOnhzaT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEtaW5zdGFuY2UiIHhtbG5zPSJodHRwOi8vZGF0YWNpdGUub3JnL3NjaGVtYS9rZXJuZWwtNCIgeHNpOnNjaGVtYUxvY2F0aW9uPSJodHRwOi8vZGF0YWNpdGUub3JnL3NjaGVtYS9rZXJuZWwtNCBodHRwOi8vc2NoZW1hLmRhdGFjaXRlLm9yZy9tZXRhL2tlcm5lbC00L21ldGFkYXRhLnhzZCI+CiAgPGlkZW50aWZpZXIgaWRlbnRpZmllclR5cGU9IkRPSSI+MTAuODA4MjYvREVWSUNFLVRFU1QtMjwvaWRlbnRpZmllcj4KICA8Y3JlYXRvcnMvPgogIDx0aXRsZXM+CiAgICA8dGl0bGU+RGV2aWNlIE1ldGFkYXRhPC90aXRsZT4KICA8L3RpdGxlcz4KICA8cHVibGlzaGVyLz4KICA8cHVibGljYXRpb25ZZWFyLz4KICA8c2l6ZXMvPgogIDxmb3JtYXRzLz4KICA8dmVyc2lvbi8+CjwvcmVzb3VyY2U+Cg==",
       "url": null,
       "contentUrl": null,
       "metadataVersion": 0,
@@ -51,10 +51,10 @@
       "partOfCount": 0,
       "versionCount": 0,
       "versionOfCount": 0,
-      "created": "2020-12-09T17:50:46.000Z",
+      "created": "2020-12-09T21:20:14.000Z",
       "registered": null,
       "published": "",
-      "updated": "2020-12-09T17:50:46.000Z"
+      "updated": "2020-12-09T21:20:14.000Z"
     },
     "relationships": {
       "client": {
@@ -65,7 +65,7 @@
       },
       "media": {
         "data": {
-          "id": "10.80826/cqek-y374",
+          "id": "10.80826/device-test-2",
           "type": "media"
         }
       },

@@ -4,59 +4,69 @@ module DataCite
   class Converter
     attr_reader :data_cite_device
 
-    def self.from_data_cite(data_cite_response)
-      new.tap { |i| i.from_data_cite(data_cite_response) }
-    end
-
-    def self.from_chemotion_for_create(chemotion_device)
-      new.tap { |i| i.from_chemotion_for_create(chemotion_device) }
-    end
-
-    def self.from_chemotion_for_update(chemotion_device, data_cite_converter)
-      new.tap do |i|
-        i.from_chemotion_for_update(chemotion_device, data_cite_converter)
-      end
-    end
-
-    def initialize
+    def initialize(chemotion_metadata)
       @data_cite_prefix = ENV['DATA_CITE_PREFIX']
+      @chemotion_metadata = chemotion_metadata
+      @doi = @chemotion_metadata.doi
+
       @data_cite_device = nil
-      @chemotion_device = nil
     end
 
-    def from_data_cite(data_cite_response)
-      @data_cite_device = DataCiteDevice.new(data_cite_response)
-    end
-
-    def to_data_cite
-      @data_cite_device
-    end
-
-    def to_chemotion
+    def to_data_cite_for_create
       {
-        last_data_cite_response: @date_cite_device.raw_response
-      }
-    end
-
-    def from_chemotion_for_update(chemotion_device, data_cite_converter)
-
-    end
-
-    def from_chemotion_for_create(chemotion_device)
-      @chemotion_device = chemotion_device
-      @data_cite_device = {
         data: {
           type: 'dois',
           attributes: {
-            prefix: @data_cite_prefix,
+            doi: @doi,
             titles: [
               {
-                title: @chemotion_device.device_metadata.name
+                title: @chemotion_metadata.name
               }
             ]
           }
         }
       }
+    end
+
+    def init_data_cite_device_from_response(data_cite_response)
+      @data_cite_device = DataCiteDevice.new(data_cite_response)
+    end
+
+    def to_chemotion
+      {
+        data_cite_last_response: @data_cite_device.raw_response,
+        data_cite_created_at: @data_cite_device.created,
+        data_cite_updated_at: @data_cite_device.updated,
+        data_cite_version: @data_cite_device.metadata_version
+      }
+    end
+
+    def to_data_cite_for_update
+      {
+        data: {
+          type: 'dois',
+          attributes: {
+            titles: [
+              {
+                title: format { @chemotion_metadata.name }
+              }
+            ],
+            publisher: format { @chemotion_metadata.publisher },
+            descriptions: [
+              { description: format { @chemotion_metadata.description } }
+            ],
+            publicationYear: format { @chemotion_metadata.publication_year },
+            url: format { @chemotion_metadata.url },
+            landingPage: format { @chemotion_metadata.landing_page },
+            dates: (@chemotion_metadata.dates || [])
+          }
+        }
+      }
+    end
+
+    def format
+      yield.presence
+      # .try(&:strip)
     end
   end
 end

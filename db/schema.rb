@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20201123234035) do
+ActiveRecord::Schema.define(version: 20201209222212) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -258,9 +258,13 @@ ActiveRecord::Schema.define(version: 20201123234035) do
     t.jsonb    "manufacturers"
     t.jsonb    "owners"
     t.jsonb    "dates"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
     t.datetime "deleted_at"
+    t.jsonb    "data_cite_last_response", default: {}
+    t.datetime "data_cite_created_at"
+    t.datetime "data_cite_updated_at"
+    t.integer  "data_cite_version"
   end
 
   add_index "device_metadata", ["deleted_at"], name: "index_device_metadata_on_deleted_at", using: :btree

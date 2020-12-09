@@ -6,42 +6,51 @@ module DataCite
     base_uri 'https://api.test.datacite.org'
     format :json
 
-    def initialize; end
+    class NotFoundError < StandardError; end
+
+    def initialize
+      @username = ENV['DATA_CITE_API_USERNAME']
+      @password = ENV['DATA_CITE_API_PASSWORD']
+    end
 
     def get(doi)
-      self.class.get("/dois/#{doi}").parsed_response
+      handle_response do
+        self.class.get("/dois/#{doi}", options)
+      end
     end
 
     def create(payload)
-      self.class.post('/dois/', options.merge(body: payload.to_json)).parsed_response
+      handle_response do
+        self.class.post('/dois/', options.merge(body: payload.to_json))
+      end
     end
 
     def update(doi, payload)
-      self.class.put("/dois/#{doi}", options.merge(body: payload.to_json)).parsed_response
+      handle_response do
+        self.class.put("/dois/#{doi}", options.merge(body: payload.to_json))
+      end
     end
 
-    def username
-      'TIB.MGKHGJ'
-    end
+    private
 
-    def password
-      'GbeBp9z6hpMs2fd'
+    def handle_response
+      response = yield
+
+      raise NotFoundError if response.code == 404
+
+      response.parsed_response
     end
 
     def options
       {
         basic_auth: {
-          username: username,
-          password: password
+          username: @username,
+          password: @password
         },
         headers: {
           'Content-Type': 'application/vnd.api+json'
         }
       }
     end
-
   end
 end
-
-
-# $ curl -X POST -H "Content-Type: application/vnd.api+json" --user YOUR_REPOSITORY_ID:YOUR_PASSWORD -d @my_draft_doi.json https://api.test.datacite.org/dois

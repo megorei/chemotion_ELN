@@ -2,22 +2,26 @@
 #
 # Table name: device_metadata
 #
-#  id               :integer          not null, primary key
-#  device_id        :integer
-#  doi              :string
-#  url              :string
-#  landing_page     :string
-#  name             :string
-#  type             :string
-#  description      :string
-#  publisher        :string
-#  publication_year :integer
-#  manufacturers    :jsonb
-#  owners           :jsonb
-#  dates            :jsonb
-#  created_at       :datetime         not null
-#  updated_at       :datetime         not null
-#  deleted_at       :datetime
+#  id                      :integer          not null, primary key
+#  device_id               :integer
+#  doi                     :string
+#  url                     :string
+#  landing_page            :string
+#  name                    :string
+#  type                    :string
+#  description             :string
+#  publisher               :string
+#  publication_year        :integer
+#  manufacturers           :jsonb
+#  owners                  :jsonb
+#  dates                   :jsonb
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
+#  deleted_at              :datetime
+#  data_cite_last_response :jsonb
+#  data_cite_created_at    :datetime
+#  data_cite_updated_at    :datetime
+#  data_cite_version       :integer
 #
 # Indexes
 #
