@@ -8,25 +8,25 @@ FactoryBot.define do
     description { 'Metadata for device'}
     publisher { 'Chemotion' }
     publication_year { Time.current.year }
-    owners {[{
-      owner: {
+    owners {[
+      {
         ownerName: Faker::Company.name,
         ownerContact: Faker::Internet.email,
         ownerIdentifier: {}
       }
-    }]}
-    manufacturers {[{
-      manufacturer: {
+    ]}
+    manufacturers {[
+      {
         manufacturerName: Faker::Company.name,
         modelName: 'TES-T 123',
         manufacturererIdentifier: {}
       }
-    }]}
-    dates {[{
-      date: {
+    ]}
+    dates {[
+      {
         date: '2020-11-11',
         dateType: 'Commissioned'
       }
-    }]}
+    ]}
   end
 end
