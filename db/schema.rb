@@ -454,7 +454,7 @@ ActiveRecord::Schema.define(version: 20201123234035) do
 
   create_table "matrices", force: :cascade do |t|
     t.string   "name",                        null: false
-    t.boolean  "enabled",  default: false
+    t.boolean  "enabled",     default: false
     t.string   "label"
     t.integer  "include_ids", default: [],                 array: true
     t.integer  "exclude_ids", default: [],                 array: true
@@ -768,18 +768,6 @@ ActiveRecord::Schema.define(version: 20201123234035) do
 
   add_index "subscriptions", ["channel_id", "user_id"], name: "index_subscriptions_on_channel_id_and_user_id", unique: true, using: :btree
 
-  create_table "user_labels", force: :cascade do |t|
-    t.integer  "user_id"
-    t.string   "title",                     null: false
-    t.string   "description"
-    t.string   "color",                     null: false
-    t.integer  "access_level", default: 0
-    t.integer  "position",     default: 10
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.datetime "deleted_at"
-  end
-
   create_table "sync_collections_users", force: :cascade do |t|
     t.integer  "user_id"
     t.integer  "collection_id"
@@ -809,6 +797,18 @@ ActiveRecord::Schema.define(version: 20201123234035) do
     t.date     "from"
     t.date     "to"
     t.boolean  "main"
+  end
+
+  create_table "user_labels", force: :cascade do |t|
+    t.integer  "user_id"
+    t.string   "title",                     null: false
+    t.string   "description"
+    t.string   "color",                     null: false
+    t.integer  "access_level", default: 0
+    t.integer  "position",     default: 10
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.datetime "deleted_at"
   end
 
   create_table "users", force: :cascade do |t|

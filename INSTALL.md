@@ -108,7 +108,7 @@ Production
 
 * create device entries and configure their profiles
 
-`cp db/datacollectors.yml.example db/datacollectors.yml`
+`cp config/datacollectors.yml.example config/datacollectors.yml`
 
 
 ## Deployment notes
