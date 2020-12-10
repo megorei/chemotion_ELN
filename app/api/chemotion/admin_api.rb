@@ -74,8 +74,10 @@ module Chemotion
         end
         post do
           attributes = declared(params, include_missing: false)
-          metadata = DeviceMetadata.find_or_create_by!(device_id: attributes.delete(:device_id))
+          metadata = DeviceMetadata.find_or_initialize_by(device_id: attributes[:device_id])
+          new_record = metadata.new_record?
           metadata.update_attributes!(attributes)
+          DataCite.find_and_create_at_chemotion!(metadata) if new_record
           status 201
         rescue ActiveRecord::RecordInvalid => e
           { error: e.message }

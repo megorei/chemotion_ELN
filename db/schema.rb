@@ -261,10 +261,12 @@ ActiveRecord::Schema.define(version: 20201209222212) do
     t.datetime "created_at",                           null: false
     t.datetime "updated_at",                           null: false
     t.datetime "deleted_at"
-    t.jsonb    "data_cite_last_response", default: {}
+    t.integer  "doi_sequence"
+    t.string   "data_cite_prefix"
     t.datetime "data_cite_created_at"
     t.datetime "data_cite_updated_at"
     t.integer  "data_cite_version"
+    t.jsonb    "data_cite_last_response", default: {}
   end
 
   add_index "device_metadata", ["deleted_at"], name: "index_device_metadata_on_deleted_at", using: :btree

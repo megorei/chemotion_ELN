@@ -53,8 +53,8 @@ module DataCite
       attributes&.fetch('contentUrl', nil)&.first
     end
 
-    def landing_page
-      attributes&.fetch('landingPage', nil)
+    def landing_page_url
+      attributes&.fetch('landingPage', nil)&.fetch('url', nil)
     end
 
     def dates

@@ -1,11 +1,11 @@
 {
   "data": {
-    "id": "10.80826/device-test-2",
+    "id": "10.80826/device-test-3",
     "type": "dois",
     "attributes": {
-      "doi": "10.80826/device-test-2",
+      "doi": "10.80826/device-test-3",
       "prefix": "10.80826",
-      "suffix": "device-test-2",
+      "suffix": "device-test-3",
       "identifiers": [],
       "alternateIdentifiers": [],
       "creators": [],
@@ -39,18 +39,18 @@
       ],
       "geoLocations": [],
       "fundingReferences": [],
-      "xml": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHJlc291cmNlIHhtbG5zOnhzaT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEtaW5zdGFuY2UiIHhtbG5zPSJodHRwOi8vZGF0YWNpdGUub3JnL3NjaGVtYS9rZXJuZWwtNCIgeHNpOnNjaGVtYUxvY2F0aW9uPSJodHRwOi8vZGF0YWNpdGUub3JnL3NjaGVtYS9rZXJuZWwtNCBodHRwOi8vc2NoZW1hLmRhdGFjaXRlLm9yZy9tZXRhL2tlcm5lbC00L21ldGFkYXRhLnhzZCI+CiAgPGlkZW50aWZpZXIgaWRlbnRpZmllclR5cGU9IkRPSSI+MTAuODA4MjYvREVWSUNFLVRFU1QtMjwvaWRlbnRpZmllcj4KICA8Y3JlYXRvcnMvPgogIDx0aXRsZXM+CiAgICA8dGl0bGU+RGV2aWNlIE1ldGFkYXRhPC90aXRsZT4KICA8L3RpdGxlcz4KICA8cHVibGlzaGVyPkNoZW1vdGlvbjwvcHVibGlzaGVyPgogIDxwdWJsaWNhdGlvblllYXI+MjAyMDwvcHVibGljYXRpb25ZZWFyPgogIDxkYXRlcz4KICAgIDxkYXRlIGRhdGVUeXBlPSJDb21taXNzaW9uZWQiPjIwMjAtMTEtMTE8L2RhdGU+CiAgPC9kYXRlcz4KICA8c2l6ZXMvPgogIDxmb3JtYXRzLz4KICA8dmVyc2lvbi8+CiAgPGRlc2NyaXB0aW9ucz4KICAgIDxkZXNjcmlwdGlvbiBkZXNjcmlwdGlvblR5cGU9IkFic3RyYWN0Ij5NZXRhZGF0YSBmb3IgZGV2aWNlPC9kZXNjcmlwdGlvbj4KICA8L2Rlc2NyaXB0aW9ucz4KPC9yZXNvdXJjZT4K",
-      "url": "https://the-device-page.org/10.80826/device-test-2",
-      "contentUrl": [
-        "https://the-content-page.org/10.80826/device-test-2"
-      ],
-      "metadataVersion": 3,
+      "xml": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHJlc291cmNlIHhtbG5zOnhzaT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEtaW5zdGFuY2UiIHhtbG5zPSJodHRwOi8vZGF0YWNpdGUub3JnL3NjaGVtYS9rZXJuZWwtNCIgeHNpOnNjaGVtYUxvY2F0aW9uPSJodHRwOi8vZGF0YWNpdGUub3JnL3NjaGVtYS9rZXJuZWwtNCBodHRwOi8vc2NoZW1hLmRhdGFjaXRlLm9yZy9tZXRhL2tlcm5lbC00L21ldGFkYXRhLnhzZCI+CiAgPGlkZW50aWZpZXIgaWRlbnRpZmllclR5cGU9IkRPSSI+MTAuODA4MjYvREVWSUNFLVRFU1QtMzwvaWRlbnRpZmllcj4KICA8Y3JlYXRvcnMvPgogIDx0aXRsZXM+CiAgICA8dGl0bGU+RGV2aWNlIE1ldGFkYXRhPC90aXRsZT4KICA8L3RpdGxlcz4KICA8cHVibGlzaGVyPkNoZW1vdGlvbjwvcHVibGlzaGVyPgogIDxwdWJsaWNhdGlvblllYXI+MjAyMDwvcHVibGljYXRpb25ZZWFyPgogIDxkYXRlcz4KICAgIDxkYXRlIGRhdGVUeXBlPSJDb21taXNzaW9uZWQiPjIwMjAtMTEtMTE8L2RhdGU+CiAgPC9kYXRlcz4KICA8c2l6ZXMvPgogIDxmb3JtYXRzLz4KICA8dmVyc2lvbi8+CiAgPGRlc2NyaXB0aW9ucz4KICAgIDxkZXNjcmlwdGlvbiBkZXNjcmlwdGlvblR5cGU9IkFic3RyYWN0Ij5NZXRhZGF0YSBmb3IgZGV2aWNlPC9kZXNjcmlwdGlvbj4KICA8L2Rlc2NyaXB0aW9ucz4KPC9yZXNvdXJjZT4K",
+      "url": "https://the-device-page.org/10.80826/device-test-3",
+      "contentUrl": null,
+      "metadataVersion": 1,
       "schemaVersion": "http://datacite.org/schema/kernel-4",
       "source": null,
       "isActive": false,
       "state": "draft",
       "reason": null,
-      "landingPage": null,
+      "landingPage": {
+        "url": "https://the-content-page.org/10.80826/device-test-3"
+      },
       "viewCount": 0,
       "viewsOverTime": [],
       "downloadCount": 0,
@@ -62,10 +62,10 @@
       "partOfCount": 0,
       "versionCount": 0,
       "versionOfCount": 0,
-      "created": "2020-12-09T21:20:14.000Z",
+      "created": "2020-12-10T16:33:41.000Z",
       "registered": null,
       "published": "2020",
-      "updated": "2020-12-09T23:08:14.000Z"
+      "updated": "2020-12-10T16:34:42.000Z"
     },
     "relationships": {
       "client": {
@@ -76,7 +76,7 @@
       },
       "media": {
         "data": {
-          "id": "10.80826/device-test-2",
+          "id": "10.80826/device-test-3",
           "type": "media"
         }
       },

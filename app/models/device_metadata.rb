@@ -18,10 +18,12 @@
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null
 #  deleted_at              :datetime
-#  data_cite_last_response :jsonb
+#  doi_sequence            :integer
+#  data_cite_prefix        :string
 #  data_cite_created_at    :datetime
 #  data_cite_updated_at    :datetime
 #  data_cite_version       :integer
+#  data_cite_last_response :jsonb
 #
 # Indexes
 #
@@ -32,6 +34,21 @@
 class DeviceMetadata < ActiveRecord::Base
   self.inheritance_column = nil
   acts_as_paranoid
+  DATA_CITE_PREFIX = ENV['DATA_CITE_PREFIX']
+  DATA_CITE_DEVICE_PREFIX = ENV['DATA_CITE_DEVICE_PREFIX']
 
   belongs_to :device
+
+  validates :doi, uniqueness: true, if: -> { doi.present? }
+  validates :doi_sequence, uniqueness: true, if: -> { doi_sequence.present? }
+
+  def generate_doi!
+    doi_sequence = (self.class.maximum(:doi_sequence) || 0) + 1
+    doi = "#{DATA_CITE_PREFIX}/#{DATA_CITE_DEVICE_PREFIX}#{doi_sequence}"
+    update_attributes!(
+      doi: doi,
+      doi_sequence: doi_sequence,
+      data_cite_prefix: DATA_CITE_PREFIX
+    )
+  end
 end
