@@ -7,6 +7,7 @@ module DataCite
     format :json
 
     class NotFoundError < StandardError; end
+    class UnprocessableEntity < StandardError; end
 
     def initialize
       @username = ENV['DATA_CITE_API_USERNAME']
@@ -37,8 +38,13 @@ module DataCite
       response = yield
 
       raise NotFoundError if response.code == 404
+      raise UnprocessableEntity, prepare_error(response) if response.code == 422
 
       response.parsed_response
+    end
+
+    def prepare_error(response)
+      response.parsed_response['errors'].map { |x| x['title'] }.join(', ')
     end
 
     def options

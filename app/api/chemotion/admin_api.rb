@@ -64,8 +64,8 @@ module Chemotion
             device = Device.find(params[:device_id])
             DataCite.sync_to_data_cite!(device)
             present device.device_metadata, with: Entities::DeviceMetadataEntity, root: 'device_metadata'
-          rescue ActiveRecord::RecordInvalid => e
-            { error: e.message }
+          rescue DataCite::Client::UnprocessableEntity => e
+            present(error: "Error from DataCite: #{e.message}")
           end
         end
 
