@@ -61,11 +61,11 @@ module Chemotion
         end
         route_param :device_id do
           put 'sync_to_data_cite' do
-          #   device = Device.find(params[:device_id])
-          #   DataCite.sync_to_data_cite!(device)
-          #   present device.device_metadata, with: Entities::DeviceMetadataEntity, root: 'device_metadata'
-          # rescue ActiveRecord::RecordInvalid => e
-          #   { error: e.message }
+            device = Device.find(params[:device_id])
+            DataCite.sync_to_data_cite!(device)
+            present device.device_metadata, with: Entities::DeviceMetadataEntity, root: 'device_metadata'
+          rescue ActiveRecord::RecordInvalid => e
+            { error: e.message }
           end
         end
 

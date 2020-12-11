@@ -42,11 +42,10 @@ describe Chemotion::AdminAPI do
   end
 
   describe 'PUT /api/v1/admin/deviceMetadata/DEVICE_ID/sync_to_data_cite' do
-    let(:device) do
-      create(:device,
-        device_metadata:
-          create(:device_metadata,
-            data_cite_prefix: '10.80826', doi: '10.80826/DEVICE-3' ))
+    let(:device) { create(:device, device_metadata: device_metadata) }
+
+    let(:device_metadata) do
+      create(:device_metadata, data_cite_prefix: '10.80826', doi: '10.80826/DEVICE-3')
     end
 
     before do
@@ -69,17 +68,11 @@ describe Chemotion::AdminAPI do
     end
 
     it 'returns deviceMetadata' do
+      expect(device_metadata.data_cite_updated_at).to be_blank
 
-      expect {
-        put "/api/v1/admin/deviceMetadata/#{device.id}/sync_to_data_cite"
-      }.to change(device.device_metadata, :data_cite_updated_at)
+      put "/api/v1/admin/deviceMetadata/#{device.id}/sync_to_data_cite"
 
-      # byebug
-
-      # response
-      # device_metadata_attributes = JSON.parse(response.body)['device_metadata']
-
-      # expect(device_metadata_attributes['device_id']).to eql(device.id)
+      expect(device_metadata.reload.data_cite_updated_at).to be_present
     end
   end
 
