@@ -125,7 +125,7 @@ describe DataCite::Syncer do
         syncer.sync_to_data_cite!
 
         data_cite_device = syncer.converter.data_cite_device
-        expect(syncer.converter.chemotion_metadata.reload).to have_attributes(
+        expect(syncer.converter.chemotion_metadata).to have_attributes(
           data_cite_version: data_cite_device.metadata_version,
           data_cite_last_response: data_cite_device.raw_response,
           data_cite_created_at: data_cite_device.created,

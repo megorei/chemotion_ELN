@@ -26,12 +26,9 @@ module DataCite
       return false if @chemotion_metadata.doi.blank?
       raise UnwriteableDoiPrefixError if @chemotion_metadata.data_cite_prefix != DATA_CITE_PREFIX
 
-      if fetch_from_data_cite
-        update_at_data_cite!
-      else
-        create_at_data_cite!
-        update_at_data_cite!
-      end
+      create_at_data_cite! unless fetch_from_data_cite
+
+      update_at_data_cite!
       update_at_chemotion!
     end
 

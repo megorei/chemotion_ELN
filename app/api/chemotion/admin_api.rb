@@ -55,6 +55,18 @@ module Chemotion
           end
         end
 
+        desc 'Sychronize chemotion deviceMetadata to DataCite'
+        params do
+          requires :device_id, type: Integer, desc: 'device id'
+        end
+        route_param :device_id do
+          put 'sync_to_data_cite' do
+            device = Device.find(params[:device_id])
+            DataCite.sync_to_data_cite!(chemotion_device)
+            present device.device_metadata, with: Entities::DeviceMetadataEntity, root: 'device_metadata'
+          end
+        end
+
         desc 'create/update device metadata'
         params do
           requires :device_id, type: Integer, desc: 'device id'
@@ -77,13 +89,10 @@ module Chemotion
           metadata = DeviceMetadata.find_or_initialize_by(device_id: attributes[:device_id])
           new_record = metadata.new_record?
           metadata.update_attributes!(attributes)
-          DataCite.find_and_create_at_chemotion!(metadata) if new_record
-          status 201
+          DataCite.find_and_create_at_chemotion!(metadata.device) if new_record
+          present metadata, with: Entities::DeviceMetadataEntity, root: 'device_metadata'
         rescue ActiveRecord::RecordInvalid => e
           { error: e.message }
-        end
-        post do
-          present DeviceMetadata.find(params[:device_id]), with: Entities::DeviceMetadataEntity, root: 'device_metadata'
         end
       end
 

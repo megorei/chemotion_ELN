@@ -3,15 +3,16 @@
 require 'rails_helper'
 
 describe Chemotion::AdminAPI do
-    let!(:admin)  { create(:admin, first_name: 'Jane', last_name: 'Doe') }
+  let!(:admin) { create(:admin, first_name: 'Jane', last_name: 'Doe') }
 
-    before do
-      allow_any_instance_of(WardenAuthentication).to receive(:current_user)
-        .and_return(admin)
-    end
+  before do
+    allow_any_instance_of(WardenAuthentication).to receive(:current_user)
+      .and_return(admin)
+  end
 
-  describe 'GET /api/v1/admin/device/' do
+  describe 'GET /api/v1/admin/device/DEVICE_ID' do
     let(:device) { create(:device, device_metadata: create(:device_metadata)) }
+
     before do
       device
       get "/api/v1/admin/device/#{device.id}"
@@ -25,8 +26,9 @@ describe Chemotion::AdminAPI do
     end
   end
 
-  describe 'GET /api/v1/admin/deviceMetadata/' do
+  describe 'GET /api/v1/admin/deviceMetadata/DEVICE_ID' do
     let(:device) { create(:device, device_metadata: create(:device_metadata)) }
+
     before do
       device
       get "/api/v1/admin/deviceMetadata/#{device.id}"
@@ -62,15 +64,24 @@ describe Chemotion::AdminAPI do
     end
 
     describe 'when updating device metadata' do
-      before do
-        device
-        post '/api/v1/admin/deviceMetadata', params
-      end
+      context 'without existing DOI at DataCite' do
+        before do
+          device
 
-      it 'Creates device metadata' do
-        expect(DeviceMetadata.where(doi: '10.12345/DEVICE-123')).not_to be_empty
-        expect(DeviceMetadata.find_by(doi: '10.12345/DEVICE-123').device).to eq device
-        expect(DeviceMetadata.find_by(doi: '10.12345/DEVICE-123')).to have_attributes(params.deep_stringify_keys)
+          stub_request(:get, 'https://api.test.datacite.org/dois/10.12345/DEVICE-123')
+            .to_return(status: 404,
+                       headers: { 'Content-Type' => 'application/json' })
+
+          post '/api/v1/admin/deviceMetadata', params
+        end
+
+        it 'Creates device metadata' do
+          new_doi_from_data_cite = '10.80826/DEVICE-1'
+          expect(device.device_metadata.doi).to eql(new_doi_from_data_cite)
+
+          attributes = params.merge(doi: new_doi_from_data_cite).deep_stringify_keys
+          expect(device.device_metadata).to have_attributes(attributes)
+        end
       end
     end
 
@@ -90,17 +101,21 @@ describe Chemotion::AdminAPI do
 
       before do
         device
+
+        stub_request(:get, 'https://api.test.datacite.org/dois/10.12345/DEVICE-123')
+          .to_return(status: 404,
+                     headers: { 'Content-Type' => 'application/json' })
+
         post '/api/v1/admin/deviceMetadata', params
         post '/api/v1/admin/deviceMetadata', update_params
       end
 
       it 'Updates device metadata' do
-        expect(DeviceMetadata.count).to eq(1)
-        expect(DeviceMetadata.where(doi: '10.12345/DEVICE-123')).not_to be_empty
-        expect(DeviceMetadata.find_by(doi: '10.12345/DEVICE-123').device).to eq device
-        expect(DeviceMetadata.find_by(doi: '10.12345/DEVICE-123')).to have_attributes(
-          params.update(update_params).deep_stringify_keys
-        )
+        new_doi_from_data_cite = '10.80826/DEVICE-1'
+        expect(device.device_metadata.doi).to eql(new_doi_from_data_cite)
+
+        attributes = update_params.merge(doi: new_doi_from_data_cite).deep_stringify_keys
+        expect(device.device_metadata).to have_attributes(attributes)
       end
     end
   end
