@@ -219,6 +219,12 @@ export default class GroupsDevices extends React.Component {
     }).then((result) => {
       if (result.error) {
         alert(result.error);
+      } else {
+        if (result.device_metadata) {
+          this.setState({
+            deviceMetadata: result.device_metadata
+          })
+        }
       }
     });
   }
@@ -247,7 +253,11 @@ export default class GroupsDevices extends React.Component {
       if (result.error) {
         alert(result.error);
       } else {
-        this.handleCloseDeviceMetadata();
+        if (result.device_metadata) {
+          this.setState({
+            deviceMetadata: result.device_metadata
+          })
+        }
       }
     });
   }
