@@ -793,11 +793,13 @@ export default class GroupsDevices extends React.Component {
                     disabled={this.deviceMetadataDoiExists()}
                   />
                 </FormGroup>
-                <Col smOffset={0} sm={12}>
-                  <Button className="pull-right" bsStyle="danger" onClick={() => this.syncDeviceMetadataFromDataCite(device.id)}>
-                    Sync from DataCite
-                  </Button>
-                </Col>
+                {!this.deviceMetadataDoiExists() &&
+                  <Col smOffset={0} sm={12}>
+                    <Button className="pull-right" bsStyle="danger" onClick={() => this.syncDeviceMetadataFromDataCite(device.id)}>
+                      Sync from DataCite
+                    </Button>
+                  </Col>
+                }
                 {!this.deviceMetadataDoiExists() &&
                   <p class="text-center">Or create Metadata and sync to DataCite</p>
                 }
