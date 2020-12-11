@@ -230,7 +230,19 @@ export default class GroupsDevices extends React.Component {
   }
 
   syncDeviceMetadataToDataCite(deviceId) {
-    alert('TODO: Trigger sync to DataCite')
+    AdminFetcher.syncDeviceMetadataToDataCite({
+      device_id: deviceId
+    }).then((result) => {
+      if (result.error) {
+        alert(result.error);
+      } else {
+        if (result.device_metadata) {
+          this.setState({
+            deviceMetadata: result.device_metadata
+          })
+        }
+      }
+    });
   }
 
   saveDeviceMetadata(deviceId) {
