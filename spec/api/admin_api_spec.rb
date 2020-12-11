@@ -41,13 +41,55 @@ describe Chemotion::AdminAPI do
     end
   end
 
+  describe 'PUT /api/v1/admin/deviceMetadata/DEVICE_ID/sync_to_data_cite' do
+    let(:device) do
+      create(:device,
+        device_metadata:
+          create(:device_metadata,
+            data_cite_prefix: '10.80826', doi: '10.80826/DEVICE-3' ))
+    end
+
+    before do
+      device
+
+      stub_request(:get, 'https://api.test.datacite.org/dois/10.80826/DEVICE-3')
+        .to_return(status: 200,
+                   body: File.read(
+                     Rails.root.join('spec/fixtures/data_cite/get_doi_response.json')
+                   ),
+                   headers: { 'Content-Type' => 'application/json' })
+
+      stub_request(:put, 'https://api.test.datacite.org/dois/10.80826/DEVICE-3')
+        .to_return(status: 200,
+                   body: File.read(
+                     Rails.root.join('spec/fixtures/data_cite/update_doi_response.json')
+                   ),
+                   headers: { 'Content-Type' => 'application/json' })
+
+    end
+
+    it 'returns deviceMetadata' do
+
+      expect {
+        put "/api/v1/admin/deviceMetadata/#{device.id}/sync_to_data_cite"
+      }.to change(device.device_metadata, :data_cite_updated_at)
+
+      # byebug
+
+      # response
+      # device_metadata_attributes = JSON.parse(response.body)['device_metadata']
+
+      # expect(device_metadata_attributes['device_id']).to eql(device.id)
+    end
+  end
+
   describe 'POST /api/v1/admin/deviceMetadata' do
     let(:device) { create(:device) }
 
     let(:params) do
       {
         device_id: device.id,
-        doi: '10.12345/DEVICE-123',
+        doi: '10.12345/DEVICE-XXXXXXXXXXX',
         name: 'Metadata',
         type: 'Test-Type',
         description: 'Metadata for device',
@@ -68,7 +110,7 @@ describe Chemotion::AdminAPI do
         before do
           device
 
-          stub_request(:get, 'https://api.test.datacite.org/dois/10.12345/DEVICE-123')
+          stub_request(:get, 'https://api.test.datacite.org/dois/10.12345/DEVICE-XXXXXXXXXXX')
             .to_return(status: 404,
                        headers: { 'Content-Type' => 'application/json' })
 
@@ -102,7 +144,7 @@ describe Chemotion::AdminAPI do
       before do
         device
 
-        stub_request(:get, 'https://api.test.datacite.org/dois/10.12345/DEVICE-123')
+        stub_request(:get, 'https://api.test.datacite.org/dois/10.12345/DEVICE-XXXXXXXXXXX')
           .to_return(status: 404,
                      headers: { 'Content-Type' => 'application/json' })
 
