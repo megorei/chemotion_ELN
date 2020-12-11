@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Panel, Table, Button, FormGroup, ControlLabel, Form, Tooltip, ButtonGroup, FormControl, Popover, OverlayTrigger } from 'react-bootstrap';
+import { Modal, Panel, Table, Button, FormGroup, ControlLabel, Form, Tooltip, ButtonGroup, FormControl, Popover, OverlayTrigger, Col } from 'react-bootstrap';
 import Select from 'react-select';
 import { findIndex, filter } from 'lodash';
 import AdminFetcher from '../components/fetchers/AdminFetcher';
@@ -17,7 +17,9 @@ export default class GroupsDevices extends React.Component {
       actionType: 'Person', // Person Group Device Adm
       root: {},
       device: {},
-      deviceMetadata: {}
+      deviceMetadata: {
+        dates: []
+      }
     };
     this.handleSelectUser = this.handleSelectUser.bind(this);
     this.loadUserByNameType = this.loadUserByNameType.bind(this);
@@ -89,10 +91,11 @@ export default class GroupsDevices extends React.Component {
   handlefetchDeviceMetadataByDeviceId(deviceID) {
     AdminFetcher.fetchDeviceMetadataByDeviceId(deviceID)
       .then((result) => {
-        const deviceMetadata = result.device_metadata ? result.device_metadata : {};
-        this.setState({
-          deviceMetadata
-        });
+        if (result.device_metadata) {
+          this.setState({
+            deviceMetadata: result.device_metadata
+          });
+        }
       });
   }
 
@@ -130,6 +133,9 @@ export default class GroupsDevices extends React.Component {
     });
   }
 
+  deviceMetadataDoiExists() {
+    return this.state.deviceMetadata.doi
+  }
 
   handleShowCreateModal(rootType) {
     this.setState({
@@ -206,6 +212,21 @@ export default class GroupsDevices extends React.Component {
       });
   }
 
+  syncDeviceMetadataFromDataCite(deviceId) {
+    AdminFetcher.postDeviceMetadata({
+      doi: this.doi.value.trim(),
+      device_id: deviceId
+    }).then((result) => {
+      if (result.error) {
+        alert(result.error);
+      }
+    });
+  }
+
+  syncDeviceMetadataToDataCite(deviceId) {
+    alert('TODO: Trigger sync to DataCite')
+  }
+
   saveDeviceMetadata(deviceId) {
     // TODO: add Validations
     AdminFetcher.postDeviceMetadata({
@@ -213,15 +234,14 @@ export default class GroupsDevices extends React.Component {
       // t.string   "publisher"
       // t.jsonb    "manufacturers"
       // t.jsonb    "owners"
-      // t.jsonb    "dates"
 
       device_id: deviceId,
-      doi: this.doi.value.trim(),
       url: this.url.value.trim(),
       landing_page: this.landing_page.value.trim(),
       name: this.name.value.trim(),
       description: this.description.value.trim(),
-      publication_year: this.publication_year.value.trim()
+      publication_year: this.publication_year.value.trim(),
+      dates: this.state.deviceMetadata.dates
 
     }).then((result) => {
       if (result.error) {
@@ -230,6 +250,39 @@ export default class GroupsDevices extends React.Component {
         this.handleCloseDeviceMetadata();
       }
     });
+  }
+
+  addDeviceMetadataDate() {
+    this.setState(state => {
+      const newDateItem = {
+        date: this.dateDate.value.trim(),
+        dateType: this.dateDateType.value.trim()
+      }
+      const deviceMetadata = state.deviceMetadata
+      const currentDates = deviceMetadata.dates ? deviceMetadata.dates : []
+      const newDates = currentDates.concat(newDateItem)
+      deviceMetadata.dates = newDates
+
+      this.dateDate.value = ''
+      this.dateDateType.value = ''
+
+      return {
+        deviceMetadata
+      }
+    })
+  }
+
+  removeDeviceMetadataDate(index) {
+    this.setState(state => {
+      const deviceMetadata = state.deviceMetadata
+      const currentDates = deviceMetadata.dates ? deviceMetadata.dates : []
+      const newDates = currentDates.length > 1 ? currentDates.splice(index, 1) : []
+      deviceMetadata.dates = newDates
+
+      return {
+        deviceMetadata
+      }
+    })
   }
 
   confirmDelete(rootType, actionType, groupRec, userRec, isRoot = false) {
@@ -717,6 +770,9 @@ export default class GroupsDevices extends React.Component {
                 #  owners           :jsonb
                 #  dates            :jsonb
                 */}
+                {!this.deviceMetadataDoiExists() &&
+                  <p class="text-center">Get Metadata from DataCite</p>
+                }
                 <FormGroup controlId="metadataFormDOI">
                   <ControlLabel>DOI*</ControlLabel>&nbsp;&nbsp;
                   <FormControl
@@ -724,8 +780,17 @@ export default class GroupsDevices extends React.Component {
                     defaultValue={deviceMetadata.doi}
                     inputRef={(m) => { this.doi = m; }}
                     placeholder="10.*****/**********"
+                    disabled={this.deviceMetadataDoiExists()}
                   />
                 </FormGroup>
+                <Col smOffset={0} sm={12}>
+                  <Button className="pull-right" bsStyle="danger" onClick={() => this.syncDeviceMetadataFromDataCite(device.id)}>
+                    Sync from DataCite
+                  </Button>
+                </Col>
+                {!this.deviceMetadataDoiExists() &&
+                  <p class="text-center">Or create Metadata and sync to DataCite</p>
+                }
                 <FormGroup controlId="metadataFormURL">
                   <ControlLabel>URL*</ControlLabel>&nbsp;&nbsp;
                   <FormControl
@@ -771,13 +836,80 @@ export default class GroupsDevices extends React.Component {
                     placeholder="Description"
                   />
                 </FormGroup>
-                <Button bsSize="xsmall" bsStyle="success" onClick={() => this.saveDeviceMetadata(device.id)}>
-                  Save Device Metadata
-                </Button>
+
+                {deviceMetadata.dates && deviceMetadata.dates.map((dateItem, index) => (
+                  <div key={index}>
+                    <Col smOffset={0} sm={5}>
+                      <FormGroup>
+                        <ControlLabel>Date</ControlLabel>
+                        <FormControl
+                          type="text"
+                          defaultValue={dateItem.date}
+                          placeholder="Date e.g. '2020-01-01'"
+                        />
+                      </FormGroup>
+                    </Col>
+                    <Col smOffset={0} sm={5}>
+                      <FormGroup>
+                        <ControlLabel>DateType</ControlLabel>
+                        <FormControl
+                          type="text"
+                          defaultValue={dateItem.dateType}
+                          placeholder="DateType e.g. 'Created'"
+                        />
+                      </FormGroup>
+                    </Col>
+                    <Col smOffset={0} sm={2}>
+                      <ControlLabel>Action</ControlLabel>
+                      <Button bsStyle="danger" onClick={() => this.removeDeviceMetadataDate(index)}>
+                        X
+                      </Button>
+                    </Col>
+                  </div>
+                ))}
+
+                <Col smOffset={0} sm={6}>
+                  <FormGroup>
+                    <ControlLabel>Date</ControlLabel>
+                    <FormControl
+                      type="text"
+                      inputRef={(m) => { this.dateDate = m; }}
+                      placeholder="Date e.g. '2020-01-01'"
+                    />
+                  </FormGroup>
+                </Col>
+                <Col smOffset={0} sm={6}>
+                  <FormGroup>
+                    <ControlLabel>DateType</ControlLabel>
+                    <FormControl
+                      type="text"
+                      inputRef={(m) => { this.dateDateType = m; }}
+                      placeholder="DateType e.g. 'Created'"
+                    />
+                  </FormGroup>
+                </Col>
+                <Col smOffset={0} sm={12}>
+                  <Button bsStyle="success" onClick={() => this.addDeviceMetadataDate()}>
+                    Add date
+                  </Button>
+                </Col>
+
               </Form>
             </Panel.Body>
           </Panel>
         </Modal.Body>
+        <Modal.Footer>
+          <Col smOffset={0} sm={6}>
+            <Button className="pull-left" bsStyle="danger" onClick={() => this.syncDeviceMetadataToDataCite(device.id)}>
+              Sync to DataCite
+            </Button>
+          </Col>
+          <Col smOffset={0} sm={6}>
+            <Button className="pull-right" bsStyle="success" onClick={() => this.saveDeviceMetadata(device.id)}>
+              Save Device Metadata
+            </Button>
+          </Col>
+        </Modal.Footer>
       </Modal>
     );
   }
