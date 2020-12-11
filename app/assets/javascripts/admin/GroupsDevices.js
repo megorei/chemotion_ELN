@@ -917,6 +917,10 @@ export default class GroupsDevices extends React.Component {
                     Add date
                   </Button>
                 </Col>
+                <p>
+                  data_cite_version: {deviceMetadata.data_cite_version}<br />
+                  data_cite_updated_at: {deviceMetadata.data_cite_updated_at}<br />
+                </p>
 
               </Form>
             </Panel.Body>
