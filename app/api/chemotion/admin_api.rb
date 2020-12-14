@@ -95,8 +95,7 @@ module Chemotion
           new_record = metadata.new_record?
           metadata.update_attributes!(attributes)
           DataCite.find_and_create_at_chemotion!(metadata.device) if new_record
-          metadata = metadata.reload
-          present metadata, with: Entities::DeviceMetadataEntity, root: 'device_metadata'
+          present metadata.reload, with: Entities::DeviceMetadataEntity, root: 'device_metadata'
         rescue ActiveRecord::RecordInvalid => e
           { error: e.message }
         end
