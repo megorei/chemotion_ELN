@@ -251,10 +251,9 @@ export default class GroupsDevices extends React.Component {
     AdminFetcher.postDeviceMetadata({
       // TODO: add more Attributes:
       // t.string   "publisher"
-      // t.jsonb    "manufacturers"
-      // t.jsonb    "owners"
 
       device_id: deviceId,
+      data_cite_state: this.state.deviceMetadata.data_cite_state,
       url: this.url.value.trim(),
       landing_page: this.landing_page.value.trim(),
       name: this.name.value.trim(),
@@ -312,6 +311,17 @@ export default class GroupsDevices extends React.Component {
     this.setState(state => {
       const deviceMetadata = state.deviceMetadata
       deviceMetadata.dates[index][fieldname] = value
+
+      return {
+        deviceMetadata
+      }
+    })
+  }
+
+  updateDeviceMetadataDataCiteState(value) {
+    this.setState(state => {
+      const deviceMetadata = state.deviceMetadata
+      deviceMetadata.data_cite_state = value
 
       return {
         deviceMetadata
@@ -824,8 +834,23 @@ export default class GroupsDevices extends React.Component {
                 {!this.deviceMetadataDoiExists() &&
                   <p class="text-center">Or create Metadata and sync to DataCite</p>
                 }
+
+                <FormGroup controlId="metadataFormState">
+                  <ControlLabel>State*</ControlLabel>
+                  <FormControl
+                    componentClass="select"
+                    value={deviceMetadata.data_cite_state}
+                    onChange={(event) => this.updateDeviceMetadataDataCiteState(event.target.value)}
+                    inputRef={(m) => { this.dataCiteState = m; }}
+                  >
+                    <option value="draft">Draft</option>
+                    <option value="registered">Registered</option>
+                    <option value="findable">Findable</option>
+                  </FormControl>
+                </FormGroup>
+
                 <FormGroup controlId="metadataFormURL">
-                  <ControlLabel>URL*</ControlLabel>&nbsp;&nbsp;
+                  <ControlLabel>URL*</ControlLabel>
                   <FormControl
                     type="text"
                     defaultValue={deviceMetadata.url}
@@ -833,8 +858,9 @@ export default class GroupsDevices extends React.Component {
                     placeholder="https://<device.url>"
                   />
                 </FormGroup>
+
                 <FormGroup controlId="metadataFormLandingPage">
-                  <ControlLabel>Landing Page*</ControlLabel>&nbsp;&nbsp;
+                  <ControlLabel>Landing Page*</ControlLabel>
                   <FormControl
                     type="text"
                     defaultValue={deviceMetadata.landing_page}
@@ -852,7 +878,7 @@ export default class GroupsDevices extends React.Component {
                   />
                 </FormGroup>
                 <FormGroup controlId="metadataFormPublicationYear">
-                  <ControlLabel>Publication Year*</ControlLabel>&nbsp;&nbsp;
+                  <ControlLabel>Publication Year*</ControlLabel>
                   <FormControl
                     type="number"
                     defaultValue={deviceMetadata.publication_year}
@@ -861,7 +887,7 @@ export default class GroupsDevices extends React.Component {
                   />
                 </FormGroup>
                 <FormGroup controlId="metadataFormDescription">
-                  <ControlLabel>Description</ControlLabel>&nbsp;&nbsp;
+                  <ControlLabel>Description</ControlLabel>
                   <FormControl
                     type="text"
                     defaultValue={deviceMetadata.description}
