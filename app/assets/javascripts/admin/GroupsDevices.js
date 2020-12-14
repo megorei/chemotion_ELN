@@ -225,6 +225,7 @@ export default class GroupsDevices extends React.Component {
           this.setState({
             deviceMetadata: result.device_metadata
           })
+          this.doi.value = result.device_metadata.doi
         }
       }
     });
