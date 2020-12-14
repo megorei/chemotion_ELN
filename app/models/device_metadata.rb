@@ -24,6 +24,8 @@
 #  data_cite_updated_at    :datetime
 #  data_cite_version       :integer
 #  data_cite_last_response :jsonb
+#  data_cite_state         :string
+#  data_cite_creator_name  :string
 #
 # Indexes
 #

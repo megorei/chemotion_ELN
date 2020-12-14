@@ -39,14 +39,22 @@ module DataCite
                 title: tune(@chemotion_metadata.name)
               }
             ],
-            publisher: tune(@chemotion_metadata.publisher),
+            publisher: tune(@chemotion_metadata.publisher) | "lllll",
             descriptions: [
               { description: tune(@chemotion_metadata.description) }
             ],
             publicationYear: tune(@chemotion_metadata.publication_year),
             url: tune(@chemotion_metadata.url),
             landingPage: { url: tune(@chemotion_metadata.landing_page) },
-            dates: (@chemotion_metadata.dates || [])
+            dates: (@chemotion_metadata.dates || []),
+            event: "publish",
+            resourceTypeGeneral: 'PhysicalObject',
+            creators: [
+              {
+                creatorName: 'KIT',
+                nameType: 'Organizational'
+              }
+            ]
           }
         }
       }

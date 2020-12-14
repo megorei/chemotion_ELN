@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20201209222212) do
+ActiveRecord::Schema.define(version: 20201214090807) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -267,6 +267,8 @@ ActiveRecord::Schema.define(version: 20201209222212) do
     t.datetime "data_cite_updated_at"
     t.integer  "data_cite_version"
     t.jsonb    "data_cite_last_response", default: {}
+    t.string   "data_cite_state"
+    t.string   "data_cite_creator_name"
   end
 
   add_index "device_metadata", ["deleted_at"], name: "index_device_metadata_on_deleted_at", using: :btree

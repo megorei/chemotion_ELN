@@ -37,6 +37,10 @@ module DataCite
     def handle_response
       response = yield
 
+      pp "-------------------------------"
+      ap response.parsed_response
+      pp "-------------------------------"
+
       raise NotFoundError if response.code == 404
       raise UnprocessableEntity, prepare_error(response) if response.code == 422
 
@@ -44,7 +48,7 @@ module DataCite
     end
 
     def prepare_error(response)
-      response.parsed_response['errors'].map { |x| x['title'] }.join(', ')
+      response.parsed_response['errors'].map { |e| "#{e['source']} : #{e['title']}" }.join(', ')
     end
 
     def options

@@ -16,6 +16,7 @@ module Entities
     expose :dates, documentation: { desc: 'device dates' }
 
     expose :data_cite_prefix, documentation: { type: 'String', desc: 'DataCite prefix' }
+    expose :data_cite_state, documentation: { type: 'String', desc: 'DataCite state' }
     expose :data_cite_created_at, documentation: { type: 'DateTime', desc: 'created_at DataCite ' }
     expose :data_cite_updated_at, documentation: { type: 'DateTime', desc: 'updated_at DataCite' }
     expose :data_cite_version, documentation: { type: 'Integer', desc: 'version at DataCite' }
