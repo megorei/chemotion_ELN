@@ -115,8 +115,3 @@ module DataCite
     end
   end
 end
-
-# t.string   "name"
-# t.string   "type"
-# t.jsonb    "manufacturers"
-# t.jsonb    "owners"
