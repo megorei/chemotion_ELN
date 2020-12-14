@@ -1,6 +1,7 @@
 import React from 'react';
-import { Modal, Panel, Table, Button, FormGroup, ControlLabel, Form, Tooltip, ButtonGroup, FormControl, Popover, OverlayTrigger, Col } from 'react-bootstrap';
+import { Modal, Panel, Table, Button, FormGroup, ControlLabel, Form, Tooltip, ButtonGroup, FormControl, Popover, OverlayTrigger, Col, Row } from 'react-bootstrap';
 import Select from 'react-select';
+import moment from 'moment';
 import { findIndex, filter } from 'lodash';
 import AdminFetcher from '../components/fetchers/AdminFetcher';
 
@@ -300,6 +301,17 @@ export default class GroupsDevices extends React.Component {
       const currentDates = deviceMetadata.dates ? deviceMetadata.dates : []
       const newDates = currentDates.length > 1 ? currentDates.splice(index, 1) : []
       deviceMetadata.dates = newDates
+
+      return {
+        deviceMetadata
+      }
+    })
+  }
+
+  updateDeviceMetadataDate(index, fieldname, value) {
+    this.setState(state => {
+      const deviceMetadata = state.deviceMetadata
+      deviceMetadata.dates[index][fieldname] = value
 
       return {
         deviceMetadata
@@ -788,9 +800,6 @@ export default class GroupsDevices extends React.Component {
                 #  TODO: add fields for:
                 #  type             :string <- maybe just hardcode to 'device'
                 #  publisher        :string <- from global variable 'organization.yaml'
-                #  manufacturers    :jsonb
-                #  owners           :jsonb
-                #  dates            :jsonb
                 */}
                 {!this.deviceMetadataDoiExists() &&
                   <p class="text-center">Get Metadata from DataCite</p>
@@ -870,6 +879,7 @@ export default class GroupsDevices extends React.Component {
                           type="text"
                           defaultValue={dateItem.date}
                           placeholder="Date e.g. '2020-01-01'"
+                          onChange={(event) => this.updateDeviceMetadataDate(index, 'date', event.target.value)}
                         />
                       </FormGroup>
                     </Col>
@@ -880,6 +890,7 @@ export default class GroupsDevices extends React.Component {
                           type="text"
                           defaultValue={dateItem.dateType}
                           placeholder="DateType e.g. 'Created'"
+                          onChange={(event) => this.updateDeviceMetadataDate(index, 'dateType', event.target.value)}
                         />
                       </FormGroup>
                     </Col>
@@ -892,36 +903,43 @@ export default class GroupsDevices extends React.Component {
                   </div>
                 ))}
 
-                <Col smOffset={0} sm={6}>
-                  <FormGroup>
-                    <ControlLabel>Date</ControlLabel>
-                    <FormControl
-                      type="text"
-                      inputRef={(m) => { this.dateDate = m; }}
-                      placeholder="Date e.g. '2020-01-01'"
-                    />
-                  </FormGroup>
-                </Col>
-                <Col smOffset={0} sm={6}>
-                  <FormGroup>
-                    <ControlLabel>DateType</ControlLabel>
-                    <FormControl
-                      type="text"
-                      inputRef={(m) => { this.dateDateType = m; }}
-                      placeholder="DateType e.g. 'Created'"
-                    />
-                  </FormGroup>
-                </Col>
-                <Col smOffset={0} sm={12}>
-                  <Button bsStyle="success" onClick={() => this.addDeviceMetadataDate()}>
-                    Add date
-                  </Button>
-                </Col>
-                <p>
-                  data_cite_version: {deviceMetadata.data_cite_version}<br />
-                  data_cite_updated_at: {deviceMetadata.data_cite_updated_at}<br />
-                </p>
-
+                <Row>
+                  <Col smOffset={0} sm={6}>
+                    <FormGroup>
+                      <ControlLabel>Date</ControlLabel>
+                      <FormControl
+                        type="text"
+                        inputRef={(m) => { this.dateDate = m; }}
+                        placeholder="Date e.g. '2020-01-01'"
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col smOffset={0} sm={6}>
+                    <FormGroup>
+                      <ControlLabel>DateType</ControlLabel>
+                      <FormControl
+                        type="text"
+                        inputRef={(m) => { this.dateDateType = m; }}
+                        placeholder="DateType e.g. 'Created'"
+                      />
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col smOffset={0} sm={12}>
+                    <Button bsStyle="success" onClick={() => this.addDeviceMetadataDate()}>
+                      Add date
+                    </Button>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col smOffset={0} sm={12}>
+                    <p class="text-right">
+                      DataCiteVersion: {deviceMetadata.data_cite_version}<br />
+                      DataCiteUpdatedAt: {moment(deviceMetadata.data_cite_updated_at).format('YYYY-MM-DD H:m')}<br />
+                    </p>
+                  </Col>
+                </Row>
               </Form>
             </Panel.Body>
           </Panel>
