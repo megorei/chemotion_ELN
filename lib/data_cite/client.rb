@@ -2,8 +2,9 @@
 
 module DataCite
   class Client
+    DATA_CITE_BASE_URI = ENV['DATA_CITE_BASE_URI']
     include HTTParty
-    base_uri 'https://api.test.datacite.org'
+    base_uri DATA_CITE_BASE_URI
     format :json
 
     class NotFoundError < StandardError; end

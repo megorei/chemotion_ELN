@@ -44,18 +44,17 @@ class DeviceMetadata < ActiveRecord::Base
   validates :doi, uniqueness: true, if: -> { doi.present? }
   validates :doi_sequence, uniqueness: true, if: -> { doi_sequence.present? }
 
-  validates :url, presence: true, if: -> { data_cite_state.in?(['registered', 'findable']) }
-  validates :publication_year, presence: true, if: -> { data_cite_state.in?(['registered', 'findable']) }
-
+  validates :url, presence: true, if: -> { data_cite_state.in?(%w[registered findable]) }
+  validates :publication_year, presence: true, if: -> { data_cite_state.in?(%w[registered findable]) }
 
   ALLOWED_DATACITE_STATE_TRANSITIONS = {
-    'draft' => ['draft', 'registered'],
-    'registered' => ['registered', 'findable'],
-    'findable' => ['findable']
-  }
+    'draft' => %w[draft registered],
+    'registered' => %w[registered findable],
+    'findable' => %w[findable]
+  }.freeze
 
   def data_cite_state=(new_state)
-    return unless ALLOWED_DATACITE_STATE_TRANSITIONS[data_cite_state].include?(new_state)
+    return unless ALLOWED_DATACITE_STATE_TRANSITIONS.fetch(data_cite_state, []).include?(new_state)
 
     super(new_state)
   end

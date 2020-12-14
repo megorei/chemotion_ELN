@@ -66,6 +66,8 @@ module Chemotion
             present device.device_metadata, with: Entities::DeviceMetadataEntity, root: 'device_metadata'
           rescue DataCite::Client::UnprocessableEntity => e
             present(error: "Error from DataCite: #{e.message}")
+          rescue DataCite::Syncer::UnwriteableDoiPrefixError => e
+            present(error: "DOI #{device.device_metadata.doi} is not writeable at DataCite (system prefix: #{ENV['DATA_CITE_PREFIX']})")
           end
         end
 
