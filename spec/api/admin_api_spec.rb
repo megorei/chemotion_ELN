@@ -124,13 +124,13 @@ describe Chemotion::AdminAPI do
       let(:update_params) do
         {
           device_id: device.id,
-          owners: [{
-            owner: {
+          owners: [
+            {
               ownerName: Faker::Company.name,
               ownerContact: Faker::Internet.email,
               ownerIdentifier: { id: 'test-id-2' }
             }
-          }]
+          ]
         }
       end
 
