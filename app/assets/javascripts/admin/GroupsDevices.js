@@ -962,7 +962,7 @@ export default class GroupsDevices extends React.Component {
                   <Col smOffset={0} sm={12}>
                     <p class="text-right">
                       DataCiteVersion: {deviceMetadata.data_cite_version}<br />
-                      DataCiteUpdatedAt: {moment(deviceMetadata.data_cite_updated_at).format('YYYY-MM-DD H:m')}<br />
+                      DataCiteUpdatedAt: {moment(deviceMetadata.data_cite_updated_at).format('YYYY-MM-DD HH:mm')}<br />
                     </p>
                   </Col>
                 </Row>
