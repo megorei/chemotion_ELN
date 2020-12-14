@@ -3,6 +3,8 @@
 module DataCite
   class Converter
     attr_reader :data_cite_device, :chemotion_metadata
+    DATA_CITE_DEVICE_PUBLISHER = ENV['DATA_CITE_DEVICE_PUBLISHER']
+    DATA_CITE_DEVICE_CREATOR = ENV['DATA_CITE_DEVICE_CREATOR']
 
     def initialize(chemotion_metadata)
       @chemotion_metadata = chemotion_metadata
@@ -39,7 +41,7 @@ module DataCite
                 title: tune(@chemotion_metadata.name)
               }
             ],
-            publisher: tune(@chemotion_metadata.publisher) || 'PUBLISHER FROM ENV',
+            publisher: DATA_CITE_DEVICE_PUBLISHER,
             descriptions: [
               { description: tune(@chemotion_metadata.description) }
             ],
@@ -53,10 +55,7 @@ module DataCite
             },
             creators: [
               {
-                nameType: 'Personal',
-                creatorName: 'LastName, FirstName',
-                familyName: 'LastName',
-                givenName: 'FirstName',
+                name: DATA_CITE_DEVICE_CREATOR
               }
             ],
             subjects: [

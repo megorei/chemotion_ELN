@@ -81,6 +81,7 @@ module Chemotion
           optional :description, type: String, desc: 'device description'
           optional :publisher, type: String, desc: 'device publisher'
           optional :publication_year, type: Integer, desc: 'device publication year'
+          optional :data_cite_state, type: String, desc: 'state'
 
           optional :owners, desc: 'device owners'
           optional :manufacturers, desc: 'device manufacturers'
@@ -92,7 +93,8 @@ module Chemotion
           new_record = metadata.new_record?
           metadata.update_attributes!(attributes)
           DataCite.find_and_create_at_chemotion!(metadata.device) if new_record
-          present metadata.reload, with: Entities::DeviceMetadataEntity, root: 'device_metadata'
+          metadata = metadata.reload
+          present metadata, with: Entities::DeviceMetadataEntity, root: 'device_metadata'
         rescue ActiveRecord::RecordInvalid => e
           { error: e.message }
         end
