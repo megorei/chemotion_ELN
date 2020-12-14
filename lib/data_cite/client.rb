@@ -37,9 +37,7 @@ module DataCite
     def handle_response
       response = yield
 
-      pp "-------------------------------"
-      ap response.parsed_response
-      pp "-------------------------------"
+      ap response.parsed_response if Rails.env.development?
 
       raise NotFoundError if response.code == 404
       raise UnprocessableEntity, prepare_error(response) if response.code == 422

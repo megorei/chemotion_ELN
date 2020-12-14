@@ -29,6 +29,10 @@ module DataCite
       attributes&.fetch('suffix', nil)
     end
 
+    def state
+      attributes&.fetch('state', nil)
+    end
+
     def title
       attributes&.fetch('titles', []).first&.fetch('title', nil)
     end

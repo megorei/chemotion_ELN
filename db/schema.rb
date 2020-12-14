@@ -258,8 +258,8 @@ ActiveRecord::Schema.define(version: 20201214090807) do
     t.jsonb    "manufacturers"
     t.jsonb    "owners"
     t.jsonb    "dates"
-    t.datetime "created_at",                           null: false
-    t.datetime "updated_at",                           null: false
+    t.datetime "created_at",                                null: false
+    t.datetime "updated_at",                                null: false
     t.datetime "deleted_at"
     t.integer  "doi_sequence"
     t.string   "data_cite_prefix"
@@ -267,7 +267,7 @@ ActiveRecord::Schema.define(version: 20201214090807) do
     t.datetime "data_cite_updated_at"
     t.integer  "data_cite_version"
     t.jsonb    "data_cite_last_response", default: {}
-    t.string   "data_cite_state"
+    t.string   "data_cite_state",         default: "draft"
     t.string   "data_cite_creator_name"
   end
 

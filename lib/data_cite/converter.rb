@@ -39,7 +39,7 @@ module DataCite
                 title: tune(@chemotion_metadata.name)
               }
             ],
-            publisher: tune(@chemotion_metadata.publisher) | "lllll",
+            publisher: tune(@chemotion_metadata.publisher) || 'PUBLISHER FROM ENV',
             descriptions: [
               { description: tune(@chemotion_metadata.description) }
             ],
@@ -47,17 +47,42 @@ module DataCite
             url: tune(@chemotion_metadata.url),
             landingPage: { url: tune(@chemotion_metadata.landing_page) },
             dates: (@chemotion_metadata.dates || []),
-            event: "publish",
-            resourceTypeGeneral: 'PhysicalObject',
+            types: {
+              resourceType: 'Service',
+              resourceTypeGeneral: 'Service'
+            },
             creators: [
               {
-                creatorName: 'KIT',
-                nameType: 'Organizational'
+                nameType: 'Personal',
+                creatorName: 'LastName, FirstName',
+                familyName: 'LastName',
+                givenName: 'FirstName',
               }
-            ]
-          }
+            ],
+            subjects: [
+              { subject: 'Chemistry' }
+            ],
+            language: 'en',
+            geoLocations: [],
+            rightsList: [],
+            alternateIdentifiers: [],
+            contributors: []
+          }.merge(event_data_for_data_cite)
         }
       }
+    end
+
+    def event_data_for_data_cite
+      case @chemotion_metadata.data_cite_state
+      when 'draft'
+        {}
+      when 'registered'
+        { event: 'register' }
+      when 'findable'
+        { event: 'publish' }
+      else
+        {}
+      end
     end
 
     def to_chemotion_for_create
@@ -70,7 +95,7 @@ module DataCite
         publication_year: @data_cite_device.publication_year,
         url: @data_cite_device.url,
         landing_page: @data_cite_device.landing_page_url,
-        dates: @data_cite_device.dates
+        dates: @data_cite_device.dates,
       }.merge(to_chemotion_for_update)
     end
 
@@ -79,7 +104,8 @@ module DataCite
         data_cite_last_response: @data_cite_device.raw_response,
         data_cite_created_at: @data_cite_device.created,
         data_cite_updated_at: @data_cite_device.updated,
-        data_cite_version: @data_cite_device.metadata_version
+        data_cite_version: @data_cite_device.metadata_version,
+        data_cite_state: @data_cite_device.state
       }
     end
 
