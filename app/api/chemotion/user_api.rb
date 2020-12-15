@@ -104,6 +104,14 @@ module Chemotion
         end
       end
 
+      namespace :qrycurrentdevices do
+        desc 'fetch devices of current user'
+        get do
+          data = [current_user.devices + current_user.groups.map(&:devices)].flatten.uniq
+          present data, with: Entities::DeviceEntity, root: 'currentDevices'
+        end
+      end
+
       namespace :upd do
         desc 'update a group of persons'
         params do

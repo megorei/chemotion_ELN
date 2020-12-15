@@ -22,6 +22,7 @@ export default class UserAuth extends Component {
       showModal: false,
       showLabelModal: false,
       currentGroups: [],
+      currentDevices: [],
       selectedUsers: null,
       showSubscription: false,
       currentSubscriptions: [],
@@ -96,6 +97,12 @@ export default class UserAuth extends Component {
           currentGroups: result.currentGroups,
           showModal: true,
           selectedUsers: null
+        });
+      });
+    UsersFetcher.fetchCurrentDevices()
+      .then((result) => {
+        this.setState({
+          currentDevices: result.currentDevices
         });
       });
   }
@@ -370,18 +377,19 @@ export default class UserAuth extends Component {
 
   // render modal
   renderModal() {
-    const { showModal, currentGroups } = this.state;
+    const { showModal, currentGroups, currentDevices } = this.state;
 
     const modalStyle = {
       overflowY: 'auto',
     };
 
-    let tbody = '';
+    let tBodyGroups = '';
+    let tBodyDevices = '';
 
     if (Object.keys(currentGroups).length <= 0) {
-      tbody = '';
+      tBodyGroups = '';
     } else {
-      tbody = currentGroups ? currentGroups.map(g => (
+      tBodyGroups = currentGroups ? currentGroups.map(g => (
         <tbody key={`tbody_${g.id}`}>
           <tr key={`row_${g.id}`} id={`row_${g.id}`} style={{ fontWeight: 'bold' }}>
             <td>{g.name}</td>
@@ -413,6 +421,41 @@ export default class UserAuth extends Component {
       )) : '';
     }
 
+    if (Object.keys(currentDevices).length <= 0) {
+      tBodyDevices = '';
+    } else {
+      tBodyDevices = currentDevices ? currentDevices.map(g => (
+        <tbody key={`tbody_${g.id}`}>
+          <tr key={`row_${g.id}`} id={`row_${g.id}`} style={{ fontWeight: 'bold' }}>
+            <td>{g.name}</td>
+            <td>{g.initials}</td>
+            <td>
+              {g.admins && g.admins.length > 0 && g.admins[0].name}&nbsp;&nbsp;
+            </td>
+            {/* { this.renderAdminButtons(g) } */}
+          </tr>
+          {/* <tr className={`collapse div_row_${g.id}`} id={`div_row_${g.id}`}>
+            <td colSpan="4">
+              <Table>
+                <tbody>
+                  {g.users.map(u => (
+                    <tr key={`row_${g.id}_${u.id}`} id={`row_${g.id}_${u.id}`} style={{ backgroundColor: '#c4e3f3' }}>
+                      <td width="20%">{u.name}</td>
+                      <td width="10%">{u.initials}</td>
+                      <td width="20%">{ }</td>
+                      <td width="50%">
+                        { this.renderUserButtons(g, u) }
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </td>
+          </tr> */}
+        </tbody>
+      )) : '';
+    }
+
     return (
       <Modal
         show={showModal}
@@ -420,7 +463,7 @@ export default class UserAuth extends Component {
         onHide={this.handleClose}
       >
         <Modal.Header closeButton>
-          <Modal.Title>My Groups</Modal.Title>
+          <Modal.Title>My Groups & Devices</Modal.Title>
         </Modal.Header>
         <Modal.Body style={modalStyle}>
           <div>
@@ -477,7 +520,27 @@ export default class UserAuth extends Component {
                       <th width="50%">&nbsp;</th>
                     </tr>
                   </thead>
-                  { tbody }
+                  { tBodyGroups }
+                </Table>
+              </Panel.Body>
+            </Panel>
+            <Panel bsStyle="info">
+              <Panel.Heading>
+                <Panel.Title>
+                  My Devices
+                </Panel.Title>
+              </Panel.Heading>
+              <Panel.Body>
+                <Table responsive condensed hover>
+                  <thead>
+                    <tr style={{ backgroundColor: '#ddd' }}>
+                      <th width="20%">Name</th>
+                      <th width="10%">Kürzel</th>
+                      <th width="20%">Admin by</th>
+                      <th width="50%">&nbsp;</th>
+                    </tr>
+                  </thead>
+                  { tBodyDevices }
                 </Table>
               </Panel.Body>
             </Panel>
@@ -549,7 +612,7 @@ export default class UserAuth extends Component {
             {this.state.currentUser.is_templates_moderator ? templatesLink : null}
             <MenuItem eventKey="3" href="/users/edit" >Change Password</MenuItem>
             <MenuItem eventKey="5" href="/pages/affiliations" >My Affiliations</MenuItem>
-            <MenuItem onClick={this.handleShow}>My Groups</MenuItem>
+            <MenuItem onClick={this.handleShow}>My Groups & Devices</MenuItem>
             {userLabel}
             {/* <MenuItem onClick={this.handleSubscriptionShow}>My Subscriptions</MenuItem>
                 Disable for now as there is no subsciption channel yet (Paggy) */}
@@ -570,5 +633,6 @@ export default class UserAuth extends Component {
 
 UserAuth.propTypes = {
   currentUser: PropTypes.object,
+  currentDevices: PropTypes.object,
   selectUsers: PropTypes.bool,
 }
