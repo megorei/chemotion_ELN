@@ -102,6 +102,16 @@ export default class UsersFetcher {
     return promise;
   }
 
+  static fetchDeviceMetadataByDeviceId(deviceId) {
+    const promise = fetch(`/api/v1/groups/deviceMetadata/${deviceId}`, {
+      credentials: 'same-origin'
+    }).then(response => response.json()).then(json => json).catch((errorMessage) => {
+      console.log(errorMessage);
+    });
+
+    return promise;
+  }
+
   static updateGroup(params = {}) {
     const promise = fetch(`/api/v1/groups/upd/${params.id}`, {
       credentials: 'same-origin',

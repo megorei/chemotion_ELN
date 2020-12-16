@@ -807,11 +807,6 @@ export default class GroupsDevices extends React.Component {
             </Panel.Heading>
             <Panel.Body>
               <Form>
-                {/*
-                #  TODO: add fields for:
-                #  type             :string <- maybe just hardcode to 'device'
-                #  publisher        :string <- from global variable 'organization.yaml'
-                */}
                 {!this.deviceMetadataDoiExists() &&
                   <p class="text-center">Get Metadata from DataCite</p>
                 }
