@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types'
 import 'whatwg-fetch';
-import { ButtonGroup, OverlayTrigger, Popover, Nav, NavDropdown, NavItem, MenuItem, Glyphicon, Modal, Button, Table, Panel, Form, FormControl, FormGroup, ControlLabel } from 'react-bootstrap';
+import { ButtonGroup, OverlayTrigger, Popover, Nav, NavDropdown, NavItem, MenuItem, Glyphicon, Modal, Button, Table, Panel, Form, FormControl, FormGroup, ControlLabel, Col, Row } from 'react-bootstrap';
+import moment from 'moment';
 import Select from 'react-select';
 import _ from 'lodash';
 
@@ -26,6 +27,11 @@ export default class UserAuth extends Component {
       selectedUsers: null,
       showSubscription: false,
       currentSubscriptions: [],
+      showDeviceMetadataModal: false,
+      device: {},
+      deviceMetadata: {
+        dates: []
+      }
     };
 
     this.onChange = this.onChange.bind(this);
@@ -35,6 +41,8 @@ export default class UserAuth extends Component {
     this.handleLabelClose = this.handleLabelClose.bind(this);
     this.handleSubscriptionShow = this.handleSubscriptionShow.bind(this);
     this.handleSubscriptionClose = this.handleSubscriptionClose.bind(this);
+    this.handleDeviceMetadataModalShow = this.handleDeviceMetadataModalShow.bind(this);
+    this.handleDeviceMetadataModalClose = this.handleDeviceMetadataModalClose.bind(this);
 
     this.promptTextCreator = this.promptTextCreator.bind(this);
     this.handleSelectUser = this.handleSelectUser.bind(this);
@@ -89,6 +97,16 @@ export default class UserAuth extends Component {
       });
   }
 
+  handlefetchDeviceMetadataByDeviceId(deviceID) {
+    UsersFetcher.fetchDeviceMetadataByDeviceId(deviceID)
+      .then((result) => {
+        if (result.device_metadata) {
+          this.setState({
+            deviceMetadata: result.device_metadata
+          });
+        }
+      });
+  }
   // show modal
   handleShow() {
     UsersFetcher.fetchCurrentGroup()
@@ -110,6 +128,22 @@ export default class UserAuth extends Component {
   // hide modal
   handleClose() {
     this.setState({ showModal: false, selectedUsers: null });
+  }
+
+  handleDeviceMetadataModalShow(device) {
+    this.setState({
+      showDeviceMetadataModal: true,
+      device
+    });
+    this.handlefetchDeviceMetadataByDeviceId(device.id);
+  }
+
+  handleDeviceMetadataModalClose() {
+    this.setState({
+      showDeviceMetadataModal: false,
+      device: {},
+      deviceMetadata: {}
+    });
   }
 
   handleLabelShow() {
@@ -375,6 +409,14 @@ export default class UserAuth extends Component {
     return (<div />);
   }
 
+  renderDeviceButtons(device) {
+    return (
+      <td>
+        <Button bsSize="xsmall" type="button" bsStyle="info" className="fa fa-laptop" onClick={() => this.handleDeviceMetadataModalShow(device)} />&nbsp;&nbsp;
+      </td>
+    );
+  }
+
   // render modal
   renderModal() {
     const { showModal, currentGroups, currentDevices } = this.state;
@@ -428,30 +470,9 @@ export default class UserAuth extends Component {
         <tbody key={`tbody_${g.id}`}>
           <tr key={`row_${g.id}`} id={`row_${g.id}`} style={{ fontWeight: 'bold' }}>
             <td>{g.name}</td>
-            <td>{g.initials}</td>
-            <td>
-              {g.admins && g.admins.length > 0 && g.admins[0].name}&nbsp;&nbsp;
-            </td>
-            {/* { this.renderAdminButtons(g) } */}
+            <td>{g.name_abbreviation}</td>
+            { this.renderDeviceButtons(g) }
           </tr>
-          {/* <tr className={`collapse div_row_${g.id}`} id={`div_row_${g.id}`}>
-            <td colSpan="4">
-              <Table>
-                <tbody>
-                  {g.users.map(u => (
-                    <tr key={`row_${g.id}_${u.id}`} id={`row_${g.id}_${u.id}`} style={{ backgroundColor: '#c4e3f3' }}>
-                      <td width="20%">{u.name}</td>
-                      <td width="10%">{u.initials}</td>
-                      <td width="20%">{ }</td>
-                      <td width="50%">
-                        { this.renderUserButtons(g, u) }
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </td>
-          </tr> */}
         </tbody>
       )) : '';
     }
@@ -534,9 +555,8 @@ export default class UserAuth extends Component {
                 <Table responsive condensed hover>
                   <thead>
                     <tr style={{ backgroundColor: '#ddd' }}>
-                      <th width="20%">Name</th>
+                      <th width="40%">Name</th>
                       <th width="10%">Kürzel</th>
-                      <th width="20%">Admin by</th>
                       <th width="50%">&nbsp;</th>
                     </tr>
                   </thead>
@@ -591,6 +611,126 @@ export default class UserAuth extends Component {
     return (<div />);
   }
 
+  renderDeviceMetadataModal() {
+    const { showDeviceMetadataModal, device, deviceMetadata } = this.state;
+    const title = 'Device Metadata';
+    return (
+      <Modal
+        show={showDeviceMetadataModal}
+        onHide={this.handleDeviceMetadataModalClose}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{device.name} Metadata</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Panel bsStyle="success">
+            <Panel.Heading>
+              <Panel.Title>
+                {title}
+              </Panel.Title>
+            </Panel.Heading>
+            <Panel.Body>
+              <Form>
+                <FormGroup controlId="metadataFormDOI">
+                  <ControlLabel>DOI</ControlLabel>&nbsp;&nbsp;
+                  <FormControl
+                    type="text"
+                    defaultValue={deviceMetadata.doi}
+                    readonly="true"
+                  />
+                </FormGroup>
+                <FormGroup controlId="metadataFormState">
+                  <ControlLabel>State</ControlLabel>
+                  <FormControl
+                    type="text"
+                    defaultValue={deviceMetadata.data_cite_state}
+                    readonly="true"
+                  />
+                </FormGroup>
+
+                <FormGroup controlId="metadataFormURL">
+                  <ControlLabel>URL</ControlLabel>
+                  <FormControl
+                    type="text"
+                    defaultValue={deviceMetadata.url}
+                    readonly="true"
+                  />
+                </FormGroup>
+
+                <FormGroup controlId="metadataFormLandingPage">
+                  <ControlLabel>Landing Page</ControlLabel>
+                  <FormControl
+                    type="text"
+                    defaultValue={deviceMetadata.landing_page}
+                    readonly="true"
+                  />
+                </FormGroup>
+                <FormGroup controlId="metadataFormName">
+                  <ControlLabel>Name</ControlLabel>&nbsp;&nbsp;
+                  <FormControl
+                    type="text"
+                    defaultValue={deviceMetadata.name}
+                    readonly="true"
+                  />
+                </FormGroup>
+                <FormGroup controlId="metadataFormPublicationYear">
+                  <ControlLabel>Publication Year</ControlLabel>
+                  <FormControl
+                    type="number"
+                    defaultValue={deviceMetadata.publication_year}
+                    readonly="true"
+                  />
+                </FormGroup>
+                <FormGroup controlId="metadataFormDescription">
+                  <ControlLabel>Description</ControlLabel>
+                  <FormControl
+                    type="text"
+                    defaultValue={deviceMetadata.description}
+                    readonly="true"
+                  />
+                </FormGroup>
+
+                {deviceMetadata.dates && deviceMetadata.dates.map((dateItem, index) => (
+                  <div key={index}>
+                    <Col smOffset={0} sm={6}>
+                      <FormGroup>
+                        <ControlLabel>Date</ControlLabel>
+                        <FormControl
+                          type="text"
+                          defaultValue={dateItem.date}
+                          readonly="true"
+                          />
+                      </FormGroup>
+                    </Col>
+                    <Col smOffset={0} sm={6}>
+                      <FormGroup>
+                        <ControlLabel>DateType</ControlLabel>
+                        <FormControl
+                          type="text"
+                          defaultValue={dateItem.dateType}
+                          readonly="true"
+                        />
+                      </FormGroup>
+                    </Col>
+                  </div>
+                ))}
+
+                <Row>
+                  <Col smOffset={0} sm={12}>
+                    <p class="text-right">
+                      DataCiteVersion: {deviceMetadata.data_cite_version}<br />
+                      DataCiteUpdatedAt: {moment(deviceMetadata.data_cite_updated_at).format('YYYY-MM-DD HH:mm')}<br />
+                    </p>
+                  </Col>
+                </Row>
+              </Form>
+            </Panel.Body>
+          </Panel>
+        </Modal.Body>
+      </Modal>
+    );
+  }
+
   render() {
     const templatesLink = (
       <MenuItem eventKey="2" href="/ketcher/common_templates">Template Management</MenuItem>
@@ -626,6 +766,7 @@ export default class UserAuth extends Component {
         { this.renderModal() }
         <UserLabelModal showLabelModal={this.state.showLabelModal} onHide={() => this.handleLabelClose()} />
         { this.renderSubscribeModal() }
+        { this.renderDeviceMetadataModal() }
       </div>
     );
   }
