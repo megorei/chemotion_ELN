@@ -774,6 +774,5 @@ export default class UserAuth extends Component {
 
 UserAuth.propTypes = {
   currentUser: PropTypes.object,
-  currentDevices: PropTypes.object,
   selectUsers: PropTypes.bool,
 }
