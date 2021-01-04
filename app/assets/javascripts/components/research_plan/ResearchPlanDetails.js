@@ -7,6 +7,7 @@ import ElementActions from '../actions/ElementActions';
 import DetailActions from '../actions/DetailActions';
 import ResearchPlansFetcher from '../fetchers/ResearchPlansFetcher';
 import ResearchPlansLiteratures from '../DetailsTabLiteratures';
+import ResearchPlansMetadata from '../DetailsTabMetadata';
 import Attachment from '../models/Attachment';
 import Utils from '../utils/Functions';
 import LoadingActions from '../actions/LoadingActions';
@@ -346,6 +347,12 @@ export default class ResearchPlanDetails extends Component {
           </Tab>
           <Tab eventKey={3} title="Literature">
             <ResearchPlansLiteratures element={researchPlan} />
+          </Tab>
+          <Tab eventKey={4} title="Metadata">
+            <ResearchPlansMetadata
+              researchPlan={researchPlan}
+              researchPlanMetadata={researchPlan.research_plan_metadata}
+            />
           </Tab>
         </Tabs>
         <ButtonToolbar>
