@@ -1,0 +1,66 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+describe Chemotion::ResearchPlanMetadataAPI do
+  context 'authorized user logged in' do
+    let(:user) { create(:person) }
+
+    before do
+      allow_any_instance_of(WardenAuthentication).to receive(:current_user).and_return(user)
+    end
+
+    describe 'GET /api/v1/research_plan_metadata/:id' do
+      context 'with appropriate permissions' do
+        let!(:c) { create(:collection, user_id: user.id) }
+        let(:research_plan) { create(:research_plan) }
+        let(:research_plan_metadata) { create(:research_plan_metadata) }
+
+        before do
+          research_plan.research_plan_metadata = research_plan_metadata
+          research_plan.save
+
+          get "/api/v1/research_plan_metadata/#{research_plan.id}"
+        end
+
+        it 'returns 200 status code' do
+          expect(response.status).to eq 200
+        end
+
+        it 'returns serialized research_plan_metadata' do
+          expect(JSON.parse(response.body)['research_plan_metadata']['name']).to eq research_plan_metadata.name
+        end
+      end
+    end
+
+    describe 'POST /api/v1/research_plan_metadata' do
+      let(:research_plan) { create(:research_plan) }
+
+      let(:params) do
+        {
+          research_plan_id: research_plan.id,
+          doi: '10.12345/RESEARCH-PLAN-XXXXXXXXXXX',
+          name: 'Metadata',
+          type: 'Test-Type',
+          description: 'Metadata for research plan',
+          publisher: 'Chemotion',
+          publication_year: Time.current.year,
+        }
+      end
+
+      describe 'when updating research plan metadata' do
+        context 'without existing DOI at DataCite' do
+          before do
+            research_plan
+
+            post '/api/v1/research_plan_metadata', params
+          end
+
+          it 'Creates research plan metadata' do
+            expect(research_plan.research_plan_metadata).to have_attributes(params.deep_stringify_keys)
+          end
+        end
+      end
+    end
+  end
+end
