@@ -11,18 +11,8 @@ import {
   Col
 } from 'react-bootstrap';
 import uuid from 'uuid';
-import Immutable from 'immutable';
-import moment from 'moment';
-import Cite from 'citation-js';
-import {
-  doiValid,
-  sanitizeDoi
-} from './LiteratureCommon';
-import Sample from './models/Sample';
-import Reaction from './models/Reaction';
-import ResearchPlan from './models/ResearchPlan';
+import ResearchPlansFetcher from './fetchers/ResearchPlansFetcher';
 import NotificationActions from './actions/NotificationActions';
-import LoadingActions from './actions/LoadingActions';
 
 require('@citation-js/plugin-isbn');
 
@@ -51,71 +41,83 @@ export default class ResearchPlansMetadata extends Component {
     const { researchPlan, researchPlanMetadata } = props;
     this.state = {
       researchPlan,
-      researchPlanMetadata
-    };
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.fetchDOIMetadata = this.fetchDOIMetadata.bind(this);
-    this.fetchMetadata = this.fetchMetadata.bind(this);
-  }
-
-  // componentDidMount() {
-  //   if (this.props.researchPlan && this.props.researchPlan.size > 0) {
-  //     this.setState(prevState => ({
-  //     //   ...prevState,
-  //       researchPlan: this.props.researchPlan,
-  //       researchPlanMetadata: this.props.researchPlan.research_plan_metadata
-  //     }));
-  //   }
-  // }
-
-  handleInputChange(type, event) {
-    const { literature } = this.state;
-    const { value } = event.target;
-    literature[type] = value.trim();
-    // this.setState(prevState => ({ ...prevState, literature }));
-  }
-
-  fetchMetadata() {
-    const { element } = this.props;
-    if (!checkElementStatus(element)) {
-      return;
-    }
-    const { doi_isbn } = this.state.literature;
-    if (doiValid(doi_isbn)) {
-      this.fetchDOIMetadata(doi_isbn);
-    } else {
-      this.fetchISBNMetadata(doi_isbn);
-    }
-  }
-
-  fetchDOIMetadata(doi) {
-    NotificationActions.removeByUid('literature');
-    LoadingActions.start();
-    Cite.inputAsync(sanitizeDoi(doi)).then((json) => {
-      LoadingActions.stop();
-      if (json[0]) {
-        const citation = new Cite(json[0]);
-        const { title, year } = json[0];
-        // this.setState(prevState => ({
-        //   ...prevState,
-        //   literature: {
-        //     ...prevState.literature,
-        //     doi,
-        //     title,
-        //     year,
-        //     refs: {
-        //       citation,
-        //       bibtex: citation.format('bibtex')
-        //     }
-        //   }
-        // }));
-        this.handleLiteratureAdd(this.state.literature);
+      researchPlanMetadata: {
+        doi: '',
+        url: '',
+        dates: []
       }
-    }).catch((errorMessage) => {
-      LoadingActions.stop();
-      NotificationActions.add(notification(`unable to fetch metadata for this doi: ${doi}`));
+    };
+  }
+
+  saveResearchPlanMetadata(researchPlanId) {
+    ResearchPlansFetcher.postResearchPlanMetadata({
+
+      research_plan_id: researchPlanId,
+      data_cite_state: this.state.researchPlanMetadata.data_cite_state,
+      url: this.url.value.trim(),
+      landing_page: this.landing_page.value.trim(),
+      name: this.name.value.trim(),
+      description: this.description.value.trim(),
+      publication_year: this.publication_year.value.trim(),
+      dates: this.state.researchPlanMetadata.dates
+
+    }).then((result) => {
+      if (result.error) {
+        alert(result.error);
+      } else {
+        if (result.research_plan_metadata) {
+          this.setState({
+            researchPlanMetadata: result.research_plan_metadata
+          })
+        }
+      }
     });
   }
+
+  addResearchPlanMetadataDate() {
+    this.setState(state => {
+      const newDateItem = {
+        date: this.dateDate.value.trim(),
+        dateType: this.dateDateType.value.trim()
+      }
+      const researchPlanMetadata = state.researchPlanMetadata
+      const currentDates = researchPlanMetadata.dates ? researchPlanMetadata.dates : []
+      const newDates = currentDates.concat(newDateItem)
+      researchPlanMetadata.dates = newDates
+
+      this.dateDate.value = ''
+      this.dateDateType.value = ''
+
+      return {
+        researchPlanMetadata
+      }
+    })
+  }
+
+  removeResearchPlanMetadataDate(index) {
+    this.setState(state => {
+      const researchPlanMetadata = state.researchPlanMetadata
+      const currentDates = researchPlanMetadata.dates ? researchPlanMetadata.dates : []
+      const newDates = currentDates.length > 1 ? currentDates.splice(index, 1) : []
+      researchPlanMetadata.dates = newDates
+
+      return {
+        researchPlanMetadata
+      }
+    })
+  }
+
+  updateResearchPlanMetadataDate(index, fieldname, value) {
+    this.setState(state => {
+      const researchPlanMetadata = state.researchPlanMetadata
+      researchPlanMetadata.dates[index][fieldname] = value
+
+      return {
+        researchPlanMetadata
+      }
+    })
+  }
+
 
 
   render() {
@@ -262,6 +264,14 @@ export default class ResearchPlansMetadata extends Component {
             </Row>
           </Form>
         </Panel.Body>
+        <Panel.Footer>
+          <Col smOffset={0} sm={6} />
+          <Col smOffset={0} sm={6}>
+            <Button className="pull-right" bsStyle="success" onClick={() => this.saveResearchPlanMetadata(researchPlan.id)}>
+              Save Metadata
+            </Button>
+          </Col>
+        </Panel.Footer>
       </Panel>
     );
   }
@@ -269,6 +279,6 @@ export default class ResearchPlansMetadata extends Component {
 
 ResearchPlansMetadata.propTypes = {
   researchPlan: PropTypes.object.isRequired,
-  researchPlanMetadata: PropTypes.object.isRequired
+  researchPlanMetadata: PropTypes.object
 };
 
