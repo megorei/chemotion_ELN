@@ -10,43 +10,27 @@ import {
   Row,
   Col
 } from 'react-bootstrap';
-import uuid from 'uuid';
 import ResearchPlansFetcher from './fetchers/ResearchPlansFetcher';
-import NotificationActions from './actions/NotificationActions';
 
 require('@citation-js/plugin-isbn');
-
-const notification = message => ({
-  title: 'Add Literature',
-  message,
-  level: 'error',
-  dismissible: 'button',
-  autoDismiss: 5,
-  position: 'tr',
-  uid: uuid.v4()
-});
-
-const checkElementStatus = (element) => {
-  const type = element.type.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-  if (element.isNew) {
-    NotificationActions.add(notification(`Create ${type} first.`));
-    return false;
-  }
-  return true;
-};
 
 export default class ResearchPlansMetadata extends Component {
   constructor(props) {
     super(props);
-    const { researchPlan, researchPlanMetadata } = props;
     this.state = {
-      researchPlan,
+      researchPlan: {},
       researchPlanMetadata: {
-        doi: '',
-        url: '',
         dates: []
       }
     };
+  }
+
+  componentDidMount() {
+    const { parentResearchPlan, parentResearchPlanMetadata } = this.props;
+    this.setState({
+      researchPlan: parentResearchPlan,
+      researchPlanMetadata: parentResearchPlanMetadata
+    });
   }
 
   saveResearchPlanMetadata(researchPlanId) {
@@ -118,17 +102,12 @@ export default class ResearchPlansMetadata extends Component {
     })
   }
 
-
-
   render() {
     const { researchPlan, researchPlanMetadata } = this.state;
     return (
       <Panel>
         <Panel.Body>
           <Form>
-            {/* {!this.researchPlanMetadataDoiExists() &&
-              <p class="text-center">Get Metadata from DataCite</p>
-            } */}
             <FormGroup controlId="metadataFormDOI">
               <ControlLabel>DOI*</ControlLabel>&nbsp;&nbsp;
               <FormControl
@@ -136,7 +115,6 @@ export default class ResearchPlansMetadata extends Component {
                 defaultValue={researchPlanMetadata?.doi}
                 inputRef={(m) => { this.doi = m; }}
                 placeholder="10.*****/**********"
-                // disabled={this.researchPlanMetadataDoiExists()}
               />
             </FormGroup>
             <FormGroup controlId="metadataFormState">
@@ -278,7 +256,7 @@ export default class ResearchPlansMetadata extends Component {
 }
 
 ResearchPlansMetadata.propTypes = {
-  researchPlan: PropTypes.object.isRequired,
-  researchPlanMetadata: PropTypes.object
+  parentResearchPlan: PropTypes.object.isRequired,
+  parentResearchPlanMetadata: PropTypes.object
 };
 
