@@ -350,8 +350,8 @@ export default class ResearchPlanDetails extends Component {
           </Tab>
           <Tab eventKey={4} title="Metadata" disabled={researchPlan.isNew}>
             <ResearchPlansMetadata
-              researchPlan={researchPlan}
-              researchPlanMetadata={researchPlan.research_plan_metadata}
+              parentResearchPlan={researchPlan}
+              parentResearchPlanMetadata={researchPlan.research_plan_metadata}
             />
           </Tab>
         </Tabs>
