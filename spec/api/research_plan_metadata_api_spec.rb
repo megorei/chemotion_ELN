@@ -28,7 +28,7 @@ describe Chemotion::ResearchPlanMetadataAPI do
         end
 
         it 'returns serialized research_plan_metadata' do
-          expect(JSON.parse(response.body)['research_plan_metadata']['name']).to eq research_plan_metadata.name
+          expect(JSON.parse(response.body)['research_plan_metadata']['title']).to eq research_plan_metadata.title
         end
       end
     end
@@ -39,12 +39,11 @@ describe Chemotion::ResearchPlanMetadataAPI do
       let(:params) do
         {
           research_plan_id: research_plan.id,
-          doi: '10.12345/RESEARCH-PLAN-XXXXXXXXXXX',
-          name: 'Metadata',
+          title: 'Metadata',
+          subject: 'a subject',
+          version: '08.15',
           type: 'Test-Type',
-          description: 'Metadata for research plan',
-          publisher: 'Chemotion',
-          publication_year: Time.current.year,
+          description: 'Metadata for research plan'
         }
       end
 

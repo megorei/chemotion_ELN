@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20201217172428) do
+ActiveRecord::Schema.define(version: 20210108230206) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -676,7 +676,7 @@ ActiveRecord::Schema.define(version: 20201217172428) do
     t.string   "doi"
     t.string   "url"
     t.string   "landing_page"
-    t.string   "name"
+    t.string   "title"
     t.string   "type"
     t.string   "description"
     t.string   "publisher"
@@ -692,6 +692,18 @@ ActiveRecord::Schema.define(version: 20201217172428) do
     t.jsonb    "data_cite_last_response", default: {}
     t.string   "data_cite_state",         default: "draft"
     t.string   "data_cite_creator_name"
+    t.text     "creator"
+    t.text     "affiliation"
+    t.text     "contributor"
+    t.string   "language"
+    t.text     "rights"
+    t.string   "format"
+    t.string   "version"
+    t.jsonb    "geo_location"
+    t.jsonb    "funding_reference"
+    t.text     "subject"
+    t.text     "alternate_identifier"
+    t.text     "related_identifier"
   end
 
   add_index "research_plan_metadata", ["deleted_at"], name: "index_research_plan_metadata_on_deleted_at", using: :btree

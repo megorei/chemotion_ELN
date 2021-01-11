@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :research_plan_metadata do
-    name { 'Research Plan Metadata' }
+    title { 'Research Plan Metadata' }
     sequence(:doi) { |i| "10.12345/RP-#{i}" }
     url { "https://the-device-page.org/#{doi}" }
     landing_page { "https://the-content-page.org/#{doi}" }

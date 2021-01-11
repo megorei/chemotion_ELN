@@ -20,17 +20,20 @@ module Chemotion
       params do
         requires :research_plan_id, type: Integer, desc: 'research plan id'
 
-        optional :name, type: String, desc: 'research plan name'
-        optional :doi, type: String, desc: 'research plan doi'
+        optional :title, type: String, desc: 'research plan title'
+        optional :subject, type: String, desc: 'research plan subject'
+        optional :alternate_identifier, type: String, desc: 'research plan alternate identifier'
+        optional :related_identifier, type: String, desc: 'research plan related identifier'
+        optional :description, type: String, desc: 'research plan description'
+
+        optional :format, type: String, desc: 'research plan format'
+        optional :version, type: String, desc: 'research plan version'
+        optional :geo_location, desc: 'research plan geo-location'
+        optional :funding_reference, type: String, desc: 'research plan funding reference'
+
         optional :url, type: String, desc: 'research plan url'
         optional :landing_page, type: String, desc: 'research plan landing_page'
         optional :type, type: String, desc: 'research plan type'
-        optional :description, type: String, desc: 'research plan description'
-        optional :publisher, type: String, desc: 'research plan publisher'
-        optional :publication_year, type: Integer, desc: 'research plan publication year'
-        optional :data_cite_state, type: String, desc: 'state'
-
-        optional :dates, desc: 'research plan dates'
       end
       post do
         attributes = declared(params, include_missing: false)
