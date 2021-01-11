@@ -43,21 +43,29 @@ describe Chemotion::ResearchPlanMetadataAPI do
           subject: 'a subject',
           version: '08.15',
           type: 'Test-Type',
-          description: 'Metadata for research plan'
+          description: 'Metadata for research plan',
+          geo_location: {
+            geoLocationPoint: {
+              pointLongitude: Faker::Address.longitude,
+              pointLatitude: Faker::Address.latitude
+            }
+          },
+          funding_reference: {
+            funderName: Faker::Name.name,
+            funderIdentifier: Faker::Internet.url
+          }
         }
       end
 
       describe 'when updating research plan metadata' do
-        context 'without existing DOI at DataCite' do
-          before do
-            research_plan
+        before do
+          research_plan
 
-            post '/api/v1/research_plan_metadata', params
-          end
+          post '/api/v1/research_plan_metadata', params
+        end
 
-          it 'Creates research plan metadata' do
-            expect(research_plan.research_plan_metadata).to have_attributes(params.deep_stringify_keys)
-          end
+        it 'Creates research plan metadata' do
+          expect(research_plan.research_plan_metadata).to have_attributes(params.deep_stringify_keys)
         end
       end
     end

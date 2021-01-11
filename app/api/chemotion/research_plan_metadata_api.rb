@@ -29,7 +29,7 @@ module Chemotion
         optional :format, type: String, desc: 'research plan format'
         optional :version, type: String, desc: 'research plan version'
         optional :geo_location, desc: 'research plan geo-location'
-        optional :funding_reference, type: String, desc: 'research plan funding reference'
+        optional :funding_reference, desc: 'research plan funding reference'
 
         optional :url, type: String, desc: 'research plan url'
         optional :landing_page, type: String, desc: 'research plan landing_page'
