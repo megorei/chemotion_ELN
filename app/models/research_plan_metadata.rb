@@ -7,7 +7,7 @@
 #  doi                     :string
 #  url                     :string
 #  landing_page            :string
-#  name                    :string
+#  title                   :string
 #  type                    :string
 #  description             :string
 #  publisher               :string
@@ -23,6 +23,18 @@
 #  data_cite_last_response :jsonb
 #  data_cite_state         :string           default("draft")
 #  data_cite_creator_name  :string
+#  creator                 :text
+#  affiliation             :text
+#  contributor             :text
+#  language                :string
+#  rights                  :text
+#  format                  :string
+#  version                 :string
+#  geo_location            :jsonb
+#  funding_reference       :jsonb
+#  subject                 :text
+#  alternate_identifier    :text
+#  related_identifier      :text
 #
 # Indexes
 #
