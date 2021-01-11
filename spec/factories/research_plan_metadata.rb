@@ -18,5 +18,23 @@ FactoryBot.define do
         }
       ]
     end
+    geo_location do
+      [
+        {
+          geoLocationPoint: {
+            pointLongitude: Faker::Address.longitude,
+            pointLatitude: Faker::Address.latitude
+          }
+        }
+      ]
+    end
+    funding_reference do
+      [
+        {
+          funderName: Faker::Name.name,
+          funderIdentifier: Faker::Internet.url
+        }
+      ]
+    end
   end
 end
