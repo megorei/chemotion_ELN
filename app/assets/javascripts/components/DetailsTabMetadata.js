@@ -30,9 +30,13 @@ export default class ResearchPlansMetadata extends Component {
   componentDidMount() {
     const { parentResearchPlan, parentResearchPlanMetadata } = this.props;
     this.setState({
-      researchPlan: parentResearchPlan,
-      researchPlanMetadata: parentResearchPlanMetadata
+      researchPlan: parentResearchPlan
     });
+    if (parentResearchPlanMetadata) {
+      this.setState({
+        researchPlanMetadata: parentResearchPlanMetadata
+      });
+    }
   }
 
   saveResearchPlanMetadata(researchPlanId) {
