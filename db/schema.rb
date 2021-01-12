@@ -11,12 +11,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200819093220) do
+ActiveRecord::Schema.define(version: 20210108230206) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "pg_trgm"
   enable_extension "hstore"
+  enable_extension "pg_trgm"
   enable_extension "uuid-ossp"
 
   create_table "affiliations", force: :cascade do |t|
@@ -245,6 +245,35 @@ ActiveRecord::Schema.define(version: 20200819093220) do
 
   add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
 
+  create_table "device_metadata", force: :cascade do |t|
+    t.integer  "device_id"
+    t.string   "doi"
+    t.string   "url"
+    t.string   "landing_page"
+    t.string   "name"
+    t.string   "type"
+    t.string   "description"
+    t.string   "publisher"
+    t.integer  "publication_year"
+    t.jsonb    "manufacturers"
+    t.jsonb    "owners"
+    t.jsonb    "dates"
+    t.datetime "created_at",                                null: false
+    t.datetime "updated_at",                                null: false
+    t.datetime "deleted_at"
+    t.integer  "doi_sequence"
+    t.string   "data_cite_prefix"
+    t.datetime "data_cite_created_at"
+    t.datetime "data_cite_updated_at"
+    t.integer  "data_cite_version"
+    t.jsonb    "data_cite_last_response", default: {}
+    t.string   "data_cite_state",         default: "draft"
+    t.string   "data_cite_creator_name"
+  end
+
+  add_index "device_metadata", ["deleted_at"], name: "index_device_metadata_on_deleted_at", using: :btree
+  add_index "device_metadata", ["device_id"], name: "index_device_metadata_on_device_id", using: :btree
+
   create_table "element_tags", force: :cascade do |t|
     t.string   "taggable_type"
     t.integer  "taggable_id"
@@ -433,7 +462,7 @@ ActiveRecord::Schema.define(version: 20200819093220) do
 
   create_table "matrices", force: :cascade do |t|
     t.string   "name",                        null: false
-    t.boolean  "enabled",  default: false
+    t.boolean  "enabled",     default: false
     t.string   "label"
     t.integer  "include_ids", default: [],                 array: true
     t.integer  "exclude_ids", default: [],                 array: true
@@ -642,6 +671,44 @@ ActiveRecord::Schema.define(version: 20200819093220) do
   add_index "reports_users", ["report_id"], name: "index_reports_users_on_report_id", using: :btree
   add_index "reports_users", ["user_id"], name: "index_reports_users_on_user_id", using: :btree
 
+  create_table "research_plan_metadata", force: :cascade do |t|
+    t.integer  "research_plan_id"
+    t.string   "doi"
+    t.string   "url"
+    t.string   "landing_page"
+    t.string   "title"
+    t.string   "type"
+    t.string   "description"
+    t.string   "publisher"
+    t.integer  "publication_year"
+    t.jsonb    "dates"
+    t.datetime "created_at",                                null: false
+    t.datetime "updated_at",                                null: false
+    t.datetime "deleted_at"
+    t.string   "data_cite_prefix"
+    t.datetime "data_cite_created_at"
+    t.datetime "data_cite_updated_at"
+    t.integer  "data_cite_version"
+    t.jsonb    "data_cite_last_response", default: {}
+    t.string   "data_cite_state",         default: "draft"
+    t.string   "data_cite_creator_name"
+    t.text     "creator"
+    t.text     "affiliation"
+    t.text     "contributor"
+    t.string   "language"
+    t.text     "rights"
+    t.string   "format"
+    t.string   "version"
+    t.jsonb    "geo_location"
+    t.jsonb    "funding_reference"
+    t.text     "subject"
+    t.text     "alternate_identifier"
+    t.text     "related_identifier"
+  end
+
+  add_index "research_plan_metadata", ["deleted_at"], name: "index_research_plan_metadata_on_deleted_at", using: :btree
+  add_index "research_plan_metadata", ["research_plan_id"], name: "index_research_plan_metadata_on_research_plan_id", using: :btree
+
   create_table "research_plan_table_schemas", force: :cascade do |t|
     t.string   "name"
     t.jsonb    "value"
@@ -747,18 +814,6 @@ ActiveRecord::Schema.define(version: 20200819093220) do
 
   add_index "subscriptions", ["channel_id", "user_id"], name: "index_subscriptions_on_channel_id_and_user_id", unique: true, using: :btree
 
-  create_table "user_labels", force: :cascade do |t|
-    t.integer  "user_id"
-    t.string   "title",                     null: false
-    t.string   "description"
-    t.string   "color",                     null: false
-    t.integer  "access_level", default: 0
-    t.integer  "position",     default: 10
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.datetime "deleted_at"
-  end
-
   create_table "sync_collections_users", force: :cascade do |t|
     t.integer  "user_id"
     t.integer  "collection_id"
@@ -788,6 +843,18 @@ ActiveRecord::Schema.define(version: 20200819093220) do
     t.date     "from"
     t.date     "to"
     t.boolean  "main"
+  end
+
+  create_table "user_labels", force: :cascade do |t|
+    t.integer  "user_id"
+    t.string   "title",                     null: false
+    t.string   "description"
+    t.string   "color",                     null: false
+    t.integer  "access_level", default: 0
+    t.integer  "position",     default: 10
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.datetime "deleted_at"
   end
 
   create_table "users", force: :cascade do |t|
@@ -881,20 +948,6 @@ ActiveRecord::Schema.define(version: 20200819093220) do
 
   add_foreign_key "literals", "literatures"
 
-  create_function :user_instrument, sql_definition: <<-SQL
-      CREATE OR REPLACE FUNCTION public.user_instrument(user_id integer, sc text)
-       RETURNS TABLE(instrument text)
-       LANGUAGE sql
-      AS $function$
-         select distinct extended_metadata -> 'instrument' as instrument from containers c
-         where c.container_type='dataset' and c.id in
-         (select ch.descendant_id from containers sc,container_hierarchies ch, samples s, users u
-         where sc.containable_type in ('Sample','Reaction') and ch.ancestor_id=sc.id and sc.containable_id=s.id
-         and s.created_by = u.id and u.id = $1 and ch.generations=3 group by descendant_id)
-         and upper(extended_metadata -> 'instrument') like upper($2 || '%')
-         order by extended_metadata -> 'instrument' limit 10
-       $function$
-  SQL
   create_function :collection_shared_names, sql_definition: <<-SQL
       CREATE OR REPLACE FUNCTION public.collection_shared_names(user_id integer, collection_id integer)
        RETURNS json
@@ -908,45 +961,6 @@ ActiveRecord::Schema.define(version: 20200819093220) do
        WHERE sync_collections_users.shared_by_id = $1 and sync_collections_users.collection_id = $2
        group by  sync_collections_users.id,users.type,users.name_abbreviation,users.first_name,users.last_name,sync_collections_users.permission_level
        ) as result
-       $function$
-  SQL
-  create_function :user_ids, sql_definition: <<-SQL
-      CREATE OR REPLACE FUNCTION public.user_ids(user_id integer)
-       RETURNS TABLE(user_ids integer)
-       LANGUAGE sql
-      AS $function$
-          select $1 as id
-          union
-          (select users.id from users inner join users_groups ON users.id = users_groups.group_id WHERE users.deleted_at IS null
-         and users.type in ('Group') and users_groups.user_id = $1)
-        $function$
-  SQL
-  create_function :user_as_json, sql_definition: <<-SQL
-      CREATE OR REPLACE FUNCTION public.user_as_json(user_id integer)
-       RETURNS json
-       LANGUAGE sql
-      AS $function$
-         select row_to_json(result) from (
-           select users.id, users.name_abbreviation as initials ,users.type,users.first_name || chr(32) || users.last_name as name
-           from users where id = $1
-         ) as result
-       $function$
-  SQL
-  create_function :shared_user_as_json, sql_definition: <<-SQL
-      CREATE OR REPLACE FUNCTION public.shared_user_as_json(in_user_id integer, in_current_user_id integer)
-       RETURNS json
-       LANGUAGE plpgsql
-      AS $function$
-         begin
-          if (in_user_id = in_current_user_id) then
-            return null;
-          else
-            return (select row_to_json(result) from (
-            select users.id, users.name_abbreviation as initials ,users.type,users.first_name || chr(32) || users.last_name as name
-            from users where id = $1
-            ) as result);
-          end if;
-          end;
        $function$
   SQL
   create_function :detail_level_for_sample, sql_definition: <<-SQL
@@ -981,16 +995,6 @@ ActiveRecord::Schema.define(version: 20200819093220) do
 
           return query select coalesce(i_detail_level_sample,0) detail_level_sample, coalesce(i_detail_level_wellplate,0) detail_level_wellplate;
       end;$function$
-  SQL
-  create_function :group_user_ids, sql_definition: <<-SQL
-      CREATE OR REPLACE FUNCTION public.group_user_ids(group_id integer)
-       RETURNS TABLE(user_ids integer)
-       LANGUAGE sql
-      AS $function$
-             select id from users where type='Person' and id= $1
-             union
-             select user_id from users_groups where group_id = $1
-      $function$
   SQL
   create_function :generate_notifications, sql_definition: <<-SQL
       CREATE OR REPLACE FUNCTION public.generate_notifications(in_channel_id integer, in_message_id integer, in_user_id integer, in_user_ids integer[])
@@ -1032,20 +1036,24 @@ ActiveRecord::Schema.define(version: 20200819093220) do
       	if in_user_ids is null then
           update users u set matrix = (
       	    select coalesce(sum(2^mx.id),0) from (
-      		    select distinct m1.* from matrices m1, users u1, users_groups ug1
+      		    select distinct m1.* from matrices m1, users u1
+      				left join users_groups ug1 on ug1.user_id = u1.id
       		      where u.id = u1.id and ((m1.enabled = true) or ((u1.id = any(m1.include_ids)) or (u1.id = ug1.user_id and ug1.group_id = any(m1.include_ids))))
       	      except
-      		    select distinct m2.* from matrices m2, users u2, users_groups ug2
+      		    select distinct m2.* from matrices m2, users u2
+      				left join users_groups ug2 on ug2.user_id = u2.id
       		      where u.id = u2.id and ((u2.id = any(m2.exclude_ids)) or (u2.id = ug2.user_id and ug2.group_id = any(m2.exclude_ids)))
       	    ) mx
           );
       	else
-      		  update users u set updated_at = now(), matrix = (
+      		  update users u set matrix = (
       		  	select coalesce(sum(2^mx.id),0) from (
-      			   select distinct m1.* from matrices m1, users u1, users_groups ug1
+      			   select distinct m1.* from matrices m1, users u1
+      				 left join users_groups ug1 on ug1.user_id = u1.id
       			     where u.id = u1.id and ((m1.enabled = true) or ((u1.id = any(m1.include_ids)) or (u1.id = ug1.user_id and ug1.group_id = any(m1.include_ids))))
       			   except
-      			   select distinct m2.* from matrices m2, users u2, users_groups ug2
+      			   select distinct m2.* from matrices m2, users u2
+      				 left join users_groups ug2 on ug2.user_id = u2.id
       			     where u.id = u2.id and ((u2.id = any(m2.exclude_ids)) or (u2.id = ug2.user_id and ug2.group_id = any(m2.exclude_ids)))
       			  ) mx
       		  ) where ((in_user_ids) @> array[u.id]) or (u.id in (select ug3.user_id from users_groups ug3 where (in_user_ids) @> array[ug3.group_id]));
@@ -1053,6 +1061,48 @@ ActiveRecord::Schema.define(version: 20200819093220) do
         return true;
       end
       $function$
+  SQL
+  create_function :group_user_ids, sql_definition: <<-SQL
+      CREATE OR REPLACE FUNCTION public.group_user_ids(group_id integer)
+       RETURNS TABLE(user_ids integer)
+       LANGUAGE sql
+      AS $function$
+             select id from users where type='Person' and id= $1
+             union
+             select user_id from users_groups where group_id = $1
+      $function$
+  SQL
+  create_function :labels_by_user_sample, sql_definition: <<-SQL
+      CREATE OR REPLACE FUNCTION public.labels_by_user_sample(user_id integer, sample_id integer)
+       RETURNS TABLE(labels text)
+       LANGUAGE sql
+      AS $function$
+         select string_agg(title::text, ', ') as labels from (select title from user_labels ul where ul.id in (
+           select d.list
+           from element_tags et, lateral (
+             select value::integer as list
+             from jsonb_array_elements_text(et.taggable_data  -> 'user_labels')
+           ) d
+           where et.taggable_id = $2 and et.taggable_type = 'Sample'
+         ) and (ul.access_level = 1 or (ul.access_level = 0 and ul.user_id = $1)) order by title  ) uls
+       $function$
+  SQL
+  create_function :shared_user_as_json, sql_definition: <<-SQL
+      CREATE OR REPLACE FUNCTION public.shared_user_as_json(in_user_id integer, in_current_user_id integer)
+       RETURNS json
+       LANGUAGE plpgsql
+      AS $function$
+         begin
+          if (in_user_id = in_current_user_id) then
+            return null;
+          else
+            return (select row_to_json(result) from (
+            select users.id, users.name_abbreviation as initials ,users.type,users.first_name || chr(32) || users.last_name as name
+            from users where id = $1
+            ) as result);
+          end if;
+          end;
+       $function$
   SQL
   create_function :update_users_matrix, sql_definition: <<-SQL
       CREATE OR REPLACE FUNCTION public.update_users_matrix()
@@ -1077,25 +1127,47 @@ ActiveRecord::Schema.define(version: 20200819093220) do
       end
       $function$
   SQL
+  create_function :user_as_json, sql_definition: <<-SQL
+      CREATE OR REPLACE FUNCTION public.user_as_json(user_id integer)
+       RETURNS json
+       LANGUAGE sql
+      AS $function$
+         select row_to_json(result) from (
+           select users.id, users.name_abbreviation as initials ,users.type,users.first_name || chr(32) || users.last_name as name
+           from users where id = $1
+         ) as result
+       $function$
+  SQL
+  create_function :user_ids, sql_definition: <<-SQL
+      CREATE OR REPLACE FUNCTION public.user_ids(user_id integer)
+       RETURNS TABLE(user_ids integer)
+       LANGUAGE sql
+      AS $function$
+          select $1 as id
+          union
+          (select users.id from users inner join users_groups ON users.id = users_groups.group_id WHERE users.deleted_at IS null
+         and users.type in ('Group') and users_groups.user_id = $1)
+        $function$
+  SQL
+  create_function :user_instrument, sql_definition: <<-SQL
+      CREATE OR REPLACE FUNCTION public.user_instrument(user_id integer, sc text)
+       RETURNS TABLE(instrument text)
+       LANGUAGE sql
+      AS $function$
+         select distinct extended_metadata -> 'instrument' as instrument from containers c
+         where c.container_type='dataset' and c.id in
+         (select ch.descendant_id from containers sc,container_hierarchies ch, samples s, users u
+         where sc.containable_type in ('Sample','Reaction') and ch.ancestor_id=sc.id and sc.containable_id=s.id
+         and s.created_by = u.id and u.id = $1 and ch.generations=3 group by descendant_id)
+         and upper(extended_metadata -> 'instrument') like upper($2 || '%')
+         order by extended_metadata -> 'instrument' limit 10
+       $function$
+  SQL
 
   create_trigger :update_users_matrix_trg, sql_definition: <<-SQL
-      CREATE TRIGGER update_users_matrix_trg AFTER INSERT OR UPDATE ON public.matrices FOR EACH ROW EXECUTE PROCEDURE update_users_matrix()
+      CREATE TRIGGER update_users_matrix_trg AFTER INSERT OR UPDATE ON public.matrices FOR EACH ROW EXECUTE FUNCTION update_users_matrix()
   SQL
 
-  create_view "v_samples_collections", sql_definition: <<-SQL
-      SELECT cols.id AS cols_id,
-      cols.user_id AS cols_user_id,
-      cols.sample_detail_level AS cols_sample_detail_level,
-      cols.wellplate_detail_level AS cols_wellplate_detail_level,
-      cols.shared_by_id AS cols_shared_by_id,
-      cols.is_shared AS cols_is_shared,
-      samples.id AS sams_id,
-      samples.name AS sams_name
-     FROM ((collections cols
-       JOIN collections_samples col_samples ON (((col_samples.collection_id = cols.id) AND (col_samples.deleted_at IS NULL))))
-       JOIN samples ON (((samples.id = col_samples.sample_id) AND (samples.deleted_at IS NULL))))
-    WHERE (cols.deleted_at IS NULL);
-  SQL
   create_view "literal_groups", sql_definition: <<-SQL
       SELECT lits.element_type,
       lits.element_id,
@@ -1138,5 +1210,19 @@ ActiveRecord::Schema.define(version: 20200819093220) do
       channels,
       users
     WHERE ((channels.id = messages.channel_id) AND (messages.id = notifications.message_id) AND (users.id = messages.created_by));
+  SQL
+  create_view "v_samples_collections", sql_definition: <<-SQL
+      SELECT cols.id AS cols_id,
+      cols.user_id AS cols_user_id,
+      cols.sample_detail_level AS cols_sample_detail_level,
+      cols.wellplate_detail_level AS cols_wellplate_detail_level,
+      cols.shared_by_id AS cols_shared_by_id,
+      cols.is_shared AS cols_is_shared,
+      samples.id AS sams_id,
+      samples.name AS sams_name
+     FROM ((collections cols
+       JOIN collections_samples col_samples ON (((col_samples.collection_id = cols.id) AND (col_samples.deleted_at IS NULL))))
+       JOIN samples ON (((samples.id = col_samples.sample_id) AND (samples.deleted_at IS NULL))))
+    WHERE (cols.deleted_at IS NULL);
   SQL
 end
