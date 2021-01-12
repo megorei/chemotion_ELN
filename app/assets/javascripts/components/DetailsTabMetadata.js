@@ -20,7 +20,9 @@ export default class ResearchPlansMetadata extends Component {
     this.state = {
       researchPlan: {},
       researchPlanMetadata: {
-        dates: []
+        dates: [],
+        geo_location: [],
+        funding_reference: []
       }
     };
   }
@@ -37,13 +39,19 @@ export default class ResearchPlansMetadata extends Component {
     ResearchPlansFetcher.postResearchPlanMetadata({
 
       research_plan_id: researchPlanId,
-      data_cite_state: this.state.researchPlanMetadata.data_cite_state,
-      url: this.url.value.trim(),
-      landing_page: this.landing_page.value.trim(),
-      name: this.name.value.trim(),
+      title: this.title.value.trim(),
+      subject: this.subject.value.trim(),
+      alternate_identifier: this.alternate_identifier.value.trim(),
+      related_identifier: this.related_identifier.value.trim(),
       description: this.description.value.trim(),
-      publication_year: this.publication_year.value.trim(),
-      dates: this.state.researchPlanMetadata.dates
+
+      format: this.format.value.trim(),
+      version: this.version.value.trim(),
+      geo_location: this.state.researchPlanMetadata.geo_location,
+      funding_reference: this.state.researchPlanMetadata.funding_reference,
+
+      url: this.url.value.trim(),
+      landing_page: this.landing_page.value.trim()
 
     }).then((result) => {
       if (result.error) {
@@ -58,19 +66,10 @@ export default class ResearchPlansMetadata extends Component {
     });
   }
 
-  addResearchPlanMetadataDate() {
+  updateResearchPlanMetadataDataCiteState(value) {
     this.setState(state => {
-      const newDateItem = {
-        date: this.dateDate.value.trim(),
-        dateType: this.dateDateType.value.trim()
-      }
       const researchPlanMetadata = state.researchPlanMetadata
-      const currentDates = researchPlanMetadata.dates ? researchPlanMetadata.dates : []
-      const newDates = currentDates.concat(newDateItem)
-      researchPlanMetadata.dates = newDates
-
-      this.dateDate.value = ''
-      this.dateDateType.value = ''
+      researchPlanMetadata.data_cite_state = value
 
       return {
         researchPlanMetadata
@@ -78,27 +77,79 @@ export default class ResearchPlansMetadata extends Component {
     })
   }
 
-  removeResearchPlanMetadataDate(index) {
+  // GeoLocation Actions
+  addResearchPlanMetadataGeoLocation() {
     this.setState(state => {
-      const researchPlanMetadata = state.researchPlanMetadata
-      const currentDates = researchPlanMetadata.dates ? researchPlanMetadata.dates : []
-      const newDates = currentDates.length > 1 ? currentDates.splice(index, 1) : []
-      researchPlanMetadata.dates = newDates
-
-      return {
-        researchPlanMetadata
+      const newGeoLocationItem = {
+        geoLocationPoint: {
+          latitude: '',
+          longitude: ''
+        }
       }
+      const researchPlanMetadata = state.researchPlanMetadata
+      const currentGeoLocations = researchPlanMetadata.geo_location ? researchPlanMetadata.geo_location : []
+      const newGeoLocations = currentGeoLocations.concat(newGeoLocationItem)
+      researchPlanMetadata.geo_location = newGeoLocations
+
+      return researchPlanMetadata
     })
   }
 
-  updateResearchPlanMetadataDate(index, fieldname, value) {
+  removeResearchPlanMetadataGeoLocation(index) {
     this.setState(state => {
       const researchPlanMetadata = state.researchPlanMetadata
-      researchPlanMetadata.dates[index][fieldname] = value
+      const currentGeoLocations = researchPlanMetadata.geo_location ? researchPlanMetadata.geo_location : []
+      const removedItem = currentGeoLocations.splice(index, 1)
 
-      return {
-        researchPlanMetadata
+      researchPlanMetadata.geo_location = currentGeoLocations
+
+      return researchPlanMetadata
+    })
+  }
+
+  updateResearchPlanMetadataGeoLocation(index, fieldname, value) {
+    this.setState(state => {
+      const researchPlanMetadata = state.researchPlanMetadata
+      researchPlanMetadata.geo_location[index]['geoLocationPoint'][fieldname] = value
+
+      return researchPlanMetadata
+    })
+  }
+
+  // FundingReference Actions
+  addResearchPlanMetadataFundingReference() {
+    this.setState(state => {
+      const newFundingReferenceItem = {
+        funderName: '',
+        funderIdentifier: ''
       }
+      const researchPlanMetadata = state.researchPlanMetadata
+      const currentFundingReferences = researchPlanMetadata.funding_reference ? researchPlanMetadata.funding_reference : []
+      const newFundingReferences = currentFundingReferences.concat(newFundingReferenceItem)
+      researchPlanMetadata.funding_reference = newFundingReferences
+
+      return researchPlanMetadata
+    })
+  }
+
+  removeResearchPlanMetadataFundingReference(index) {
+    this.setState(state => {
+      const researchPlanMetadata = state.researchPlanMetadata
+      const currentFundingReferences = researchPlanMetadata.funding_reference ? researchPlanMetadata.funding_reference : []
+      const removedItem = currentFundingReferences.splice(index, 1)
+
+      researchPlanMetadata.funding_reference = currentFundingReferences
+
+      return researchPlanMetadata
+    })
+  }
+
+  updateResearchPlanMetadataFundingReference(index, fieldname, value) {
+    this.setState(state => {
+      const researchPlanMetadata = state.researchPlanMetadata
+      researchPlanMetadata.funding_reference[index][fieldname] = value
+
+      return researchPlanMetadata
     })
   }
 
@@ -108,64 +159,40 @@ export default class ResearchPlansMetadata extends Component {
       <Panel>
         <Panel.Body>
           <Form>
-            <FormGroup controlId="metadataFormDOI">
-              <ControlLabel>DOI*</ControlLabel>&nbsp;&nbsp;
+            <FormGroup controlId="metadataFormTitle">
+              <ControlLabel>Title*</ControlLabel>&nbsp;&nbsp;
               <FormControl
                 type="text"
-                defaultValue={researchPlanMetadata?.doi}
-                inputRef={(m) => { this.doi = m; }}
-                placeholder="10.*****/**********"
+                defaultValue={researchPlanMetadata?.title}
+                inputRef={(m) => { this.title = m; }}
+                placeholder="Title"
               />
             </FormGroup>
-            <FormGroup controlId="metadataFormState">
-              <ControlLabel>State*</ControlLabel>
-              <FormControl
-                componentClass="select"
-                value={researchPlanMetadata?.data_cite_state}
-                onChange={(event) => this.updateresearchPlanMetadataDataCiteState(event.target.value)}
-                inputRef={(m) => { this.dataCiteState = m; }}
-              >
-                <option value="draft">Draft</option>
-                <option value="registered">Registered</option>
-                <option value="findable">Findable</option>
-              </FormControl>
-            </FormGroup>
-
-            <FormGroup controlId="metadataFormURL">
-              <ControlLabel>URL*</ControlLabel>
+            <FormGroup controlId="metadataFormSubject">
+              <ControlLabel>Subject</ControlLabel>&nbsp;&nbsp;
               <FormControl
                 type="text"
-                defaultValue={researchPlanMetadata?.url}
-                inputRef={(m) => { this.url = m; }}
-                placeholder="https://<device.url>"
+                defaultValue={researchPlanMetadata?.subject}
+                inputRef={(m) => { this.subject = m; }}
+                placeholder="Subject"
               />
             </FormGroup>
-
-            <FormGroup controlId="metadataFormLandingPage">
-              <ControlLabel>Landing Page*</ControlLabel>
+            <FormGroup controlId="metadataFormAlternateIdentifier">
+              <ControlLabel>Alternate Identifier</ControlLabel>&nbsp;&nbsp;
               <FormControl
                 type="text"
-                defaultValue={researchPlanMetadata?.landing_page}
-                inputRef={(m) => { this.landing_page = m; }}
-                placeholder="https://<device.landing.page>"
+                defaultValue={researchPlanMetadata?.alternate_identifier}
+                inputRef={(m) => { this.alternate_identifier = m; }}
+                placeholder="Alternate Identifier"
               />
             </FormGroup>
-            <FormGroup controlId="metadataFormName">
-              <ControlLabel>Name*</ControlLabel>&nbsp;&nbsp;
+            <FormGroup controlId="metadataFormRelatedIdentifier">
+              <ControlLabel>Related Identifier</ControlLabel>&nbsp;&nbsp;
               <FormControl
                 type="text"
-                defaultValue={researchPlanMetadata?.name}
-                inputRef={(m) => { this.name = m; }}
-                placeholder="Name"
-              />
-            </FormGroup>
-            <FormGroup controlId="metadataFormPublicationYear">
-              <ControlLabel>Publication Year*</ControlLabel>
-              <FormControl
-                type="number"
-                defaultValue={researchPlanMetadata?.publication_year}
-                inputRef={(m) => { this.publication_year = m; }}
-                placeholder="Publication Year e.g. '2020'"
+                defaultValue={researchPlanMetadata?.related_identifier}
+                inputRef={(m) => { this.related_identifier = m; }}
+                placeholder="Related Identifier"
               />
             </FormGroup>
             <FormGroup controlId="metadataFormDescription">
@@ -178,78 +205,192 @@ export default class ResearchPlansMetadata extends Component {
               />
             </FormGroup>
 
-            {researchPlanMetadata?.dates && researchPlanMetadata?.dates.map((dateItem, index) => (
+            <FormGroup controlId="metadataFormFormat">
+              <ControlLabel>Format</ControlLabel>
+              <FormControl
+                type="text"
+                defaultValue={researchPlanMetadata?.format}
+                inputRef={(m) => { this.format = m; }}
+                placeholder="Format"
+              />
+            </FormGroup>
+            <FormGroup controlId="metadataFormVersion">
+              <ControlLabel>Version</ControlLabel>
+              <FormControl
+                type="text"
+                defaultValue={researchPlanMetadata?.version}
+                inputRef={(m) => { this.version = m; }}
+                placeholder="Version"
+              />
+            </FormGroup>
+            <ControlLabel style={{ marginTop: 5 }}>Geolocations</ControlLabel><br />
+            {researchPlanMetadata?.geo_location && researchPlanMetadata?.geo_location.map((locationItem, index) => (
               <div key={index}>
-                <Col smOffset={0} sm={5}>
+                <Col smOffset={0} sm={5} style={{ paddingLeft: 0, paddingRight: 0 }}>
                   <FormGroup>
-                    <ControlLabel>Date</ControlLabel>
+                    <ControlLabel>Longitude</ControlLabel>
                     <FormControl
                       type="text"
-                      defaultValue={dateItem.date}
-                      placeholder="Date e.g. '2020-01-01'"
-                      onChange={(event) => this.updateResearchPlanMetadataDate(index, 'date', event.target.value)}
+                      value={locationItem?.geoLocationPoint?.longitude}
+                      placeholder="Longitude e.g. '71.43703438955458'"
+                      onChange={(event) => this.updateResearchPlanMetadataGeoLocation(index, 'longitude', event.target.value)}
                     />
                   </FormGroup>
                 </Col>
-                <Col smOffset={0} sm={5}>
+                <Col smOffset={0} sm={5} style={{ paddingLeft: 0, paddingRight: 0 }}>
                   <FormGroup>
-                    <ControlLabel>DateType</ControlLabel>
+                    <ControlLabel>Latitude</ControlLabel>
                     <FormControl
                       type="text"
-                      defaultValue={dateItem.dateType}
-                      placeholder="DateType e.g. 'Created'"
-                      onChange={(event) => this.updateResearchPlanMetadataDate(index, 'dateType', event.target.value)}
+                      value={locationItem?.geoLocationPoint?.latitude}
+                      placeholder="Latitude e.g. '-62.85961569975635'"
+                      onChange={(event) => this.updateResearchPlanMetadataGeoLocation(index, 'latitude', event.target.value)}
                     />
                   </FormGroup>
                 </Col>
                 <Col smOffset={0} sm={2}>
                   <ControlLabel>Action</ControlLabel>
-                  <Button bsStyle="danger" onClick={() => this.removeResearchPlanMetadataDate(index)}>
-                    X
+                  <Button bsStyle="danger" className="pull-right" bsSize="small" onClick={() => this.removeResearchPlanMetadataGeoLocation(index)}>
+                    <i className="fa fa-trash-o" />
                   </Button>
                 </Col>
               </div>
             ))}
+              <Col smOffset={0} sm={12} style={{ paddingLeft: 0, paddingRight: 0 }}>
+                <Button className="pull-right" bsStyle="success" bsSize="small" onClick={() => this.addResearchPlanMetadataGeoLocation()}>
+                  <i className="fa fa-plus" />
+                </Button>
+              </Col>
 
-            <Row>
-              <Col smOffset={0} sm={6}>
-                <FormGroup>
-                  <ControlLabel>Date</ControlLabel>
-                  <FormControl
-                    type="text"
-                    inputRef={(m) => { this.dateDate = m; }}
-                    placeholder="Date e.g. '2020-01-01'"
-                  />
-                </FormGroup>
-              </Col>
-              <Col smOffset={0} sm={6}>
-                <FormGroup>
-                  <ControlLabel>DateType</ControlLabel>
-                  <FormControl
-                    type="text"
-                    inputRef={(m) => { this.dateDateType = m; }}
-                    placeholder="DateType e.g. 'Created'"
-                  />
-                </FormGroup>
-              </Col>
-            </Row>
+            <ControlLabel style={{ marginTop: 5 }}>Funding References</ControlLabel>
+            {researchPlanMetadata?.funding_reference && researchPlanMetadata?.funding_reference.map((fundingReferenceItem, index) => (
+              <div key={index}>
+                <Col smOffset={0} sm={5} style={{ paddingLeft: 0, paddingRight: 0 }}>
+                  <FormGroup>
+                    <ControlLabel>Funder Name</ControlLabel>
+                    <FormControl
+                      type="text"
+                      value={fundingReferenceItem?.funderName}
+                      placeholder="Funder Name e.g. 'Gordon and Betty Moore Foundation'"
+                      onChange={(event) => this.updateResearchPlanMetadataFundingReference(index, 'funderName', event.target.value)}
+                      />
+                  </FormGroup>
+                </Col>
+                <Col smOffset={0} sm={5} style={{ paddingLeft: 0, paddingRight: 0 }}>
+                  <FormGroup>
+                    <ControlLabel>Funder Identifier</ControlLabel>
+                    <FormControl
+                      type="text"
+                      value={fundingReferenceItem?.funderIdentifier}
+                      placeholder="Funder Identifier e.g. 'https://doi.org/10.13039/100000936'"
+                      onChange={(event) => this.updateResearchPlanMetadataFundingReference(index, 'funderIdentifier', event.target.value)}
+                    />
+                  </FormGroup>
+                </Col>
+                <Col smOffset={0} sm={2}>
+                  <ControlLabel>Action</ControlLabel>
+                  <Button bsStyle="danger" className="pull-right" bsSize="small" onClick={() => this.removeResearchPlanMetadataFundingReference(index)}>
+                    <i className="fa fa-trash-o" />
+                  </Button>
+                </Col>
+              </div>
+            ))}
             <Row>
               <Col smOffset={0} sm={12}>
-                <Button bsStyle="success" onClick={() => this.addResearchPlanMetadataDate()}>
-                  Add date
+                <Button className="pull-right" bsStyle="success" bsSize="small" onClick={() => this.addResearchPlanMetadataFundingReference()}>
+                  <i className="fa fa-plus" />
                 </Button>
               </Col>
             </Row>
+
+            <FormGroup controlId="metadataFormState">
+              <ControlLabel>State*</ControlLabel>
+              <FormControl
+                componentClass="select"
+                value={researchPlanMetadata?.data_cite_state}
+                onChange={(event) => this.updateResearchPlanMetadataDataCiteState(event.target.value)}
+                inputRef={(m) => { this.dataCiteState = m; }}
+              >
+                <option value="draft">Draft</option>
+                <option value="registered">Registered</option>
+                <option value="findable">Findable</option>
+              </FormControl>
+            </FormGroup>
+            <FormGroup controlId="metadataFormURL">
+              <ControlLabel>URL*</ControlLabel>
+              <FormControl
+                type="text"
+                defaultValue={researchPlanMetadata?.url}
+                inputRef={(m) => { this.url = m; }}
+                placeholder="https://<device.url>"
+              />
+            </FormGroup>
+            <FormGroup controlId="metadataFormLandingPage">
+              <ControlLabel>Landing Page*</ControlLabel>
+              <FormControl
+                type="text"
+                defaultValue={researchPlanMetadata?.landing_page}
+                inputRef={(m) => { this.landing_page = m; }}
+                placeholder="https://<device.landing.page>"
+              />
+            </FormGroup>
+
+            {/* Disabled Attributes, display only */}
+            <FormGroup controlId="metadataFormDOI">
+              <ControlLabel>DOI</ControlLabel>&nbsp;&nbsp;
+              <FormControl
+                type="text"
+                defaultValue={researchPlanMetadata?.doi}
+                placeholder="DOI"
+                readOnly
+              />
+            </FormGroup>
+            <FormGroup controlId="metadataFormPublicationYear">
+              <ControlLabel>Publication Year</ControlLabel>
+              <FormControl
+                type="number"
+                defaultValue={researchPlanMetadata?.publication_year}
+                inputRef={(m) => { this.publication_year = m; }}
+                placeholder="Publication Year"
+                readOnly
+              />
+            </FormGroup>
+            { researchPlanMetadata?.dates ? <ControlLabel style={{ marginTop: 5 }}>Dates</ControlLabel>: '' }
+            {researchPlanMetadata?.dates && researchPlanMetadata?.dates.map((dateItem, index) => (
+              <div key={index}>
+                <Col smOffset={0} sm={6} style={{ paddingLeft: 0, paddingRight: 0 }}>
+                  <FormGroup>
+                    <ControlLabel>Date</ControlLabel>
+                    <FormControl
+                      type="text"
+                      defaultValue={dateItem.date}
+                      placeholder="Date"
+                      readOnly
+                      />
+                  </FormGroup>
+                </Col>
+                <Col smOffset={0} sm={6} style={{ paddingLeft: 0, paddingRight: 0 }}>
+                  <FormGroup>
+                    <ControlLabel>DateType</ControlLabel>
+                    <FormControl
+                      type="text"
+                      defaultValue={dateItem.dateType}
+                      placeholder="DateType"
+                      readOnly
+                    />
+                  </FormGroup>
+                </Col>
+              </div>
+            ))}
+
+            <FormGroup>
+              <Button className="pull-right" bsStyle="success" style={{ marginTop: 20 }} onClick={() => this.saveResearchPlanMetadata(researchPlan.id)}>
+                Save Metadata
+              </Button>
+            </FormGroup>
+
           </Form>
         </Panel.Body>
-        <Panel.Footer>
-          <Col smOffset={0} sm={6} />
-          <Col smOffset={0} sm={6}>
-            <Button className="pull-right" bsStyle="success" onClick={() => this.saveResearchPlanMetadata(researchPlan.id)}>
-              Save Metadata
-            </Button>
-          </Col>
-        </Panel.Footer>
       </Panel>
     );
   }
