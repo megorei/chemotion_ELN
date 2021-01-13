@@ -230,73 +230,79 @@ export default class ResearchPlansMetadata extends Component {
             <ControlLabel style={{ marginTop: 5 }}>Geolocations</ControlLabel><br />
             {researchPlanMetadata?.geo_location && researchPlanMetadata?.geo_location.map((locationItem, index) => (
               <div key={index}>
-                <Col smOffset={0} sm={5} style={{ paddingLeft: 0, paddingRight: 0 }}>
-                  <FormGroup>
-                    <ControlLabel>Longitude</ControlLabel>
-                    <FormControl
-                      type="text"
-                      value={locationItem?.geoLocationPoint?.longitude}
-                      placeholder="Longitude e.g. '71.43703438955458'"
-                      onChange={(event) => this.updateResearchPlanMetadataGeoLocation(index, 'longitude', event.target.value)}
-                    />
-                  </FormGroup>
-                </Col>
-                <Col smOffset={0} sm={5} style={{ paddingLeft: 0, paddingRight: 0 }}>
-                  <FormGroup>
-                    <ControlLabel>Latitude</ControlLabel>
-                    <FormControl
-                      type="text"
-                      value={locationItem?.geoLocationPoint?.latitude}
-                      placeholder="Latitude e.g. '-62.85961569975635'"
-                      onChange={(event) => this.updateResearchPlanMetadataGeoLocation(index, 'latitude', event.target.value)}
-                    />
-                  </FormGroup>
-                </Col>
-                <Col smOffset={0} sm={2}>
-                  <ControlLabel>Action</ControlLabel>
-                  <Button bsStyle="danger" className="pull-right" bsSize="small" onClick={() => this.removeResearchPlanMetadataGeoLocation(index)}>
-                    <i className="fa fa-trash-o" />
-                  </Button>
-                </Col>
+                <Row>
+                  <Col smOffset={0} sm={5}>
+                    <FormGroup>
+                      <ControlLabel>Longitude</ControlLabel>
+                      <FormControl
+                        type="text"
+                        value={locationItem?.geoLocationPoint?.longitude}
+                        placeholder="Longitude e.g. '71.43703438955458'"
+                        onChange={(event) => this.updateResearchPlanMetadataGeoLocation(index, 'longitude', event.target.value)}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col smOffset={0} sm={5}>
+                    <FormGroup>
+                      <ControlLabel>Latitude</ControlLabel>
+                      <FormControl
+                        type="text"
+                        value={locationItem?.geoLocationPoint?.latitude}
+                        placeholder="Latitude e.g. '-62.85961569975635'"
+                        onChange={(event) => this.updateResearchPlanMetadataGeoLocation(index, 'latitude', event.target.value)}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col smOffset={0} sm={2}>
+                    <ControlLabel>Action</ControlLabel>
+                    <Button bsStyle="danger" className="pull-right" bsSize="small" onClick={() => this.removeResearchPlanMetadataGeoLocation(index)}>
+                      <i className="fa fa-trash-o" />
+                    </Button>
+                  </Col>
+                </Row>
               </div>
             ))}
-              <Col smOffset={0} sm={12} style={{ paddingLeft: 0, paddingRight: 0 }}>
+            <Row>
+              <Col smOffset={0} sm={12}>
                 <Button className="pull-right" bsStyle="success" bsSize="small" onClick={() => this.addResearchPlanMetadataGeoLocation()}>
                   <i className="fa fa-plus" />
                 </Button>
               </Col>
+            </Row>
 
             <ControlLabel style={{ marginTop: 5 }}>Funding References</ControlLabel>
             {researchPlanMetadata?.funding_reference && researchPlanMetadata?.funding_reference.map((fundingReferenceItem, index) => (
               <div key={index}>
-                <Col smOffset={0} sm={5} style={{ paddingLeft: 0, paddingRight: 0 }}>
-                  <FormGroup>
-                    <ControlLabel>Funder Name</ControlLabel>
-                    <FormControl
-                      type="text"
-                      value={fundingReferenceItem?.funderName}
-                      placeholder="Funder Name e.g. 'Gordon and Betty Moore Foundation'"
-                      onChange={(event) => this.updateResearchPlanMetadataFundingReference(index, 'funderName', event.target.value)}
+                <Row>
+                < Col smOffset={0} sm={5}>
+                    <FormGroup>
+                      <ControlLabel>Funder Name</ControlLabel>
+                      <FormControl
+                        type="text"
+                        value={fundingReferenceItem?.funderName}
+                        placeholder="Funder Name e.g. 'Gordon and Betty Moore Foundation'"
+                        onChange={(event) => this.updateResearchPlanMetadataFundingReference(index, 'funderName', event.target.value)}
+                        />
+                    </FormGroup>
+                  </Col>
+                  <Col smOffset={0} sm={5}>
+                    <FormGroup>
+                      <ControlLabel>Funder Identifier</ControlLabel>
+                      <FormControl
+                        type="text"
+                        value={fundingReferenceItem?.funderIdentifier}
+                        placeholder="Funder Identifier e.g. 'https://doi.org/10.13039/100000936'"
+                        onChange={(event) => this.updateResearchPlanMetadataFundingReference(index, 'funderIdentifier', event.target.value)}
                       />
-                  </FormGroup>
-                </Col>
-                <Col smOffset={0} sm={5} style={{ paddingLeft: 0, paddingRight: 0 }}>
-                  <FormGroup>
-                    <ControlLabel>Funder Identifier</ControlLabel>
-                    <FormControl
-                      type="text"
-                      value={fundingReferenceItem?.funderIdentifier}
-                      placeholder="Funder Identifier e.g. 'https://doi.org/10.13039/100000936'"
-                      onChange={(event) => this.updateResearchPlanMetadataFundingReference(index, 'funderIdentifier', event.target.value)}
-                    />
-                  </FormGroup>
-                </Col>
-                <Col smOffset={0} sm={2}>
-                  <ControlLabel>Action</ControlLabel>
-                  <Button bsStyle="danger" className="pull-right" bsSize="small" onClick={() => this.removeResearchPlanMetadataFundingReference(index)}>
-                    <i className="fa fa-trash-o" />
-                  </Button>
-                </Col>
+                    </FormGroup>
+                  </Col>
+                  <Col smOffset={0} sm={2}>
+                    <ControlLabel>Action</ControlLabel>
+                    <Button bsStyle="danger" className="pull-right" bsSize="small" onClick={() => this.removeResearchPlanMetadataFundingReference(index)}>
+                      <i className="fa fa-trash-o" />
+                    </Button>
+                  </Col>
+                </Row>
               </div>
             ))}
             <Row>
@@ -362,7 +368,7 @@ export default class ResearchPlansMetadata extends Component {
             { researchPlanMetadata?.dates ? <ControlLabel style={{ marginTop: 5 }}>Dates</ControlLabel>: '' }
             {researchPlanMetadata?.dates && researchPlanMetadata?.dates.map((dateItem, index) => (
               <div key={index}>
-                <Col smOffset={0} sm={6} style={{ paddingLeft: 0, paddingRight: 0 }}>
+                <Col smOffset={0} sm={6}>
                   <FormGroup>
                     <ControlLabel>Date</ControlLabel>
                     <FormControl
@@ -373,7 +379,7 @@ export default class ResearchPlansMetadata extends Component {
                       />
                   </FormGroup>
                 </Col>
-                <Col smOffset={0} sm={6} style={{ paddingLeft: 0, paddingRight: 0 }}>
+                <Col smOffset={0} sm={6}>
                   <FormGroup>
                     <ControlLabel>DateType</ControlLabel>
                     <FormControl
