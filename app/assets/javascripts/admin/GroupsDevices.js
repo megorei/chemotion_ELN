@@ -220,13 +220,11 @@ export default class GroupsDevices extends React.Component {
     }).then((result) => {
       if (result.error) {
         alert(result.error);
-      } else {
-        if (result.device_metadata) {
-          this.setState({
-            deviceMetadata: result.device_metadata
-          })
-          this.doi.value = result.device_metadata.doi
-        }
+      } else if (result.device_metadata) {
+        this.setState({
+          deviceMetadata: result.device_metadata
+        });
+        this.doi.value = result.device_metadata.doi;
       }
     });
   }
@@ -237,12 +235,10 @@ export default class GroupsDevices extends React.Component {
     }).then((result) => {
       if (result.error) {
         alert(result.error);
-      } else {
-        if (result.device_metadata) {
-          this.setState({
-            deviceMetadata: result.device_metadata
-          })
-        }
+      } else if (result.device_metadata) {
+        this.setState({
+          deviceMetadata: result.device_metadata
+        });
       }
     });
   }
@@ -265,66 +261,58 @@ export default class GroupsDevices extends React.Component {
     }).then((result) => {
       if (result.error) {
         alert(result.error);
-      } else {
-        if (result.device_metadata) {
-          this.setState({
-            deviceMetadata: result.device_metadata
-          })
-        }
+      } else if (result.device_metadata) {
+        this.setState({
+          deviceMetadata: result.device_metadata
+        });
       }
     });
   }
 
   addDeviceMetadataDate() {
-    this.setState(state => {
+    this.setState((state) => {
       const newDateItem = {
         date: '',
         dateType: ''
-      }
-      const deviceMetadata = state.deviceMetadata
-      const currentDates = deviceMetadata.dates ? deviceMetadata.dates : []
-      const newDates = currentDates.concat(newDateItem)
-      deviceMetadata.dates = newDates
+      };
+      const { deviceMetadata } = state;
+      const currentDates = deviceMetadata.dates ? deviceMetadata.dates : [];
+      const newDates = currentDates.concat(newDateItem);
+      deviceMetadata.dates = newDates;
 
       return {
         deviceMetadata
-      }
-    })
+      };
+    });
   }
 
   removeDeviceMetadataDate(index) {
-    this.setState(state => {
-      const deviceMetadata = state.deviceMetadata
-      const currentDates = deviceMetadata.dates ? deviceMetadata.dates : []
-      currentDates.splice(index, 1)
-      deviceMetadata.dates = currentDates
+    this.setState((state) => {
+      const { deviceMetadata } = state;
+      const currentDates = deviceMetadata.dates ? deviceMetadata.dates : [];
+      currentDates.splice(index, 1);
+      deviceMetadata.dates = currentDates;
 
-      return {
-        deviceMetadata
-      }
-    })
+      return deviceMetadata;
+    });
   }
 
   updateDeviceMetadataDate(index, fieldname, value) {
-    this.setState(state => {
-      const deviceMetadata = state.deviceMetadata
-      deviceMetadata.dates[index][fieldname] = value
+    this.setState((state) => {
+      const { deviceMetadata } = state;
+      deviceMetadata.dates[index][fieldname] = value;
 
-      return {
-        deviceMetadata
-      }
-    })
+      return deviceMetadata;
+    });
   }
 
   updateDeviceMetadataDataCiteState(value) {
-    this.setState(state => {
-      const deviceMetadata = state.deviceMetadata
-      deviceMetadata.data_cite_state = value
+    this.setState((state) => {
+      const { deviceMetadata } = state;
+      deviceMetadata.data_cite_state = value;
 
-      return {
-        deviceMetadata
-      }
-    })
+      return deviceMetadata;
+    });
   }
 
   confirmDelete(rootType, actionType, groupRec, userRec, isRoot = false) {
@@ -805,7 +793,7 @@ export default class GroupsDevices extends React.Component {
             <Panel.Body>
               <Form>
                 {!this.deviceMetadataDoiExists() &&
-                  <p class="text-center">Get Metadata from DataCite</p>
+                  <p className="text-center">Get Metadata from DataCite</p>
                 }
                 <FormGroup controlId="metadataFormDOI">
                   <ControlLabel>DOI*</ControlLabel>&nbsp;&nbsp;
@@ -814,7 +802,7 @@ export default class GroupsDevices extends React.Component {
                     defaultValue={deviceMetadata.doi}
                     inputRef={(m) => { this.doi = m; }}
                     placeholder="10.*****/**********"
-                    disabled={this.deviceMetadataDoiExists()}
+                    readOnly={this.deviceMetadataDoiExists()}
                   />
                 </FormGroup>
                 {!this.deviceMetadataDoiExists() &&
@@ -825,7 +813,7 @@ export default class GroupsDevices extends React.Component {
                   </Col>
                 }
                 {!this.deviceMetadataDoiExists() &&
-                  <p class="text-center">Or create Metadata and sync to DataCite</p>
+                  <p className="text-center">Or create Metadata and sync to DataCite</p>
                 }
 
                 <FormGroup controlId="metadataFormState">
@@ -833,7 +821,7 @@ export default class GroupsDevices extends React.Component {
                   <FormControl
                     componentClass="select"
                     value={deviceMetadata.data_cite_state}
-                    onChange={(event) => this.updateDeviceMetadataDataCiteState(event.target.value)}
+                    onChange={event => this.updateDeviceMetadataDataCiteState(event.target.value)}
                     inputRef={(m) => { this.dataCiteState = m; }}
                   >
                     <option value="draft">Draft</option>
@@ -891,7 +879,7 @@ export default class GroupsDevices extends React.Component {
 
                 <ControlLabel style={{ marginTop: 5 }}>Dates</ControlLabel>
                 {deviceMetadata.dates && deviceMetadata.dates.map((dateItem, index) => (
-                  <div key={index}>
+                  <div key={dateItem.id}>
                     <Row>
                       <Col smOffset={0} sm={5}>
                         <FormGroup>
@@ -900,7 +888,7 @@ export default class GroupsDevices extends React.Component {
                             type="text"
                             value={dateItem.date}
                             placeholder="Date e.g. '2020-01-01'"
-                            onChange={(event) => this.updateDeviceMetadataDate(index, 'date', event.target.value)}
+                            onChange={event => this.updateDeviceMetadataDate(index, 'date', event.target.value)}
                           />
                         </FormGroup>
                       </Col>
@@ -911,7 +899,7 @@ export default class GroupsDevices extends React.Component {
                             type="text"
                             value={dateItem.dateType}
                             placeholder="DateType e.g. 'Created'"
-                            onChange={(event) => this.updateDeviceMetadataDate(index, 'dateType', event.target.value)}
+                            onChange={event => this.updateDeviceMetadataDate(index, 'dateType', event.target.value)}
                           />
                         </FormGroup>
                       </Col>
@@ -934,7 +922,7 @@ export default class GroupsDevices extends React.Component {
 
                 <Row>
                   <Col smOffset={0} sm={12}>
-                    <p class="text-right">
+                    <p className="text-right">
                       DataCiteVersion: {deviceMetadata.data_cite_version}<br />
                       DataCiteUpdatedAt: {moment(deviceMetadata.data_cite_updated_at).format('YYYY-MM-DD HH:mm')}<br />
                     </p>
