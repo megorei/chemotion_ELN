@@ -278,16 +278,13 @@ export default class GroupsDevices extends React.Component {
   addDeviceMetadataDate() {
     this.setState(state => {
       const newDateItem = {
-        date: this.dateDate.value.trim(),
-        dateType: this.dateDateType.value.trim()
+        date: '',
+        dateType: ''
       }
       const deviceMetadata = state.deviceMetadata
       const currentDates = deviceMetadata.dates ? deviceMetadata.dates : []
       const newDates = currentDates.concat(newDateItem)
       deviceMetadata.dates = newDates
-
-      this.dateDate.value = ''
-      this.dateDateType.value = ''
 
       return {
         deviceMetadata
@@ -299,8 +296,8 @@ export default class GroupsDevices extends React.Component {
     this.setState(state => {
       const deviceMetadata = state.deviceMetadata
       const currentDates = deviceMetadata.dates ? deviceMetadata.dates : []
-      const newDates = currentDates.length > 1 ? currentDates.splice(index, 1) : []
-      deviceMetadata.dates = newDates
+      currentDates.splice(index, 1)
+      deviceMetadata.dates = currentDates
 
       return {
         deviceMetadata
@@ -892,68 +889,49 @@ export default class GroupsDevices extends React.Component {
                   />
                 </FormGroup>
 
+                <ControlLabel style={{ marginTop: 5 }}>Dates</ControlLabel>
                 {deviceMetadata.dates && deviceMetadata.dates.map((dateItem, index) => (
                   <div key={index}>
-                    <Col smOffset={0} sm={5}>
-                      <FormGroup>
-                        <ControlLabel>Date</ControlLabel>
-                        <FormControl
-                          type="text"
-                          defaultValue={dateItem.date}
-                          placeholder="Date e.g. '2020-01-01'"
-                          onChange={(event) => this.updateDeviceMetadataDate(index, 'date', event.target.value)}
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col smOffset={0} sm={5}>
-                      <FormGroup>
-                        <ControlLabel>DateType</ControlLabel>
-                        <FormControl
-                          type="text"
-                          defaultValue={dateItem.dateType}
-                          placeholder="DateType e.g. 'Created'"
-                          onChange={(event) => this.updateDeviceMetadataDate(index, 'dateType', event.target.value)}
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col smOffset={0} sm={2}>
-                      <ControlLabel>Action</ControlLabel>
-                      <Button bsStyle="danger" onClick={() => this.removeDeviceMetadataDate(index)}>
-                        X
-                      </Button>
-                    </Col>
+                    <Row>
+                      <Col smOffset={0} sm={5}>
+                        <FormGroup>
+                          <ControlLabel>Date</ControlLabel>
+                          <FormControl
+                            type="text"
+                            value={dateItem.date}
+                            placeholder="Date e.g. '2020-01-01'"
+                            onChange={(event) => this.updateDeviceMetadataDate(index, 'date', event.target.value)}
+                          />
+                        </FormGroup>
+                      </Col>
+                      <Col smOffset={0} sm={5}>
+                        <FormGroup>
+                          <ControlLabel>Date Type</ControlLabel>
+                          <FormControl
+                            type="text"
+                            value={dateItem.dateType}
+                            placeholder="DateType e.g. 'Created'"
+                            onChange={(event) => this.updateDeviceMetadataDate(index, 'dateType', event.target.value)}
+                          />
+                        </FormGroup>
+                      </Col>
+                      <Col smOffset={0} sm={2}>
+                        <ControlLabel>Action</ControlLabel>
+                        <Button bsStyle="danger" className="pull-right" bsSize="small" onClick={() => this.removeDeviceMetadataDate(index)}>
+                          <i className="fa fa-trash-o" />
+                        </Button>
+                      </Col>
+                    </Row>
                   </div>
                 ))}
-
-                <Row>
-                  <Col smOffset={0} sm={6}>
-                    <FormGroup>
-                      <ControlLabel>Date</ControlLabel>
-                      <FormControl
-                        type="text"
-                        inputRef={(m) => { this.dateDate = m; }}
-                        placeholder="Date e.g. '2020-01-01'"
-                      />
-                    </FormGroup>
-                  </Col>
-                  <Col smOffset={0} sm={6}>
-                    <FormGroup>
-                      <ControlLabel>DateType</ControlLabel>
-                      <FormControl
-                        type="text"
-                        inputRef={(m) => { this.dateDateType = m; }}
-                        placeholder="DateType e.g. 'Created'"
-                      />
-                    </FormGroup>
-                  </Col>
-                </Row>
                 <Row>
                   <Col smOffset={0} sm={12}>
-                    <Button bsStyle="success" onClick={() => this.addDeviceMetadataDate()}>
-                      Add date
+                    <Button className="pull-right" bsStyle="success" bsSize="small" onClick={() => this.addDeviceMetadataDate()}>
+                      <i className="fa fa-plus" />
                     </Button>
                   </Col>
                 </Row>
+
                 <Row>
                   <Col smOffset={0} sm={12}>
                     <p class="text-right">
