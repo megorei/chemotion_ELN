@@ -152,7 +152,7 @@ export default class ResearchPlanDetails extends Component {
   }
 
   handleAttachmentDownload(attachment) {
-      Utils.downloadFile({contents: `/api/v1/attachments/${attachment.id}`, name: attachment.filename});
+    Utils.downloadFile({contents: `/api/v1/attachments/${attachment.id}`, name: attachment.filename});
   }
 
   handleAttachmentEdit(attachment) {
@@ -174,6 +174,14 @@ export default class ResearchPlanDetails extends Component {
   handleExportField(field) {
     const { researchPlan } = this.props;
     ResearchPlansFetcher.exportTable(researchPlan, field);
+  }
+
+  handleCopyToMetadata(id, fieldName) {
+    const { researchPlan } = this.state;
+    const index = researchPlan.body.findIndex(field => field.id === id);
+    researchPlan.research_plan_metadata[fieldName] = researchPlan.body[index].value.ops[0].insert;
+
+    // TODO: save metadata
   }
 
   // render functions
@@ -234,6 +242,7 @@ export default class ResearchPlanDetails extends Component {
             onAdd={this.handleBodyAdd}
             onDelete={this.handleBodyDelete.bind(this)}
             onExport={this.handleExportField.bind(this)}
+            onCopyToMetadata={this.handleCopyToMetadata.bind(this)}
             update={update}
             edit={false}
           />
@@ -261,6 +270,14 @@ export default class ResearchPlanDetails extends Component {
             onAdd={this.handleBodyAdd}
             onDelete={this.handleBodyDelete.bind(this)}
             onExport={this.handleExportField.bind(this)}
+            onCopyToMetadata={this.handleCopyToMetadata.bind(this)}
+            isNew={researchPlan.isNew}
+            copyableFields={[
+              { title: 'Subject', fieldName: 'subject' },
+              { title: 'Alternate Identifier', fieldName: 'alternate_identifier' },
+              { title: 'Related Identifier', fieldName: 'related_identifier' },
+              { title: 'Description', fieldName: 'description' }
+            ]}
             update={update}
             edit
           />

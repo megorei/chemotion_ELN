@@ -9,7 +9,8 @@ import Field from './ResearchPlanDetailsField';
 export default class ResearchPlanDetailsBody extends Component {
   render() {
     const {
-      body, disabled, onChange, onDrop, onAdd, onDelete, onExport, update, edit
+      body, disabled, onChange, onDrop, onAdd, onDelete, onExport, update, edit, isNew,
+      copyableFields, onCopyToMetadata
     } = this.props;
 
     const fields = body.map((field, index) =>
@@ -22,8 +23,11 @@ export default class ResearchPlanDetailsBody extends Component {
         onDrop={onDrop.bind(this)}
         onDelete={onDelete.bind(this)}
         onExport={onExport.bind(this)}
+        onCopyToMetadata={onCopyToMetadata.bind(this)}
         update={update}
         edit={edit}
+        isNew={isNew}
+        copyableFields={copyableFields}
       />));
 
     let className = 'research-plan-body';
@@ -62,6 +66,9 @@ ResearchPlanDetailsBody.propTypes = {
   onDrop: PropTypes.func,
   onDelete: PropTypes.func,
   onExport: PropTypes.func,
+  onCopyToMetadata: PropTypes.func,
   update: PropTypes.bool,
-  edit: PropTypes.bool
+  edit: PropTypes.bool,
+  isNew: PropTypes.bool,
+  copyableFields: PropTypes.arrayOf(PropTypes.object)
 };
