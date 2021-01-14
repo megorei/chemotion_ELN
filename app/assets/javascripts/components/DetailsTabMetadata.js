@@ -274,7 +274,7 @@ export default class ResearchPlansMetadata extends Component {
             {researchPlanMetadata?.funding_reference && researchPlanMetadata?.funding_reference.map((fundingReferenceItem, index) => (
               <div key={index}>
                 <Row>
-                < Col smOffset={0} sm={5}>
+                  <Col smOffset={0} sm={5}>
                     <FormGroup>
                       <ControlLabel>Funder Name</ControlLabel>
                       <FormControl
