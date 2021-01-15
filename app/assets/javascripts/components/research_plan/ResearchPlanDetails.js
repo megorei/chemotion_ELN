@@ -179,7 +179,11 @@ export default class ResearchPlanDetails extends Component {
   handleCopyToMetadata(id, fieldName) {
     const { researchPlan } = this.state;
     const index = researchPlan.body.findIndex(field => field.id === id);
-    researchPlan.research_plan_metadata[fieldName] = researchPlan.body[index].value.ops[0].insert;
+    if (fieldName === 'name') {
+      researchPlan.research_plan_metadata.title = researchPlan.name;
+    } else {
+      researchPlan.research_plan_metadata[fieldName] = researchPlan.body[index].value.ops[0].insert;
+    }
 
     // TODO: save metadata
   }
@@ -258,8 +262,10 @@ export default class ResearchPlanDetails extends Component {
         <ListGroupItem >
           <ResearchPlanDetailsName
             value={name}
+            isNew={researchPlan.isNew}
             disabled={researchPlan.isMethodDisabled('name')}
             onChange={this.handleNameChange}
+            onCopyToMetadata={this.handleCopyToMetadata.bind(this)}
             edit
           />
           <ResearchPlanDetailsBody
