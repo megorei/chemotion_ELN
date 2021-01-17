@@ -20,11 +20,24 @@ export default class ResearchPlansMetadata extends Component {
     this.state = {
       researchPlan: {},
       researchPlanMetadata: {
+        title: '',
+        subject: '',
+        alternate_identifier: '',
+        related_identifier: '',
+        description: '',
         dates: [],
         geo_location: [],
         funding_reference: []
       }
     };
+  }
+
+  handleFieldChange(event) {
+    const { researchPlanMetadata } = this.state;
+
+    researchPlanMetadata[event.target.id] = event.target.value;
+
+    this.setState({ researchPlanMetadata });
   }
 
   componentDidMount() {
@@ -39,15 +52,17 @@ export default class ResearchPlansMetadata extends Component {
     }
   }
 
-  saveResearchPlanMetadata(researchPlanId) {
+  saveResearchPlanMetadata() {
+    const { researchPlan, researchPlanMetadata } = this.state;
+
     ResearchPlansFetcher.postResearchPlanMetadata({
 
-      research_plan_id: researchPlanId,
-      title: this.title.value.trim(),
-      subject: this.subject.value.trim(),
-      alternate_identifier: this.alternate_identifier.value.trim(),
-      related_identifier: this.related_identifier.value.trim(),
-      description: this.description.value.trim(),
+      research_plan_id: researchPlan.id,
+      title: researchPlanMetadata.title.trim(),
+      subject: researchPlanMetadata.subject.trim(),
+      alternate_identifier: researchPlanMetadata.alternate_identifier.trim(),
+      related_identifier: researchPlanMetadata.related_identifier.trim(),
+      description: researchPlanMetadata.description.trim(),
 
       format: this.format.value.trim(),
       version: this.version.value.trim(),
@@ -60,12 +75,10 @@ export default class ResearchPlansMetadata extends Component {
     }).then((result) => {
       if (result.error) {
         alert(result.error);
-      } else {
-        if (result.research_plan_metadata) {
-          this.setState({
-            researchPlanMetadata: result.research_plan_metadata
-          })
-        }
+      } else if (result.research_plan_metadata) {
+        this.setState({
+          researchPlanMetadata: result.research_plan_metadata
+        })
       }
     });
   }
@@ -158,53 +171,54 @@ export default class ResearchPlansMetadata extends Component {
   }
 
   render() {
-    const { researchPlan, researchPlanMetadata } = this.state;
+    const { researchPlanMetadata } = this.state;
     return (
       <Panel>
         <Panel.Body>
           <Form>
-            <FormGroup controlId="metadataFormTitle">
+            <FormGroup controlId="title">
               <ControlLabel>Title*</ControlLabel>&nbsp;&nbsp;
               <FormControl
                 type="text"
-                defaultValue={researchPlanMetadata?.title}
-                inputRef={(m) => { this.title = m; }}
+                value={researchPlanMetadata?.title}
+                onChange={(event) => this.handleFieldChange(event)}
                 placeholder="Title"
               />
             </FormGroup>
-            <FormGroup controlId="metadataFormSubject">
+            <FormGroup controlId="subject">
               <ControlLabel>Subject</ControlLabel>&nbsp;&nbsp;
               <FormControl
                 type="text"
-                defaultValue={researchPlanMetadata?.subject}
-                inputRef={(m) => { this.subject = m; }}
+                value={researchPlanMetadata?.subject}
+                onChange={(event) => this.handleFieldChange(event)}
                 placeholder="Subject"
               />
             </FormGroup>
-            <FormGroup controlId="metadataFormAlternateIdentifier">
+            <FormGroup controlId="alternate_identifier">
               <ControlLabel>Alternate Identifier</ControlLabel>&nbsp;&nbsp;
               <FormControl
                 type="text"
-                defaultValue={researchPlanMetadata?.alternate_identifier}
+                value={researchPlanMetadata?.alternate_identifier}
+                onChange={(event) => this.handleFieldChange(event)}
                 inputRef={(m) => { this.alternate_identifier = m; }}
                 placeholder="Alternate Identifier"
               />
             </FormGroup>
-            <FormGroup controlId="metadataFormRelatedIdentifier">
+            <FormGroup controlId="related_identifier">
               <ControlLabel>Related Identifier</ControlLabel>&nbsp;&nbsp;
               <FormControl
                 type="text"
-                defaultValue={researchPlanMetadata?.related_identifier}
-                inputRef={(m) => { this.related_identifier = m; }}
+                value={researchPlanMetadata?.related_identifier}
+                onChange={(event) => this.handleFieldChange(event)}
                 placeholder="Related Identifier"
               />
             </FormGroup>
-            <FormGroup controlId="metadataFormDescription">
+            <FormGroup controlId="description">
               <ControlLabel>Description</ControlLabel>
               <FormControl
                 type="text"
-                defaultValue={researchPlanMetadata?.description}
-                inputRef={(m) => { this.description = m; }}
+                value={researchPlanMetadata?.description}
+                onChange={(event) => this.handleFieldChange('description', event.target.value)}
                 placeholder="Description"
               />
             </FormGroup>
@@ -368,33 +382,35 @@ export default class ResearchPlansMetadata extends Component {
             { researchPlanMetadata?.dates ? <ControlLabel style={{ marginTop: 5 }}>Dates</ControlLabel>: '' }
             {researchPlanMetadata?.dates && researchPlanMetadata?.dates.map((dateItem, index) => (
               <div key={index}>
-                <Col smOffset={0} sm={6}>
-                  <FormGroup>
-                    <ControlLabel>Date</ControlLabel>
-                    <FormControl
-                      type="text"
-                      defaultValue={dateItem.date}
-                      placeholder="Date"
-                      readOnly
+                <Row>
+                  <Col smOffset={0} sm={6}>
+                    <FormGroup>
+                      <ControlLabel>Date</ControlLabel>
+                      <FormControl
+                        type="text"
+                        defaultValue={dateItem.date}
+                        placeholder="Date"
+                        readOnly
+                        />
+                    </FormGroup>
+                  </Col>
+                  <Col smOffset={0} sm={6}>
+                    <FormGroup>
+                      <ControlLabel>DateType</ControlLabel>
+                      <FormControl
+                        type="text"
+                        defaultValue={dateItem.dateType}
+                        placeholder="DateType"
+                        readOnly
                       />
-                  </FormGroup>
-                </Col>
-                <Col smOffset={0} sm={6}>
-                  <FormGroup>
-                    <ControlLabel>DateType</ControlLabel>
-                    <FormControl
-                      type="text"
-                      defaultValue={dateItem.dateType}
-                      placeholder="DateType"
-                      readOnly
-                    />
-                  </FormGroup>
-                </Col>
+                    </FormGroup>
+                  </Col>
+                </Row>
               </div>
             ))}
 
             <FormGroup>
-              <Button className="pull-right" bsStyle="success" style={{ marginTop: 20 }} onClick={() => this.saveResearchPlanMetadata(researchPlan.id)}>
+              <Button className="pull-right" bsStyle="success" style={{ marginTop: 20 }} onClick={() => this.saveResearchPlanMetadata()}>
                 Save Metadata
               </Button>
             </FormGroup>

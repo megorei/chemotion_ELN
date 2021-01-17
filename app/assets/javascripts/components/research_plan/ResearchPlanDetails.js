@@ -184,8 +184,7 @@ export default class ResearchPlanDetails extends Component {
     } else {
       researchPlan.research_plan_metadata[fieldName] = researchPlan.body[index].value.ops[0].insert;
     }
-
-    // TODO: save metadata
+    this.handleResearchPlanChange(researchPlan);
   }
 
   // render functions
@@ -296,7 +295,12 @@ export default class ResearchPlanDetails extends Component {
     return (
       <ListGroup fill="true">
         <ListGroupItem>
-          <ResearchPlanDetailsContainers handleSubmit={this.handleSubmit} researchPlan={researchPlan} readOnly={false} parent={this} />
+          <ResearchPlanDetailsContainers
+            handleSubmit={this.handleSubmit}
+            researchPlan={researchPlan}
+            readOnly={false}
+            parent={this}
+          />
         </ListGroupItem>
       </ListGroup>
     );
