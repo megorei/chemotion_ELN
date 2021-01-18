@@ -218,7 +218,7 @@ export default class ResearchPlansMetadata extends Component {
               <FormControl
                 type="text"
                 value={researchPlanMetadata?.description}
-                onChange={(event) => this.handleFieldChange('description', event.target.value)}
+                onChange={(event) => this.handleFieldChange(event)}
                 placeholder="Description"
               />
             </FormGroup>
