@@ -52,6 +52,14 @@ export default class ResearchPlansMetadata extends Component {
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { parentResearchPlan, parentResearchPlanMetadata } = nextProps;
+    this.setState({
+      researchPlan: parentResearchPlan,
+      researchPlanMetadata: parentResearchPlanMetadata
+    });
+  }
+
   saveResearchPlanMetadata() {
     const { researchPlan, researchPlanMetadata } = this.state;
 
