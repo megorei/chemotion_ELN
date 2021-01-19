@@ -178,13 +178,22 @@ export default class ResearchPlanDetails extends Component {
 
   handleCopyToMetadata(id, fieldName) {
     const { researchPlan } = this.state;
+    const researchPlanMetadata = researchPlan.research_plan_metadata;
+    const args = { research_plan_id: researchPlanMetadata.research_plan_id };
     const index = researchPlan.body.findIndex(field => field.id === id);
     if (fieldName === 'name') {
-      researchPlan.research_plan_metadata.title = researchPlan.name;
+      researchPlanMetadata.title = researchPlan.name;
+      args.title = researchPlan.name.trim();
     } else {
-      researchPlan.research_plan_metadata[fieldName] = researchPlan.body[index].value.ops[0].insert;
+      researchPlanMetadata[fieldName] = researchPlan.body[index].value.ops[0].insert;
+      args[`${fieldName}`] = researchPlanMetadata[fieldName];
     }
-    this.handleResearchPlanChange(researchPlan);
+
+    ResearchPlansFetcher.postResearchPlanMetadata(args).then((result) => {
+      if (result.error) {
+        alert(result.error);
+      }
+    });
   }
 
   // render functions
