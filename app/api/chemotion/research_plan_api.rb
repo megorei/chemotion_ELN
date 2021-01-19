@@ -120,7 +120,13 @@ module Chemotion
         end
         get do
           research_plan = ResearchPlan.find(params[:id])
-          research_plan.build_research_plan_metadata(title: ResearchPlan.name) if research_plan.research_plan_metadata.nil?
+          research_plan.build_research_plan_metadata(
+            title: ResearchPlan.name,
+            subject: '',
+            alternate_identifier: '',
+            related_identifier: '',
+            description: ''
+          ) if research_plan.research_plan_metadata.nil?
           {
             research_plan: ElementPermissionProxy.new(current_user, research_plan, user_ids).serialized,
             attachments: Entities::AttachmentEntity.represent(research_plan.attachments),
