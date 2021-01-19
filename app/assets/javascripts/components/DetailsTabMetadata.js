@@ -185,7 +185,7 @@ export default class ResearchPlansMetadata extends Component {
         <Panel.Body>
           <Form>
             <FormGroup controlId="title">
-              <ControlLabel>Title*</ControlLabel>&nbsp;&nbsp;
+              <ControlLabel>Title</ControlLabel>&nbsp;&nbsp;
               <FormControl
                 type="text"
                 value={researchPlanMetadata?.title}
@@ -276,7 +276,7 @@ export default class ResearchPlansMetadata extends Component {
                     </FormGroup>
                   </Col>
                   <Col smOffset={0} sm={2}>
-                    <ControlLabel>Action</ControlLabel>
+                    <ControlLabel>Action</ControlLabel><br/>
                     <Button bsStyle="danger" className="pull-right" bsSize="small" onClick={() => this.removeResearchPlanMetadataGeoLocation(index)}>
                       <i className="fa fa-trash-o" />
                     </Button>
@@ -336,7 +336,7 @@ export default class ResearchPlansMetadata extends Component {
             </Row>
 
             <FormGroup controlId="metadataFormState">
-              <ControlLabel>State*</ControlLabel>
+              <ControlLabel>State</ControlLabel>
               <FormControl
                 componentClass="select"
                 value={researchPlanMetadata?.data_cite_state}
@@ -349,7 +349,7 @@ export default class ResearchPlansMetadata extends Component {
               </FormControl>
             </FormGroup>
             <FormGroup controlId="metadataFormURL">
-              <ControlLabel>URL*</ControlLabel>
+              <ControlLabel>URL</ControlLabel>
               <FormControl
                 type="text"
                 defaultValue={researchPlanMetadata?.url}
@@ -358,7 +358,7 @@ export default class ResearchPlansMetadata extends Component {
               />
             </FormGroup>
             <FormGroup controlId="metadataFormLandingPage">
-              <ControlLabel>Landing Page*</ControlLabel>
+              <ControlLabel>Landing Page</ControlLabel>
               <FormControl
                 type="text"
                 defaultValue={researchPlanMetadata?.landing_page}
