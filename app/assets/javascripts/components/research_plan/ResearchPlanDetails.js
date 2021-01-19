@@ -185,7 +185,7 @@ export default class ResearchPlanDetails extends Component {
       researchPlanMetadata.title = researchPlan.name;
       args.title = researchPlan.name.trim();
     } else {
-      researchPlanMetadata[fieldName] = researchPlan.body[index].value.ops[0].insert;
+      researchPlanMetadata[fieldName] = researchPlan.body[index]?.value?.ops[0]?.insert || '';
       args[`${fieldName}`] = researchPlanMetadata[fieldName];
     }
 

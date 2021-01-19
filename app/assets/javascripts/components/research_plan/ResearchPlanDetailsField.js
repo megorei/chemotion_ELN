@@ -129,6 +129,7 @@ export default class ResearchPlanDetailsField extends Component {
                 disabled={isNew}
               >
                 <li role="presentation" className="">Copy to Metadata field:</li>
+                <li role="separator" className="divider" />
                 {
                   copyableFields.map(element => (
                     <MenuItem
