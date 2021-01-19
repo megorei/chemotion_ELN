@@ -121,7 +121,7 @@ module Chemotion
         get do
           research_plan = ResearchPlan.find(params[:id])
           research_plan.build_research_plan_metadata(
-            title: ResearchPlan.name,
+            title: research_plan.name,
             subject: '',
             alternate_identifier: '',
             related_identifier: '',
