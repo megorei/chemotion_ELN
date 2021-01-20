@@ -1,19 +1,20 @@
 module Export
   class ExportJson
-    attr_accessor :collection_id, :sample_ids, :reaction_ids
+    attr_accessor :collection_id, :sample_ids, :reaction_ids, :research_plan_ids
     attr_reader :data
 
     def initialize(**args)
       @collection_id = args[:collection_id]
       @sample_ids = [args[:sample_ids]].flatten.compact.uniq || []
       @reaction_ids = [args[:reaction_ids]].flatten.compact.uniq || []
+      @research_plan_ids = [args[:research_plan_ids]].flatten.compact.uniq || []
       s_ids = ReactionsSample.where(reaction_id: reaction_ids).pluck(:sample_id).compact
       @sample_ids = @sample_ids | s_ids unless s_ids.empty?
       # FIXME: find a better way to bypass reaction query if only sample ids given
       if @sample_ids.present? && @reaction_ids.blank?
         @reaction_ids = [0]
       end
-      @data = { 'reactions' => {}, 'samples' => {}, 'analysis' => {} }
+      @data = { 'reactions' => {}, 'samples' => {}, 'analysis' => {}, 'research_plans' => {} }
     end
 
     def export
@@ -35,9 +36,11 @@ module Export
     def query
       @data['reactions'] = db_exec_query(reaction_sql)
       @data['samples'] = db_exec_query(sample_sql)
+      @data['research_plans'] = query_research_plans
       @data['analyses'] = {}
       @data['reaction_analyses'] = db_exec_query(analyses_sql('reaction'))
       @data['sample_analyses'] = db_exec_query(analyses_sql('sample'))
+      # @data['research_plan_analyses'] = db_exec_query(analyses_sql('research_plan'))
       @data['attachments'] = db_exec_query(attachments_sql)
       @data
     end
@@ -45,8 +48,11 @@ module Export
     def prepare_data
       reactions_data
       samples_data
+      research_plans_data
+      research_plans_samples_data
       analyses_data('reaction')
       analyses_data('sample')
+      # analyses_data('research_plan')
       attachments_data
     end
 
@@ -100,6 +106,19 @@ module Export
         #   el[column] = JSON.parse(el[column]) if el[column]
         # end
       end
+    end
+
+    def research_plans_data
+      @data['research_plans'] = {}.tap do |r|
+        @data['research_plans'].each { |rp| r[SecureRandom.uuid] = rp }
+      end
+    end
+
+    def research_plans_samples_data
+      # byebug
+      # ResearchPlan.last.body.select { |v| v['type'] == 'sample'   }.map { |v| v['value']['sample_id']  }
+
+
     end
 
     def db_exec_query(sql)
@@ -188,6 +207,9 @@ module Export
       SQL
     end
 
+    def query_research_plans
+      Collection.find(@collection_id).research_plans.where(id: @research_plan_ids)
+    end
 
     def analyses_sql(type)
       return unless %w(reaction sample).include?(type)

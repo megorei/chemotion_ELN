@@ -93,7 +93,7 @@ class Import::ImportJson
     @collection_id = arg[:collection_id]
     @new_data = {}
     @new_attachments = {}
-    @log = { 'reactions' => {}, 'samples' => {} }
+    @log = { 'reactions' => {}, 'samples' => {}, 'research_plans' => {} }
     @force_uuid = arg[:force_uuid]
     find_collection
     find_collection_all
@@ -106,7 +106,8 @@ class Import::ImportJson
       return @log
     end
     import_reactions
-    import_samples
+    # import_samples
+    import_research_plans
     # File.write("log_#{Time.now.to_i}.json", JSON.pretty_generate(@log))
   end
 
@@ -165,8 +166,23 @@ class Import::ImportJson
     end
   end
 
+  def import_research_plans
+    return unless collections?
+    attribute_names = filter_attributes(ResearchPlan)
+    research_plans.each do |key, el|
+      attribs = el.slice(*attribute_names).merge(
+        created_by: user_id,
+        collections_research_plans_attributes: [
+          { collection_id: collection.id },
+          { collection_id: all_collection.id }
+        ]
+      )
+      create_element(key, attribs, ResearchPlan, 'research_plan', [])
+    end
+  end
+
   def map_data_uuids(obj)
-    %w[reactions samples].each do |method|
+    %w[reactions samples research_plans].each do |method|
       send(method).each_key do |uuid|
         obj[method][uuid] = {}
       end
@@ -316,6 +332,10 @@ class Import::ImportJson
 
   def samples
     data && data['samples'] || {}
+  end
+
+  def research_plans
+    data && data['research_plans'] || {}
   end
 
   def analyses

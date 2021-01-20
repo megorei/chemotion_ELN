@@ -68,22 +68,42 @@ RSpec.describe 'ImportSdf' do
     )
   end
 
-  before do
-    u1.save!
-    u2.save!
-    c1.save!
-    c2.save!
-    s0.save!
-    s1.save!
-    s2.save!
-    s3.save!
-    s4.save!
-    mn.save!
-    s0.update!(molecule_name_id: mn.id)
-    rxn.save!
+  describe do
+    let(:research_plan) { build(:research_plan, creator: u1, collections: [c1]) }
+
+    before do
+      u1.save!
+      u2.save!
+      c1.save!
+      c2.save!
+      research_plan.save!
+
+      export = Export::ExportJson.new(collection_id: c1.id, research_plan_ids: [research_plan.id]).export.to_json
+      import = Import::ImportJson.new(collection_id: c2.id, data: export, user_id: u2.id).import
+    end
+
+    it do
+      expect(c2.research_plans.count).to be(1)
+      expect(c2.research_plans.map(&:collections).flatten.size).to be(2)
+    end
   end
 
   context 'without uuid lock, ' do
+    before do
+      u1.save!
+      u2.save!
+      c1.save!
+      c2.save!
+      s0.save!
+      s1.save!
+      s2.save!
+      s3.save!
+      s4.save!
+      mn.save!
+      s0.update!(molecule_name_id: mn.id)
+      rxn.save!
+    end
+
     context 'only 1 sample, no analyses, ' do
       before do
         json = Export::ExportJson.new(
