@@ -85,6 +85,7 @@ RSpec.describe 'ImportSdf' do
     it do
       expect(c2.research_plans.count).to be(1)
       expect(c2.research_plans.map(&:collections).flatten.size).to be(2)
+      expect(c2.research_plans.first.body).to eq(c1.research_plans.first.body)
     end
   end
 

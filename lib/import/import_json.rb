@@ -307,6 +307,8 @@ class Import::ImportJson
       attributes += %w[residues_attributes elemental_compositions_attributes molecule_name_attributes]
     # when 'Reaction'
     #   attributes -= ['reaction_svg_file']
+    when 'ResearchPlan'
+      attributes += ['body']
     end
     attributes
   end
