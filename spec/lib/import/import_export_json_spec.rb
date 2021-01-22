@@ -68,7 +68,7 @@ RSpec.describe 'ImportSdf' do
     )
   end
 
-  describe do
+  describe 'import/export research plan' do
     let(:research_plan) { build(:research_plan, creator: u1, collections: [c1]) }
 
     before do
