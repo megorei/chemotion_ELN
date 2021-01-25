@@ -70,6 +70,10 @@ RSpec.describe 'ImportSdf' do
 
   describe 'import/export research plan' do
     let(:research_plan) { build(:research_plan, creator: u1, collections: [c1]) }
+    let(:ignored_attributes) { %w[id research_plan_id created_at updated_at] }
+
+    let(:first_metadata) { c1.research_plans.first.research_plan_metadata.attributes.except(*ignored_attributes) }
+    let(:second_metadata) { c2.research_plans.first.research_plan_metadata.attributes.except(*ignored_attributes) }
 
     before do
       u1.save!
@@ -86,6 +90,7 @@ RSpec.describe 'ImportSdf' do
       expect(c2.research_plans.count).to be(1)
       expect(c2.research_plans.map(&:collections).flatten.size).to be(2)
       expect(c2.research_plans.first.body).to eq(c1.research_plans.first.body)
+      expect(first_metadata).to eq(second_metadata)
     end
   end
 

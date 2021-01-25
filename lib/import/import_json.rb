@@ -170,6 +170,7 @@ class Import::ImportJson
     return unless collections?
     attribute_names = filter_attributes(ResearchPlan)
     research_plans.each do |key, el|
+      research_plan_metadata = el['research_plan_metadata']
       attribs = el.slice(*attribute_names).merge(
         created_by: user_id,
         collections_research_plans_attributes: [
@@ -177,8 +178,20 @@ class Import::ImportJson
           { collection_id: all_collection.id }
         ]
       )
-      create_element(key, attribs, ResearchPlan, 'research_plan', [])
+      research_plan = create_element(key, attribs, ResearchPlan, 'research_plan', [])
+      import_research_plan_metadata(research_plan, research_plan_metadata)
     end
+  end
+
+  def import_research_plan_metadata(research_plan, research_plan_metadata)
+    return unless research_plan_metadata
+
+    attribute_names = filter_attributes(ResearchPlanMetadata)
+    attributes = research_plan_metadata.slice(*attribute_names).merge(
+      research_plan_id: research_plan.id
+    )
+    metadata = ResearchPlanMetadata.find_or_create_by!(research_plan_id: research_plan.id)
+    metadata.update_attributes!(attributes)
   end
 
   def map_data_uuids(obj)
@@ -308,7 +321,12 @@ class Import::ImportJson
     # when 'Reaction'
     #   attributes -= ['reaction_svg_file']
     when 'ResearchPlan'
-      attributes += ['body']
+      attributes += %w[body]
+    when 'ResearchPlanMetadata'
+      attributes += %w[doi url landing_page title type description publisher publication_year
+        dates data_cite_prefix data_cite_created_at data_cite_updated_at data_cite_version data_cite_last_response
+        data_cite_state data_cite_creator_name creator affiliation contributor language rights format version
+        geo_location funding_reference subject alternate_identifier related_identifier]
     end
     attributes
   end

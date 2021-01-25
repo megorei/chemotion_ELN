@@ -24,7 +24,7 @@ module Export
     end
 
     def to_json
-      @data.to_json
+      @data.to_json(:include => { :research_plan_metadata => {} })
     end
 
     def to_file(file_name)

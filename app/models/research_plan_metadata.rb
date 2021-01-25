@@ -51,8 +51,8 @@ class ResearchPlanMetadata < ActiveRecord::Base
 
   belongs_to :research_plan
 
-  validates :doi, uniqueness: true, if: -> { doi.present? }
-#   validates :doi_sequence, uniqueness: true, if: -> { doi_sequence.present? }
+  # validates :doi, uniqueness: true, if: -> { doi.present? }
+  # validates :doi_sequence, uniqueness: true, if: -> { doi_sequence.present? }
 
   validates :url, presence: true, if: -> { data_cite_state.in?(%w[registered findable]) }
   validates :publication_year, presence: true, if: -> { data_cite_state.in?(%w[registered findable]) }

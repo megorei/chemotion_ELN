@@ -4,7 +4,7 @@ FactoryBot.define do
 
     body do
       [
-        { "id"=>"c8186fff-8011-43e6-9180-5a56f6139b3c",
+        { "id"=>SecureRandom.uuid,
           "type"=>"richtext",
           "value"=>{ "ops"=>[{ "insert"=>"some text here\n" }] } }
       ]
