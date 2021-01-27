@@ -24,7 +24,7 @@ module Export
     end
 
     def to_json
-      @data.to_json(:include => { :research_plan_metadata => {} })
+      @data.to_json(:include => { :research_plan_metadata => {}, :analyses => {} })
     end
 
     def to_file(file_name)
@@ -40,7 +40,6 @@ module Export
       @data['analyses'] = {}
       @data['reaction_analyses'] = db_exec_query(analyses_sql('reaction'))
       @data['sample_analyses'] = db_exec_query(analyses_sql('sample'))
-      # @data['research_plan_analyses'] = db_exec_query(analyses_sql('research_plan'))
       @data['attachments'] = db_exec_query(attachments_sql)
       @data
     end
@@ -49,10 +48,8 @@ module Export
       reactions_data
       samples_data
       research_plans_data
-      research_plans_samples_data
       analyses_data('reaction')
       analyses_data('sample')
-      # analyses_data('research_plan')
       attachments_data
     end
 
@@ -112,13 +109,6 @@ module Export
       @data['research_plans'] = {}.tap do |r|
         @data['research_plans'].each { |rp| r[SecureRandom.uuid] = rp }
       end
-    end
-
-    def research_plans_samples_data
-      # byebug
-      # ResearchPlan.last.body.select { |v| v['type'] == 'sample'   }.map { |v| v['value']['sample_id']  }
-
-
     end
 
     def db_exec_query(sql)

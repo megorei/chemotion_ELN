@@ -171,6 +171,7 @@ class Import::ImportJson
     attribute_names = filter_attributes(ResearchPlan)
     research_plans.each do |key, el|
       research_plan_metadata = el['research_plan_metadata']
+      analyses = el['analyses']
       attribs = el.slice(*attribute_names).merge(
         created_by: user_id,
         collections_research_plans_attributes: [
@@ -180,6 +181,7 @@ class Import::ImportJson
       )
       research_plan = create_element(key, attribs, ResearchPlan, 'research_plan', [])
       import_research_plan_metadata(research_plan, research_plan_metadata)
+      import_research_plan_analyses(research_plan, analyses)
     end
   end
 
@@ -187,11 +189,25 @@ class Import::ImportJson
     return unless research_plan_metadata
 
     attribute_names = filter_attributes(ResearchPlanMetadata)
-    attributes = research_plan_metadata.slice(*attribute_names).merge(
-      research_plan_id: research_plan.id
-    )
+    attributes = research_plan_metadata.slice(*attribute_names)
+
     metadata = ResearchPlanMetadata.find_or_create_by!(research_plan_id: research_plan.id)
     metadata.update_attributes!(attributes)
+  end
+
+  def import_research_plan_analyses(research_plan, research_plan_analyses)
+    return unless research_plan_analyses
+
+    attribute_names = filter_attributes(Container)
+
+    analyses = Container.find_by(parent_id: research_plan.container.id)
+    Container.where(parent_id: analyses.id).destroy_all
+
+    research_plan_analyses.each do |research_plan_analysis|
+      attributes = research_plan_analysis.slice(*attribute_names).merge(parent_id: analyses.id)
+
+      Container.create!(attributes)
+    end
   end
 
   def map_data_uuids(obj)
@@ -321,14 +337,13 @@ class Import::ImportJson
     # when 'Reaction'
     #   attributes -= ['reaction_svg_file']
     when 'ResearchPlan'
-      attributes += %w[body]
     when 'ResearchPlanMetadata'
-      attributes += %w[doi url landing_page title type description publisher publication_year
-        dates data_cite_prefix data_cite_created_at data_cite_updated_at data_cite_version data_cite_last_response
-        data_cite_state data_cite_creator_name creator affiliation contributor language rights format version
-        geo_location funding_reference subject alternate_identifier related_identifier]
+      attributes -= %w[research_plan_id]
+    when 'Container'
+      attributes -= %w[parent_id]
+      attributes += %w[status content datasets]
     end
-    attributes
+    attributes.uniq
   end
 
   def add_to_reaction(klass, el, new_el)

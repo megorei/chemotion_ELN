@@ -70,16 +70,17 @@ RSpec.describe 'ImportSdf' do
 
   describe 'import/export research plan' do
     let(:research_plan) { build(:research_plan, creator: u1, collections: [c1]) }
-    let(:ignored_attributes) { %w[id research_plan_id created_at updated_at] }
+    let(:ignored_attributes) { %w[id research_plan_id created_at updated_at parent_id] }
 
     let(:first_metadata) { c1.research_plans.first.research_plan_metadata.attributes.except(*ignored_attributes) }
     let(:second_metadata) { c2.research_plans.first.research_plan_metadata.attributes.except(*ignored_attributes) }
 
+    let(:first_analyses) { c1.research_plans.first.analyses.map { |a| a.attributes.except(*ignored_attributes) } }
+    let(:second_analyses) { c2.research_plans.first.analyses.map { |a| a.attributes.except(*ignored_attributes) } }
+
     before do
       research_plan.save!
 
-      export = Export::ExportJson.new(collection_id: c1.id, research_plan_ids: [research_plan.id]).export.to_json
-      import = Import::ImportJson.new(collection_id: c2.id, data: export, user_id: u2.id).import
       analyses = Container.find_by(parent_id: research_plan.container.id)
 
       Container.create!(parent: analyses,
@@ -92,6 +93,10 @@ RSpec.describe 'ImportSdf' do
                           'datasets' => [],
                           'content' => '{"ops": [{"insert": "analysis contents"}]}'
                         })
+
+      export = Export::ExportJson.new(collection_id: c1.id, research_plan_ids: [research_plan.id]).export.to_json
+      import = Import::ImportJson.new(collection_id: c2.id, data: export, user_id: u2.id).import
+
     end
 
     it 'copies the research plan' do
@@ -105,9 +110,7 @@ RSpec.describe 'ImportSdf' do
     end
 
     it 'copies analyses' do
-      pending
-
-      expect(c2.research_plans.first.analyses).to eq(c1.research_plans.first.analyses)
+      expect(first_analyses).to eq(second_analyses)
     end
   end
 
