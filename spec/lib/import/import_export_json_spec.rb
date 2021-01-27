@@ -76,21 +76,38 @@ RSpec.describe 'ImportSdf' do
     let(:second_metadata) { c2.research_plans.first.research_plan_metadata.attributes.except(*ignored_attributes) }
 
     before do
-      u1.save!
-      u2.save!
-      c1.save!
-      c2.save!
       research_plan.save!
 
       export = Export::ExportJson.new(collection_id: c1.id, research_plan_ids: [research_plan.id]).export.to_json
       import = Import::ImportJson.new(collection_id: c2.id, data: export, user_id: u2.id).import
+      analyses = Container.find_by(parent_id: research_plan.container.id)
+
+      Container.create!(parent: analyses,
+                        container_type: 'analysis',
+                        name: 'new',
+                        description: 'analysis description',
+                        extended_metadata: {
+                          'kind' => 'CHMO:0000595 | 13C nuclear magnetic resonance spectroscopy (13C NMR)',
+                          'status' => 'Confirmed',
+                          'datasets' => [],
+                          'content' => '{"ops": [{"insert": "analysis contents"}]}'
+                        })
     end
 
-    it do
+    it 'copies the research plan' do
       expect(c2.research_plans.count).to be(1)
       expect(c2.research_plans.map(&:collections).flatten.size).to be(2)
       expect(c2.research_plans.first.body).to eq(c1.research_plans.first.body)
+    end
+
+    it 'copies metadata' do
       expect(first_metadata).to eq(second_metadata)
+    end
+
+    it 'copies analyses' do
+      pending
+
+      expect(c2.research_plans.first.analyses).to eq(c1.research_plans.first.analyses)
     end
   end
 
