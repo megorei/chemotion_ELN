@@ -30,6 +30,7 @@ gem 'sys-filesystem'
 gem 'rinchi-gem', '1.0.1', git: 'https://git.scc.kit.edu/ComPlat/rinchi-gem.git'
 
 gem 'bibtex-ruby'
+# gem 'bolognese'
 
 # state machine
 gem 'aasm'
@@ -88,7 +89,8 @@ gem 'hashie-forbidden_attributes'
 gem 'kaminari'
 gem 'kaminari-grape'
 
-gem "rdkit_chem", git: "https://github.com/CamAnNguyen/rdkit_chem"
+# gem "rdkit_chem", git: "https://github.com/CamAnNguyen/rdkit_chem"
+# gem "rdkit_chem", git: "https://github.com/megorei/rdkit_chem.git", branch: 'fix-macos-installation'
 
 gem 'api-pagination'
 
@@ -149,7 +151,7 @@ gem 'ruby-geometry', require: 'geometry'
 # to compile from github/openbabel/openbabel master
 # gem 'openbabel', '2.4.1.2', git: 'https://github.com/ComPlat/openbabel-gem'
 # to compile from github/openbabel/openbabel branch openbabel-2-4-x
-gem 'openbabel', '2.4.90.3', git: 'https://github.com/ComPlat/openbabel-gem.git', branch: 'hot-fix-svg'
+# gem 'openbabel', '2.4.90.3', git: 'https://github.com/ComPlat/openbabel-gem.git', branch: 'hot-fix-svg'
 
 gem 'barby'
 gem 'prawn'
