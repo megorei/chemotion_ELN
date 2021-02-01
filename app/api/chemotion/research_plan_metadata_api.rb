@@ -22,9 +22,9 @@ module Chemotion
 
         optional :title, type: String, desc: 'research plan title'
         optional :subject, type: String, desc: 'research plan subject'
-        optional :alternate_identifier, type: String, desc: 'research plan alternate identifier'
-        optional :related_identifier, type: String, desc: 'research plan related identifier'
-        optional :description, type: String, desc: 'research plan description'
+        optional :alternate_identifier, desc: 'research plan alternate identifier'
+        optional :related_identifier, desc: 'research plan related identifier'
+        optional :description, desc: 'research plan description'
 
         optional :format, type: String, desc: 'research plan format'
         optional :version, type: String, desc: 'research plan version'

@@ -9,7 +9,6 @@
 #  landing_page            :string
 #  title                   :string
 #  type                    :string
-#  description             :string
 #  publisher               :string
 #  publication_year        :integer
 #  dates                   :jsonb
@@ -23,6 +22,7 @@
 #  data_cite_last_response :jsonb
 #  data_cite_state         :string           default("draft")
 #  data_cite_creator_name  :string
+#  description             :jsonb
 #  creator                 :text
 #  affiliation             :text
 #  contributor             :text
@@ -33,8 +33,8 @@
 #  geo_location            :jsonb
 #  funding_reference       :jsonb
 #  subject                 :text
-#  alternate_identifier    :text
-#  related_identifier      :text
+#  alternate_identifier    :jsonb
+#  related_identifier      :jsonb
 #
 # Indexes
 #

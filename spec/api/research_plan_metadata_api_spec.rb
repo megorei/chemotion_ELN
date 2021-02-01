@@ -43,7 +43,10 @@ describe Chemotion::ResearchPlanMetadataAPI do
           subject: 'a subject',
           version: '08.15',
           type: 'Test-Type',
-          description: 'Metadata for research plan',
+          description: {
+            description: 'Metadata for research plan',
+            descriptionType: 'Other'
+          },
           geo_location: {
             geoLocationPoint: {
               pointLongitude: Faker::Address.longitude,

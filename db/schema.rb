@@ -678,7 +678,6 @@ ActiveRecord::Schema.define(version: 20210108230206) do
     t.string   "landing_page"
     t.string   "title"
     t.string   "type"
-    t.string   "description"
     t.string   "publisher"
     t.integer  "publication_year"
     t.jsonb    "dates"
@@ -692,6 +691,7 @@ ActiveRecord::Schema.define(version: 20210108230206) do
     t.jsonb    "data_cite_last_response", default: {}
     t.string   "data_cite_state",         default: "draft"
     t.string   "data_cite_creator_name"
+    t.jsonb    "description"
     t.text     "creator"
     t.text     "affiliation"
     t.text     "contributor"
@@ -702,8 +702,8 @@ ActiveRecord::Schema.define(version: 20210108230206) do
     t.jsonb    "geo_location"
     t.jsonb    "funding_reference"
     t.text     "subject"
-    t.text     "alternate_identifier"
-    t.text     "related_identifier"
+    t.jsonb    "alternate_identifier"
+    t.jsonb    "related_identifier"
   end
 
   add_index "research_plan_metadata", ["deleted_at"], name: "index_research_plan_metadata_on_deleted_at", using: :btree

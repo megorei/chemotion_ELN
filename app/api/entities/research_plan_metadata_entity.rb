@@ -7,7 +7,7 @@ module Entities
     expose :url, documentation: { type: 'String', desc: 'research plan url' }
     expose :landing_page, documentation: { type: 'String', desc: 'research plan landing_page' }
     expose :type, documentation: { type: 'String', desc: 'research plan type' }
-    expose :description, documentation: { type: 'String', desc: 'research plan description' }
+    expose :description, documentation: { desc: 'research plan description' }
     expose :publisher, documentation: { type: 'String', desc: 'research plan publisher' }
     expose :publication_year, documentation: { type: 'Integer', desc: 'research plan publication year' }
 
@@ -23,8 +23,8 @@ module Entities
     expose :geo_location, documentation: { desc: 'research plan geo-location' }
     expose :funding_reference, documentation: { desc: 'research plan funding reference' }
     expose :subject, documentation: { type: 'Text', desc: 'research plan subject' }
-    expose :alternate_identifier, documentation: { type: 'Text', desc: 'research plan alternate identifier' }
-    expose :related_identifier, documentation: { type: 'Text', desc: 'research plan related identifier' }
+    expose :alternate_identifier, documentation: { desc: 'research plan alternate identifier' }
+    expose :related_identifier, documentation: { desc: 'research plan related identifier' }
 
     # expose :data_cite_prefix, documentation: { type: 'String', desc: 'DataCite prefix' }
     # expose :data_cite_state, documentation: { type: 'String', desc: 'DataCite state' }

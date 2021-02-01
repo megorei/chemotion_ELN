@@ -7,9 +7,32 @@ FactoryBot.define do
     url { "https://the-device-page.org/#{doi}" }
     landing_page { "https://the-content-page.org/#{doi}" }
     type {}
-    description { 'Metadata for research plan' }
     publisher { 'Chemotion' }
     publication_year { Time.current.year }
+    description do
+      [
+        {
+          description: 'A Description',
+          descriptionType: 'Abstract'
+        }
+      ]
+    end
+    alternate_identifier do
+      [
+        {
+          alternateIdentifier: 'https://doi.org/10.xxxx/xxxxx',
+          alternateIdentifierType: 'DOI'
+        }
+      ]
+    end
+    related_identifier do
+      [
+        {
+          relatedIdentifier: 'https://doi.org/10.xxxx/xxxxx',
+          relatedIdentifierType: 'DOI'
+        }
+      ]
+    end
     dates do
       [
         {
