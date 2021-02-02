@@ -22,9 +22,14 @@ export default class ResearchPlansMetadata extends Component {
       researchPlanMetadata: {
         title: '',
         subject: '',
-        alternate_identifier: '',
-        related_identifier: '',
-        description: '',
+        format: '',
+        version: '',
+        state: '',
+        url: '',
+        landing_page: '',
+        alternate_identifier: [],
+        related_identifier: [],
+        description: [],
         dates: [],
         geo_location: [],
         funding_reference: []
@@ -68,9 +73,9 @@ export default class ResearchPlansMetadata extends Component {
       research_plan_id: researchPlan.id,
       title: researchPlanMetadata.title.trim(),
       subject: researchPlanMetadata.subject.trim(),
-      alternate_identifier: researchPlanMetadata.alternate_identifier.trim(),
-      related_identifier: researchPlanMetadata.related_identifier.trim(),
-      description: researchPlanMetadata.description.trim(),
+      alternate_identifier: researchPlanMetadata.alternate_identifier,
+      related_identifier: researchPlanMetadata.related_identifier,
+      description: researchPlanMetadata.description,
 
       format: this.format.value.trim(),
       version: this.version.value.trim(),
@@ -102,31 +107,50 @@ export default class ResearchPlansMetadata extends Component {
     })
   }
 
-  // GeoLocation Actions
-  addResearchPlanMetadataGeoLocation() {
+  newItemByType(type) {
+    switch (type) {
+      case 'alternate_identifier':
+        return { alternateIdentifier: '', alternateIdentifierType: '' }
+      case 'related_identifier':
+        return { relatedIdentifier: '', relatedIdentifierType: '' }
+      case 'description':
+        return { description: '', descriptionType: '' }
+      case 'geo_location':
+        return { geoLocationPoint: { latitude: '', longitude: '' } }
+      case 'funding_reference':
+        return { funderName: '', funderIdentifier: '' }
+    }
+  }
+
+  addResearchPlanMetadataArrayItem(type) {
     this.setState(state => {
-      const newGeoLocationItem = {
-        geoLocationPoint: {
-          latitude: '',
-          longitude: ''
-        }
-      }
+      const newItem = this.newItemByType(type)
+
       const researchPlanMetadata = state.researchPlanMetadata
-      const currentGeoLocations = researchPlanMetadata.geo_location ? researchPlanMetadata.geo_location : []
-      const newGeoLocations = currentGeoLocations.concat(newGeoLocationItem)
-      researchPlanMetadata.geo_location = newGeoLocations
+      const currentCollection = researchPlanMetadata[type] ? researchPlanMetadata[type] : []
+      const newCollection = currentCollection.concat(newItem)
+      researchPlanMetadata[type] = newCollection
 
       return researchPlanMetadata
     })
   }
 
-  removeResearchPlanMetadataGeoLocation(index) {
+  removeResearchPlanMetadataArrayItem(type, index) {
     this.setState(state => {
       const researchPlanMetadata = state.researchPlanMetadata
-      const currentGeoLocations = researchPlanMetadata.geo_location ? researchPlanMetadata.geo_location : []
-      const removedItem = currentGeoLocations.splice(index, 1)
+      const currentCollection = researchPlanMetadata[type] ? researchPlanMetadata[type] : []
+      currentCollection.splice(index, 1)
 
-      researchPlanMetadata.geo_location = currentGeoLocations
+      researchPlanMetadata[type] = currentCollection
+
+      return researchPlanMetadata
+    })
+  }
+
+  updateResearchPlanMetadataArrayItem(type, index, fieldname, value) {
+    this.setState(state => {
+      const researchPlanMetadata = state.researchPlanMetadata
+      researchPlanMetadata[type][index][fieldname] = value
 
       return researchPlanMetadata
     })
@@ -136,43 +160,6 @@ export default class ResearchPlansMetadata extends Component {
     this.setState(state => {
       const researchPlanMetadata = state.researchPlanMetadata
       researchPlanMetadata.geo_location[index]['geoLocationPoint'][fieldname] = value
-
-      return researchPlanMetadata
-    })
-  }
-
-  // FundingReference Actions
-  addResearchPlanMetadataFundingReference() {
-    this.setState(state => {
-      const newFundingReferenceItem = {
-        funderName: '',
-        funderIdentifier: ''
-      }
-      const researchPlanMetadata = state.researchPlanMetadata
-      const currentFundingReferences = researchPlanMetadata.funding_reference ? researchPlanMetadata.funding_reference : []
-      const newFundingReferences = currentFundingReferences.concat(newFundingReferenceItem)
-      researchPlanMetadata.funding_reference = newFundingReferences
-
-      return researchPlanMetadata
-    })
-  }
-
-  removeResearchPlanMetadataFundingReference(index) {
-    this.setState(state => {
-      const researchPlanMetadata = state.researchPlanMetadata
-      const currentFundingReferences = researchPlanMetadata.funding_reference ? researchPlanMetadata.funding_reference : []
-      const removedItem = currentFundingReferences.splice(index, 1)
-
-      researchPlanMetadata.funding_reference = currentFundingReferences
-
-      return researchPlanMetadata
-    })
-  }
-
-  updateResearchPlanMetadataFundingReference(index, fieldname, value) {
-    this.setState(state => {
-      const researchPlanMetadata = state.researchPlanMetadata
-      researchPlanMetadata.funding_reference[index][fieldname] = value
 
       return researchPlanMetadata
     })
@@ -202,34 +189,135 @@ export default class ResearchPlansMetadata extends Component {
                 placeholder="Subject"
               />
             </FormGroup>
-            <FormGroup controlId="alternate_identifier">
-              <ControlLabel>Alternate Identifier</ControlLabel>&nbsp;&nbsp;
-              <FormControl
-                type="text"
-                value={researchPlanMetadata?.alternate_identifier}
-                onChange={(event) => this.handleFieldChange(event)}
-                inputRef={(m) => { this.alternate_identifier = m; }}
-                placeholder="Alternate Identifier"
-              />
-            </FormGroup>
-            <FormGroup controlId="related_identifier">
-              <ControlLabel>Related Identifier</ControlLabel>&nbsp;&nbsp;
-              <FormControl
-                type="text"
-                value={researchPlanMetadata?.related_identifier}
-                onChange={(event) => this.handleFieldChange(event)}
-                placeholder="Related Identifier"
-              />
-            </FormGroup>
-            <FormGroup controlId="description">
-              <ControlLabel>Description</ControlLabel>
-              <FormControl
-                type="text"
-                value={researchPlanMetadata?.description}
-                onChange={(event) => this.handleFieldChange(event)}
-                placeholder="Description"
-              />
-            </FormGroup>
+
+            <ControlLabel>Alternate Identifiers</ControlLabel>&nbsp;&nbsp;
+            {researchPlanMetadata?.alternate_identifier && researchPlanMetadata?.alternate_identifier.map((alternateIdentifier, index) => (
+              <div key={index}>
+                <Row>
+                  <Col smOffset={0} sm={5}>
+                    <FormGroup>
+                      <ControlLabel>Alternate Identifier</ControlLabel>
+                      <FormControl
+                        type="text"
+                        value={alternateIdentifier?.alternateIdentifier}
+                        placeholder="Alternate Identifier"
+                        onChange={(event) => this.updateResearchPlanMetadataArrayItem('alternate_identifier', index, 'alternateIdentifier', event.target.value)}
+                        />
+                    </FormGroup>
+                  </Col>
+                  <Col smOffset={0} sm={5}>
+                    <FormGroup>
+                      <ControlLabel>Type</ControlLabel>
+                      <FormControl
+                        type="text"
+                        value={alternateIdentifier?.alternateIdentifierType}
+                        placeholder="Type"
+                        onChange={(event) => this.updateResearchPlanMetadataArrayItem('alternate_identifier', index, 'alternateIdentifierType', event.target.value)}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col smOffset={0} sm={2}>
+                    <ControlLabel>Action</ControlLabel><br/>
+                    <Button bsStyle="danger" className="pull-right" bsSize="small" onClick={() => this.removeResearchPlanMetadataArrayItem('alternate_identifier', index)}>
+                      <i className="fa fa-trash-o" />
+                    </Button>
+                  </Col>
+                </Row>
+              </div>
+            ))}
+            <Row>
+              <Col smOffset={0} sm={12}>
+                <Button className="pull-right" bsStyle="success" bsSize="small" onClick={() => this.addResearchPlanMetadataArrayItem('alternate_identifier')}>
+                  <i className="fa fa-plus" />
+                </Button>
+              </Col>
+            </Row>
+
+            <ControlLabel>Related Identifiers</ControlLabel>&nbsp;&nbsp;
+            {researchPlanMetadata?.related_identifier && researchPlanMetadata?.related_identifier.map((relatedIdentifier, index) => (
+              <div key={index}>
+                <Row>
+                  <Col smOffset={0} sm={5}>
+                    <FormGroup>
+                      <ControlLabel>Related Identifier</ControlLabel>
+                      <FormControl
+                        type="text"
+                        value={relatedIdentifier?.relatedIdentifier}
+                        placeholder="Related Identifier"
+                        onChange={(event) => this.updateResearchPlanMetadataArrayItem('related_identifier', index, 'relatedIdentifier', event.target.value)}
+                        />
+                    </FormGroup>
+                  </Col>
+                  <Col smOffset={0} sm={5}>
+                    <FormGroup>
+                      <ControlLabel>Type</ControlLabel>
+                      <FormControl
+                        type="text"
+                        value={relatedIdentifier?.relatedIdentifierType}
+                        placeholder="Type"
+                        onChange={(event) => this.updateResearchPlanMetadataArrayItem('related_identifier', index, 'relatedIdentifierType', event.target.value)}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col smOffset={0} sm={2}>
+                    <ControlLabel>Action</ControlLabel><br/>
+                    <Button bsStyle="danger" className="pull-right" bsSize="small" onClick={() => this.removeResearchPlanMetadataArrayItem('related_identifier', index)}>
+                      <i className="fa fa-trash-o" />
+                    </Button>
+                  </Col>
+                </Row>
+              </div>
+            ))}
+            <Row>
+              <Col smOffset={0} sm={12}>
+                <Button className="pull-right" bsStyle="success" bsSize="small" onClick={() => this.addResearchPlanMetadataArrayItem('related_identifier')}>
+                  <i className="fa fa-plus" />
+                </Button>
+              </Col>
+            </Row>
+
+            <ControlLabel>Descriptions</ControlLabel>&nbsp;&nbsp;
+            {researchPlanMetadata?.description && researchPlanMetadata?.description.map((description, index) => (
+              <div key={index}>
+                <Row>
+                  <Col smOffset={0} sm={5}>
+                    <FormGroup>
+                      <ControlLabel>Description</ControlLabel>
+                      <FormControl
+                        type="text"
+                        value={description?.description}
+                        placeholder="Description"
+                        onChange={(event) => this.updateResearchPlanMetadataArrayItem('description', index, 'description', event.target.value)}
+                        />
+                    </FormGroup>
+                  </Col>
+                  <Col smOffset={0} sm={5}>
+                    <FormGroup>
+                      <ControlLabel>Type</ControlLabel>
+                      <FormControl
+                        type="text"
+                        value={description?.descriptionType}
+                        placeholder="Type"
+                        onChange={(event) => this.updateResearchPlanMetadataArrayItem('description', index, 'descriptionType', event.target.value)}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col smOffset={0} sm={2}>
+                    <ControlLabel>Action</ControlLabel><br/>
+                    <Button bsStyle="danger" className="pull-right" bsSize="small" onClick={() => this.removeResearchPlanMetadataArrayItem('description', index)}>
+                      <i className="fa fa-trash-o" />
+                    </Button>
+                  </Col>
+                </Row>
+              </div>
+            ))}
+            <Row>
+              <Col smOffset={0} sm={12}>
+                <Button className="pull-right" bsStyle="success" bsSize="small" onClick={() => this.addResearchPlanMetadataArrayItem('description')}>
+                  <i className="fa fa-plus" />
+                </Button>
+              </Col>
+            </Row>
 
             <FormGroup controlId="metadataFormFormat">
               <ControlLabel>Format</ControlLabel>
@@ -277,7 +365,7 @@ export default class ResearchPlansMetadata extends Component {
                   </Col>
                   <Col smOffset={0} sm={2}>
                     <ControlLabel>Action</ControlLabel><br/>
-                    <Button bsStyle="danger" className="pull-right" bsSize="small" onClick={() => this.removeResearchPlanMetadataGeoLocation(index)}>
+                    <Button bsStyle="danger" className="pull-right" bsSize="small" onClick={() => this.removeResearchPlanMetadataArrayItem('geo_location', index)}>
                       <i className="fa fa-trash-o" />
                     </Button>
                   </Col>
@@ -286,7 +374,7 @@ export default class ResearchPlansMetadata extends Component {
             ))}
             <Row>
               <Col smOffset={0} sm={12}>
-                <Button className="pull-right" bsStyle="success" bsSize="small" onClick={() => this.addResearchPlanMetadataGeoLocation()}>
+                <Button className="pull-right" bsStyle="success" bsSize="small" onClick={() => this.addResearchPlanMetadataArrayItem('geo_location')}>
                   <i className="fa fa-plus" />
                 </Button>
               </Col>
@@ -303,7 +391,7 @@ export default class ResearchPlansMetadata extends Component {
                         type="text"
                         value={fundingReferenceItem?.funderName}
                         placeholder="Funder Name e.g. 'Gordon and Betty Moore Foundation'"
-                        onChange={(event) => this.updateResearchPlanMetadataFundingReference(index, 'funderName', event.target.value)}
+                        onChange={(event) => this.updateResearchPlanMetadataArrayItem('funding_reference', index, 'funderName', event.target.value)}
                         />
                     </FormGroup>
                   </Col>
@@ -314,13 +402,13 @@ export default class ResearchPlansMetadata extends Component {
                         type="text"
                         value={fundingReferenceItem?.funderIdentifier}
                         placeholder="Funder Identifier e.g. 'https://doi.org/10.13039/100000936'"
-                        onChange={(event) => this.updateResearchPlanMetadataFundingReference(index, 'funderIdentifier', event.target.value)}
+                        onChange={(event) => this.updateResearchPlanMetadataArrayItem('funding_reference', index, 'funderIdentifier', event.target.value)}
                       />
                     </FormGroup>
                   </Col>
                   <Col smOffset={0} sm={2}>
-                    <ControlLabel>Action</ControlLabel>
-                    <Button bsStyle="danger" className="pull-right" bsSize="small" onClick={() => this.removeResearchPlanMetadataFundingReference(index)}>
+                    <ControlLabel>Action</ControlLabel><br/>
+                    <Button bsStyle="danger" className="pull-right" bsSize="small" onClick={() => this.removeResearchPlanMetadataArrayItem('funding_reference', index)}>
                       <i className="fa fa-trash-o" />
                     </Button>
                   </Col>
@@ -329,7 +417,7 @@ export default class ResearchPlansMetadata extends Component {
             ))}
             <Row>
               <Col smOffset={0} sm={12}>
-                <Button className="pull-right" bsStyle="success" bsSize="small" onClick={() => this.addResearchPlanMetadataFundingReference()}>
+                <Button className="pull-right" bsStyle="success" bsSize="small" onClick={() => this.addResearchPlanMetadataArrayItem('funding_reference')}>
                   <i className="fa fa-plus" />
                 </Button>
               </Col>
@@ -354,7 +442,7 @@ export default class ResearchPlansMetadata extends Component {
                 type="text"
                 defaultValue={researchPlanMetadata?.url}
                 inputRef={(m) => { this.url = m; }}
-                placeholder="https://<device.url>"
+                placeholder="https://<researchplanmetadata.url>"
               />
             </FormGroup>
             <FormGroup controlId="metadataFormLandingPage">
@@ -363,7 +451,7 @@ export default class ResearchPlansMetadata extends Component {
                 type="text"
                 defaultValue={researchPlanMetadata?.landing_page}
                 inputRef={(m) => { this.landing_page = m; }}
-                placeholder="https://<device.landing.page>"
+                placeholder="https://<researchplanmetadata.landing.page>"
               />
             </FormGroup>
 
@@ -388,7 +476,7 @@ export default class ResearchPlansMetadata extends Component {
               />
             </FormGroup>
             { researchPlanMetadata?.dates ? <ControlLabel style={{ marginTop: 5 }}>Dates</ControlLabel>: '' }
-            {researchPlanMetadata?.dates && researchPlanMetadata?.dates.map((dateItem, index) => (
+            { researchPlanMetadata?.dates && researchPlanMetadata?.dates.map((dateItem, index) => (
               <div key={index}>
                 <Row>
                   <Col smOffset={0} sm={6}>

@@ -176,17 +176,46 @@ export default class ResearchPlanDetails extends Component {
     ResearchPlansFetcher.exportTable(researchPlan, field);
   }
 
+  newItemByType(fieldName, value, type) {
+    switch (fieldName) {
+      case 'description':
+        return {
+          description: value,
+          descriptionType: type
+        }
+      case 'alternate_identifier':
+        return {
+          alternateIdentifier: value,
+          alternateIdentifierType: type
+        }
+      case 'related_identifier':
+        return {
+          relatedIdentifier: value,
+          relatedIdentifierType: type
+        }
+      }
+  }
+
   handleCopyToMetadata(id, fieldName) {
     const { researchPlan } = this.state;
     const researchPlanMetadata = researchPlan.research_plan_metadata;
     const args = { research_plan_id: researchPlanMetadata.research_plan_id };
     const index = researchPlan.body.findIndex(field => field.id === id);
+    const value = researchPlan.body[index]?.value?.ops[0]?.insert?.trim() || ''
     if (fieldName === 'name') {
       researchPlanMetadata.title = researchPlan.name;
       args.title = researchPlan.name.trim();
+    } else if (fieldName === 'subject') {
+      researchPlanMetadata.subject = value;
+      args.subject = value;
     } else {
-      researchPlanMetadata[fieldName] = researchPlan.body[index]?.value?.ops[0]?.insert || '';
-      args[`${fieldName}`] = researchPlanMetadata[fieldName];
+      const type = researchPlan.body[index]?.title?.trim() || ''
+      const newItem = this.newItemByType(fieldName, value, type)
+
+      const currentCollection = researchPlanMetadata[fieldName] ? researchPlanMetadata[fieldName] : []
+      const newCollection = currentCollection.concat(newItem)
+      researchPlanMetadata[fieldName] = newCollection
+      args[`${fieldName}`] = researchPlanMetadata[fieldName]
     }
 
     ResearchPlansFetcher.postResearchPlanMetadata(args).then((result) => {

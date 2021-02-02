@@ -22,7 +22,7 @@ export default class ResearchPlanDetailsField extends Component {
     const metadataTooltipText = 'Copy field content to Metadata';
     switch (field.type) {
       case 'richtext':
-        label = 'Text';
+        label = field?.title;
         component =
           (<ResearchPlanDetailsFieldRichText
             key={field.id}
@@ -148,6 +148,7 @@ export default class ResearchPlanDetailsField extends Component {
 
       fieldHeader = (
         <div className="research-plan-field-header">
+          {/* TODO: make label editable */}
           <ControlLabel>{label}</ControlLabel>
           <Button className="pull-right" bsStyle="danger" bsSize="xsmall" onClick={() => onDelete(field.id)}>
             <i className="fa fa-times" />

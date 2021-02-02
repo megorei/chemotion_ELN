@@ -122,10 +122,7 @@ module Chemotion
           research_plan = ResearchPlan.find(params[:id])
           research_plan.build_research_plan_metadata(
             title: research_plan.name,
-            subject: '',
-            alternate_identifier: '',
-            related_identifier: '',
-            description: ''
+            subject: ''
           ) if research_plan.research_plan_metadata.nil?
           {
             research_plan: ElementPermissionProxy.new(current_user, research_plan, user_ids).serialized,
