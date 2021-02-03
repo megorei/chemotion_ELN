@@ -70,6 +70,7 @@ RSpec.describe 'ImportSdf' do
 
   describe 'import/export research plan' do
     let(:research_plan) { build(:research_plan, creator: u1, collections: [c1]) }
+    let(:research_plan_metadata) { create(:research_plan_metadata) }
     let(:ignored_attributes) { %w[id research_plan_id created_at updated_at parent_id] }
 
     let(:first_metadata) { c1.research_plans.first.research_plan_metadata.attributes.except(*ignored_attributes) }
@@ -79,6 +80,7 @@ RSpec.describe 'ImportSdf' do
     let(:second_analyses) { c2.research_plans.first.analyses.map { |a| a.attributes.except(*ignored_attributes) } }
 
     before do
+      research_plan.research_plan_metadata = research_plan_metadata
       research_plan.save!
 
       analyses = Container.find_by(parent_id: research_plan.container.id)

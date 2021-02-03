@@ -10,8 +10,6 @@ FactoryBot.define do
       ]
     end
 
-    association :research_plan_metadata, factory: :research_plan_metadata
-
     callback(:before_create) do |research_plan|
       research_plan.creator = FactoryBot.build(:user) unless research_plan.creator
     end
