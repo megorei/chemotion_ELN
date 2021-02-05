@@ -51,6 +51,7 @@ class ResearchPlanMetadata < ActiveRecord::Base
 
   belongs_to :research_plan
 
+  # TODO: decide how to handle DOI uniqueness
   # validates :doi, uniqueness: true, if: -> { doi.present? }
   # validates :doi_sequence, uniqueness: true, if: -> { doi_sequence.present? }
 
@@ -69,6 +70,7 @@ class ResearchPlanMetadata < ActiveRecord::Base
     super(new_state)
   end
 
+  # TODO: decide if and where to use for DataCite
   def generate_doi!
     doi_sequence = (self.class.maximum(:doi_sequence) || 0) + 1
     doi = "#{DATA_CITE_PREFIX}/#{DATA_CITE_RESEARCH_PLAN_PREFIX}#{doi_sequence}"

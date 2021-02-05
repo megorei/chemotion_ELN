@@ -106,7 +106,7 @@ class Import::ImportJson
       return @log
     end
     import_reactions
-    # import_samples
+    import_samples
     import_research_plans
     # File.write("log_#{Time.now.to_i}.json", JSON.pretty_generate(@log))
   end
