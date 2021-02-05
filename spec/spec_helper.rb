@@ -12,8 +12,8 @@ require 'webdrivers'
 # require 'capybara/rspec'
 require 'rails_helper'
 
-# @headless = Headless.new
-# @headless.start
+@headless = Headless.new
+@headless.start
 
 Webdrivers.logger.level = :DEBUG
 
