@@ -4,12 +4,13 @@ import {
   FormGroup, ControlLabel, FormControl, Panel, ListGroup, ListGroupItem,
   ButtonToolbar, Button, Tooltip, OverlayTrigger, Tabs, Tab
 } from 'react-bootstrap';
-import StickyDiv from 'react-stickydiv';
+// import StickyDiv from 'react-stickydiv';
 import { unionBy, findIndex } from 'lodash';
+import Immutable from 'immutable';
 
 import ElementCollectionLabels from './ElementCollectionLabels';
 import ScreenWellplates from './ScreenWellplates';
-import QuillEditor from './QuillEditor'
+import QuillEditor from './QuillEditor';
 import ScreenDetailsContainers from './ScreenDetailsContainers';
 import ElementActions from './actions/ElementActions';
 import DetailActions from './actions/DetailActions';
@@ -17,36 +18,48 @@ import UIStore from './stores/UIStore';
 import UIActions from './actions/UIActions';
 import PrintCodeButton from './common/PrintCodeButton';
 import ConfirmClose from './common/ConfirmClose';
-import Immutable from 'immutable';
 import ElementDetailSortTab from './ElementDetailSortTab';
 import { addSegmentTabs } from './generic/SegmentDetails';
 
 export default class ScreenDetails extends Component {
   constructor(props) {
     super(props);
-    const {screen} = props;
+    const { screen } = props;
     this.state = {
       screen,
       activeTab: UIStore.getState().screen.activeTab,
       visible: Immutable.List(),
-    }
+    };
     this.onUIStoreChange = this.onUIStoreChange.bind(this);
     this.onTabPositionChanged = this.onTabPositionChanged.bind(this);
     this.handleSegmentsChange = this.handleSegmentsChange.bind(this);
   }
 
   componentDidMount() {
-    UIStore.listen(this.onUIStoreChange)
+    UIStore.listen(this.onUIStoreChange);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { screen } = nextProps;
+    this.setState({ screen });
   }
 
   componentWillUnmount() {
-    UIStore.unlisten(this.onUIStoreChange)
+    UIStore.unlisten(this.onUIStoreChange);
   }
 
   // eslint-disable-next-line camelcase
   UNSAFE_componentWillReceiveProps(nextProps) {
     const { screen } = nextProps;
     this.setState({ screen });
+  }
+
+  onUIStoreChange(state) {
+    if (state.screen.activeTab !== this.state.activeTab) {
+      this.setState({
+        activeTab: state.screen.activeTab
+      });
+    }
   }
 
   onUIStoreChange(state) {
@@ -60,12 +73,12 @@ export default class ScreenDetails extends Component {
   handleSubmit() {
     const { screen } = this.state;
 
-    if(screen.isNew) {
+    if (screen.isNew) {
       ElementActions.createScreen(screen);
     } else {
       ElementActions.updateScreen(screen);
     }
-    if(screen.is_new) {
+    if (screen.is_new) {
       const force = true;
       DetailActions.close(screen, force);
     }
@@ -95,7 +108,7 @@ export default class ScreenDetails extends Component {
         break;
     }
     this.setState({
-      screen: screen
+      screen
     });
   }
 
@@ -119,8 +132,8 @@ export default class ScreenDetails extends Component {
     this.setState({ screen });
   }
 
-  deleteWellplate(wellplate){
-    const {screen} = this.state;
+  deleteWellplate(wellplate) {
+    const { screen } = this.state;
     const wellplateIndex = screen.wellplates.indexOf(wellplate);
     screen.wellplates.splice(wellplateIndex, 1);
 
@@ -128,7 +141,7 @@ export default class ScreenDetails extends Component {
   }
 
   screenHeader(screen) {
-    let saveBtnDisplay = screen.isEdited ? '' : 'none';
+    const saveBtnDisplay = screen.isEdited ? '' : 'none';
     const datetp = `Created at: ${screen.created_at} \n Updated at: ${screen.updated_at}`;
 
     return (
@@ -139,108 +152,125 @@ export default class ScreenDetails extends Component {
             &nbsp;<span>{screen.name}</span> &nbsp;
           </span>
         </OverlayTrigger>
-        <ElementCollectionLabels element={screen} placement="right"/>
+        <ElementCollectionLabels element={screen} placement="right" />
         <ConfirmClose el={screen} />
-        <OverlayTrigger placement="bottom"
-            overlay={<Tooltip id="saveScreen">Save Screen</Tooltip>}>
-          <Button bsStyle="warning" bsSize="xsmall" className="button-right"
-                  onClick={() => this.handleSubmit()}
-                  style={{display: saveBtnDisplay}} >
-            <i className="fa fa-floppy-o "></i>
+        <OverlayTrigger
+          placement="bottom"
+          overlay={<Tooltip id="saveScreen">Save Screen</Tooltip>}
+        >
+          <Button
+            bsStyle="warning"
+            bsSize="xsmall"
+            className="button-right"
+            onClick={() => this.handleSubmit()}
+            style={{ display: saveBtnDisplay }}
+          >
+            <i className="fa fa-floppy-o " />
           </Button>
         </OverlayTrigger>
-        <OverlayTrigger placement="bottom"
-            overlay={<Tooltip id="fullSample">FullScreen</Tooltip>}>
-        <Button bsStyle="info" bsSize="xsmall" className="button-right"
-          onClick={() => this.props.toggleFullScreen()}>
-          <i className="fa fa-expand"></i>
-        </Button>
+        <OverlayTrigger
+          placement="bottom"
+          overlay={<Tooltip id="fullSample">FullScreen</Tooltip>}
+        >
+          <Button
+            bsStyle="info"
+            bsSize="xsmall"
+            className="button-right"
+            onClick={() => this.props.toggleFullScreen()}
+          >
+            <i className="fa fa-expand" />
+          </Button>
         </OverlayTrigger>
-        <PrintCodeButton element={screen}/>
+        <PrintCodeButton element={screen} />
       </div>
     );
   }
 
-  propertiesFields(screen){
-    const {wellplates, name, collaborator, result, conditions, requirements, description} = screen;
+  propertiesFields(screen) {
+    const {
+      wellplates, name, collaborator, result, conditions, requirements, description
+    } = screen;
 
-    return(
+    return (
       <ListGroup fill="true">
         <ListGroupItem>
-          <table width="100%"><tbody>
-            <tr>
-              <td width="50%" className="padding-right">
-                <FormGroup>
-                  <ControlLabel>Name</ControlLabel>
-                  <FormControl
-                    type="text"
-                    value={name || ''}
-                    onChange={event => this.handleInputChange('name', event)}
-                    disabled={screen.isMethodDisabled('name')}
-                  />
-                </FormGroup>
-              </td>
-              <td width="50%">
-                <FormGroup>
-                  <ControlLabel>Collaborator</ControlLabel>
-                  <FormControl
-                    type="text"
-                    value={collaborator || ''}
-                    onChange={event => this.handleInputChange('collaborator', event)}
-                    disabled={screen.isMethodDisabled('collaborator')}
-                  />
-                </FormGroup>
-              </td>
-            </tr>
-            <tr>
-              <td className="padding-right">
-                <FormGroup>
-                  <ControlLabel>Requirements</ControlLabel>
-                  <FormControl
-                    type="text"
-                    value={requirements || ''}
-                    onChange={event => this.handleInputChange('requirements', event)}
-                    disabled={screen.isMethodDisabled('requirements')}
-                  />
-                </FormGroup>
-              </td>
-              <td >
-                <FormGroup>
-                  <ControlLabel>Conditions</ControlLabel>
-                  <FormControl
-                    type="text"
-                    value={conditions || ''}
-                    onChange={event => this.handleInputChange('conditions', event)}
-                    disabled={screen.isMethodDisabled('conditions')}
-                  />
-                </FormGroup>
-              </td>
-            </tr>
-            <tr>
-              <td colSpan="2">
-                <FormGroup>
-                  <ControlLabel>Result</ControlLabel>
-                  <FormControl
-                    type="text"
-                    value={result || ''}
-                    onChange={event => this.handleInputChange('result', event)}
-                    disabled={screen.isMethodDisabled('result')}
-                  />
-                </FormGroup>
-              </td>
-            </tr>
-            <tr>
-              <td colSpan="2">
-                <FormGroup>
-                  <ControlLabel>Description</ControlLabel>
-                  <QuillEditor value={description}
-                    onChange={event => this.handleInputChange('description', {target: {value: event}})}
-                    disabled={screen.isMethodDisabled('description')}
-                  />
-                </FormGroup>
-              </td>
-            </tr>
-          </tbody></table>
+          <table width="100%">
+            <tbody>
+              <tr>
+                <td width="50%" className="padding-right">
+                  <FormGroup>
+                    <ControlLabel>Name</ControlLabel>
+                    <FormControl
+                      type="text"
+                      value={name || ''}
+                      onChange={event => this.handleInputChange('name', event)}
+                      disabled={screen.isMethodDisabled('name')}
+                    />
+                  </FormGroup>
+                </td>
+                <td width="50%">
+                  <FormGroup>
+                    <ControlLabel>Collaborator</ControlLabel>
+                    <FormControl
+                      type="text"
+                      value={collaborator || ''}
+                      onChange={event => this.handleInputChange('collaborator', event)}
+                      disabled={screen.isMethodDisabled('collaborator')}
+                    />
+                  </FormGroup>
+                </td>
+              </tr>
+              <tr>
+                <td className="padding-right">
+                  <FormGroup>
+                    <ControlLabel>Requirements</ControlLabel>
+                    <FormControl
+                      type="text"
+                      value={requirements || ''}
+                      onChange={event => this.handleInputChange('requirements', event)}
+                      disabled={screen.isMethodDisabled('requirements')}
+                    />
+                  </FormGroup>
+                </td>
+                <td >
+                  <FormGroup>
+                    <ControlLabel>Conditions</ControlLabel>
+                    <FormControl
+                      type="text"
+                      value={conditions || ''}
+                      onChange={event => this.handleInputChange('conditions', event)}
+                      disabled={screen.isMethodDisabled('conditions')}
+                    />
+                  </FormGroup>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan="2">
+                  <FormGroup>
+                    <ControlLabel>Result</ControlLabel>
+                    <FormControl
+                      type="text"
+                      value={result || ''}
+                      onChange={event => this.handleInputChange('result', event)}
+                      disabled={screen.isMethodDisabled('result')}
+                    />
+                  </FormGroup>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan="2">
+                  <FormGroup>
+                    <ControlLabel>Description</ControlLabel>
+                    <QuillEditor
+                      value={description}
+                      onChange={event => this.handleInputChange('description', { target: { value: event } })}
+                      disabled={screen.isMethodDisabled('description')}
+                    />
+                  </FormGroup>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </ListGroupItem>
         <ListGroupItem>
           <h4 className="list-group-item-heading">Wellplates</h4>
@@ -248,17 +278,17 @@ export default class ScreenDetails extends Component {
             wellplates={wellplates}
             dropWellplate={wellplate => this.dropWellplate(wellplate)}
             deleteWellplate={wellplate => this.deleteWellplate(wellplate)}
-            />
+          />
         </ListGroupItem>
       </ListGroup>
     );
   }
 
   handleSelect(eventKey) {
-    UIActions.selectTab({tabKey: eventKey, type: 'screen'});
+    UIActions.selectTab({ tabKey: eventKey, type: 'screen' });
     this.setState({
       activeTab: eventKey
-    })
+    });
   }
 
   onTabPositionChanged(visible) {
@@ -283,6 +313,17 @@ export default class ScreenDetails extends Component {
           />
         </Tab>
       ),
+      researchPlans: (
+        <Tab eventKey={2} title="ResearchPlans">
+          { screen.research_plans.map((researchPlan, key) => (
+            researchPlan.name
+            )) }
+          {/* <ResearchPlansDetailsContainers
+            screen={screen}
+            parent={this}
+          /> */}
+        </Tab>
+      )
     };
 
     const tabTitlesMap = {
@@ -299,8 +340,10 @@ export default class ScreenDetails extends Component {
     const activeTab = (this.state.activeTab !== 0 && this.state.activeTab) || visible[0];
 
     return (
-      <Panel bsStyle={screen.isPendingToSave ? 'info' : 'primary'}
-        className="eln-panel-detail">
+      <Panel
+        bsStyle={screen.isPendingToSave ? 'info' : 'primary'}
+        className="eln-panel-detail"
+      >
         <Panel.Heading>{this.screenHeader(screen)}</Panel.Heading>
         <Panel.Body>
           <ElementDetailSortTab
@@ -310,7 +353,7 @@ export default class ScreenDetails extends Component {
             onTabPositionChanged={this.onTabPositionChanged}
           />
           <Tabs activeKey={activeTab} onSelect={key => this.handleSelect(key)} id="screen-detail-tab">
-             {tabContents}
+            {tabContents}
           </Tabs>
           <ButtonToolbar>
             <Button bsStyle="primary" onClick={() => DetailActions.close(screen)}>Close</Button>
@@ -325,4 +368,4 @@ export default class ScreenDetails extends Component {
 ScreenDetails.propTypes = {
   screen: PropTypes.object,
   toggleFullScreen: PropTypes.func,
-}
+};
