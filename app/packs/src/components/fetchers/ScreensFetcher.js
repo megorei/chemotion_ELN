@@ -1,18 +1,16 @@
 import 'whatwg-fetch';
 import Screen from '../models/Screen';
-import UIStore from '../stores/UIStore'
-import AttachmentFetcher from './AttachmentFetcher'
+import AttachmentFetcher from './AttachmentFetcher';
 import BaseFetcher from './BaseFetcher';
 import GenericElsFetcher from './GenericElsFetcher';
 
 export default class ScreensFetcher {
   static fetchById(id) {
-    let promise = fetch('/api/v1/screens/' + id + '.json', {
+    const promise = fetch(`/api/v1/screens${id}.json`, {
       credentials: 'same-origin'
     })
-      .then((response) => {
-        return response.json()
-      }).then((json) => {
+      .then(response => response.json())
+      .then((json) => {
         const rScreen = new Screen(json.screen);
         if (json.error) {
           rScreen.id = `${id}:error:Screen ${id} is not accessible!`;
@@ -56,6 +54,7 @@ export default class ScreensFetcher {
 
   static create(screen) {
     const files = AttachmentFetcher.getFileListfrom(screen.container);
+
     const promise = () => fetch('/api/v1/screens/', {
       credentials: 'same-origin',
       method: 'post',
