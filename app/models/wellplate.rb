@@ -24,6 +24,8 @@ class Wellplate < ApplicationRecord
   include Taggable
   include Segmentable
 
+  before_create :auto_set_short_label
+
   serialize :description, Hash
 
   multisearchable against: :name
@@ -61,6 +63,7 @@ class Wellplate < ApplicationRecord
   scope :by_sample_ids, -> (ids) { joins(:samples).where('samples.id in (?)', ids) }
   scope :by_screen_ids, -> (ids) { joins(:screens).where('screens.id in (?)', ids) }
 
+  belongs_to :creator, foreign_key: :created_by, class_name: 'User'
 
   has_many :collections_wellplates, dependent: :destroy
   has_many :collections, through: :collections_wellplates
@@ -126,5 +129,13 @@ class Wellplate < ApplicationRecord
     end
 
     subwellplate
+  end
+
+  private
+
+  def auto_set_short_label
+    prefix = creator.wellplate_name_prefix
+    counter = creator.counters['wellplates'].succ
+    self.short_label = "#{creator.initials}-#{prefix}#{counter}"
   end
 end
