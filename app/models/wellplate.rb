@@ -9,6 +9,7 @@
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #  deleted_at  :datetime
+#  short_label :string
 #
 # Indexes
 #
@@ -24,7 +25,7 @@ class Wellplate < ApplicationRecord
   include Taggable
   include Segmentable
 
-  before_create :auto_set_short_label
+  after_create :auto_set_short_label
 
   serialize :description, Hash
 
@@ -134,8 +135,8 @@ class Wellplate < ApplicationRecord
   private
 
   def auto_set_short_label
-    prefix = creator.wellplate_name_prefix
-    counter = creator.counters['wellplates'].succ
-    self.short_label = "#{creator.initials}-#{prefix}#{counter}"
+    prefix = 'WP'
+    counter = self.id
+    self.short_label = "#{prefix}#{counter}"
   end
 end
