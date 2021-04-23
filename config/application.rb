@@ -110,6 +110,29 @@ module Chemotion
       end
     end
 
+### Fix import version
+  src1 = Rails.root.join('node_modules', '@citation-js', 'core', 'lib-mjs', 'util', 'fetchFile.js')
+  src2 = Rails.root.join('node_modules/@citation-js/core/lib-mjs/index.js')
+  src3 = Rails.root.join('node_modules/@citation-js/plugin-bibtex/lib-mjs/input/constants.js')
+  src4 = Rails.root.join('node_modules/@citation-js/plugin-wikidata/lib-mjs/entity.js')
+  if File.exist?(src1)
+    `sed -i "s|import { version } from '../../package.json';|import pkg from '../../package.json';const { version } = pkg.version;|" #{src1}`
+  end
+  if File.exist?(src2)
+    `sed -i "s|import { version } from '../package.json';|import pkg from '../package.json';const { version } = pkg.version;|" #{src2}`
+  end
+  if File.exist?(src3)
+    `sed -i "s|export { diacritics, commands } from './unicode.json';|import unicode from './unicode.json';export const diacritics = unicode.diacritics;export const commands = unicode.commands;|" #{src3}`
+  end
+  if File.exist?(src4)
+    `sed -i "s|import { props, ignoredProps } from './props';|import wikiprops from './props';const { props, ignoredProps } = wikiprops;|" #{src4}`
+  end
+
+#    config.browserify_rails.commandline_options = ' -t [ babelify --presets [ @babel/preset-env  @babel/preset-react ] --plugins [ @babel/plugin-proposal-object-rest-spread ] ] '
+    # Environments in which to generate source maps
+    # The default is none
+#    config.browserify_rails.source_map_environments << 'development'
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded after loading
