@@ -280,57 +280,25 @@ export default class ResearchPlanDetails extends Component {
     );
   }
 
-  renderResearchPlanMain(researchPlan, update) {
-    return researchPlan.mode === 'edit' ? this.renderPropertiesTab(researchPlan, update) :
-      this.renderResearchPlanTab(researchPlan, update);
-  }
-
-  renderResearchPlanTab(researchPlan, update) { /* eslint-disable react/jsx-no-bind */
+  renderResearchPlanMain(researchPlan, update) { /* eslint-disable react/jsx-no-bind */
     const { name, body, changed } = researchPlan;
+    const edit = researchPlan.mode === 'edit';
     return (
       <ListGroup fill="true">
         <ListGroupItem >
           {this.renderExportButton(changed)}
           <ResearchPlanDetailsName
             value={name}
+            isNew={researchPlan.isNew}
             disabled={researchPlan.isMethodDisabled('name')}
             onChange={this.handleNameChange}
-            edit={false}
+            onCopyToMetadata={this.handleCopyToMetadata.bind(this)}
+            edit={edit}
           />
           <ResearchPlanDetailsBody
             body={body}
             disabled={researchPlan.isMethodDisabled('body')}
             onChange={this.handleBodyChange}
-            onDrop={this.handleBodyDrop.bind(this)}
-            onAdd={this.handleBodyAdd}
-            onDelete={this.handleBodyDelete.bind(this)}
-            onExport={this.handleExportField.bind(this)}
-            onCopyToMetadata={this.handleCopyToMetadata.bind(this)}
-            update={update}
-            edit={false}
-          />
-        </ListGroupItem>
-      </ListGroup>
-    );
-  } /* eslint-enable */
-
-  renderPropertiesTab(researchPlan, update) { /* eslint-disable react/jsx-no-bind */
-    const { name, body } = researchPlan;
-    return (
-      <ListGroup fill="true">
-        <ListGroupItem >
-          <ResearchPlanDetailsName
-            value={name}
-            isNew={researchPlan.isNew}
-            disabled={researchPlan.isMethodDisabled('name')}
-            onChange={this.handleNameChange}
-            onCopyToMetadata={this.handleCopyToMetadata.bind(this)}
-            edit
-          />
-          <ResearchPlanDetailsBody
-            body={body}
-            disabled={researchPlan.isMethodDisabled('body')}
-            onChange={this.handleBodyChange.bind(this)}
             onDrop={this.handleBodyDrop.bind(this)}
             onAdd={this.handleBodyAdd}
             onDelete={this.handleBodyDelete.bind(this)}
@@ -344,7 +312,7 @@ export default class ResearchPlanDetails extends Component {
               { title: 'Description', fieldName: 'description' }
             ]}
             update={update}
-            edit
+            edit={edit}
           />
         </ListGroupItem>
       </ListGroup>
