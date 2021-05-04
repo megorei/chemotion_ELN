@@ -29,6 +29,7 @@ class LoadingStore {
           ElementActions.updateReaction,
           ElementActions.createResearchPlan,
           ElementActions.updateResearchPlan,
+          ElementActions.updateEmbeddedResearchPlan,
           ElementActions.createWellplate,
           ElementActions.updateWellplate,
           InboxActions.fetchInbox,
