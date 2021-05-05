@@ -81,6 +81,7 @@ export default class ScreenDetails extends Component {
 
   handleSubmit() {
     const { screen } = this.state;
+    LoadingActions.start();
 
     if (screen.isNew) {
       ElementActions.createScreen(screen);
