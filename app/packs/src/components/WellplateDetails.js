@@ -6,6 +6,7 @@ import {
   Tabs, Tab, Tooltip, OverlayTrigger, Col, Row, Popover
 } from 'react-bootstrap';
 import { findIndex } from 'lodash';
+import Immutable from 'immutable';
 import LoadingActions from './actions/LoadingActions';
 import ElementCollectionLabels from './ElementCollectionLabels';
 import ElementActions from './actions/ElementActions';
@@ -19,7 +20,6 @@ import UIStore from './stores/UIStore';
 import UIActions from './actions/UIActions';
 import ConfirmClose from './common/ConfirmClose';
 import ExportSamplesBtn from './ExportSamplesBtn';
-import Immutable from 'immutable';
 import ElementDetailSortTab from './ElementDetailSortTab';
 import { addSegmentTabs } from './generic/SegmentDetails';
 
@@ -74,6 +74,10 @@ export default class WellplateDetails extends Component {
     wellplate.segments = segments;
     wellplate.changed = true;
     this.setState({ wellplate });
+  }
+
+  onTabPositionChanged(visible) {
+    this.setState({ visible });
   }
 
   handleSubmit() {
@@ -163,10 +167,6 @@ export default class WellplateDetails extends Component {
     );
   }
 
-  onTabPositionChanged(visible) {
-    this.setState({visible})
-  }
-
   render() {
     const {
       wellplate, showWellplate, visible
@@ -174,6 +174,7 @@ export default class WellplateDetails extends Component {
     const {
       wells, name, size, description
     } = wellplate;
+    const readoutTitles = wellplate.readout_titles;
     const submitLabel = wellplate.isNew ? 'Create' : 'Save';
     const exportButton = (wellplate && wellplate.isNew) ? null : <ExportSamplesBtn type="wellplate" id={wellplate.id} />;
     const properties = { name, size, description };
@@ -188,6 +189,7 @@ export default class WellplateDetails extends Component {
                 <Wellplate
                   show={showWellplate}
                   size={size}
+                  readoutTitles={readoutTitles}
                   wells={wells}
                   handleWellsChange={w => this.handleWellsChange(w)}
                   cols={cols}
@@ -229,7 +231,7 @@ export default class WellplateDetails extends Component {
     };
 
     const tabTitlesMap = {
-    }
+    };
     addSegmentTabs(wellplate, this.handleSegmentsChange, tabContentsMap);
 
     const tabContents = [];
