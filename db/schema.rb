@@ -1148,6 +1148,7 @@ ActiveRecord::Schema.define(version: 2021_12_06_144812) do
     t.datetime "updated_at", null: false
     t.datetime "deleted_at"
     t.string "short_label"
+    t.jsonb "readout_titles", default: ["Readout"]
     t.index ["deleted_at"], name: "index_wellplates_on_deleted_at"
   end
 
@@ -1163,6 +1164,7 @@ ActiveRecord::Schema.define(version: 2021_12_06_144812) do
     t.datetime "deleted_at"
     t.string "label", default: "Molecular structure", null: false
     t.string "color_code"
+    t.jsonb "readouts", default: [{"unit"=>"", "value"=>""}]
     t.index ["deleted_at"], name: "index_wells_on_deleted_at"
     t.index ["sample_id"], name: "index_wells_on_sample_id"
     t.index ["wellplate_id"], name: "index_wells_on_wellplate_id"
@@ -1205,8 +1207,8 @@ ActiveRecord::Schema.define(version: 2021_12_06_144812) do
        RETURNS TABLE(literatures text)
        LANGUAGE sql
       AS $function$
-         select string_agg(l2.title::text, CHR(10)) as literatures from literals l , literatures l2 
-         where l.literature_id = l2.id 
+         select string_agg(l2.title::text, CHR(10)) as literatures from literals l , literatures l2
+         where l.literature_id = l2.id
          and l.element_type = $1 and l.element_id = $2
        $function$
   SQL
