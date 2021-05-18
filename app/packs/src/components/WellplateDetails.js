@@ -205,6 +205,7 @@ export default class WellplateDetails extends Component {
           <Well>
             <WellplateList
               wells={wells}
+              readoutTitles={readoutTitles}
               handleWellsChange={w => this.handleWellsChange(w)}
             />
           </Well>
