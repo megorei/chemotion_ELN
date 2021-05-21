@@ -1,8 +1,8 @@
 import Element from './Element';
 import Well from './Well';
 import Sample from './Sample';
-import Container from './Container.js';
 import Segment from './Segment';
+import Container from './Container';
 
 export default class Wellplate extends Element {
   constructor(args) {
@@ -11,19 +11,17 @@ export default class Wellplate extends Element {
     this._checksum = this.checksum();
   }
 
-  static buildEmpty(collection_id) {
-    return new Wellplate(
-      {
-        collection_id: collection_id,
-        type: 'wellplate',
-        name: 'New Wellplate',
-        size: 96,
-        description: Wellplate.quillDefault(),
-        wells: [],
-        container: Container.init(),
-        segments: []
-      }
-    )
+  static buildEmpty(collectionID) {
+    return new Wellplate({
+      collection_id: collectionID,
+      type: 'wellplate',
+      name: 'New Wellplate',
+      size: 96,
+      description: Wellplate.quillDefault(),
+      wells: [],
+      container: Container.init(),
+      segments: []
+    });
   }
 
   static buildFromSamplesAndCollectionId(clipboardSamples, collection_id) {
@@ -37,18 +35,16 @@ export default class Wellplate extends Element {
       });
     })
 
-    return new Wellplate(
-      {
-        collection_id: collection_id,
-        type: 'wellplate',
-        name: 'New Wellplate',
-        size: 96,
-        description: Wellplate.quillDefault(),
-        wells: wells,
-        container: Container.init(),
-        segments: []
-      }
-    )
+    return new Wellplate({
+      collection_id,
+      type: 'wellplate',
+      name: 'New Wellplate',
+      size: 96,
+      description: Wellplate.quillDefault(),
+      wells,
+      container: Container.init(),
+      segments: []
+    });
   }
 
   get name() {
@@ -89,11 +85,11 @@ export default class Wellplate extends Element {
       size: this.size,
       description: this.description,
       wells: this.wells.map(w => w.serialize()),
+      readout_titles: this.readout_titles,
       container: this.container,
       segments: this.segments.map(s => s.serialize())
-    })
+    });
   }
-
 
   // ---
 
@@ -108,7 +104,7 @@ export default class Wellplate extends Element {
     return {
       ...well,
       position: this.calculatePositionOfWellByIndex(i)
-    }
+    };
   }
 
   calculatePositionOfWellByIndex(i) {
