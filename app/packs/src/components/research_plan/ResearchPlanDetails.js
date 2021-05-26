@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Panel, ListGroup, ListGroupItem, ButtonToolbar, Button, Tooltip, OverlayTrigger, Tabs, Tab, Dropdown, MenuItem } from 'react-bootstrap';
 import { findIndex } from 'lodash';
+import { unionBy } from 'lodash';
 import Immutable from 'immutable';
 import ElementCollectionLabels from '../ElementCollectionLabels';
 import UIActions from '../actions/UIActions';
@@ -10,6 +11,7 @@ import DetailActions from '../actions/DetailActions';
 import ResearchPlansFetcher from '../fetchers/ResearchPlansFetcher';
 import ResearchPlansLiteratures from '../DetailsTabLiteratures';
 import ResearchPlansMetadata from '../DetailsTabMetadata';
+import ResearchPlanWellplates from '../ResearchPlanWellplates';
 import Attachment from '../models/Attachment';
 import Utils from '../utils/Functions';
 import LoadingActions from '../actions/LoadingActions';
@@ -247,6 +249,21 @@ export default class ResearchPlanDetails extends Component {
     });
   }
 
+  dropWellplate(wellplate) {
+    const { researchPlan } = this.state;
+    researchPlan.changed = true;
+    researchPlan.wellplates = unionBy(researchPlan.wellplates, [wellplate], 'id');
+    this.setState({ researchPlan });
+  }
+
+  deleteWellplate(wellplate) {
+    const { researchPlan } = this.state;
+    researchPlan.changed = true;
+    const wellplateIndex = researchPlan.wellplates.indexOf(wellplate);
+    researchPlan.wellplates.splice(wellplateIndex, 1);
+    this.setState({ researchPlan });
+  }
+
   // render functions
 
   renderExportButton(disabled) {
@@ -413,10 +430,19 @@ export default class ResearchPlanDetails extends Component {
         </Tab>
       ),
       metadata: (
-        <Tab eventKey={4} title="Metadata" disabled={researchPlan.isNew} key={`metadata_${researchPlan.id}`}>
+        <Tab eventKey="metadata" title="Metadata" disabled={researchPlan.isNew} key={`metadata_${researchPlan.id}`}>
           <ResearchPlansMetadata
             parentResearchPlan={researchPlan}
             parentResearchPlanMetadata={researchPlan.research_plan_metadata}
+          />
+        </Tab>
+      ),
+      wellplates: (
+        <Tab eventKey="wellplates" title="Wellplates" key={`wellplates_${researchPlan.id}`}>
+          <ResearchPlanWellplates
+            wellplates={researchPlan.wellplates}
+            dropWellplate={wellplate => this.dropWellplate(wellplate)}
+            deleteWellplate={wellplate => this.deleteWellplate(wellplate)}
           />
         </Tab>
       ),
@@ -428,6 +454,7 @@ export default class ResearchPlanDetails extends Component {
       attachments: 'Attachments',
       literature: 'Literature',
       metadata: 'Metadata',
+      wellplates: 'Wellplates',
     };
     addSegmentTabs(researchPlan, this.handleSegmentsChange, tabContentsMap);
 
