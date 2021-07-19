@@ -66,7 +66,8 @@ export default class ResearchPlan extends Element {
       body: this.body,
       attachments: this.attachments,
       container: this.container,
-      segments: this.segments.map(s => s.serialize())
+      segments: this.segments.map(s => s.serialize()),
+      wellplate_ids: this.wellplateIDs,
     });
   }
 
@@ -154,6 +155,10 @@ export default class ResearchPlan extends Element {
       default:
         break;
     }
+  }
+
+  get wellplateIDs() {
+    return this.wellplates.map(wp => wp.id);
   }
 
   get svgPath() {
