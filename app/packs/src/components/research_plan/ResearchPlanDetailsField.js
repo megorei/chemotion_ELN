@@ -118,7 +118,7 @@ export default class ResearchPlanDetailsField extends Component {
       );
 
       if (field.type === 'richtext') {
-        copyToMetadataButton = (
+        copyToMetadataButton = !onCopyToMetadata ? null : (
           <OverlayTrigger
             placement="top"
             delayShow={500}

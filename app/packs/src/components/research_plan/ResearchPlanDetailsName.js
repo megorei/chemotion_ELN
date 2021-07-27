@@ -7,7 +7,7 @@ export default class ResearchPlanDetailsName extends Component {
   renderCopyToMetadataButton() {
     const { isNew, onCopyToMetadata } = this.props;
     const metadataTooltipText = 'Copy Name to Metadata';
-    return (
+    return !onCopyToMetadata ? null : (
       <OverlayTrigger
         placement="top"
         delayShow={500}

@@ -24,7 +24,7 @@ export default class ResearchPlanDetailsBody extends Component {
         onDrop={onDrop.bind(this)}
         onDelete={onDelete.bind(this)}
         onExport={onExport.bind(this)}
-        onCopyToMetadata={onCopyToMetadata.bind(this)}
+        onCopyToMetadata={onCopyToMetadata?.bind(this)}
         update={update}
         edit={edit}
         tableIndex={tableIndex}
