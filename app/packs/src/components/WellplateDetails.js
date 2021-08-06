@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import html2pdf from 'html2pdf.js/src';
 import PropTypes from 'prop-types';
 import {
-  Well, Panel, ListGroupItem, ButtonToolbar, Button,
+  Well, Panel, ListGroup, ListGroupItem, ButtonToolbar, Button,
   Tabs, Tab, Tooltip, OverlayTrigger, Col, Row
 } from 'react-bootstrap';
 import { findIndex } from 'lodash';
@@ -15,6 +15,7 @@ import Wellplate from './Wellplate';
 import WellplateList from './WellplateList';
 import WellplateProperties from './WellplateProperties';
 import WellplateDetailsContainers from './WellplateDetailsContainers';
+import WellplateDetailsAttachments from './WellplateDetailsAttachments';
 import PrintCodeButton from './common/PrintCodeButton';
 import UIStore from './stores/UIStore';
 import UIActions from './actions/UIActions';
@@ -186,6 +187,27 @@ export default class WellplateDetails extends Component {
     );
   }
 
+  renderAttachmentsTab(wellplate) { /* eslint-disable react/jsx-no-bind */
+    const { attachments } = wellplate;
+    return (
+      <ListGroup fill="true">
+        <ListGroupItem >
+          <WellplateDetailsAttachments
+            attachments={attachments}
+            // TODO: implement
+            // onDrop={this.handleAttachmentDrop.bind(this)}
+            // onDelete={this.handleAttachmentDelete.bind(this)}
+            // onUndoDelete={this.handleAttachmentUndoDelete.bind(this)}
+            // onDownload={this.handleAttachmentDownload.bind(this)}
+            // onEdit={this.handleAttachmentEdit.bind(this)}
+            readOnly={false}
+          />
+        </ListGroupItem>
+      </ListGroup>
+    );
+  } /* eslint-enable */
+
+
   render() {
     const {
       wellplate, showWellplate, visible
@@ -251,6 +273,12 @@ export default class WellplateDetails extends Component {
           </ListGroupItem>
         </Tab>
       ),
+      attachments: (
+        <Tab eventKey="attachments" title="Attachments" key={`attachments_${wellplate.id}`}>
+          {this.renderAttachmentsTab(wellplate)}
+        </Tab>
+      ),
+
     };
 
     const tabTitlesMap = {
