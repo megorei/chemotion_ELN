@@ -1,22 +1,23 @@
 import 'whatwg-fetch';
 import Wellplate from '../models/Wellplate';
-import UIStore from '../stores/UIStore';
 import AttachmentFetcher from './AttachmentFetcher';
 import BaseFetcher from './BaseFetcher';
 import GenericElsFetcher from './GenericElsFetcher';
 
 export default class WellplatesFetcher {
   static fetchById(id) {
-    let promise = fetch('/api/v1/wellplates/' + id + '.json', {
-        credentials: 'same-origin'
-      })
+    const promise = fetch(`/api/v1/wellplates/${id}.json`, {
+      credentials: 'same-origin'
+    })
       .then((response) => {
         return response.json();
       }).then((json) => {
+        const rWellplate = new Wellplate(json.wellplate);
+        rWellplate.attachments = json.attachments;
         if (json.error) {
           return new Wellplate({ id: `${id}:error:Wellplate ${id} is not accessible!`, wells: [], is_new: true });
         }
-        return new Wellplate(json.wellplate);
+        return rWellplate;
       }).catch((errorMessage) => {
         console.log(errorMessage);
       });
@@ -28,11 +29,11 @@ export default class WellplatesFetcher {
   }
 
   static bulkCreateWellplates(params) {
-    let promise = fetch('/api/v1/wellplates/bulk', {
+    const promise = fetch('/api/v1/wellplates/bulk', {
       credentials: 'same-origin',
       method: 'post',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(params)
@@ -42,9 +43,11 @@ export default class WellplatesFetcher {
     return promise;
   }
 
-  static update(params) {
-    const wellplate = new Wellplate(params);
-    const files = AttachmentFetcher.getFileListfrom(wellplate.container);
+  static update(wellplate) {
+    const containerFiles = AttachmentFetcher.getFileListfrom(wellplate.container);
+    const newFiles = (wellplate.attachments || []).filter(a => a.is_new && !a.is_deleted);
+    const delFiles = (wellplate.attachments || []).filter(a => !a.is_new && a.is_deleted);
+
     const promise = () => fetch(`/api/v1/wellplates/${wellplate.id}`, {
       credentials: 'same-origin',
       method: 'put',
@@ -53,24 +56,46 @@ export default class WellplatesFetcher {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(wellplate.serialize())
-    }).then(response => response.json())
-      .then(json => GenericElsFetcher.uploadGenericFiles(params, json.wellplate.id, 'Wellplat')
-        .then(() => this.fetchById(json.wellplate.id))).catch((errorMessage) => {
-        console.log(errorMessage);
-      });
-      
-    if (files.length > 0) {
+    // ------
+    // }).then(response => response.json())
+    //   .then(json => GenericElsFetcher.uploadGenericFiles(params, json.wellplate.id, 'Wellplat')
+    //     .then(() => this.fetchById(json.wellplate.id))).catch((errorMessage) => {
+    //     console.log(errorMessage);
+    //   });
+    // -----
+    }).then((response) => {
+      return response.json();
+    }).then((json) => {
+      if (newFiles.length <= 0 && delFiles.length <= 0) {
+        return new Wellplate(json.wellplate);
+      }
+      return AttachmentFetcher.updateAttachables(newFiles, 'Wellplate', json.wellplate.id, delFiles)()
+        .then(() => {
+          const result = _.differenceBy(json.wellplate.attachments, delFiles, 'id');
+          const newWellplate = new Wellplate(json.wellplate);
+          newWellplate.attachments = _.concat(result, newFiles);
+          return new Wellplate(newWellplate);
+        });
+    }).catch((errorMessage) => {
+      console.log(errorMessage);
+    });
+
+    if (containerFiles.length > 0) {
       let tasks = [];
-      files.forEach(file => tasks.push(AttachmentFetcher.uploadFile(file).then()));
+      containerFiles.forEach(file => tasks.push(AttachmentFetcher.uploadFile(file).then()));
       return Promise.all(tasks).then(() => {
         return promise();
       });
+      // ---------
     }
     return promise();
   }
 
-  static create(params) {
-    const files = AttachmentFetcher.getFileListfrom(params.container);
+  static create(wellplate) {
+    console.log(wellplate);
+    const containerFiles = AttachmentFetcher.getFileListfrom(wellplate.container);
+    const files = (wellplate.attachments || []).filter(a => a.is_new && !a.is_deleted);
+
     const promise = () => fetch('/api/v1/wellplates/', {
       credentials: 'same-origin',
       method: 'post',
@@ -78,16 +103,30 @@ export default class WellplatesFetcher {
         Accept: 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(params)
-    }).then(response => response.json())
-      .then(json => GenericElsFetcher.uploadGenericFiles(params, json.wellplate.id, 'Wellplat')
-        .then(() => this.fetchById(json.wellplate.id))).catch((errorMessage) => {
-        console.log(errorMessage);
-      });
-      
-    if (files.length > 0) {
+      // --------
+    //   body: JSON.stringify(params)
+    // }).then(response => response.json())
+    //   .then(json => GenericElsFetcher.uploadGenericFiles(params, json.wellplate.id, 'Wellplat')
+    //     .then(() => this.fetchById(json.wellplate.id))).catch((errorMessage) => {
+    //     console.log(errorMessage);
+    //   });
+      //  ------
+      body: JSON.stringify(wellplate.serialize())
+    }).then((response) => {
+      return response.json();
+    }).then((json) => {
+      if (files.length <= 0) {
+        return new Wellplate(json.wellplate);
+      }
+      return AttachmentFetcher.updateAttachables(files, 'Wellplate', json.wellplate.id, [])()
+        .then(() => new Wellplate(json.wellplate));
+    }).catch((errorMessage) => {
+      console.log(errorMessage);
+    });
+
+    if (containerFiles.length > 0) {
       let tasks = [];
-      files.forEach(file => tasks.push(AttachmentFetcher.uploadFile(file).then()));
+      containerFiles.forEach(file => tasks.push(AttachmentFetcher.uploadFile(file).then()));
       return Promise.all(tasks).then(() => {
         return promise();
       });
@@ -100,7 +139,7 @@ export default class WellplatesFetcher {
       credentials: 'same-origin',
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -112,9 +151,9 @@ export default class WellplatesFetcher {
         }
       })
     }).then((response) => {
-      return response.json()
+      return response.json();
     }).then((json) => {
-      return json.wellplates.map((w) => new Wellplate(w));
+      return json.wellplates.map(w => new Wellplate(w));
     }).catch((errorMessage) => {
       console.log(errorMessage);
     });

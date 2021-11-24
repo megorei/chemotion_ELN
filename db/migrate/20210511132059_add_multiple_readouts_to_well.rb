@@ -9,7 +9,6 @@ class AddMultipleReadoutsToWell < ActiveRecord::Migration[5.2]
       w.update_columns(
         readouts: [
           {
-            description: 'Readout',
             value: w.readout,
             unit: ''
           }

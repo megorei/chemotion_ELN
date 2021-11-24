@@ -205,5 +205,6 @@ Wellplate.propTypes = {
   cols: PropTypes.number.isRequired,
   wells: PropTypes.array.isRequired,
   readoutTitles: PropTypes.array.isRequired,
+  attachments: PropTypes.array.isRequired,
   handleWellsChange: PropTypes.func.isRequired
 };
