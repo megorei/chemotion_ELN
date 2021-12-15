@@ -33,6 +33,7 @@ class LoadingStore {
           ElementActions.updateEmbeddedResearchPlan,
           ElementActions.createWellplate,
           ElementActions.updateWellplate,
+          ElementActions.importWellplateSpreadsheet,
           InboxActions.fetchInbox,
           PredictionActions.infer,
         ],

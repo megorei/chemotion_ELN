@@ -616,6 +616,17 @@ class ElementActions {
       });};
   }
 
+  importWellplateSpreadsheet(wellplateId, attachmentId) {
+    return (dispatch) => {
+      WellplatesFetcher.importWellplateSpreadsheet(wellplateId, attachmentId)
+        .then((result) => {
+          dispatch(result);
+        }).catch((errorMessage) => {
+          console.log(errorMessage);
+        });
+    };
+  }
+
 
   // -- Screens --
 
