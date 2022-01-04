@@ -98,29 +98,29 @@ module Chemotion
       post 'update_attachments_attachable' do
         attachable_type = params[:attachable_type]
         attachable_id = params[:attachable_id]
-        unless params[:files].empty?
+        if params.fetch(:files, []).any?
           attach_ary = []
           rp_attach_ary = []
           params[:files].each do |file|
-            if (tempfile = file[:tempfile])
-              a = Attachment.new(
-                bucket: file[:container_id],
-                filename: file[:filename],
-                file_path: file[:tempfile],
-                created_by: current_user.id,
-                created_for: current_user.id,
-                content_type: file[:type],
-                attachable_type: attachable_type,
-                attachable_id: attachable_id
-              )
-              begin
-                a.save!
-                attach_ary.push(a.id)
-                rp_attach_ary.push(a.id) if %w[ResearchPlan Element].include?(attachable_type)
-              ensure
-                tempfile.close
-                tempfile.unlink
-              end
+            next unless (tempfile = file[:tempfile])
+
+            a = Attachment.new(
+              bucket: file[:container_id],
+              filename: file[:filename],
+              file_path: file[:tempfile],
+              created_by: current_user.id,
+              created_for: current_user.id,
+              content_type: file[:type],
+              attachable_type: attachable_type,
+              attachable_id: attachable_id
+            )
+            begin
+              a.save!
+              attach_ary.push(a.id)
+              rp_attach_ary.push(a.id) if attachable_type.in?(%w[ResearchPlan Wellplate Element])
+            ensure
+              tempfile.close
+              tempfile.unlink
             end
           end
           TransferThumbnailToPublicJob.set(queue: "transfer_thumbnail_to_public_#{current_user.id}").perform_later(rp_attach_ary) unless rp_attach_ary.empty?
