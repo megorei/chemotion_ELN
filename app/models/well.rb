@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: wells
@@ -33,5 +35,9 @@ class Well < ApplicationRecord
 
   def self.get_samples_in_wellplates(wellplate_ids)
     where(wellplate_id: wellplate_ids).pluck(:sample_id).compact.uniq
+  end
+
+  def readouts
+    read_attribute(:readouts) || []
   end
 end

@@ -34,7 +34,8 @@ export default class Wellplate extends Element {
 
     let wells = samples.map(sample => {
       return new Well({
-        sample: sample
+        sample: sample,
+        readouts: []
       });
     })
 
@@ -109,7 +110,8 @@ export default class Wellplate extends Element {
   initWellWithPositionByIndex(well, i) {
     return {
       ...well,
-      position: this.calculatePositionOfWellByIndex(i)
+      position: this.calculatePositionOfWellByIndex(i),
+      readouts: []
     };
   }
 

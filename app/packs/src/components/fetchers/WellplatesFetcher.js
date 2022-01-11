@@ -95,7 +95,6 @@ export default class WellplatesFetcher {
   }
 
   static create(wellplate) {
-    console.log(wellplate);
     const containerFiles = AttachmentFetcher.getFileListfrom(wellplate.container);
     const files = (wellplate.attachments || []).filter(a => a.is_new && !a.is_deleted);
 
