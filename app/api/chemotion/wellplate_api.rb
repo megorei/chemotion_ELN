@@ -254,6 +254,32 @@ module Chemotion
           { color_code: well.color_code }
         end
       end
+
+      namespace :export_to_research_plan do
+        desc 'Export Wellplate as table into a research plan'
+        params do
+          requires :wellplate_id, type: INteger
+          requires :research_plan_id, type: Integer
+        end
+        route_param :wellplate_id do
+          before do
+            error!('401 Unauthorized', 401) unless ElementPolicy.new(current_user, ResearchPlan.find(params[:research_plan_id])).update?
+            error!('401 Unauthorized', 401) unless ElementPolicy.new(current_user, Wellplate.find(params[:wellplate_id])).read?
+          end
+
+          put do
+            wellplate = Wellplate.find(params[:wellplate_id])
+            research_plan = ResearchPlan.find(params[:research_plan_id])
+            exporter = Usecases::Wellplates::ExportToResearchPlan.new(research_plan, wellplate)
+            begin
+              exporter.execute!
+              { wellplate: ElementPermissionProxy.new(current_user, wellplate, user_ids).serialized }
+            rescue StandardError => e
+              error!(e, 500)
+            end
+          end
+        end
+      end
     end
   end
 end
