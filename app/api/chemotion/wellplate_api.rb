@@ -255,13 +255,13 @@ module Chemotion
         end
       end
 
-      namespace :export_to_research_plan do
-        desc 'Export Wellplate as table into a research plan'
-        params do
-          requires :wellplate_id, type: Integer
-          requires :research_plan_id, type: Integer
-        end
-        route_param :wellplate_id do
+      route_param :wellplate_id do
+        namespace :export_to_research_plan do
+          desc 'Export Wellplate as table into a research plan'
+          params do
+            requires :research_plan_id, type: Integer
+          end
+
           before do
             error!('401 Unauthorized', 401) unless ElementPolicy.new(current_user, ResearchPlan.find(params[:research_plan_id])).update?
             error!('401 Unauthorized', 401) unless ElementPolicy.new(current_user, Wellplate.find(params[:wellplate_id])).read?
@@ -278,6 +278,7 @@ module Chemotion
               error!(e, 500)
             end
           end
+
         end
       end
     end
