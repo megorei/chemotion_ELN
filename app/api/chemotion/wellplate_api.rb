@@ -258,7 +258,7 @@ module Chemotion
       namespace :export_to_research_plan do
         desc 'Export Wellplate as table into a research plan'
         params do
-          requires :wellplate_id, type: INteger
+          requires :wellplate_id, type: Integer
           requires :research_plan_id, type: Integer
         end
         route_param :wellplate_id do
