@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Usecases
-  module Wellplates
-    class ExportToResearchPlan
+  module ResearchPlans
+    class ImportWellplateAsTable
       attr_reader :research_plan, :wellplate
 
       def initialize(research_plan, wellplate)
