@@ -118,37 +118,5 @@ describe Chemotion::WellplateAPI do # rubocop: disable RSpec/FilePath
         expect(response.parsed_body['attachments'].first['filename']).to eq(attachment.filename)
       end
     end
-
-    describe 'PUT /api/v1/wellplates/:wellplate_id/export_to_research_plan' do
-      let(:collection) { create(:collection, user_id: user.id, is_shared: true, permission_level: 3) }
-      let(:wellplate) { create(:wellplate, :with_random_wells, number_of_readouts: 3) }
-      let(:research_plan) { create(:research_plan, creator: user) }
-      let(:params) { { research_plan_id: research_plan.id } }
-
-      before do
-        CollectionsWellplate.create!(wellplate: wellplate, collection: collection)
-        CollectionsResearchPlan.create!(research_plan: research_plan, collection: collection)
-
-        put "/api/v1/wellplates/#{wellplate.id}/export_to_research_plan", params: params, as: :json
-      end
-
-      it 'saves the wellplate as table to the research plan body' do
-        table = research_plan.reload.body.last
-        response_body = JSON.parse(response.body)
-
-        expect(response_body.key?('error')).to be false
-
-        rows = table['value']['rows']
-        columns = table['value']['columns']
-
-        expect(table['type']).to eq 'table'
-
-        expect(rows.size).to eq 12 * 8
-        expect(columns.size).to eq 4 # coordinate + 3 readouts
-
-        names = columns.map { |column| column['name'] }
-        expect(names).to eq ['X, Y', 'Readout 1', 'Readout 2', 'Readout 3']
-      end
-    end
   end
 end
