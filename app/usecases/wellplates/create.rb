@@ -47,11 +47,11 @@ module Usecases
       end
 
       def sync_collection
-        @sync_collection ||= current_user.all_sync_in_collections_users.find_by(id: params[:collection_id]).collection
+        @sync_collection ||= current_user.all_sync_in_collections_users.find_by(collection_id: params[:collection_id])&.collection
       end
 
       def all_collection_of_sharer
-        Collection.get_all_collection_for_user(sync_collection.shared_by_id)
+        Collection.get_all_collection_for_user(sync_collection&.shared_by_id)
       end
 
       def all_collection_of_current_user
