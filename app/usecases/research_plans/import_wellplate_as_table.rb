@@ -12,6 +12,7 @@ module Usecases
 
       def execute!
         table = convert_wellplate_to_table(wellplate)
+        research_plan.body << wellplate_headline
         research_plan.body << table
         research_plan.save!
       end
@@ -30,6 +31,22 @@ module Usecases
       end
 
       private
+
+      def wellplate_headline
+        uuid = Digest::UUID.uuid_v4()
+        name = [wellplate.short_label, wellplate.name].join(' ')
+        {
+          id: uuid,
+          type: :richtext,
+          title: 'Text',
+          value: {
+            ops: [
+              { insert: name },
+              { insert: "\n", attributes: { header: 3 } }
+            ]
+          }
+        }
+      end
 
       def convert_columns(wellplate)
         # NOTES:

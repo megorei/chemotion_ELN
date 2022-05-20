@@ -39,6 +39,7 @@ module Usecases
       end
 
       def import_data
+        @research_plan.body << table_headline
         @research_plan.body << {
           id: SecureRandom.uuid,
           type: :table,
@@ -49,6 +50,21 @@ module Usecases
           }
         }
         @research_plan.save!
+      end
+
+      def table_headline
+        uuid = Digest::UUID.uuid_v4()
+        {
+          id: uuid,
+          type: :richtext,
+          title: 'Text',
+          value: {
+            ops: [
+              { insert: @attachment.filename },
+              { insert: "\n", attributes: { header: 3 } }
+            ]
+          }
+        }
       end
 
       def column_definition(column_name)
