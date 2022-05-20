@@ -58,9 +58,11 @@ export default class EmbeddedWellplate extends Component {
   }
 
   renderImportWellplateButton() {
+    const importDisabled = this.props.researchPlan.changed;
     const show = this.state.showImportConfirm;
-
-    const importTooltip = <Tooltip id="import_tooltip">Import Wellplate data to ResearchPlan table</Tooltip>;
+    const tooltipText = importDisabled ?
+      'Please save the research plan before importing' : 'Import Wellplate data to ResearchPlan table'
+    const importTooltip = <Tooltip id="import_tooltip">{tooltipText}</Tooltip>;
 
     const confirmTooltip = (
       <Tooltip placement="bottom" className="in" id="tooltip-bottom">
@@ -82,6 +84,7 @@ export default class EmbeddedWellplate extends Component {
           bsSize="xsmall"
           bsStyle="success"
           className="button-right"
+          disabled={importDisabled}
           ref={(button) => { this.target = button; }}
           onClick={() => this.showImportConfirm()}
         >
@@ -96,7 +99,7 @@ export default class EmbeddedWellplate extends Component {
         onHide={() => this.hideImportConfirm()}
         target={this.target}
       >
-        { confirmTooltip }
+        {confirmTooltip}
       </Overlay>
     ]);
   }
@@ -186,7 +189,7 @@ export default class EmbeddedWellplate extends Component {
         <OverlayTrigger placement="bottom" overlay={<Tooltip id="WellplateDatesx">{titleTooltip}</Tooltip>}>
           <span>
             <i className="icon-wellplate" />
-            &nbsp; <span>{wellplate.name}</span> &nbsp;
+            &nbsp; <span>{wellplate.short_label} {wellplate.name}</span> &nbsp;
           </span>
         </OverlayTrigger>
         <ElementCollectionLabels element={wellplate} placement="right" />
@@ -202,7 +205,7 @@ export default class EmbeddedWellplate extends Component {
           placement="bottom"
           onHide={() => this.setState({ confirmRemove: false })}
         >
-          { popover }
+          {popover}
         </Overlay>
         <OverlayTrigger placement="bottom" overlay={<Tooltip id="open_wellplate">Open Wellplate in Tab</Tooltip>}>
           <Button bsStyle="info" bsSize="xsmall" className="button-right" onClick={() => this.openWellplate()}>
@@ -237,6 +240,7 @@ export default class EmbeddedWellplate extends Component {
 
 EmbeddedWellplate.propTypes = {
   wellplate: PropTypes.instanceOf(Wellplate).isRequired,
+  canImport: PropTypes.bool.isRequired,
   importWellplate: PropTypes.func.isRequired,
   deleteWellplate: PropTypes.func.isRequired,
 };

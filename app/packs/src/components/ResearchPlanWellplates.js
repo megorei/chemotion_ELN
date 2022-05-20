@@ -59,6 +59,7 @@ class ResearchPlanWellplates extends Component {
         {wellplates && wellplates.map(wellplate => (
           <EmbeddedWellplate
             key={`${wellplate.short_label}-${wellplate.id}`}
+            researchPlan={this.props.researchPlan}
             wellplate={wellplate}
             deleteWellplate={deleteWellplate}
             importWellplate={importWellplate}
@@ -71,6 +72,7 @@ class ResearchPlanWellplates extends Component {
 export default DropTarget(DragDropItemTypes.WELLPLATE, target, collect)(ResearchPlanWellplates);
 
 ResearchPlanWellplates.propTypes = { /* eslint-disable react/no-unused-prop-types */
+  researchPlan: PropTypes.object.isRequired,
   wellplates: PropTypes.arrayOf(PropTypes.object).isRequired,
   deleteWellplate: PropTypes.func.isRequired,
   importWellplate: PropTypes.func.isRequired,

@@ -220,7 +220,15 @@ export default class ResearchPlanDetails extends Component {
     const { researchPlan } = this.state;
     researchPlan.changed = true;
 
-    ElementActions.importWellplateIntoResearchPlan(researchPlan.id, wellplateId)
+    LoadingActions.start();
+    ElementActions.importWellplateIntoResearchPlan(
+      researchPlan.id,
+      wellplateId,
+      () => {
+        this.setState({ activeTab: 0 });
+        LoadingActions.stop();
+      }
+    );
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -276,6 +284,9 @@ export default class ResearchPlanDetails extends Component {
     });
   }
 
+  handleAttachmentImportComplete() {
+    this.setState({ activeTab: 0 });
+  }
   // render functions
 
   renderExportButton(disabled) {
@@ -398,17 +409,17 @@ export default class ResearchPlanDetails extends Component {
   }
 
   renderAttachmentsTab(researchPlan) { /* eslint-disable react/jsx-no-bind */
-    const { attachments } = researchPlan;
     return (
       <ListGroup fill="true">
         <ListGroupItem >
           <ResearchPlanDetailsAttachments
             researchPlan={researchPlan}
-            attachments={attachments}
+            attachments={researchPlan.attachments}
             onDrop={this.handleAttachmentDrop.bind(this)}
             onDelete={this.handleAttachmentDelete.bind(this)}
             onUndoDelete={this.handleAttachmentUndoDelete.bind(this)}
             onDownload={this.handleAttachmentDownload.bind(this)}
+            onAttachmentImportComplete={this.handleAttachmentImportComplete.bind(this)}
             onEdit={this.handleAttachmentEdit.bind(this)}
             readOnly={false}
           />
@@ -480,6 +491,7 @@ export default class ResearchPlanDetails extends Component {
       wellplates: (
         <Tab eventKey="wellplates" title="Wellplates" key={`wellplates_${researchPlan.id}`}>
           <ResearchPlanWellplates
+            researchPlan={researchPlan}
             wellplates={researchPlan.wellplates}
             dropWellplate={wellplate => this.dropWellplate(wellplate)}
             deleteWellplate={wellplate => this.deleteWellplate(wellplate)}

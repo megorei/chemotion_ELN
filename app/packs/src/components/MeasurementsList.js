@@ -26,7 +26,6 @@ export default class MeasurementsList extends Component {
 
   deleteMeasurement() {
     const measurement = this.state.measurementToDelete;
-    console.debug('Clicked delete button for', measurement);
     if (measurement == null) { return; }
 
     LoadingActions.start();

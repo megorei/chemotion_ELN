@@ -15,7 +15,8 @@ import {
   Overlay, OverlayTrigger,
   Popover,
   Row,
-  Tooltip } from 'react-bootstrap';
+  Tooltip
+} from 'react-bootstrap';
 import { last, findKey, values } from 'lodash';
 import { previewAttachmentImage } from './../utils/imageHelper';
 
@@ -88,7 +89,11 @@ export default class ResearchPlanDetailsAttachments extends Component {
   onImport(attachment) {
     const researchPlanId = this.props.researchPlan.id;
     LoadingActions.start();
-    ElementActions.importTableFromSpreadsheet(researchPlanId, attachment.id)
+    ElementActions.importTableFromSpreadsheet(
+      researchPlanId,
+      attachment.id,
+      this.props.onAttachmentImportComplete
+    )
     LoadingActions.stop();
   }
 
@@ -205,7 +210,7 @@ export default class ResearchPlanDetailsAttachments extends Component {
             <ListGroupItem key={attachment.id}>
               {this.renderListGroupItem(attachment)}
             </ListGroupItem>
-            ))}
+          ))}
         </ListGroup>
       );
     }
@@ -231,10 +236,9 @@ export default class ResearchPlanDetailsAttachments extends Component {
   }
 
   renderImportAttachmentButton(attachment) {
-    const { researchPlan } = this.props;
     const show = this.state.showImportConfirm[attachment.id];
     // TODO: import disabled when?
-    const importDisabled = researchPlan.changed;
+    const importDisabled = this.props.researchPlan.changed;
     const extension = last(attachment.filename.split('.'));
 
     const importTooltip = importDisabled ?
@@ -288,7 +292,7 @@ export default class ResearchPlanDetailsAttachments extends Component {
             onHide={() => this.hideImportConfirm(attachment.id)}
             target={this.importButtonRefs[attachment.id]}
           >
-            { confirmTooltip }
+            {confirmTooltip}
           </Overlay>
 
         </div>
@@ -336,10 +340,12 @@ ResearchPlanDetailsAttachments.propTypes = {
   onDelete: PropTypes.func.isRequired,
   onUndoDelete: PropTypes.func.isRequired,
   onDownload: PropTypes.func.isRequired,
+  onAttachmentImportComplete: PropTypes,
   onEdit: PropTypes.func.isRequired,
   readOnly: PropTypes.bool.isRequired
 };
 
 ResearchPlanDetailsAttachments.defaultProps = {
-  attachments: []
+  attachments: [],
+  onAttachmentImportComplete: () => {}
 };
