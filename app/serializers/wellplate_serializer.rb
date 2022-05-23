@@ -46,6 +46,7 @@ class WellplateSerializer < ActiveModel::Serializer
   end
 
   class Level10 < WellplateSerializer
+    has_many :wells
     alias original_initialize initialize
 
     def initialize(element, nested_detail_levels)
