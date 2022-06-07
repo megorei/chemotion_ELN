@@ -163,7 +163,7 @@ export default class ResearchPlanDetailsFieldTableMeasurementExportModal extends
                 Cancel
               </Button>
               <Button bsStyle="primary" disabled={!this.readyForSubmit()} onClick={this.handleSubmit.bind(this)}>
-                Export Measurements
+                Link data to sample
               </Button>
             </ButtonToolbar>
           </div>
