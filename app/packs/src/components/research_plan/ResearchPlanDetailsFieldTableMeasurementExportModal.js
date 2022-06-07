@@ -240,10 +240,10 @@ export default class ResearchPlanDetailsFieldTableMeasurementExportModal extends
 
     // TODO: recognize if readout column duplicates exist
     columns.forEach((column) => {
-      const valueMatcher = / [Vv]alue$/
+      const valueMatcher = /[_ ][Vv]alue$/
       if (column.headerName && column.headerName.match(valueMatcher)) {
         const prefix = column.headerName.split(valueMatcher)[0];
-        const unitColumn = columns.find(otherColumn => otherColumn.headerName.match(RegExp("^" + prefix + " [Uu]nit$")))
+        const unitColumn = columns.find(otherColumn => otherColumn.headerName.match(RegExp("^" + prefix + "[_ ][Uu]nit$")))
         if (unitColumn !== undefined) {
           readouts.push({
             valueColumn: column.field,
