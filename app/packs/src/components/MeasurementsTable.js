@@ -94,7 +94,7 @@ export default class MeasurementsTable extends Component {
           onClick={() => this.navigateToSource(measurement)}
           style={{ cursor: 'pointer' }}
         >
-          {measurement.value}{measurement.unit}
+          {measurement.value} {measurement.unit}
         </a>
       </li>
     );
