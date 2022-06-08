@@ -1,5 +1,5 @@
 import 'whatwg-fetch';
-import Measurement from '../models/measurement';
+import Measurement from '../models/Measurement';
 
 export default class MeasurementsFetcher {
   static fetchMeasurementHierarchy(sample) {
