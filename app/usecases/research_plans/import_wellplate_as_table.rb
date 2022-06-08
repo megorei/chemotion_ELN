@@ -83,11 +83,9 @@ module Usecases
       def convert_rows(wellplate)
         rows = []
         wellplate.wells.sort_by { |well| [well.position_x, well.position_y] }.each do |well|
-          next unless well.sample
-
           row = {
             wellplate_position: well.alphanumeric_position,
-            sample: well.sample.short_label
+            sample: well&.sample&.short_label || ''
           }
           well.readouts.each_with_index do |readout, index|
             next if [readout['value'], readout['unit']].any?(&:blank?)

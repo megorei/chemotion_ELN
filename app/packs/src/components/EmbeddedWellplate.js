@@ -133,10 +133,6 @@ export default class EmbeddedWellplate extends Component {
       return (<p>Please save the newly assigned wellplate to the research plan first</p>);
     }
 
-    const wells_with_samples = wells.filter((well) => {
-      return well.sample !== null; // comparison with undefined does not work here as the key is present but the value might be null
-    });
-
     return (
       <Table striped bordered hover responsive style={{ fontSize: 12 }}>
         <thead>
@@ -147,15 +143,19 @@ export default class EmbeddedWellplate extends Component {
           </tr>
         </thead>
         <tbody>
-          {wells_with_samples && wells_with_samples.map((well) => {
+          {wells.map((well) => {
             const { sample, position } = well;
+            let sample_title = '';
+            if (sample) {
+              sample_title = `${sample.short_label} ${sample.name}`;
+            }
             const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
             const positionY = alphabet[position.y - 1];
             const positions = positionY + position.x;
             return (
               <tr key={well.id}>
                 <td style={this.cellStyle}>{positions}</td>
-                <td style={this.cellStyle}>{sample.short_label} {sample.name}</td>
+                <td style={this.cellStyle}>{sample_title}</td>
                 {this.renderReadoutFields(well)}
               </tr>
             );
