@@ -1,13 +1,16 @@
-import React, { Component } from 'react';
+import Aviator from 'aviator';
+import ElementActions from '../actions/ElementActions';
 import PropTypes from 'prop-types';
-import { Row, Col, Button } from 'react-bootstrap';
+import React, { Component } from 'react';
 import ResearchPlanDetailsFieldTableColumnNameModal from './ResearchPlanDetailsFieldTableColumnNameModal';
+import ResearchPlanDetailsFieldTableMeasurementExportModal from './ResearchPlanDetailsFieldTableMeasurementExportModal';
 import ResearchPlanDetailsFieldTableSchemasModal from './ResearchPlanDetailsFieldTableSchemasModal';
 import ResearchPlansFetcher from '../fetchers/ResearchPlansFetcher';
+import SamplesFetcher from '../fetchers/SamplesFetcher';
+import uniqueId from 'react-html-id';
 import { AgGridReact } from 'ag-grid-react';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
-import uniqueId from 'react-html-id';
-import ResearchPlanDetailsFieldTableMeasurementExportModal from './ResearchPlanDetailsFieldTableMeasurementExportModal';
+import { Row, Col, Button } from 'react-bootstrap';
 
 // regexp to parse tap separated paste from the clipboard
 const defaultParsePaste = str => (
@@ -498,7 +501,17 @@ export default class ResearchPlanDetailsFieldTable extends Component {
 
     const tr = rows.map((row, index) => {
       const td = columns.map((column) => {
-        return <td style={{ 'height': '37px' }} key={column.colId}>{row[column.colId]}</td>;
+        let cellContent = row[column.colId];
+        let cellContentIsShortLabel = column.headerName == 'Sample' && (cellContent || '').length > 3;
+        if (cellContentIsShortLabel) {
+          let shortLabel = cellContent;
+          cellContent = <a
+            onClick={(e) => { e.preventDefault(); this.openSampleByShortLabel(shortLabel) }}
+          >
+            {shortLabel}
+          </a>
+        }
+        return <td style={{ 'height': '37px' }} key={column.colId}>{cellContent}</td>;
       });
       return (
         <tr key={index}>
@@ -526,6 +539,19 @@ export default class ResearchPlanDetailsFieldTable extends Component {
       return this.renderEdit();
     }
     return this.renderStatic();
+  }
+
+  openSampleByShortLabel(shortLabel) {
+    console.debug('opening Sample by short label', shortLabel);
+    SamplesFetcher.findByShortLabel(shortLabel).then((result) => {
+      console.debug('got Result', result);
+      if (result.sample_id && result.collection_id) {
+        Aviator.navigate(`api/v1/collection/${result.collection_id}/sample/${result.sample_id}`, { silent: true });
+        ElementActions.fetchSampleById(result.sample_id);
+      } else {
+        console.debug('No valid data returned for short label', shortLabel, result);
+      }
+    });
   }
 }
 
