@@ -1,7 +1,10 @@
+// imports from node modules
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
-import UIActions from './actions/UIActions';
+
+// imports from other namespaces
+import UIActions from '/app/packs/src/components/actions/UIActions';
 
 function NavigationModal({
   show, title, component, customModal, ...props

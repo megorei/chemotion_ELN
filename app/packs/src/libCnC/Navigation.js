@@ -1,12 +1,13 @@
+// imports from node modules
 import React from 'react';
 import { Nav, Navbar, MenuItem, NavDropdown } from 'react-bootstrap';
 
-import UserAuth from '../components/UserAuth';
-import UserStore from '../components/stores/UserStore';
-import UserActions from '../components/actions/UserActions';
-
-import NavNewSession from '../libHome/NavNewSession';
-import DocumentHelper from '../components/utils/DocumentHelper';
+// imports from other namespaces
+import DocumentHelper from '/app/packs/src/components/utils/DocumentHelper';
+import NavNewSession from '/app/packs/shared_components/navigation/NavNewSession';
+import UserActions from '/app/packs/src/components/actions/UserActions';
+import UserAuth from '/app/packs/shared_components/navigation/UserAuth';
+import UserStore from '/app/packs/src/components/stores/UserStore';
 
 const NavHead = () => (
   <Navbar.Brand>
@@ -52,7 +53,7 @@ export default class Navigation extends React.Component {
   navHeader() {
     return (
       <Navbar.Header className="collec-tree">
-        <Navbar.Text style={{cursor: "pointer"}}>
+        <Navbar.Text style={{ cursor: "pointer" }}>
           <i
             className="fa fa-list"
             style={{ fontStyle: "normal" }}

@@ -1,20 +1,20 @@
+// imports from node modules
 import React, { Component } from 'react';
 import PropTypes from 'prop-types'
 import 'whatwg-fetch';
-import { ButtonGroup, OverlayTrigger, Popover, Nav, NavDropdown, NavItem, MenuItem, Glyphicon, Modal, Button, Table, Panel, Form, FormControl, FormGroup, ControlLabel, Col, Row } from 'react-bootstrap';
+import { Nav, NavDropdown, NavItem, MenuItem, Glyphicon, Modal, Button, Table, Panel, Form, FormControl, FormGroup, ControlLabel, Col, Row } from 'react-bootstrap';
 import moment from 'moment';
-import Select from 'react-select';
 import _ from 'lodash';
 
-import UserActions from './actions/UserActions';
-import UserStore from './stores/UserStore';
-import Functions from './utils/Functions';
-import UsersFetcher from './fetchers/UsersFetcher';
-import MessagesFetcher from './fetchers/MessagesFetcher';
-import NotificationActions from '../components/actions/NotificationActions';
-import { UserLabelModal } from '../components/UserLabels';
-import MatrixCheck from '../components/common/MatrixCheck';
-import GroupElement from './GroupElement';
+// imports from other namespaces
+import GroupElement from '/app/packs/src/components/GroupElement';
+import MatrixCheck from '/app/packs/src/components/common/MatrixCheck';
+import MessagesFetcher from '/app/packs/src/components/fetchers/MessagesFetcher';
+import NotificationActions from '/app/packs/src/components/actions/NotificationActions';
+import UserActions from '/app/packs/src/components/actions/UserActions';
+import UsersFetcher from '/app/packs/src/components/fetchers/UsersFetcher';
+import UserStore from '/app/packs/src/components/stores/UserStore';
+import { UserLabelModal } from '/app/packs/src/components/UserLabels';
 
 export default class UserAuth extends Component {
   constructor(props) {
@@ -50,7 +50,7 @@ export default class UserAuth extends Component {
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    
+
   }
 
   componentDidMount() {
@@ -70,7 +70,7 @@ export default class UserAuth extends Component {
 
   logout() {
     UserActions.logout();
-  }  
+  }
 
   promptTextCreator(label) {
     return ("Share with \"" + label + "\"");
@@ -154,7 +154,7 @@ export default class UserAuth extends Component {
   // tooltip of yes/no confirmation
   handleClick() {
     this.setState({ show: !this.state.show });
-  } 
+  }
 
   // inputs of create new group
   handleInputChange(type, ev) {
@@ -245,7 +245,7 @@ export default class UserAuth extends Component {
     this.setState({ currentGroups });
   };
 
-  handleDeleteUser =(groupRec, userRec) => {
+  handleDeleteUser = (groupRec, userRec) => {
     let { currentGroups, currentUser } = this.state;
     UsersFetcher.updateGroup({ id: groupRec.id, destroy_group: false, rm_users: [userRec.id] })
       .then((result) => {
@@ -258,8 +258,8 @@ export default class UserAuth extends Component {
           currentGroups.splice(idx, 1, result.group);
         }
         this.setState({ currentGroups: currentGroups });
-      });    
-  }  
+      });
+  }
 
   // render modal
   renderModal() {
@@ -277,10 +277,10 @@ export default class UserAuth extends Component {
     } else {
       tBodyGroups = currentGroups ? currentGroups.map(g => (
         <GroupElement groupElement={g} key={g.id} currentState={this.state}
-        currentGroup={this.state.currentGroups}
-        onDeleteGroup={this.handleDeleteGroup}
-        onDeleteUser={this.handleDeleteUser}
-        onChangeData={this.handleChange}></GroupElement>
+          currentGroup={this.state.currentGroups}
+          onDeleteGroup={this.handleDeleteGroup}
+          onDeleteUser={this.handleDeleteUser}
+          onChangeData={this.handleChange}></GroupElement>
       )) : '';
     }
 
@@ -575,8 +575,6 @@ export default class UserAuth extends Component {
             <MenuItem eventKey="5" href="/pages/affiliations" >My Affiliations</MenuItem>
             <MenuItem onClick={this.handleShow}>My Groups & Devices</MenuItem>
             {userLabel}
-            {/* <MenuItem onClick={this.handleSubscriptionShow}>My Subscriptions</MenuItem>
-                Disable for now as there is no subsciption channel yet (Paggy) */}
             <MenuItem eventKey="7" href="/command_n_control" >My Devices</MenuItem>
             {this.state.currentUser.molecule_editor ? moderatorLink : null}
           </NavDropdown>

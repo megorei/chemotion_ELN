@@ -1,12 +1,12 @@
+// imports from node modules
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-
 import { Button, ButtonToolbar } from 'react-bootstrap';
 
-import { ChemScanner, store } from '../chemscanner/ChemScanner';
-
-import ElementActions from '../actions/ElementActions';
+// imports from other namespaces
+import { ChemScanner, store } from '/app/packs/src/components/chemscanner/ChemScanner';
+import ElementActions from '/app/packs/src/components/actions/ElementActions';
 
 export default class ModalImportChemScanner extends React.Component {
   constructor(props) {

@@ -1,3 +1,4 @@
+// imports from node modules
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, FormGroup, FormControl, Glyphicon, Navbar, NavItem, Nav, OverlayTrigger, Tooltip } from 'react-bootstrap';

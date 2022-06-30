@@ -1,9 +1,10 @@
+// imports from node modules
 import React from 'react'
-import {NavDropdown, Navbar, MenuItem} from 'react-bootstrap';
+import { NavDropdown, Navbar, MenuItem } from 'react-bootstrap';
 
 const NavHead = () => {
   let isHome = window.location.href.match(/\/home/)
-  return(
+  return (
     <Navbar.Brand>
       <NavDropdown title='Chemotion' className="navig-brand" id="bg-nested-dropdown-brand">
         <MenuItem eventKey="11" href="http://www.chemotion.net" target="_blank">Chemotion repository</MenuItem>

@@ -1,7 +1,10 @@
+// import from node modules
 import React from 'react';
-import {Button, ButtonToolbar} from 'react-bootstrap';
-import UIStore from './../stores/UIStore';
-import CollectionStore from './../stores/CollectionStore';
+import { Button, ButtonToolbar } from 'react-bootstrap';
+
+// imports from other namespaces
+import CollectionStore from '/app/packs/src/components/stores/CollectionStore';
+import UIStore from '/app/packs/src/components/stores/UIStore';
 
 export default class ModalExportCollection extends React.Component {
   constructor(props) {
@@ -96,7 +99,7 @@ export default class ModalExportCollection extends React.Component {
         <input type="checkbox" id="export-collection-check-all"
           checked={this.hasChecked()} onChange={this.handleCheckAll} className="common-checkbox" />
         <label className="g-marginLeft--10" htmlFor="export-collection-check-all">
-          {this.hasChecked() ? "Deselect all" : "Select all" }
+          {this.hasChecked() ? "Deselect all" : "Select all"}
         </label>
       </div>
     )
@@ -164,12 +167,12 @@ export default class ModalExportCollection extends React.Component {
         return (
           <li key={index}>
             <input className="common-checkbox" type="checkbox"
-                   id={"export-collection-" + root.id}
-                   value={root.id}
-                   onChange={this.handleCheckboxChange}
-                   checked={this.isChecked(root.id)} />
+              id={"export-collection-" + root.id}
+              value={root.id}
+              onChange={this.handleCheckboxChange}
+              checked={this.isChecked(root.id)} />
             <label className="g-marginLeft--10" htmlFor={"export-collection-" + root.id}>
-              { root.label }
+              {root.label}
             </label>
 
             {this.renderSubtrees(root.children)}
@@ -218,7 +221,7 @@ export default class ModalExportCollection extends React.Component {
 
   render() {
     const onChange = (v) => this.setState(
-      previousState => {return { ...previousState, value: v }}
+      previousState => { return { ...previousState, value: v } }
     )
     const { full } = this.props;
     return (

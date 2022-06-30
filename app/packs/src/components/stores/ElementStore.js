@@ -30,7 +30,9 @@ import DeviceFetcher from '../fetchers/DeviceFetcher';
 import ResearchPlansFetcher from '../fetchers/ResearchPlansFetcher';
 import WellplatesFetcher from '../fetchers/WellplatesFetcher';
 import ScreensFetcher from '../fetchers/ScreensFetcher';
-import ModalImportConfirm from '../contextActions/ModalImportConfirm';
+
+// TODO: muss hier raus, das ist inhaltlich hier ziemlich ungünstig angesiedelt
+import ModalImportConfirm from '/app/packs/shared_components/navigation/contextActions/ModalImportConfirm';
 
 import { extraThing } from '../utils/Functions';
 import Xlisteners from '../extra/ElementStoreXlisteners';

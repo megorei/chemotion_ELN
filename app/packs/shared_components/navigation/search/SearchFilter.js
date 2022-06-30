@@ -1,8 +1,11 @@
+// imports from node modules
 import React from 'react'
-import {Button, FormControl} from 'react-bootstrap'
+import { Button, FormControl } from 'react-bootstrap'
 import Select from 'react-select'
-import UIActions from '../actions/UIActions';
-import XSearchParams from "../extra/AdvancedSearchXSearchParams";
+
+// imports from other namespaces
+import UIActions from '/app/packs/src/components/actions/UIActions';
+import XSearchParams from '/app/packs/src/components/extra/AdvancedSearchXSearchParams';
 
 export default class SearchFilter extends React.Component {
   constructor(props) {
@@ -60,7 +63,7 @@ export default class SearchFilter extends React.Component {
       }
     ];
 
-    for (let i = 0; i < XSearchParams.count; i++){
+    for (let i = 0; i < XSearchParams.count; i++) {
       if (XSearchParams[`on${i}`]) {
         this.listOptions = this.listOptions.concat(XSearchParams[`content${i}`])
       }
@@ -86,12 +89,12 @@ export default class SearchFilter extends React.Component {
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
-    this.setState({showFilters: nextProps.show})
+    this.setState({ showFilters: nextProps.show })
   }
 
   showFilters(bool) {
     let show = !this.state.showFilters
-    if (typeof(bool) == "boolean") {
+    if (typeof (bool) == "boolean") {
       show = bool
       UIActions.toggleAdvancedSearch(bool)
     }
@@ -106,7 +109,7 @@ export default class SearchFilter extends React.Component {
 
     const filter = filters[filters.length - 1];
     const check = (filter.field && filter.value && filter.link) ||
-                (idx == 0 && filter.field && filter.value);
+      (idx == 0 && filter.field && filter.value);
 
     if (check) {
       filters.push({ link: 'OR', match: 'EXACT', field: '', value: '' });
@@ -135,9 +138,9 @@ export default class SearchFilter extends React.Component {
   }
 
   renderDynamicRow() {
-    let {filters} = this.state
+    let { filters } = this.state
 
-    let dynamicRow = ( <span /> )
+    let dynamicRow = (<span />)
 
     if (filters.length > 1) {
       let addedFilters = filters.filter((val, idx) => idx > 0)
@@ -176,14 +179,14 @@ export default class SearchFilter extends React.Component {
   }
 
   render() {
-    let {showFilters, currentOption, filters} = this.state
+    let { showFilters, currentOption, filters } = this.state
     if (!showFilters) return (<span />)
 
     return (
       <div className="advanced-search">
         <div>
           <div className="adv-search-row">
-            <span style={{flex: "0 0 127px"}} />
+            <span style={{ flex: "0 0 127px" }} />
             <span className="match-select">
               <Select simpleValue searchable={false} options={this.matchOps}
                 placeholder="Select search type" clearable={false}

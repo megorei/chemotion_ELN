@@ -1,3 +1,4 @@
+// imports from node modules
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -6,13 +7,14 @@ import {
 } from 'react-bootstrap';
 import Aviator from 'aviator';
 
-import { elementShowOrNew } from '../routesUtils';
-import UIStore from '../stores/UIStore';
-import UserStore from '../stores/UserStore';
-import ElementActions from '../actions/ElementActions';
-import ClipboardActions from '../actions/ClipboardActions';
-import SamplesFetcher from '../fetchers/SamplesFetcher';
-import MatrixCheck from '../common/MatrixCheck';
+// import from other namespaces
+import ClipboardActions from '/app/packs/src/components/actions/ClipboardActions';
+import ElementActions from '/app/packs/src/components/actions/ElementActions';
+import MatrixCheck from '/app/packs/src/components/common/MatrixCheck';
+import SamplesFetcher from '/app/packs/src/components/fetchers/SamplesFetcher';
+import UIStore from '/app/packs/src/components/stores/UIStore';
+import UserStore from '/app/packs/src/components/stores/UserStore';
+import { elementShowOrNew } from '/app/packs/src/components/routesUtils';
 
 export default class CreateButton extends React.Component {
   constructor(props) {
@@ -174,21 +176,21 @@ export default class CreateButton extends React.Component {
   }
 
   noSampleSelected() {
-    const {sample} = UIStore.getState()
+    const { sample } = UIStore.getState()
     return sample.checkedIds.size == 0 && sample.checkedAll == false
   }
 
   isAllCollection() {
-    const {currentCollection} = UIStore.getState()
+    const { currentCollection } = UIStore.getState()
     return currentCollection && currentCollection.label == 'All'
   }
 
   createElementOfType(type) {
-    const {currentCollection,isSync} = UIStore.getState();
+    const { currentCollection, isSync } = UIStore.getState();
     const uri = isSync
       ? `/scollection/${currentCollection.id}/${type}/new`
       : `/collection/${currentCollection.id}/${type}/new`;
-    Aviator.navigate(uri, { silent: true} );
+    Aviator.navigate(uri, { silent: true });
     const e = { type, params: { collectionID: currentCollection.id } };
     e.params[`${type}ID`] = 'new'
     const genericEls = (UserStore.getState() && UserStore.getState().genericEls) || [];
@@ -264,7 +266,7 @@ export default class CreateButton extends React.Component {
           <MenuItem onSelect={() => this.copySample()} disabled={this.isCopySampleDisabled()}>Copy Sample</MenuItem>
           <MenuItem onSelect={() => this.copyReaction()} disabled={this.isCopyReactionDisabled()}>Copy Reaction</MenuItem>
           <MenuItem onSelect={() => this.splitSelectionAsSubsamples()}
-                    disabled={this.noSampleSelected() || this.isAllCollection()}>
+            disabled={this.noSampleSelected() || this.isAllCollection()}>
             Split Sample
           </MenuItem>
           <MenuItem
@@ -274,7 +276,7 @@ export default class CreateButton extends React.Component {
             Split Wellplate
           </MenuItem>
         </SplitButton>
-    </div>
+      </div>
     )
   }
 }

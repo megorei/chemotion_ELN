@@ -1,9 +1,11 @@
+// import from node modules
 import React from 'react';
-import {Button, ButtonToolbar, Input} from 'react-bootstrap';
+import { Button, ButtonToolbar, Input } from 'react-bootstrap';
 import Dropzone from 'react-dropzone';
-import UIStore from '../stores/UIStore';
 
-import NotificationActions from '../actions/NotificationActions';
+// imports from other namespaces
+import NotificationActions from '/app/packs/src/components/actions/NotificationActions';
+import UIStore from '/app/packs/src/components/stores/UIStore';
 
 export default class ModalImport extends React.Component {
   constructor(props) {
@@ -14,8 +16,8 @@ export default class ModalImport extends React.Component {
   }
 
   handleClick() {
-    const {onHide, action} = this.props;
-    const {file} = this.state;
+    const { onHide, action } = this.props;
+    const { file } = this.state;
     let ui_state = UIStore.getState();
     let params = {
       file: file,
@@ -37,15 +39,15 @@ export default class ModalImport extends React.Component {
   }
 
   handleFileDrop(attachment_file) {
-    this.setState({file: attachment_file[0]});
+    this.setState({ file: attachment_file[0] });
   }
 
   handleAttachmentRemove() {
-    this.setState({file: null});
+    this.setState({ file: null });
   }
 
   dropzoneOrfilePreview() {
-    const {file} = this.state;
+    const { file } = this.state;
     if (file) {
       return (
         <div>
@@ -59,9 +61,9 @@ export default class ModalImport extends React.Component {
       return (
         <Dropzone
           onDrop={attachment_file => this.handleFileDrop(attachment_file)}
-          style={{height: 50, width: '100%', border: '3px dashed lightgray'}}
-          >
-          <div style={{textAlign: 'center', paddingTop: 12, color: 'gray'}}>
+          style={{ height: 50, width: '100%', border: '3px dashed lightgray' }}
+        >
+          <div style={{ textAlign: 'center', paddingTop: 12, color: 'gray' }}>
             Drop File, or Click to Select.
           </div>
         </Dropzone>
@@ -70,12 +72,12 @@ export default class ModalImport extends React.Component {
   }
 
   isDisabled() {
-    const {file} = this.state;
+    const { file } = this.state;
     return file == null
   }
 
   render() {
-    const {onHide} = this.props;
+    const { onHide } = this.props;
     return (
       <div>
         {this.dropzoneOrfilePreview()}

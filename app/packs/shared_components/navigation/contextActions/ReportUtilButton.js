@@ -1,11 +1,13 @@
+// imports from node modules
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Dropdown, MenuItem } from 'react-bootstrap';
 
-import ElementActions from '../actions/ElementActions';
-import UserStore from '../stores/UserStore';
-import MatrixCheck from '../common/MatrixCheck';
+// imports from other namespaces
+import ElementActions from '/app/packs/src/components/actions/ElementActions';
+import MatrixCheck from '/app/packs/src/components/common/MatrixCheck';
+import UserStore from '/app/packs/src/components/stores/UserStore';
 
 const showReportContainer = () => {
   ElementActions.showReportContainer();

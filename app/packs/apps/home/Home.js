@@ -1,10 +1,14 @@
+// Imports from node modules
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Grid, Row } from 'react-bootstrap';
 
-import Navigation from '../components/Navigation'
-import XHome from '../components/extra/HomeXHome'
-import WelcomeMessage from '../components/WelcomeMessage';
+// Imports from other namespaces
+import Navigation from '/app/packs/shared_components/navigation/Navigation';
+import XHome from '/app/packs/src/components/extra/HomeXHome';
+
+// Imports from own namespace
+import WelcomeMessage from './components/WelcomeMessage';
 
 const extraHomes = () => {
   const homes = [];
@@ -23,7 +27,7 @@ class Home extends Component {
   render() {
     return (
       <div>
-        { XHome.count && XHome.count > 0
+        {XHome.count && XHome.count > 0
           ? extraHomes().map((Annex, i) => <Annex key={`Annex_${i}`} />)
           : <Grid fluid>
             <Row className="card-navigation">

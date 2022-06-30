@@ -1,8 +1,10 @@
+// imports from node modules
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import 'whatwg-fetch';
 
-import InboxActions from '../actions/InboxActions';
+// imports from other namespaces
+import InboxActions from '/app/packs/src/components/actions/InboxActions';
 
 export default class InboxButton extends React.Component {
   componentDidMount() {

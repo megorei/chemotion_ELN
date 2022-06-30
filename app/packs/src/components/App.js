@@ -1,3 +1,4 @@
+// imports from node modules
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Col, Grid, Row } from 'react-bootstrap';
@@ -5,7 +6,10 @@ import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import Aviator from 'aviator';
 
-import Navigation from './Navigation';
+// imports from other namespaces
+import Navigation from '/app/packs/shared_components/navigation/Navigation';
+
+// imports from own namespace
 import CollectionTree from './CollectionTree';
 import CollectionManagement from './CollectionManagement';
 import Elements from './Elements';

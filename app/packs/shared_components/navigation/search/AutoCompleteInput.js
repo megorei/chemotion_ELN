@@ -1,15 +1,16 @@
+// imports from node modules
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {FormGroup,InputGroup,FormControl, Overlay, ListGroup, ListGroupItem}
+import { FormGroup, InputGroup, FormControl, Overlay, ListGroup, ListGroupItem }
   from 'react-bootstrap';
 import debounce from 'es6-promise-debounce';
 import { isString } from 'lodash';
 
-import KeyboardActions from '../actions/KeyboardActions';
-import KeyboardStore from '../stores/KeyboardStore';
-
-import UIActions from '../actions/UIActions';
-import UIStore from '../stores/UIStore';
+// imports from other namespaces
+import KeyboardActions from '/app/packs/src/components/actions/KeyboardActions';
+import KeyboardStore from '/app/packs/src/components/stores/KeyboardStore';
+import UIActions from '/app/packs/src/components/actions/UIActions';
+import UIStore from '/app/packs/src/components/stores/UIStore';
 
 export default class AutoCompleteInput extends React.Component {
 
@@ -56,8 +57,8 @@ export default class AutoCompleteInput extends React.Component {
     }
 
     this.setState({
-      value : value,
-      inputDisabled : inputDisabled
+      value: value,
+      inputDisabled: inputDisabled
     })
   }
 
@@ -68,21 +69,21 @@ export default class AutoCompleteInput extends React.Component {
     }
   }
 
-  focusNewSuggestionIndex(direction=1) {
-    let {suggestions, suggestionFocus} = this.state
+  focusNewSuggestionIndex(direction = 1) {
+    let { suggestions, suggestionFocus } = this.state
     let length = suggestions.length
     let sF = suggestionFocus == null ? length - 1 : suggestionFocus
     let newSuggestionIndex = sF + direction
-    if (newSuggestionIndex >= length) {newSuggestionIndex = 0}
-    if (newSuggestionIndex < 0) {newSuggestionIndex = length - 1}
+    if (newSuggestionIndex >= length) { newSuggestionIndex = 0 }
+    if (newSuggestionIndex < 0) { newSuggestionIndex = length - 1 }
     this.focusSuggestion(newSuggestionIndex)
   }
 
   focusSuggestion(newFocus) {
-    let {suggestions, suggestionFocus, value, valueBeforeFocus} = this.state
+    let { suggestions, suggestionFocus, value, valueBeforeFocus } = this.state
     let newState = {}
     let sF = !suggestionFocus ? 0 : suggestionFocus
-    if(!valueBeforeFocus) {
+    if (!valueBeforeFocus) {
       newState.valueBeforeFocus = value
     }
     newState.value = suggestions[newFocus].name
@@ -93,7 +94,7 @@ export default class AutoCompleteInput extends React.Component {
 
     newState.suggestionFocus = newFocus
     ReactDOM.findDOMNode(this.refs['suggestion_' + sF])
-            .classList.remove('active')
+      .classList.remove('active')
     let newFocusDom = ReactDOM.findDOMNode(this.refs['suggestion_' + newFocus])
     newFocusDom.classList.add('active')
 
@@ -103,7 +104,7 @@ export default class AutoCompleteInput extends React.Component {
 
     // Scroll to element
     if (listSuggestions &&
-        (newFocusDom.offsetTop > (listSuggestions.scrollTop + listSuggestions.offsetHeight - 70) ||
+      (newFocusDom.offsetTop > (listSuggestions.scrollTop + listSuggestions.offsetHeight - 70) ||
         (newFocusDom.offsetTop < listSuggestions.scrollTop))) {
       listSuggestions.scrollTop = newFocusDom.offsetTop - (11 * listSuggestions.offsetTop);
     }
@@ -125,7 +126,7 @@ export default class AutoCompleteInput extends React.Component {
     let debounced = debounce(this.props.suggestions, 200)
     debounced(value).then(result => {
       let newState = {}
-      if(result.length > 0) {
+      if (result.length > 0) {
         newState.suggestions = result
         newState.showSuggestions = show
       } else {
@@ -139,8 +140,8 @@ export default class AutoCompleteInput extends React.Component {
   }
 
   doneTyping() {
-    let {value} = this.state
-    if(!value) {
+    let { value } = this.state
+    if (!value) {
       this.resetComponent()
     } else {
       // From https://gist.github.com/lsauer/1312860
@@ -151,10 +152,10 @@ export default class AutoCompleteInput extends React.Component {
 
   // Keep chaging the input value until user finish typing
   handleValueChange(event, doneTyping) {
-    let {value} = event.target
-    let {timeoutReference} = this.state
+    let { value } = event.target
+    let { timeoutReference } = this.state
 
-    if(!value) {
+    if (!value) {
       this.resetComponent()
     } else {
       if (timeoutReference) {
@@ -163,9 +164,9 @@ export default class AutoCompleteInput extends React.Component {
 
       this.setState({
         value: value,
-        timeoutReference: setTimeout(function(){
-                                      doneTyping()
-                                    }, this.timeout)
+        timeoutReference: setTimeout(function () {
+          doneTyping()
+        }, this.timeout)
       })
     }
   }
@@ -184,11 +185,11 @@ export default class AutoCompleteInput extends React.Component {
   }
 
   handleKeyDown(event) {
-    let {value, valueBeforeFocus, showSuggestions, error, suggestions} =
+    let { value, valueBeforeFocus, showSuggestions, error, suggestions } =
       this.state
-    let {onSelectionChange} = this.props
+    let { onSelectionChange } = this.props
     let newState = {}
-    switch(event.keyCode) {
+    switch (event.keyCode) {
       case 13: // Enter
         this.selectSuggestion()
         event.preventDefault()
@@ -198,15 +199,15 @@ export default class AutoCompleteInput extends React.Component {
         event.preventDefault()
         break
       case 38: // Up
-        if(showSuggestions && !error) {
+        if (showSuggestions && !error) {
           this.focusNewSuggestionIndex(-1)
         }
         event.preventDefault()
         break
       case 40: // Down
-        if(showSuggestions && !error) {
+        if (showSuggestions && !error) {
           this.focusNewSuggestionIndex(+1)
-        } else if(suggestions) {
+        } else if (suggestions) {
           newState.showSuggestions = true
         }
         event.preventDefault()
@@ -216,8 +217,8 @@ export default class AutoCompleteInput extends React.Component {
   }
 
   selectSuggestion() {
-    let {suggestions, suggestionFocus, timeoutReference, value} = this.state
-    let {onSelectionChange} = this.props
+    let { suggestions, suggestionFocus, timeoutReference, value } = this.state
+    let { onSelectionChange } = this.props
     this.setState({
       showSuggestions: false,
       valueBeforeFocus: null
@@ -232,7 +233,7 @@ export default class AutoCompleteInput extends React.Component {
       this.setState({
         value: ''
       })
-      let {currentCollection, isSync} = UIStore.getState();
+      let { currentCollection, isSync } = UIStore.getState();
       currentCollection['clearSearch'] = true
       isSync ? UIActions.selectSyncCollection(currentCollection)
         : UIActions.selectCollection(currentCollection);
@@ -240,7 +241,7 @@ export default class AutoCompleteInput extends React.Component {
       return 0
     }
 
-    let selection = {name: value, search_by_method: 'substring'}
+    let selection = { name: value, search_by_method: 'substring' }
     if (suggestions && suggestionFocus != null && suggestions[suggestionFocus]) {
       let selectedSuggestion = suggestions[suggestionFocus]
       let selectedName = selectedSuggestion.name;
@@ -251,7 +252,7 @@ export default class AutoCompleteInput extends React.Component {
 
       if (selectedName && selectedName.trim() != '' && this.state.value == selectedName)
         if (selectedSuggestion.search_by_method == 'element_short_label') {
-          selection = {name: selectedSuggestion.name.name, search_by_method: `element_short_label_${selectedSuggestion.name.klass}`}
+          selection = { name: selectedSuggestion.name.name, search_by_method: `element_short_label_${selectedSuggestion.name.klass}` }
         } else {
           selection = selectedSuggestion
         }
@@ -262,7 +263,7 @@ export default class AutoCompleteInput extends React.Component {
   }
 
   abortAutoSelection() {
-    let {valueBeforeFocus} = this.state
+    let { valueBeforeFocus } = this.state
     this.setState({
       showSuggestions: false,
       value: valueBeforeFocus,
@@ -272,31 +273,31 @@ export default class AutoCompleteInput extends React.Component {
   }
 
   renderSuggestions() {
-    let {suggestions, error} = this.state
+    let { suggestions, error } = this.state
     let types = {
-      sample_name : {icon: 'icon-sample', label: 'Sample Name'},
-      sample_short_label : {icon: 'icon-sample', label: 'Sample Short Label'},
-      sample_external_label : {icon: 'icon-sample', label: 'Sample External Label'},
-      polymer_type : {icon: 'icon-polymer', label: 'Polymer'},
-      reaction_name : {icon: 'icon-reaction', label: 'Reaction name'},
-      reaction_status : {icon: 'icon-reaction', label: 'Reaction status'},
-      reaction_short_label : {icon: 'icon-reaction', label: 'Reaction label'},
+      sample_name: { icon: 'icon-sample', label: 'Sample Name' },
+      sample_short_label: { icon: 'icon-sample', label: 'Sample Short Label' },
+      sample_external_label: { icon: 'icon-sample', label: 'Sample External Label' },
+      polymer_type: { icon: 'icon-polymer', label: 'Polymer' },
+      reaction_name: { icon: 'icon-reaction', label: 'Reaction name' },
+      reaction_status: { icon: 'icon-reaction', label: 'Reaction status' },
+      reaction_short_label: { icon: 'icon-reaction', label: 'Reaction label' },
       reaction_rinchi_string: { icon: 'icon-reaction', label: 'Reaction RInChI' },
-      wellplate_name : {icon: 'icon-wellplate', label: 'Wellplate'},
-      screen_name : {icon: 'icon-screen', label: 'Screen'},
-      iupac_name : {icon: 'icon-sample', label: 'Molecule'},
-      inchistring : {icon: 'icon-sample', label: 'InChI'},
-      inchikey: { icon: 'icon-sample', label: 'InChIKey'},
-      cano_smiles : {icon: 'icon-sample', label: 'Canonical Smiles'},
-      sum_formula : {icon: 'icon-sample', label: 'Sum Formula'},
-      requirements : {icon: 'icon-screen', label: 'Requirement'},
-      conditions : {icon: 'icon-screen', label: 'Condition'},
-      element_short_label: {icon: 'icon-element', label: 'Element Short Label'}
+      wellplate_name: { icon: 'icon-wellplate', label: 'Wellplate' },
+      screen_name: { icon: 'icon-screen', label: 'Screen' },
+      iupac_name: { icon: 'icon-sample', label: 'Molecule' },
+      inchistring: { icon: 'icon-sample', label: 'InChI' },
+      inchikey: { icon: 'icon-sample', label: 'InChIKey' },
+      cano_smiles: { icon: 'icon-sample', label: 'Canonical Smiles' },
+      sum_formula: { icon: 'icon-sample', label: 'Sum Formula' },
+      requirements: { icon: 'icon-screen', label: 'Requirement' },
+      conditions: { icon: 'icon-screen', label: 'Condition' },
+      element_short_label: { icon: 'icon-element', label: 'Element Short Label' }
     }
-    if(suggestions) {
+    if (suggestions) {
       return (
         <div>
-          { suggestions.map((suggestion, index) => {
+          {suggestions.map((suggestion, index) => {
             let suggestionType = types[suggestion.search_by_method]
             let icon = suggestionType ? suggestionType.icon : ""
             let typeLabel = suggestionType ? suggestionType.label : ""
@@ -313,7 +314,7 @@ export default class AutoCompleteInput extends React.Component {
             } else {
               name = suggestion.name;
               inchiMatch = suggestion.name.substring(0, inchiString.length)
-              if (inchiMatch==inchiString) {
+              if (inchiMatch == inchiString) {
                 suggestion.name = suggestion.name.replace(inchiString, "")
               }
             }
@@ -328,7 +329,7 @@ export default class AutoCompleteInput extends React.Component {
                 header={name}
                 className="list-group-item-wrap"
               >
-                <i className={icon} style={{marginRight: 2}}></i>
+                <i className={icon} style={{ marginRight: 2 }}></i>
                 {typeLabel}
               </ListGroupItem>
             )
