@@ -3,9 +3,9 @@
 // var React = require('react');
 
 var Home = require('/app/packs/apps/home/Home');
+var AdminHome = require('/app/packs/apps/admin/AdminHome');
 
 var CnC = require('../src/libCnC/CnC');
-var AdminHome = require('../src/admin/AdminHome');
 var ChemScanner = require('../src/components/chemscanner/ChemScanner');
 var ChemSpectra = require('../src/components/chemspectra/ChemSpectra');
 var ChemSpectraEditor = require('../src/components/chemspectra/ChemSpectraEditor');
