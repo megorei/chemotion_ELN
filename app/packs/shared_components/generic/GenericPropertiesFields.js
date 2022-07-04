@@ -5,9 +5,9 @@ import { filter } from 'lodash';
 import Select from 'react-select';
 import Dropzone from 'react-dropzone';
 import GenericElDropTarget from './GenericElDropTarget';
-import { genUnit, genUnitSup, FieldLabel, unitConvToBase } from '../../admin/generic/Utils';
+import { genUnit, genUnitSup, FieldLabel, unitConvToBase } from '/app/packs/shared_components/generic/Utils';
 import TableRecord from './TableRecord';
-import Utils from '../utils/Functions';
+import Utils from '/app/packs/src/components/utils/Functions';
 
 const downloadTooltip = <Tooltip id="download_tooltip">Download attachment</Tooltip>;
 const GenTextFormula = (opt) => {
@@ -125,7 +125,7 @@ const GenPropertiesUpload = (opt) => {
           <ListGroupItem key={attachment.id} className="generic_files">
             {renderListGroupItem(opt, attachment)}
           </ListGroupItem>
-          ))}
+        ))}
       </ListGroup>
     </FormGroup>
   );

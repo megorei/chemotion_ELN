@@ -1,10 +1,15 @@
+// imports from node_modules
 /* eslint-disable react/forbid-prop-types */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Row, Col } from 'react-bootstrap';
 import { sortBy } from 'lodash';
-import { GenProperties, GenPropertiesLayerSearchCriteria } from './GenericElCommon';
-import GenericEl from '../models/GenericEl';
+
+// imports from other namespaces
+import GenericEl from '/app/packs/src/components/models/GenericEl';
+
+// imports from own namespace
+import { GenProperties, GenPropertiesLayerSearchCriteria } from '/app/packs/shared_components/generic/GenericElCommon';
 
 const buildCriteria = (props) => {
   const { genericEl } = props;
@@ -165,6 +170,6 @@ GenericElCriteria.propTypes = {
 
 GenericElCriteria.defaultProps = {
   genericEl: null,
-  onHide: () => { },
-  onSearch: () => { }
+  onHide: () => {},
+  onSearch: () => {}
 };

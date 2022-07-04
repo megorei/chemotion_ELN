@@ -3,16 +3,16 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import Numeral from 'numeral';
-import GenericSubField from '../models/GenericSubField';
+import GenericSubField from '/app/packs/src/components/models/GenericSubField';
 import { AddRowBtn, DelRowBtn, DnDRowBtn, NullRowBtn } from './GridBtn';
 import { ColumnHeader, ColumnRow, NoRow } from './GridEntry';
 import UConverterRenderer from './UConverterRenderer';
-import { genUnits, unitConversion, molOptions, samOptions } from '../../admin/generic/Utils';
+import { genUnits, unitConversion, molOptions, samOptions } from '/app/packs/shared_components/generic/Utils';
 import DropRenderer from './DropRenderer';
 import DropTextRenderer from './DropTextRenderer';
 import DropLinkRenderer from './DropLinkRenderer';
 import SampOption from './SamOption';
-import DragDropItemTypes from '../DragDropItemTypes';
+import DragDropItemTypes from '/app/packs/src/components/DragDropItemTypes';
 
 export default class TableRecord extends React.Component {
   constructor(props) {

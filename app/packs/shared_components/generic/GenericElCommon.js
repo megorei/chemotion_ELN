@@ -1,3 +1,4 @@
+// imports from node_modules
 /* eslint-disable react/require-default-props */
 /* eslint-disable react/forbid-prop-types */
 /* eslint-disable react/no-multi-comp */
@@ -6,13 +7,17 @@ import PropTypes from 'prop-types';
 import { Panel, Col, PanelGroup, Row } from 'react-bootstrap';
 import { sortBy, findIndex } from 'lodash';
 import uuid from 'uuid';
-import { genUnits, unitConversion } from '../../admin/generic/Utils';
-import Attachment from '../models/Attachment';
+
+// imports from other namespaces
+import Attachment from '/app/packs/src/components/models/Attachment';
+
+// imports from own namespace
 import {
   GenPropertiesText, GenPropertiesCheckbox, GenPropertiesSelect, GenPropertiesCalculate,
   GenPropertiesNumber, GenPropertiesSystemDefined, GenPropertiesInputGroup, GenPropertiesDrop,
   GenPropertiesTextArea, GenPropertiesUpload, GenDummy, GenTextFormula, GenPropertiesTable
-} from './GenericPropertiesFields';
+} from '/app/packs/shared_components/generic/GenericPropertiesFields';
+import { genUnits, unitConversion } from '/app/packs/shared_components/generic/Utils';
 
 const UploadInputChange = (properties, event, field, layer) => {
   const files = [];
@@ -56,7 +61,7 @@ const ShowProperties = (fObj, layers) => {
       if (field && field !== '') {
         const fd = ((layers[layer] || {}).fields || []).find(f => f.field === field) || {};
         if (fd.type === 'checkbox' && ((['false', 'no', 'f', '0'].includes((value || '').trim().toLowerCase()) && (typeof (fd && fd.value) === 'undefined' || fd.value === false)) ||
-        (['true', 'yes', 't', '1'].includes((value || '').trim().toLowerCase()) && (typeof (fd && fd.value) !== 'undefined' && fd.value === true)))) {
+          (['true', 'yes', 't', '1'].includes((value || '').trim().toLowerCase()) && (typeof (fd && fd.value) !== 'undefined' && fd.value === true)))) {
           showField = true;
           break;
         } else if (['text', 'select'].includes(fd && fd.type) && (typeof (fd && fd.value) !== 'undefined' && ((fd && fd.value) || '').trim() == (value || '').trim())) {
@@ -362,7 +367,7 @@ const LayersLayout = (layers, options, funcChange, funcSubChange = () => {}, fun
         const cond = layer.cond_fields[i] || {};
         const fd = ((layers[cond.layer] || {}).fields || []).find(f => f.field === cond.field) || {};
         if (fd.type === 'checkbox' && ((['false', 'no', 'f', '0'].includes((cond.value || '').trim().toLowerCase()) && (typeof (fd && fd.value) === 'undefined' || fd.value === false)) ||
-        (['true', 'yes', 't', '1'].includes((cond.value || '').trim().toLowerCase()) && (typeof fd.value !== 'undefined' && fd.value === true)))) {
+          (['true', 'yes', 't', '1'].includes((cond.value || '').trim().toLowerCase()) && (typeof fd.value !== 'undefined' && fd.value === true)))) {
           showLayer = true;
           break;
         } else if (['text', 'select'].includes(fd.type) && (typeof (fd && fd.value) !== 'undefined' && (fd.value || '').trim() == (cond.value || '').trim())) {

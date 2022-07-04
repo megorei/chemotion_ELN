@@ -1,7 +1,12 @@
+// imports from node_modules
 import React from 'react';
-import SystemSelect from './SystemSelect';
-import { molOptions, samOptions } from '../../admin/generic/Utils';
-import AttrChk from './AttrChk';
+
+// imports from other namespaces
+
+// imports from own namespace
+import AttrChk from '/app/packs/shared_components/generic/AttrChk';
+import SystemSelect from '/app/packs/shared_components/generic/SystemSelect';
+import { molOptions, samOptions } from '/app/packs/shared_components/generic/Utils';
 
 const DefinedRenderer = (props) => {
   const {

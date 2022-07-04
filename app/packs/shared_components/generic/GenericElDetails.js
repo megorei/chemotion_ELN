@@ -1,26 +1,31 @@
+// imports from node_modules
 /* eslint-disable react/forbid-prop-types */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Panel, Button, ButtonToolbar, ListGroupItem, Tabs, Tab, ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { findIndex } from 'lodash';
-import DetailActions from '../actions/DetailActions';
-import LoadingActions from '../actions/LoadingActions';
-import ElementActions from '../actions/ElementActions';
-import ElementStore from '../stores/ElementStore';
-import UIActions from '../actions/UIActions';
-import UIStore from '../stores/UIStore';
-import ConfirmClose from '../common/ConfirmClose';
-import GenericElDetailsContainers from './GenericElDetailsContainers';
-import { GenProperties, LayersLayout, UploadInputChange } from './GenericElCommon';
-import GenericEl from '../models/GenericEl';
-import Attachment from '../models/Attachment';
-import CopyElementModal from '../common/CopyElementModal';
-import { notification, genUnits, toBool, toNum, unitConversion } from '../../admin/generic/Utils';
-import { organizeSubValues } from '../../admin/generic/collate';
-import GenericAttachments from './GenericAttachments';
-import { SegmentTabs } from './SegmentDetails';
-import PreviewModal from './PreviewModal';
-import GenericElsFetcher from '../fetchers/GenericElsFetcher';
+
+// imports from other namespaces
+import DetailActions from '/app/packs/src/components/actions/DetailActions';
+import LoadingActions from '/app/packs/src/components/actions/LoadingActions';
+import ElementActions from '/app/packs/src/components/actions/ElementActions';
+import ElementStore from '/app/packs/src/components/stores/ElementStore';
+import UIActions from '/app/packs/src/components/actions/UIActions';
+import UIStore from '/app/packs/src/components/stores/UIStore';
+import ConfirmClose from '/app/packs/src/components/common/ConfirmClose';
+import GenericEl from '/app/packs/src/components/models/GenericEl';
+import Attachment from '/app/packs/src/components/models/Attachment';
+import CopyElementModal from '/app/packs/src/components/common/CopyElementModal';
+import GenericElsFetcher from '/app/packs/src/components/fetchers/GenericElsFetcher';
+
+// imports from own namespace
+import GenericElDetailsContainers from '/app/packs/shared_components/generic/GenericElDetailsContainers';
+import { GenProperties, LayersLayout, UploadInputChange } from '/app/packs/shared_components/generic/GenericElCommon';
+import { notification, genUnits, toBool, toNum, unitConversion } from '/app/packs/shared_components/generic/Utils';
+import { organizeSubValues } from '/app/packs/shared_components/generic/collate';
+import GenericAttachments from '/app/packs/shared_components/generic/GenericAttachments';
+import { SegmentTabs } from '/app/packs/shared_components/generic/SegmentDetails';
+import PreviewModal from '/app/packs/shared_components/generic/PreviewModal';
 
 export default class GenericElDetails extends Component {
   constructor(props) {
@@ -120,7 +125,7 @@ export default class GenericElDetails extends Component {
             newProps.layers[key].fields[idx].value = curType !== 'undefined' ? toBool(curVal) : false;
           }
           if ((newProps.layers[key].fields[idx].type === 'drag_sample' && genericEl.properties.layers[key].fields[curIdx].type === 'drag_sample')
-          || (newProps.layers[key].fields[idx].type === 'drag_molecule' && genericEl.properties.layers[key].fields[curIdx].type === 'drag_molecule')) {
+            || (newProps.layers[key].fields[idx].type === 'drag_molecule' && genericEl.properties.layers[key].fields[curIdx].type === 'drag_molecule')) {
             if (typeof curVal !== 'undefined') newProps.layers[key].fields[idx].value = curVal;
           }
           if (newProps.layers[key].fields[idx].type === 'system-defined') {
@@ -400,7 +405,7 @@ export default class GenericElDetails extends Component {
     const iconClass = (genericEl.element_klass && genericEl.element_klass.icon_name) || '';
     const { currentCollection } = UIStore.getState();
     const defCol = currentCollection && currentCollection.is_shared === false &&
-    currentCollection.is_locked === false && currentCollection.label !== 'All' ? currentCollection.id : null;
+      currentCollection.is_locked === false && currentCollection.label !== 'All' ? currentCollection.id : null;
     const copyBtn = (genericEl.can_copy && !genericEl.isNew) ? (
       <CopyElementModal element={genericEl} defCol={defCol} />
     ) : null;

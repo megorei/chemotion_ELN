@@ -1,12 +1,17 @@
+// imports from node_modules
 /* eslint-disable react/forbid-prop-types */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { findIndex, cloneDeep } from 'lodash';
 import { Panel, Button, ButtonToolbar, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import UserStore from '../stores/UserStore';
-import { LayersLayout } from './GenericElCommon';
-import MatrixCheck from '../common/MatrixCheck';
-import { genUnits, toBool, toNum, unitConversion, absOlsTermLabel } from '../../admin/generic/Utils';
+
+// imports from other namespaces
+import MatrixCheck from '/app/packs/src/components/common/MatrixCheck';
+import UserStore from '/app/packs/src/components/stores/UserStore';
+
+// imports from own namespace
+import { LayersLayout } from '/app/packs/shared_components/generic/GenericElCommon';
+import { genUnits, toBool, toNum, unitConversion, absOlsTermLabel } from '/app/packs/shared_components/generic/Utils';
 
 class GenericDSDetails extends Component {
   constructor(props) {

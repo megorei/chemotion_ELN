@@ -1,8 +1,11 @@
+// imports from node_modules
 /* eslint-disable react/forbid-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
 import Aviator from 'aviator';
-import UIStore from '../stores/UIStore';
+
+// imports from other namespaces
+import UIStore from '/app/packs/src/components/stores/UIStore';
 
 const linkSample = (type, id) => {
   const { currentCollection, isSync } = UIStore.getState();

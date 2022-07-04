@@ -1,14 +1,17 @@
-import React, { Component } from 'react';
+// imports from node_modules
+import { Component } from 'react';
 import PropTypes from 'prop-types';
 import Dropzone from 'react-dropzone';
 import { FormGroup, Button, Row, Col, Tooltip, ControlLabel, ListGroup, ListGroupItem, OverlayTrigger } from 'react-bootstrap';
 import { last, findKey, values } from 'lodash';
-import EditorFetcher from '../fetchers/EditorFetcher';
-import ImageModal from '../common/ImageModal';
-import SpinnerPencilIcon from '../common/SpinnerPencilIcon';
-import { previewAttachmentImage } from './../utils/imageHelper';
-import Utils from '../utils/Functions';
-import NotificationActions from '../actions/NotificationActions';
+
+// imports from other namespaces
+import EditorFetcher from '/app/packs/src/components/fetchers/EditorFetcher';
+import ImageModal from '/app/packs/src/components/common/ImageModal';
+import NotificationActions from '/app/packs/src/components/actions/NotificationActions';
+import SpinnerPencilIcon from '/app/packs/src/components/common/SpinnerPencilIcon';
+import Utils from '/app/packs/src/components/utils/Functions';
+import { previewAttachmentImage } from '/app/packs/src/components/utils/imageHelper';
 
 const editorTooltip = exts => <Tooltip id="editor_tooltip">Available extensions: {exts}</Tooltip>;
 const downloadTooltip = <Tooltip id="download_tooltip">Download attachment</Tooltip>;
@@ -152,7 +155,7 @@ export default class GenericAttachments extends Component {
             <ListGroupItem key={attachment.id}>
               {this.renderListGroupItem(attachment)}
             </ListGroupItem>
-            ))}
+          ))}
         </ListGroup>
       );
     }

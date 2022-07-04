@@ -1,8 +1,11 @@
+// imports from node_modules
 /* eslint-disable react/forbid-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { cloneDeep } from 'lodash';
-import GenericElTableDropTarget from './GenericElTableDropTarget';
+
+// imports from own namespace
+import GenericElTableDropTarget from '/app/packs/shared_components/generic/GenericElTableDropTarget';
 
 const DropRenderer = (props) => {
   const {

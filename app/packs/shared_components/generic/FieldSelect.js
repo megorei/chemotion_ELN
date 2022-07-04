@@ -1,7 +1,10 @@
+// imports from node_modules
 /* eslint-disable react/forbid-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
-import GridSelect from './GridSelect';
+
+// imports from own namespace
+import GridSelect from '/app/packs/shared_components/generic/GridSelect';
 
 const FieldSelect = (props) => {
   const { allLayers, selField, types, node, tableText } = props;

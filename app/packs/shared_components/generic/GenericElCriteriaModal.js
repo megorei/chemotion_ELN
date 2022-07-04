@@ -1,3 +1,4 @@
+// imports from node_modules
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';

@@ -3,7 +3,7 @@ import { AgGridReact } from 'ag-grid-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Button } from 'react-bootstrap';
-import GenericSubField from '../models/GenericSubField';
+import GenericSubField from '/app/packs/src/components/models/GenericSubField';
 import LayerSelect from './LayerSelect';
 import FieldSelect from './FieldSelect';
 
