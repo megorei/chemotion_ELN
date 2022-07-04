@@ -9,8 +9,8 @@ import Attachment from './models/Attachment';
 import AttachmentFetcher from './fetchers/AttachmentFetcher';
 import UserStore from './stores/UserStore';
 import GenericDS from './models/GenericDS';
-import GenericDSDetails from './generic/GenericDSDetails';
-import { absOlsTermId } from '../admin/generic/Utils';
+import GenericDSDetails from '/app/packs/shared_components/generic/GenericDSDetails';
+import { absOlsTermId } from '/app/packs/shared_components/generic/Utils';
 import InboxActions from './actions/InboxActions';
 import InstrumentsFetcher from './fetchers/InstrumentsFetcher';
 import ChildOverlay from './managing_actions/ChildOverlay';
@@ -455,7 +455,7 @@ export default class ContainerDataset extends Component {
           {this.dropzone()}
           {this.attachments()}
           <HyperLinksSection data={dataset_container.extended_metadata['hyperlinks']} onAddLink={this.handleAddLink} onRemoveLink={this.handleRemoveLink}
-          disabled={disabled}></HyperLinksSection>
+            disabled={disabled}></HyperLinksSection>
         </Col>
       </Row>
     );

@@ -8,14 +8,14 @@ import PropTypes from 'prop-types';
 
 // imports from other namespaces
 import ElementActions from '/app/packs/src/components/actions/ElementActions';
-import GenericElCriteria from '/app/packs/src/components/generic/GenericElCriteria';
-import GenericElCriteriaModal from '/app/packs/src/components/generic/GenericElCriteriaModal';
+import GenericElCriteria from '/app/packs/shared_components/generic/GenericElCriteria';
+import GenericElCriteriaModal from '/app/packs/shared_components/generic/GenericElCriteriaModal';
 import StructureEditorModal from '/app/packs/src/components/structure_editor/StructureEditorModal';
 import SuggestionsFetcher from '/app/packs/src/components/fetchers/SuggestionsFetcher';
 import UIActions from '/app/packs/src/components/actions/UIActions';
 import UIStore from '/app/packs/src/components/stores/UIStore';
 import UserStore from '/app/packs/src/components/stores/UserStore';
-import { clsInputGroup } from '/app/packs/src/admin/generic/Utils';
+import { clsInputGroup } from '/app/packs/shared_components/generic/Utils';
 
 // imports from own namespace
 import AutoCompleteInput from './AutoCompleteInput';

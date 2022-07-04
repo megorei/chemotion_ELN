@@ -17,7 +17,7 @@ import ElementStore from './stores/ElementStore';
 import { SameEleTypId } from './utils/ElementUtils';
 import LiteratureDetails from './LiteratureDetails';
 import PredictionContainer from './prediction/PredictionContainer';
-import GenericElDetails from './generic/GenericElDetails';
+import GenericElDetails from '/app/packs/shared_components/generic/GenericElDetails';
 import UserStore from './stores/UserStore';
 
 const tabInfoHash = {
@@ -150,7 +150,7 @@ export default class ElementDetails extends Component {
     if (spectraMsg) {
       const { showedSpcMsgID } = this.state;
       if (!showedSpcMsgID || showedSpcMsgID !== spectraMsg.message_id) {
-        this.setState({showedSpcMsgID: spectraMsg.message_id})
+        this.setState({ showedSpcMsgID: spectraMsg.message_id })
         alert(spectraMsg.content.data);
       }
     }

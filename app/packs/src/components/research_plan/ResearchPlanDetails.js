@@ -22,7 +22,7 @@ import ResearchPlanDetailsBody from './ResearchPlanDetailsBody';
 import ResearchPlanDetailsName from './ResearchPlanDetailsName';
 import ResearchPlanDetailsContainers from './ResearchPlanDetailsContainers';
 import ElementDetailSortTab from '../ElementDetailSortTab';
-import { addSegmentTabs } from '../generic/SegmentDetails';
+import { addSegmentTabs } from '/app/packs/shared_components/generic/SegmentDetails';
 import PrivateNoteElement from '../PrivateNoteElement';
 
 export default class ResearchPlanDetails extends Component {

@@ -24,7 +24,7 @@ import UIActions from './actions/UIActions';
 import ConfirmClose from './common/ConfirmClose';
 import ExportSamplesBtn from './ExportSamplesBtn';
 import ElementDetailSortTab from './ElementDetailSortTab';
-import { addSegmentTabs } from './generic/SegmentDetails';
+import { addSegmentTabs } from '/app/packs/shared_components/generic/SegmentDetails';
 import PrivateNoteElement from './PrivateNoteElement'
 
 const cols = 12;

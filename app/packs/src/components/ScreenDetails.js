@@ -21,7 +21,7 @@ import UIActions from './actions/UIActions';
 import PrintCodeButton from './common/PrintCodeButton';
 import ConfirmClose from './common/ConfirmClose';
 import ElementDetailSortTab from './ElementDetailSortTab';
-import { addSegmentTabs } from './generic/SegmentDetails';
+import { addSegmentTabs } from '/app/packs/shared_components/generic/SegmentDetails';
 import ResearchPlansFetcher from './fetchers/ResearchPlansFetcher';
 import LoadingActions from './actions/LoadingActions';
 import PrivateNoteElement from './PrivateNoteElement';
@@ -68,7 +68,7 @@ export default class ScreenDetails extends Component {
   }
 
   onUIStoreChange(state) {
-    if (state.screen.activeTab != this.state.activeTab){
+    if (state.screen.activeTab != this.state.activeTab) {
       this.setState({
         activeTab: state.screen.activeTab
       })
@@ -294,7 +294,7 @@ export default class ScreenDetails extends Component {
                       disabled={screen.isMethodDisabled('description')}
                     />
                   </FormGroup>
-                  <PrivateNoteElement element={screen} disabled={screen.can_update}/>
+                  <PrivateNoteElement element={screen} disabled={screen.can_update} />
                 </td>
               </tr>
             </tbody>

@@ -6,7 +6,7 @@ import ElementCollectionLabels from './ElementCollectionLabels';
 import ElementAnalysesLabels from './ElementAnalysesLabels';
 import ElementReactionLabels from './ElementReactionLabels';
 import ElementWellplateLabels from './ElementWellplateLabels';
-import GenericElementLabels from './generic/GenericElementLabels';
+import GenericElementLabels from '/app/packs/shared_components/generic/GenericElementLabels';
 import PubchemLabels from './PubchemLabels';
 import ChemrepoLabels from './ChemrepoLabels';
 import ComputedPropLabel from './computed_props/ComputedPropLabel';
@@ -153,7 +153,7 @@ const MoleculeHeader = ({ sample, show, showDragColumn, onClick, targetType }) =
       style={{ backgroundColor: '#F5F5F5', cursor: 'pointer' }}
       onClick={onClick}
     >
-      { sample.molecule && sample.molecule.inchikey === 'DUMMY' ?
+      {sample.molecule && sample.molecule.inchikey === 'DUMMY' ?
         (<td colSpan="3" style={{ position: 'relative ' }} ><div><h4>(No-structure sample)</h4></div></td>) :
         (
           <td colSpan="2" style={{ position: 'relative ' }} >
