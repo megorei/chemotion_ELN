@@ -3,7 +3,7 @@
 // var React = require('react');
 
 var Home = require('/app/packs/apps/home/Home');
-var AdminHome = require('/app/packs/apps/admin/AdminHome');
+var Admin = require('/app/packs/apps/admin/index');
 
 var CnC = require('../src/libCnC/CnC');
 var ChemScanner = require('../src/components/chemscanner/ChemScanner');
