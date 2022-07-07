@@ -10,9 +10,11 @@ import { cloneDeep } from 'lodash';
 import LoadingActions from '/app/packs/src/components/actions/LoadingActions';
 import Utils from '/app/packs/src/components/utils/Functions';
 import { GenProperties, LayersLayout } from '/app/packs/shared_components/generic/GenericElCommon';
-
-// imports from own namespace
-import { ButtonTooltip, ButtonConfirm, unitConversion, inputEventVal, genUnits } from './Utils';
+import ButtonTooltip from '/app/packs/shared_components/generic/buttons/ButtonTooltip';
+import ButtonConfirm from '/app/packs/shared_components/generic/buttons/ButtonConfirm'
+import { inputEventVal } from '/app/packs/utilities/utilities';
+import { genUnits } from '/app/packs/utilities/utilities';
+import { unitConversion } from '/app/packs/utilities/unit_conversions';
 
 export default class Preview extends Component {
   constructor(props) {

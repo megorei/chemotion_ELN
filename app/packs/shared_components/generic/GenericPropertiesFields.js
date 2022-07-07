@@ -1,15 +1,21 @@
+// imports from node_modules
 import React from 'react';
-import { Checkbox, FormGroup, FormControl, Button, Tooltip, OverlayTrigger, InputGroup, Radio, Modal, ListGroup, ListGroupItem, Row, Col } from 'react-bootstrap';
+import { Checkbox, FormGroup, FormControl, Button, Tooltip, OverlayTrigger, InputGroup, Radio, ListGroup, ListGroupItem } from 'react-bootstrap';
 import uuid from 'uuid';
 import { filter } from 'lodash';
 import Select from 'react-select';
 import Dropzone from 'react-dropzone';
-import GenericElDropTarget from './GenericElDropTarget';
-import { genUnit, genUnitSup, FieldLabel, unitConvToBase } from '/app/packs/shared_components/generic/Utils';
-import TableRecord from './TableRecord';
+
+// imports from other namespaces
+import FormattedUnits from '/app/packs/shared_components/FormattedUnits'
+import { genUnit } from '/app/packs/utilities/utilities';
+import { unitConvToBase } from '/app/packs/utilities/unit_conversions';
 import Utils from '/app/packs/src/components/utils/Functions';
 
-const downloadTooltip = <Tooltip id="download_tooltip">Download attachment</Tooltip>;
+// imports from own namespace
+import GenericElDropTarget from './GenericElDropTarget';
+import TableRecord from './TableRecord';
+
 const GenTextFormula = (opt) => {
   const { layers } = opt;
   const fieldHeader = opt.label === '' ? null : <FieldLabel label={opt.label} desc={opt.description} />;
@@ -300,7 +306,7 @@ const GenPropertiesSystemDefined = (opt) => {
         />
         <InputGroup.Button>
           <Button disabled={opt.readOnly} active onClick={opt.onClick} bsStyle="success">
-            {genUnitSup(genUnit(opt.option_layers, opt.value_system).label) || ''}
+            {FormattedUnits(genUnit(opt.option_layers, opt.value_system).label) || ''}
           </Button>
         </InputGroup.Button>
       </InputGroup>
@@ -327,7 +333,7 @@ const GenPropertiesInputGroup = (opt) => {
       <FormControl key={e.id} type="number" name={e.id} value={e.value} onChange={o => opt.onSubChange(o, e.id, opt.f_obj)} min={1} />
       <InputGroup.Button>
         <Button active onClick={() => opt.onSubChange(e, e.id, opt.f_obj)} bsStyle="success">
-          {genUnitSup(genUnit(e.option_layers, e.value_system).label) || ''}
+          {FormattedUnits(genUnit(e.option_layers, e.value_system).label) || ''}
         </Button>
       </InputGroup.Button>
     </span>

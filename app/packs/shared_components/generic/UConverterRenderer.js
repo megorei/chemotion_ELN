@@ -1,8 +1,14 @@
+// imports from node_modules
 /* eslint-disable react/forbid-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
-import { genUnit, genUnitSup } from '/app/packs/shared_components/generic/Utils';
+
+// imports from other namespaces
+import FormattedUnits from '/app/packs/shared_components/FormattedUnits';
+
+// imports from own namespace
+import { genUnit } from '/app/packs/utilities/utilities';
 
 const UConverterRenderer = (props) => {
   const { sField, onChange, node } = props;
@@ -10,7 +16,7 @@ const UConverterRenderer = (props) => {
   const { data } = node;
   return (
     <Button key={`ucr_${data.id}`} active onClick={() => onChange(sField, node)} bsStyle="success">
-      {genUnitSup(genUnit(sField.option_layers, data[sField.id].value_system).label) || ''}
+      {FormattedUnits(genUnit(sField.option_layers, data[sField.id].value_system).label) || ''}
     </Button>
   );
 };

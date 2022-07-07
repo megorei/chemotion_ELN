@@ -15,7 +15,6 @@ import SuggestionsFetcher from '/app/packs/src/components/fetchers/SuggestionsFe
 import UIActions from '/app/packs/src/components/actions/UIActions';
 import UIStore from '/app/packs/src/components/stores/UIStore';
 import UserStore from '/app/packs/src/components/stores/UserStore';
-import { clsInputGroup } from '/app/packs/shared_components/generic/Utils';
 
 // imports from own namespace
 import AutoCompleteInput from './AutoCompleteInput';
@@ -37,6 +36,25 @@ export default class Search extends React.Component {
     this.hideGenericElCriteria = this.hideGenericElCriteria.bind(this);
     this.genericElSearch = this.genericElSearch.bind(this);
   }
+
+  clearTextInputs(el) {
+    if (!el) return el;
+
+    const genericEl = el;
+    const { layers } = genericEl.properties_template;
+    const keys = Object.keys(layers);
+    keys.forEach(key => {
+      const layer = layers[key];
+      layer.fields
+        .filter(e => e.type === 'input-group')
+        .forEach(input_group => {
+          input_group.sub_fields.forEach(sub_field => {
+            if (sub_field.type === 'text') { sub_field.value = ''; }
+          });
+        });
+    });
+    return genericEl;
+  };
 
   handleSelectionChange(selection) {
     const uiState = UIStore.getState();
@@ -296,7 +314,7 @@ export default class Search extends React.Component {
     const mofProps = {
       show: this.state.showGenericElCriteria,
       type: this.state.elementType,
-      component: <GenericElCriteria genericEl={clsInputGroup(this.state.genericEl)} onHide={this.hideGenericElCriteria} onSearch={this.genericElSearch} />,
+      component: <GenericElCriteria genericEl={this.clearTextInputs(this.state.genericEl)} onHide={this.hideGenericElCriteria} onSearch={this.genericElSearch} />,
       title: `Please input your search criteria for ${this.state.elementType}`,
       onHide: this.hideGenericElCriteria
     };

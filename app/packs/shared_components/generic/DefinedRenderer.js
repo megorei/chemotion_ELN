@@ -2,11 +2,11 @@
 import React from 'react';
 
 // imports from other namespaces
+import { molOptions, samOptions } from '/app/packs/utilities/utilities';
 
 // imports from own namespace
 import AttrChk from '/app/packs/shared_components/generic/AttrChk';
 import SystemSelect from '/app/packs/shared_components/generic/SystemSelect';
-import { molOptions, samOptions } from '/app/packs/shared_components/generic/Utils';
 
 const DefinedRenderer = (props) => {
   const {

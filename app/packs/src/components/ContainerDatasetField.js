@@ -1,11 +1,15 @@
+// imports from node_modules
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, ButtonToolbar } from 'react-bootstrap';
 import { DropTarget } from 'react-dnd';
-import InboxActions from './actions/InboxActions';
-import DragDropItemTypes from './DragDropItemTypes';
-import AttachmentFetcher from './fetchers/AttachmentFetcher';
-import { GenericDSMisType, absOlsTermId } from '/app/packs/shared_components/generic/Utils';
+
+// imports from other namespaces
+import InboxActions from '/app/packs/src/components/actions/InboxActions';
+import DragDropItemTypes from '/app/packs/src/components/DragDropItemTypes';
+import AttachmentFetcher from '/app/packs/src/components/fetchers/AttachmentFetcher';
+import { absOlsTermId } from '/app/packs/utilities/utilities';
+import GenericDatasetMisType from '/app/packs/shared_components/generic/GenericDatasetMisType'
 
 const dataTarget = {
   canDrop(props, monitor) {

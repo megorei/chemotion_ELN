@@ -17,11 +17,14 @@ import GenericEl from '/app/packs/src/components/models/GenericEl';
 import Attachment from '/app/packs/src/components/models/Attachment';
 import CopyElementModal from '/app/packs/src/components/common/CopyElementModal';
 import GenericElsFetcher from '/app/packs/src/components/fetchers/GenericElsFetcher';
+import notification from '/app/packs/utilities/notification';
+import { genUnits } from '/app/packs/utilities/utilities';
+import { toBool, toNum } from '/app/packs/utilities/type_conversions';
+import { unitConversion } from '/app/packs/utilities/unit_conversions';
 
 // imports from own namespace
 import GenericElDetailsContainers from '/app/packs/shared_components/generic/GenericElDetailsContainers';
 import { GenProperties, LayersLayout, UploadInputChange } from '/app/packs/shared_components/generic/GenericElCommon';
-import { notification, genUnits, toBool, toNum, unitConversion } from '/app/packs/shared_components/generic/Utils';
 import { organizeSubValues } from '/app/packs/shared_components/generic/collate';
 import GenericAttachments from '/app/packs/shared_components/generic/GenericAttachments';
 import { SegmentTabs } from '/app/packs/shared_components/generic/SegmentDetails';

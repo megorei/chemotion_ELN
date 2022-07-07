@@ -8,10 +8,12 @@ import { Panel, Button, ButtonToolbar, OverlayTrigger, Tooltip } from 'react-boo
 // imports from other namespaces
 import MatrixCheck from '/app/packs/src/components/common/MatrixCheck';
 import UserStore from '/app/packs/src/components/stores/UserStore';
+import { unitConversion } from '/app/packs/utilities/unit_conversions'
+import { toBool, toNum } from '/app/packs/utilities/type_conversions'
+import { genUnits, absOlsTermLabel } from '/app/packs/utilities/utilities';
 
 // imports from own namespace
 import { LayersLayout } from '/app/packs/shared_components/generic/GenericElCommon';
-import { genUnits, toBool, toNum, unitConversion, absOlsTermLabel } from '/app/packs/shared_components/generic/Utils';
 
 class GenericDSDetails extends Component {
   constructor(props) {

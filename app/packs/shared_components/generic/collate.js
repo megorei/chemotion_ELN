@@ -3,9 +3,7 @@ import { cloneDeep } from 'lodash';
 
 // imports from other namespaces
 import GenericSubField from '/app/packs/src/components/models/GenericSubField';
-
-// imports from own namespace
-import { unitConversion } from './Utils';
+import { unitConversion } from '/app/packs/utilities/unit_conversions';
 
 const collateValues = (currentFields, previousFields, previousValues) => {
   const result = [];

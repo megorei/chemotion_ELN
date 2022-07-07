@@ -10,6 +10,8 @@ import uuid from 'uuid';
 
 // imports from other namespaces
 import Attachment from '/app/packs/src/components/models/Attachment';
+import { unitConversion } from '/app/packs/utilities/unit_conversions';
+import { genUnits } from '/app/packs/utilities/utilities';
 
 // imports from own namespace
 import {
@@ -17,7 +19,6 @@ import {
   GenPropertiesNumber, GenPropertiesSystemDefined, GenPropertiesInputGroup, GenPropertiesDrop,
   GenPropertiesTextArea, GenPropertiesUpload, GenDummy, GenTextFormula, GenPropertiesTable
 } from '/app/packs/shared_components/generic/GenericPropertiesFields';
-import { genUnits, unitConversion } from '/app/packs/shared_components/generic/Utils';
 
 const UploadInputChange = (properties, event, field, layer) => {
   const files = [];

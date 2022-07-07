@@ -1,10 +1,14 @@
+// imports from node_modules
 /* eslint-disable react/forbid-prop-types */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Popover, Col, Checkbox, Panel, Form, ButtonGroup, OverlayTrigger, FormGroup, FormControl, ControlLabel, InputGroup } from 'react-bootstrap';
 import Select from 'react-select';
 import uuid from 'uuid';
-import { ButtonTooltip, genUnitSup } from '/app/packs/shared_components/generic/Utils';
+
+// imports from other namespaces
+import ButtonTooltip from '/app/packs/shared_components/generic/buttons/ButtonTooltip';
+import FormattedUnits from '/app/packs/shared_components/FormattedUnits';
 import GroupFields from './GroupFields';
 import TextFormula from '/app/packs/shared_components/generic/TextFormula';
 import TableDef from '/app/packs/shared_components/generic/TableDef';
@@ -83,7 +87,7 @@ class ElementField extends Component {
     const { unitsSystem } = this.props;
     const us = (unitsSystem.fields || []).find(e => e.field === val);
     if (us === undefined) return null;
-    const tbl = us.units.map(e => (<div key={uuid.v4()}>{genUnitSup(e.label)}<br /></div>));
+    const tbl = us.units.map(e => (<div key={uuid.v4()}>{FormattedUnits(e.label)}<br /></div>));
     const popover = (
       <Popover id="popover-positioned-scrolling-left"><b><u>available units</u></b><br />{tbl}</Popover>
     );

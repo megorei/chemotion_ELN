@@ -1,15 +1,23 @@
+// imports from node_modules
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { findIndex, cloneDeep } from 'lodash';
 import { Panel, Button, ButtonToolbar, OverlayTrigger, Tooltip, Tab } from 'react-bootstrap';
-import UserStore from '/app/packs/src/components/stores/UserStore';
-import { LayersLayout, UploadInputChange } from './GenericElCommon';
-import Segment from '/app/packs/src/components/models/Segment';
-import MatrixCheck from '/app/packs/src/components/common/MatrixCheck';
-import { notification, genUnits, toBool, toNum, unitConversion } from '/app/packs/shared_components/generic/Utils';
-import { organizeSubValues } from '/app/packs/shared_components/generic/collate';
-import PreviewModal from './PreviewModal';
+
+// imports from other namespaces
 import GenericElsFetcher from '/app/packs/src/components/fetchers/GenericElsFetcher';
+import MatrixCheck from '/app/packs/src/components/common/MatrixCheck';
+import notification from '/app/packs/utilities/notification';
+import Segment from '/app/packs/src/components/models/Segment';
+import UserStore from '/app/packs/src/components/stores/UserStore';
+import { genUnits } from '/app/packs/utilities/utilities';
+import { organizeSubValues } from '/app/packs/shared_components/generic/collate';
+import { toBool, toNum } from '/app/packs/utilities/type_conversions'
+import { unitConversion } from '/app/packs/utilities/unit_conversions';
+
+// imports from own namespace
+import PreviewModal from './PreviewModal';
+import { LayersLayout, UploadInputChange } from './GenericElCommon';
 
 const addSegmentTabs = (element, onChange, contentMap) => {
   const currentUser = (UserStore.getState() && UserStore.getState().currentUser) || {};

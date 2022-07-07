@@ -1,18 +1,24 @@
+// imports from node_modules
 /* eslint-disable no-empty */
 /* eslint-disable react/forbid-prop-types */
 import PropTypes from 'prop-types';
 import React from 'react';
 import Numeral from 'numeral';
+
+// imports from other namespaces
 import GenericSubField from '/app/packs/src/components/models/GenericSubField';
-import { AddRowBtn, DelRowBtn, DnDRowBtn, NullRowBtn } from './GridBtn';
-import { ColumnHeader, ColumnRow, NoRow } from './GridEntry';
-import UConverterRenderer from './UConverterRenderer';
-import { genUnits, unitConversion, molOptions, samOptions } from '/app/packs/shared_components/generic/Utils';
-import DropRenderer from './DropRenderer';
-import DropTextRenderer from './DropTextRenderer';
-import DropLinkRenderer from './DropLinkRenderer';
-import SampOption from './SamOption';
+import { genUnits, molOptions, samOptions } from '/app/packs/utilities/utilities';
+import { unitConversion } from '/app/packs/utilities/unit_conversions';
 import DragDropItemTypes from '/app/packs/src/components/DragDropItemTypes';
+
+// imports from own namespace
+import SampOption from './SamOption';
+import DropLinkRenderer from './DropLinkRenderer';
+import DropTextRenderer from './DropTextRenderer';
+import DropRenderer from './DropRenderer';
+import UConverterRenderer from './UConverterRenderer';
+import { ColumnHeader, ColumnRow, NoRow } from './GridEntry';
+import { AddRowBtn, DelRowBtn, DnDRowBtn, NullRowBtn } from './GridBtn';
 
 export default class TableRecord extends React.Component {
   constructor(props) {

@@ -1,21 +1,22 @@
-import React, { Component } from 'react';
+// imports from node_modules
+import { Component } from 'react';
 import { Row, Col, FormGroup, FormControl, ControlLabel, Table, ListGroup, ListGroupItem, Button, Overlay } from 'react-bootstrap';
 import Dropzone from 'react-dropzone';
 import debounce from 'es6-promise-debounce';
 import { findIndex, cloneDeep } from 'lodash';
 
-import Utils from './utils/Functions';
-import Attachment from './models/Attachment';
-import AttachmentFetcher from './fetchers/AttachmentFetcher';
-import UserStore from './stores/UserStore';
-import GenericDS from './models/GenericDS';
+// imports from other namespaces
+import Utils from '/app/packs/src/components/utils/Functions';
+import Attachment from '/app/packs/src/components/models/Attachment';
+import AttachmentFetcher from '/app/packs/src/components/fetchers/AttachmentFetcher';
+import UserStore from '/app/packs/src/components/stores/UserStore';
+import GenericDS from '/app/packs/src/components/models/GenericDS';
 import GenericDSDetails from '/app/packs/shared_components/generic/GenericDSDetails';
-import { absOlsTermId } from '/app/packs/shared_components/generic/Utils';
-import InboxActions from './actions/InboxActions';
-import InstrumentsFetcher from './fetchers/InstrumentsFetcher';
-import ChildOverlay from './managing_actions/ChildOverlay';
-
-import HyperLinksSection from './common/HyperLinksSection';
+import { absOlsTermId } from '/app/packs/utilities/utilities';
+import InboxActions from '/app/packs/src/components/actions/InboxActions';
+import InstrumentsFetcher from '/app/packs/src/components/fetchers/InstrumentsFetcher';
+import ChildOverlay from '/app/packs/src/components/managing_actions/ChildOverlay';
+import HyperLinksSection from '/app/packs/src/components/common/HyperLinksSection';
 
 export default class ContainerDataset extends Component {
   constructor(props) {
