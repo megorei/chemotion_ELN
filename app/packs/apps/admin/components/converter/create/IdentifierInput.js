@@ -5,9 +5,9 @@ import { Component } from 'react';
 import { Row, Col } from 'react-bootstrap';
 
 // import from own namespace
-import { ButtonTooltip } from '/app/packs/shared_components/generic/Utils';
+import ButtonTooltip from '/app/packs/shared_components/generic/buttons/ButtonTooltip';
 
-class IndentifierInput extends Component {
+class IdentifierInput extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -175,4 +175,4 @@ class IndentifierInput extends Component {
   }
 }
 
-export default IndentifierInput;
+export default IdentifierInput;

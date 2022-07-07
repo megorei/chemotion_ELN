@@ -5,11 +5,13 @@ import React, { Component } from 'react';
 import { Tabs, Tab, Button, Row, Col, Panel, Popover, ButtonGroup, OverlayTrigger } from 'react-bootstrap';
 import { AgGridReact } from 'ag-grid-react';
 
+// imports from other namespaces
+import ButtonTooltip from '/app/packs/shared_components/generic/buttons/ButtonTooltip';
+
 // imports from own namespace
 import HeaderForm from './HeaderForm';
 import IdentifierForm from './IdentifierForm';
 import TableForm from './TableForm';
-import { ButtonTooltip } from '/app/packs/shared_components/generic/Utils';
 
 const renderCancelButton = (backProfileList) => {
   const popover = (

@@ -3,10 +3,10 @@
 import { Component } from 'react';
 import { Row, Col } from 'react-bootstrap';
 
-// imports from own namespace
-import { ButtonTooltip } from '/app/packs/shared_components/generic/Utils';
+// imports from other namespaces
+import ButtonTooltip from '/app/packs/shared_components/generic/buttons/ButtonTooltip';
 
-class IndentifierInput extends Component {
+class IdentifierInput extends Component {
   constructor(props) {
     super(props);
 
@@ -183,4 +183,4 @@ class IndentifierInput extends Component {
   }
 }
 
-export default IndentifierInput;
+export default IdentifierInput;

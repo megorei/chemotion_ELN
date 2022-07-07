@@ -25,7 +25,7 @@ const initTable = (tableData) => {
   };
 };
 
-class AdminApp extends Component {
+class Converter extends Component {
   constructor(props) {
     super(props);
     this.state = {

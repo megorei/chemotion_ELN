@@ -1,43 +1,32 @@
-// imports from node_modules
+// imports from node modules
 import React from 'react';
 import { Panel, Table, FormGroup, Popover, FormControl, Button, Row, Col, Badge, Tooltip, OverlayTrigger, InputGroup, Tabs, Tab } from 'react-bootstrap';
 import uuid from 'uuid';
 import Clipboard from 'clipboard';
-import { findIndex, filter, sortBy, orderBy } from 'lodash';
+import { findIndex, filter, sortBy } from 'lodash';
 
 // imports from other namespaces
-import LoadingModal from '/app/packs/src/components/common/LoadingModal';
 import AdminFetcher from '/app/packs/src/components/fetchers/AdminFetcher';
-import { ElementField } from '/app/packs/src/components/elements/ElementField';
-import LoadingActions from '/app/packs/src/components/actions/LoadingActions';
-
-// imports from own namespace
-import AttrCopyModal from '/app/packs/shared_components/generic/AttrCopyModal';
-import AttrEditModal from '/app/packs/shared_components/generic/AttrEditModal';
-import AttrNewModal from '/app/packs/shared_components/generic/AttrNewModal';
+import ButtonTooltip from '/app/packs/shared_components/generic/buttons/ButtonTooltip';
 import FieldCondEditModal from '/app/packs/shared_components/generic/FieldCondEditModal';
+import GenericDummy from '/app/packs/src/components/models/GenericDummy';
 import LayerAttrEditModal from '/app/packs/shared_components/generic/LayerAttrEditModal';
 import LayerAttrNewModal from '/app/packs/shared_components/generic/LayerAttrNewModal';
+import LoadingActions from '/app/packs/src/components/actions/LoadingActions';
+import LoadingModal from '/app/packs/src/components/common/LoadingModal';
+import notification from '/app/packs/utilities/notification';
 import Preview from '/app/packs/shared_components/generic/Preview';
 import SelectAttrNewModal from '/app/packs/shared_components/generic/SelectAttrNewModal';
 import TemplateJsonModal from '/app/packs/shared_components/generic/TemplateJsonModal';
 import UploadModal from '/app/packs/shared_components/generic/UploadModal';
-import { ButtonTooltip, validateLayerInput, validateSelectList, notification, reUnit, GenericDummy } from '/app/packs/shared_components/generic/Utils';
+import { ElementField } from '/app/packs/src/components/elements/ElementField';
+
+// imports from own namespace
+import { validateLayerInput, validateSelectList } from '/app/packs/apps/admin/utilities/validations';
+import { reUnit } from '/app/packs/apps/admin/utilities/utilities';
 
 const validateField = field => (/^[a-zA-Z0-9_]*$/g.test(field));
-const validateInput = (element) => {
-  if (element.klass_element === '') {
-    notification({ title: 'Create Segment Error', lvl: 'error', msg: 'Please select Element.' });
-    return false;
-  }
-  if (element.label === '') {
-    notification({ title: 'Create Segment Error', lvl: 'error', msg: 'Please input Segment Label.' });
-    return false;
-  }
-  return true;
-};
-
-export default class SegmentElementAdmin extends React.Component {
+export default class DatasetElementAdmin extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -52,17 +41,13 @@ export default class SegmentElementAdmin extends React.Component {
       showNewLayer: false,
       showEditLayer: false,
       showAddSelect: false,
-      showNewKlass: false,
-      showEditKlass: false,
-      showCopyKlass: false,
-      showFieldCond: false,
       showUpload: false,
       showJson: false,
-      propTabKey: 1
+      propTabKey: 1,
+      revisions: [],
     };
 
     this.clipboard = new Clipboard('.clipboardBtn');
-    this.fetchElements = this.fetchElements.bind(this);
     this.handlePropShow = this.handlePropShow.bind(this);
     this.handlePropClose = this.handlePropClose.bind(this);
     this.onInputNewField = this.onInputNewField.bind(this);
@@ -70,39 +55,29 @@ export default class SegmentElementAdmin extends React.Component {
     this.addLayer = this.addLayer.bind(this);
     this.addSelection = this.addSelection.bind(this);
     this.editLayer = this.editLayer.bind(this);
-    this.newKlass = this.newKlass.bind(this);
-    this.editKlass = this.editKlass.bind(this);
-    this.copyKlass = this.copyKlass.bind(this);
     this.newField = this.newField.bind(this);
     this.newOption = this.newOption.bind(this);
     this.handleSelectClose = this.handleSelectClose.bind(this);
     this.handleNewLayerClose = this.handleNewLayerClose.bind(this);
     this.handleLayerClose = this.handleLayerClose.bind(this);
-    this.handleNewKlassClose = this.handleNewKlassClose.bind(this);
-    this.handleKlassClose = this.handleKlassClose.bind(this);
-    this.handleCopyKlassClose = this.handleCopyKlassClose.bind(this);
     this.handleCreateLayer = this.handleCreateLayer.bind(this);
     this.handleUpdateLayer = this.handleUpdateLayer.bind(this);
-    this.handleCreateKlass = this.handleCreateKlass.bind(this);
-    this.handleUpdateKlass = this.handleUpdateKlass.bind(this);
-    this.handleActivateKlass = this.handleActivateKlass.bind(this);
-    this.handleDeleteKlass = this.handleDeleteKlass.bind(this);
     this.handleAddSelect = this.handleAddSelect.bind(this);
     this.onDummyAdd = this.onDummyAdd.bind(this);
     this.onFieldDrop = this.onFieldDrop.bind(this);
     this.onFieldMove = this.onFieldMove.bind(this);
-    this.onShowFieldCond = this.onShowFieldCond.bind(this);
-    this.handleFieldCondClose = this.handleFieldCondClose.bind(this);
     this.onFieldInputChange = this.onFieldInputChange.bind(this);
     this.onOptionInputChange = this.onOptionInputChange.bind(this);
     this.showJsonModal = this.showJsonModal.bind(this);
     this.hideJsonModal = this.hideJsonModal.bind(this);
     this.handleUpdateJson = this.handleUpdateJson.bind(this);
-    this.fetchConfigs = this.fetchConfigs.bind(this);
+    this.onShowFieldCond = this.onShowFieldCond.bind(this);
+    this.handleFieldCondClose = this.handleFieldCondClose.bind(this);
     this.handleCond = this.handleCond.bind(this);
-    this.onFieldSubFieldChange = this.onFieldSubFieldChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+    this.fetchConfigs = this.fetchConfigs.bind(this);
+    this.handleDeActive = this.handleDeActive.bind(this);
     this.propTabSelect = this.propTabSelect.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
     this.retriveRevision = this.retriveRevision.bind(this);
     this.delRevision = this.delRevision.bind(this);
     this.fetchRevisions = this.fetchRevisions.bind(this);
@@ -191,22 +166,6 @@ export default class SegmentElementAdmin extends React.Component {
     this.setState({ element });
   }
 
-  onFieldSubFieldChange(lk, f, cb) {
-    const { element } = this.state;
-    const layer = (element && element.properties_template
-      && element.properties_template.layers[lk]);
-    const { fields } = layer;
-    if (layer != null) {
-      const fobj = (fields || []).find(o => o.field === f.field);
-      if (Object.keys(fobj).length > 0) {
-        const idx = (fields || []).findIndex(o => o.field === f.field);
-        fields.splice(idx, 1, f);
-        element.properties_template.layers[lk].fields = fields;
-        this.setState({ element }, cb);
-      }
-    }
-  }
-
   onFieldInputChange(event, orig, fe, lk, fc, tp) {
     const { element } = this.state;
 
@@ -218,31 +177,54 @@ export default class SegmentElementAdmin extends React.Component {
     } else {
       ({ value } = event.target);
     }
+    let fobj = null;
     const layer = (element && element.properties_template
       && element.properties_template.layers[lk]);
-
-    if (typeof layer === 'undefined' || layer == null) return;
-
     const { fields } = layer;
-
-    if (fields == null || fields.length === 0) return;
-
-    const fobj = fields.find(e => e.field === fe);
-    if (Object.keys(fobj).length === 0) return;
-
-    switch (fc) {
-      case 'required':
-        fobj.required = !orig;
-        break;
-      default:
-        fobj[`${fc}`] = value;
-        break;
+    if (layer != null) {
+      const fobjs = filter(fields, o => o.field === fe);
+      if (fobjs && fobjs.length > 0) {
+        fobj = fobjs[0];
+      }
     }
 
-    const idx = findIndex(fields, o => o.field === fe);
-    fields.splice(idx, 1, fobj);
-    element.properties_template.layers[lk].fields = fields;
-    this.setState({ element });
+    if (layer != null && fobj != null) {
+      switch (fc) {
+        case 'label':
+          fobj.label = value;
+          break;
+        case 'description':
+          fobj.description = value;
+          break;
+        case 'type':
+          fobj.type = value;
+          break;
+        case 'required':
+          fobj.required = !orig;
+          break;
+        case 'formula':
+          fobj.formula = value;
+          break;
+        case 'position':
+          fobj.position = value;
+          break;
+        case 'field':
+          fobj.field = value;
+          break;
+        case 'placeholder':
+          fobj.placeholder = value;
+          break;
+        case 'option_layers':
+          fobj.option_layers = value;
+          break;
+        default:
+          break;
+      }
+      const idx = findIndex(fields, o => o.field === fe);
+      fields.splice(idx, 1, fobj);
+      element.properties_template.layers[lk].fields = fields;
+      this.setState({ element });
+    }
   }
 
   onInputNewField(e) {
@@ -253,42 +235,26 @@ export default class SegmentElementAdmin extends React.Component {
     this.setState({ newOptionKey: e.target.value });
   }
 
-  retriveRevision(revision, cb) {
-    const { element } = this.state;
-    element.properties_template = revision;
-    this.setState({ element, propTabKey: 1 }, cb);
+  fetchConfigs() {
+    AdminFetcher.fetchUnitsSystem().then((result) => { this.setState({ unitsSystem: result }); });
   }
 
-  fetchRevisions() {
-    const { element } = this.state;
-    if (element && element.id) {
-      AdminFetcher.fetchKlassRevisions(element.id, 'SegmentKlass')
-        .then((result) => {
-          let curr = Object.assign({}, { ...element.properties_template });
-          curr = Object.assign({}, { properties_release: curr }, { uuid: 'current' });
-          const revisions = [].concat(curr, result.revisions);
-          this.setState({ revisions });
-        });
-    }
+  fetchElements() {
+    AdminFetcher.listDatasetKlass()
+      .then((result) => { this.setState({ elements: result.klass }); });
   }
 
-  delRevision(params) {
-    const { element } = this.state;
-    AdminFetcher.deleteKlassRevision({ id: params.id, klass_id: element.id, klass: 'SegmentKlass' })
-      .then((response) => {
-        if (response.error) {
-          notification({ title: 'Delete Revision', lvl: 'error', msg: response.error });
+  handleDeActive(e) {
+    const act = e.is_active ? 'De-active' : 'Active';
+    AdminFetcher.deActiveDatasetKlass({ id: e.id, is_active: !e.is_active })
+      .then((result) => {
+        if (result.error) {
+          notification({ title: `${act} Dataset fail`, lvl: 'error', msg: result.error });
         } else {
-          this.fetchRevisions();
+          notification({ title: `${act} Dataset successfully`, lvl: 'info', msg: `${e.label} is ${act.toLowerCase()} now` });
+          this.fetchElements();
         }
-      });
-  }
-
-  propTabSelect(key) {
-    if (key !== 1) {
-      this.fetchRevisions();
-    }
-    this.setState({ propTabKey: key });
+      }).catch((errorMessage) => { console.log(errorMessage); });
   }
 
   handlePropClose() {
@@ -302,7 +268,6 @@ export default class SegmentElementAdmin extends React.Component {
   handleCond(lk) {
     this.onShowFieldCond(null, lk);
   }
-
 
   addLayer() {
     this.setState({ showNewLayer: true });
@@ -322,18 +287,6 @@ export default class SegmentElementAdmin extends React.Component {
 
   editLayer(e) {
     this.setState({ showEditLayer: true, layerKey: e.layerKey });
-  }
-
-  newKlass() {
-    this.setState({ showNewKlass: true });
-  }
-
-  editKlass(element) {
-    this.setState({ showEditKlass: true, element });
-  }
-
-  copyKlass(element) {
-    this.setState({ showCopyKlass: true, element });
   }
 
   handleUploadShow() {
@@ -360,7 +313,7 @@ export default class SegmentElementAdmin extends React.Component {
     const fields = layer.fields || [];
     const dupfields = filter(fields, o => o.field === newFieldKey);
     if (dupfields && dupfields.length > 0) {
-      notification({ title: 'Add new field', lvl: 'error', msg: 'this field is used already, please change a field name' });
+      notification({ title: 'Add new field', lvl: 'error', msg: 'this field is used already, please change a field name!' });
       return;
     }
     const newField = {
@@ -400,20 +353,40 @@ export default class SegmentElementAdmin extends React.Component {
     this.setState({ showEditLayer: false });
   }
 
-  handleNewKlassClose() {
-    this.setState({ showNewKlass: false });
-  }
-
-  handleKlassClose() {
-    this.setState({ showEditKlass: false });
-  }
-
-  handleCopyKlassClose() {
-    this.setState({ showCopyKlass: false });
-  }
-
   handleSelectClose() {
     this.setState({ showAddSelect: false });
+  }
+
+  fetchRevisions() {
+    const { element } = this.state;
+    if (element && element.id) {
+      AdminFetcher.fetchKlassRevisions(element.id, 'DatasetKlass')
+        .then((result) => {
+          let curr = Object.assign({}, { ...element.properties_template });
+          curr = Object.assign({}, { properties_release: curr }, { uuid: 'current' });
+          const revisions = [].concat(curr, result.revisions);
+          this.setState({ revisions });
+        });
+    }
+  }
+
+  delRevision(params) {
+    const { element } = this.state;
+    AdminFetcher.deleteKlassRevision({ id: params.id, klass_id: element.id, klass: 'DatasetKlass' })
+      .then((response) => {
+        if (response.error) {
+          notification({ title: 'Delete Revision', lvl: 'error', msg: response.error });
+        } else {
+          this.fetchRevisions();
+        }
+      });
+  }
+
+  propTabSelect(key) {
+    if (key !== 1) {
+      this.fetchRevisions();
+    }
+    this.setState({ propTabKey: key });
   }
 
   handleAddSelect(selectName) {
@@ -450,86 +423,17 @@ export default class SegmentElementAdmin extends React.Component {
     this.setState({ showEditLayer: false, element });
   }
 
-  handleCreateKlass(element) {
-    if (!validateInput(element)) return;
-    AdminFetcher.createSegmentKlass(element)
-      .then((result) => {
-        if (result.error) {
-          notification({ title: 'Create Segment fail', lvl: 'error', msg: result.error });
-        } else {
-          notification({ title: 'Create Segment successfully', lvl: 'info', msg: 'Created successfully' });
-          this.handleNewKlassClose();
-          this.handleCopyKlassClose();
-          this.fetchElements();
-        }
-      }).catch((errorMessage) => {
-        console.log(errorMessage);
-      });
-  }
-
-  handleUpdateKlass(element, updates) {
-    const inputs = { ...element, ...updates };
-    if (!validateInput(inputs)) return;
-    AdminFetcher.updateSegmentKlass(inputs)
-      .then((result) => {
-        if (result.error) {
-          notification({ title: 'Update Segment fail', lvl: 'error', msg: result.error });
-        } else {
-          notification({ title: 'Update Segment successfully', lvl: 'info', msg: 'Updated successfully' });
-          this.handleKlassClose();
-          this.fetchElements();
-        }
-      }).catch((errorMessage) => {
-        console.log(errorMessage);
-      });
-  }
-
-  handleActivateKlass(id, isActive) {
-    AdminFetcher.deActiveSegmentKlass({ id, is_active: !isActive })
-      .then((result) => {
-        if (result.error) {
-          notification({ title: 'Update Segment fail', lvl: 'error', msg: result.error });
-        } else {
-          notification({ title: 'Update Segment successfully', lvl: 'info', msg: `Segment is ${result.is_active ? 'active' : 'deactive'} now` });
-          this.handleKlassClose();
-          this.fetchElements();
-        }
-      }).catch((errorMessage) => {
-        console.log(errorMessage);
-      });
-  }
-
-  handleDeleteKlass(element) {
-    AdminFetcher.deleteSegmentKlass(element.id)
-      .then((result) => {
-        if (result.error) {
-          notification({ title: 'Delete Segment fail', lvl: 'error', msg: result.error });
-        } else {
-          notification({ title: `Segment [${element.name}]`, lvl: 'info', msg: 'Deleted successfully' });
-          this.handleKlassClose();
-          this.fetchElements();
-        }
-      });
-  }
-
   handleUpdateJson(propertiesTemplate) {
     const { element } = this.state;
     element.properties_template = propertiesTemplate;
-    this.setState({
-      element,
-      showJson: false
-    });
-    this.handleSubmit(false);
+    this.setState({ element, showJson: false }, this.handleSubmit(false));
   }
-
 
   handlePropShow(element) {
     if (element) {
       const selectOptions = Object.keys(element.properties_template.select_options)
         .map(key => ({ value: key, name: key, label: key }));
-      this.setState({
-        element, selectOptions, showPropModal: true, propTabKey: 1
-      });
+      this.setState({ element, selectOptions, showPropModal: true });
     }
   }
 
@@ -537,22 +441,18 @@ export default class SegmentElementAdmin extends React.Component {
     const { element } = this.state;
     if (valid === false) {
       this.setState({ showUpload: false });
-      notification({ title: `Upload Template for Segment [${element.label}] Failed`, autoDismiss: 30, lvl: 'error', msg: message });
+      notification({ title: `Upload Template for Dataset [${element.label}] Failed`, autoDismiss: 30, lvl: 'error', msg: message });
     } else {
       element.properties_template = properties;
       this.setState({ element, showUpload: false });
-      notification({ title: `Upload template to Segment [${element.label}]`, lvl: 'info', msg: 'The templates has been uploaded, please save it.' });
+      notification({ title: `Upload template to Dataset [${element.label}]`, lvl: 'info', msg: 'The templates has been uploaded, please save it.' });
     }
   }
 
-  fetchConfigs() {
-    AdminFetcher.fetchUnitsSystem().then((result) => { this.setState({ unitsSystem: result }); });
-  }
-
-  fetchElements() {
-    AdminFetcher.listSegmentKlass().then((result) => {
-      this.setState({ elements: result.klass });
-    });
+  retriveRevision(revision, cb) {
+    const { element } = this.state;
+    element.properties_template = revision;
+    this.setState({ element, propTabKey: 1 }, cb);
   }
 
   handleSubmit(isRelease = false) {
@@ -566,8 +466,6 @@ export default class SegmentElementAdmin extends React.Component {
         fd.position = (idx + 1);
         if (fd.type === 'system-defined') { fd.option_layers = reUnit(unitsSystem, fd.option_layers); }
         fd.required = false;
-        fd.sub_fields = ['input-group', 'table'].includes(fd.type) ? fd.sub_fields : [];
-        if (fd.type !== 'text-formula') { fd.text_sub_fields = []; }
         return fd;
       });
       sortedFields = sortBy(sortedFields, l => l.position);
@@ -575,24 +473,20 @@ export default class SegmentElementAdmin extends React.Component {
     });
 
     element.is_release = isRelease;
-
-    AdminFetcher.updateSegmentTemplate(element)
+    AdminFetcher.updateDatasetTemplate(element)
       .then((result) => {
         if (result.error) {
-          notification({ title: 'Update Segment template fail', lvl: 'error', msg: result.error });
+          notification({ title: `Update Dataset: [${element.label}] template fail`, lvl: 'error', msg: result.error });
         } else {
           if (isRelease === true) {
-            notification({ title: 'Update Segment template', lvl: 'info', msg: 'Saved adn Released successfully' });
+            notification({ title: `Update Dataset: [${element.label}] template`, lvl: 'info', msg: 'Saved and Released successfully' });
           } else {
-            notification({ title: 'Update Segment template', lvl: 'info', msg: 'Saved successfully' });
+            notification({ title: `Update Dataset: [${element.label}] template`, lvl: 'info', msg: 'Saved successfully' });
           }
           this.fetchElements();
-          this.setState({ element: result });
+          this.setState({ element: result }, () => LoadingActions.stop());
         }
-        LoadingActions.stop();
-      }).catch((errorMessage) => {
-        console.log(errorMessage);
-      });
+      }).catch((errorMessage) => { console.log(errorMessage); });
   }
 
   confirmDelete(delStr, delKey, delRoot) {
@@ -612,8 +506,6 @@ export default class SegmentElementAdmin extends React.Component {
       const { fields } = element.properties_template.layers[delRoot];
       const idx = findIndex(fields, o => o.field === delKey);
       fields.splice(idx, 1);
-    } else {
-      //
     }
     this.setState({ element });
   }
@@ -646,9 +538,7 @@ export default class SegmentElementAdmin extends React.Component {
 
     return (
       <OverlayTrigger animation placement="top" root trigger="focus" overlay={popover}>
-        <Button bsSize="sm" >
-          <i className="fa fa-trash-o" aria-hidden="true" />
-        </Button>
+        <Button bsSize="sm" ><i className="fa fa-trash-o" aria-hidden="true" /></Button>
       </OverlayTrigger>
     );
   }
@@ -656,13 +546,12 @@ export default class SegmentElementAdmin extends React.Component {
   renderSelectOptions() {
     const { element } = this.state;
     const selects = [];
-
     Object.keys(element.properties_template.select_options).forEach((key) => {
       const soptions = (element.properties_template.select_options[key]
         && element.properties_template.select_options[key].options) || [];
-      const options = (soptions || []).map(f => (
+      const options = soptions.map(f => (
         <div key={`${f.key}_${key}`} style={{ marginTop: '10px' }}>
-          <FormGroup bsSize="sm" controlId={`frmCtrlSelectOption_${f.key}_${key}`}>
+          <FormGroup bsSize="sm" controlId={`frmCtrlSelectOption_${f.key}`}>
             <InputGroup>
               <InputGroup.Addon>{f.key}</InputGroup.Addon>
               <FormControl
@@ -705,11 +594,7 @@ export default class SegmentElementAdmin extends React.Component {
               </FormGroup>
             </div>
           </Panel.Heading>
-          <Panel.Collapse>
-            <Panel.Body>
-              {options}
-            </Panel.Body>
-          </Panel.Collapse>
+          <Panel.Collapse><Panel.Body>{options}</Panel.Body></Panel.Collapse>
         </Panel>
       );
       selects.push(snode);
@@ -726,11 +611,7 @@ export default class SegmentElementAdmin extends React.Component {
               </OverlayTrigger>
             </Panel.Title>
           </Panel.Heading>
-          <Panel.Body>
-            <div>
-              {selects}
-            </div>
-          </Panel.Body>
+          <Panel.Body><div>{selects}</div></Panel.Body>
         </Panel>
       </div>
     );
@@ -740,29 +621,26 @@ export default class SegmentElementAdmin extends React.Component {
     const { element, selectOptions, unitsSystem } = this.state;
     const layers = [];
     const sortedLayers = sortBy(element.properties_template.layers, l => l.position);
-
     (sortedLayers || []).forEach((layer) => {
       const layerKey = `${layer.key}`;
       const fields = ((layer && layer.fields) || []).map((f, idx) => (
         <ElementField
-          genericType="Segment"
+          genericType="Dataset"
           key={`${layerKey}${f.field}`}
           layerKey={layerKey}
           position={idx + 1}
           field={f}
           select_options={selectOptions}
-          onDrop={e => this.onFieldDrop(e)}
+          onDrop={() => {}}
           onMove={(l, fe, isUp) => this.onFieldMove(l, fe, isUp)}
           onDelete={(delStr, delKey, delRoot) => this.confirmDelete(delStr, delKey, delRoot)}
           onChange={(e, orig, fe, lk, fc, tp) => this.onFieldInputChange(e, orig, fe, lk, fc, tp)}
           unitsSystem={unitsSystem}
-          onFieldSubFieldChange={this.onFieldSubFieldChange}
           onDummyAdd={this.onDummyAdd}
           onShowFieldCond={(field, lk) => this.onShowFieldCond(field, lk)}
           allLayers={sortedLayers}
         />
       )) || [];
-
       const hasCond = (layer && layer.cond_fields && layer.cond_fields.length > 0) || false;
       const btnCond = hasCond ?
         (<ButtonTooltip tip="Restriction Setting" fnClick={() => this.handleCond(layerKey)} bs="warning" element={{ l: layerKey, f: null }} fa="fa fa-cogs" place="top" size="sm" />) :
@@ -797,11 +675,7 @@ export default class SegmentElementAdmin extends React.Component {
               </FormGroup>
             </div>
           </Panel.Heading>
-          <Panel.Collapse>
-            <Panel.Body style={{ padding: '15px 0px 15px 0px' }}>
-              {fields}
-            </Panel.Body>
-          </Panel.Collapse>
+          <Panel.Collapse><Panel.Body>{fields}</Panel.Body></Panel.Collapse>
         </Panel>
       );
       layers.push(node);
@@ -824,21 +698,59 @@ export default class SegmentElementAdmin extends React.Component {
     );
   }
 
+  renderList() {
+    const { elements, element } = this.state;
+    const tbody = elements && elements.map((e, idx) => (
+      <tbody key={`tbody_${e.id}`}>
+        <tr key={`row_${e.id}`} id={`row_${e.id}`} style={e.id === element.id ? { fontWeight: 'bold', borderWidth: 'medium', borderStyle: 'groove' } : { fontWeight: 'unset' }}>
+          <td>{idx + 1}</td>
+          <td>{e.label}</td>
+          <td>
+            {
+              e.is_active ? <ButtonTooltip tip="click to de-active this dataset template (currently active)" fnClick={this.handleDeActive} element={e} fa="fa-check" bs="success" />
+                : <ButtonTooltip tip="click to active this dataset template (currently deactive)" fnClick={this.handleDeActive} element={e} fa="fa-ban" bs="danger" />
+            }
+          </td>
+          <td>
+            <ButtonTooltip tip="Edit Dataset template" fnClick={this.handlePropShow} element={e} fa="fa-file-text" />&nbsp;
+            <ButtonTooltip tip="Edit Dataset template in JSON format" fnClick={this.showJsonModal} element={e} fa="fa-file-code-o" />
+          </td>
+          <td>{e.released_at} (UTC)</td>
+        </tr>
+      </tbody>
+    ));
+    return (
+      <Panel>
+        <Panel.Heading>
+          <Table responsive condensed hover>
+            <thead>
+              <tr style={{ backgroundColor: '#ddd' }}>
+                <th width="5%">#</th>
+                <th width="45%">Chemical Methods Ontology</th>
+                <th width="10%">Active</th>
+                <th width="20%">Template</th>
+                <th width="18%">Released at</th>
+              </tr>
+            </thead>
+            {tbody}
+          </Table>
+        </Panel.Heading>
+      </Panel>
+    );
+  }
+
   renderPropPanel() {
-    const {
-      element, showPropModal, revisions, propTabKey
-    } = this.state;
+    const { element, showPropModal, revisions, propTabKey } = this.state;
     if (showPropModal) {
       return (
-        <Tabs activeKey={propTabKey} id="segment-prop-tabs" onSelect={this.propTabSelect}>
+        <Tabs activeKey={propTabKey} id="uncontrolled-tab-example" onSelect={this.propTabSelect}>
           <Tab eventKey={1} title="Template">
             <Panel show={showPropModal.toString()}>
               <Panel.Heading>
-                <b>{`Template of Segment [${element.label}]: ${element.desc}`}</b>&nbsp;
+                <b>{`Properties Template of Dataset [${element.label}]`}</b>&nbsp;
                 <span className="generic_version">{`ver.: ${element.uuid}`}</span>
                 <span className="generic_version_draft">{element.uuid === element.properties_template.uuid ? '' : `draft: ${element.properties_template.uuid}`}</span>
                 <span className="button-right" >
-                  <ButtonTooltip tip="Upload Segment template in JSON format" fnClick={this.handleUploadShow} element={element} place="top" fa="fa-upload" />&nbsp;
                   <ButtonTooltip txt="Save and Release" tip="Save and Release template" fnClick={() => this.handleSubmit(true)} fa="fa-floppy-o" place="top" bs="primary" />&nbsp;
                   <ButtonTooltip txt="Save as draft" tip="Save template as draft" fnClick={() => this.handleSubmit(false)} fa="fa-floppy-o" place="top" bs="primary" />
                 </span>
@@ -856,77 +768,20 @@ export default class SegmentElementAdmin extends React.Component {
             <Preview revisions={revisions} element={element} fnRetrive={this.retriveRevision} fnDelete={this.delRevision} canDL />
           </Tab>
         </Tabs>
+
       );
     }
     return (<div />);
-  }
-
-  renderList() {
-    const { elements, element } = this.state;
-    const els = orderBy(elements, ['is_active', 'label'], ['desc', 'asc']);
-    const tbody = els && els.map((e, idx) => (
-      <tbody key={`tbody_${e.id}`}>
-        <tr key={`row_${e.id}`} id={`row_${e.id}`} style={e.id === element.id ? { fontWeight: 'bold', borderWidth: 'medium', backgroundColor: 'white', borderStyle: 'groove' } : { fontWeight: 'unset' }}>
-          <td>{idx + 1}</td>
-          <td>
-            <ButtonTooltip tip="copy to ..." fa="fa fa-clone" element={e} fnClick={this.copyKlass} />
-            &nbsp;
-            <ButtonTooltip tip="Edit Segment attributes" fnClick={this.editKlass} element={e} />
-            &nbsp;
-          </td>
-          <td>{e.label}</td>
-          <td>{e.desc}</td>
-          <td>
-            {
-              e.is_active ? <i className="fa fa-check" aria-hidden="true" style={{ color: 'green' }} /> : <i className="fa fa-ban" aria-hidden="true" style={{ color: 'red' }} />
-            }
-          </td>
-          <td>
-            <ButtonTooltip tip="Edit Segment template" fnClick={this.handlePropShow} element={e} fa="fa-file-text" />&nbsp;
-            <ButtonTooltip tip="Edit Segment template in JSON format" fnClick={this.showJsonModal} element={e} fa="fa-file-code-o" />
-          </td>
-          <td>{e.element_klass && e.element_klass.label}&nbsp;<i className={e.element_klass && e.element_klass.icon_name} /></td>
-          <td>{e.released_at} (UTC)</td>
-        </tr>
-      </tbody>
-    ));
-    return (
-      <Panel>
-        <Panel.Heading>
-          <Table responsive condensed hover>
-            <thead>
-              <tr style={{ backgroundColor: '#ddd' }}>
-                <th width="4%">#</th>
-                <th width="8%">Actions</th>
-                <th width="12%">Segment Label</th>
-                <th width="20%">Description</th>
-                <th width="8%">Active</th>
-                <th width="12%">Template</th>
-                <th width="16%">Belongs to</th>
-                <th width="18%">Released at</th>
-              </tr>
-            </thead>
-            {tbody}
-          </Table>
-        </Panel.Heading>
-      </Panel>
-    );
   }
 
   render() {
     const { element, layerKey } = this.state;
     const layer = (element && element.properties_template
       && element.properties_template.layers[layerKey]) || {};
-
     const sortedLayers = (element && element.properties_template && element.properties_template.layers && sortBy(element.properties_template.layers, l => l.position)) || [];
 
     return (
       <div>
-        <Button bsStyle="primary" bsSize="small" onClick={() => this.newKlass()}>
-          New Segment&nbsp;<i className="fa fa-plus" aria-hidden="true" />
-        </Button>
-        &nbsp;
-        <br />
         <div className="list-container-bottom">
           {this.renderList()}
           {this.renderPropPanel()}
@@ -946,27 +801,6 @@ export default class SegmentElementAdmin extends React.Component {
             fnClose={this.handleLayerClose}
             fnUpdate={this.handleUpdateLayer}
           />
-          <TemplateJsonModal
-            showModal={this.state.showJson}
-            fnClose={this.hideJsonModal}
-            fnUpdate={this.handleUpdateJson}
-            element={this.state.element}
-          />
-          <AttrNewModal
-            content="Segment"
-            showModal={this.state.showNewKlass}
-            fnClose={this.handleNewKlassClose}
-            fnCreate={this.handleCreateKlass}
-          />
-          <AttrEditModal
-            content="Segment"
-            showModal={this.state.showEditKlass}
-            element={this.state.element}
-            fnClose={this.handleKlassClose}
-            fnDelete={this.handleDeleteKlass}
-            fnActivate={this.handleActivateKlass}
-            fnUpdate={this.handleUpdateKlass}
-          />
           <FieldCondEditModal
             showModal={this.state.showFieldCond}
             layer={layer}
@@ -978,16 +812,15 @@ export default class SegmentElementAdmin extends React.Component {
             element={this.state.element}
             fnClose={this.handleFieldCondClose}
           />
-          <AttrCopyModal
-            content="Segment"
-            showModal={this.state.showCopyKlass}
+          <TemplateJsonModal
+            showModal={this.state.showJson}
+            fnClose={this.hideJsonModal}
+            fnUpdate={this.handleUpdateJson}
             element={this.state.element}
-            fnClose={this.handleCopyKlassClose}
-            fnCopy={this.handleCreateKlass}
           />
           <UploadModal
-            content="Generic Segments"
-            klass="SegmentKlass"
+            content="Generic Dataset"
+            klass="DatasetKlass"
             showModal={this.state.showUpload}
             fnClose={this.handleUploadClose}
             fnUpload={this.handleUploadTemplate}

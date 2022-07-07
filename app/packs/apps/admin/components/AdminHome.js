@@ -1,9 +1,6 @@
 // imports from node modules
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { Grid, Row, Col, Nav, NavItem } from 'react-bootstrap';
-import { DragDropContext } from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
 
 // imports from other namespaces
 import Notifications from '/app/packs/src/components/Notifications';
@@ -11,7 +8,7 @@ import Notifications from '/app/packs/src/components/Notifications';
 // imports from own namespace
 import AdminDashboard from './AdminDashboard';
 import AdminNavigation from './AdminNavigation';
-import ConverterAdmin from './converter/AdminApp';
+import Converter from './converter/Converter';
 import DataCollector from './DataCollector';
 import DatasetElementAdmin from './DatasetElementAdmin';
 import DelayedJobs from './DelayedJobs';
@@ -28,7 +25,7 @@ import UserManagement from './UserManagement';
 // imports from other namespaces
 import TextTemplateContainer from '/app/packs/shared_components/text_templates/TextTemplateContainer';
 
-class AdminHome extends React.Component {
+export default class AdminHome extends React.Component {
   constructor(props) {
     super();
     this.state = {
@@ -86,7 +83,7 @@ class AdminHome extends React.Component {
     } else if (pageIndex === 13) {
       return this.renderDelayedJobs();
     } else if (pageIndex === 14) {
-      return this.renderConverterAdmin();
+      return this.renderConverter();
     }
 
     return (<div />);
@@ -213,11 +210,11 @@ class AdminHome extends React.Component {
     );
   }
 
-  renderConverterAdmin() {
+  renderConverter() {
     const { contentClassName } = this.state;
     return (
       <Col className={contentClassName} >
-        <ConverterAdmin />
+        <Converter />
       </Col>
     );
   }
@@ -250,10 +247,3 @@ class AdminHome extends React.Component {
     );
   }
 }
-
-const AdminHomeWithDnD = DragDropContext(HTML5Backend)(AdminHome);
-
-document.addEventListener('DOMContentLoaded', () => {
-  const domElement = document.getElementById('AdminHome');
-  if (domElement) { ReactDOM.render(<AdminHomeWithDnD />, domElement); }
-});

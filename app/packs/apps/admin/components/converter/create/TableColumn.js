@@ -3,10 +3,12 @@
 import React from 'react';
 import { Button, Row, Col } from 'react-bootstrap';
 
+// imports from other namespaces
+import ButtonTooltip from '/app/packs/shared_components/generic/buttons/ButtonTooltip';
+
 // imports from own namespace
 import ColumnSelect from '../common/ColumnSelect';
 import OperatorSelect from '../common/OperatorSelect';
-import { ButtonTooltip } from '/app/packs/shared_components/generic/Utils';
 
 
 const TableColumn = (props) => {

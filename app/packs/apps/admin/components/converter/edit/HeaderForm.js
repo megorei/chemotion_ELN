@@ -3,8 +3,8 @@
 /* eslint-disable react/no-array-index-key */
 import { Button, Row, Col } from 'react-bootstrap';
 
-// imports from own namespace
-import { ButtonTooltip } from '/app/packs/shared_components/generic/Utils';
+// imports from other namespaces
+import ButtonTooltip from '/app/packs/shared_components/generic/buttons/ButtonTooltip';
 
 const HeaderForm = (props) => {
   const {

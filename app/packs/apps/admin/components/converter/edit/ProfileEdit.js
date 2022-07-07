@@ -4,12 +4,14 @@
 import React from "react"
 import { Button, Popover, ButtonGroup, OverlayTrigger, Panel, Row, Col } from 'react-bootstrap';
 
+// imports from other namespaces
+import ButtonTooltip from '/app/packs/shared_components/generic/buttons/ButtonTooltip';
+
 // imports from own namespace
 import FirstRowIsHeaderInput from './FirstRowIsHeaderInput';
 import HeaderForm from './HeaderForm';
 import IdentifierForm from './IdentifierForm';
 import TableForm from './TableForm';
-import { ButtonTooltip } from '/app/packs/shared_components/generic/Utils';
 
 const renderCancelButton = (backProfileList) => {
   const popover = (

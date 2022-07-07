@@ -4,9 +4,11 @@
 import { Component } from 'react';
 import { Button, Row, Col } from 'react-bootstrap';
 
+// imports from other namespaces
+import ButtonTooltip from '/app/packs/shared_components/generic/buttons/ButtonTooltip';
+
 // imports from own namespace
 import OperatorSelect from '../common/OperatorSelect';
-import { ButtonTooltip } from '/app/packs/shared_components/generic/Utils';
 
 class TableColumn extends Component {
   render() {

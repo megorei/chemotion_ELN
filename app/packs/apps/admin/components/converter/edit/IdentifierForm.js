@@ -4,14 +4,14 @@
 import { Button, Row, Col } from 'react-bootstrap';
 
 // imports from own namespace
-import IndentifierInput from './IndentifierInput';
+import IdentifierInput from './IdentifierInput';
 
 const IdentifierForm = props => (
   <div>
     {
       props.identifiers && props.identifiers.map((identifier, index) => {
         if (identifier.type === props.type) {
-          return (<IndentifierInput
+          return (<IdentifierInput
             key={index}
             id={index}
             type={identifier.type}

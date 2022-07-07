@@ -1,8 +1,8 @@
 // imports from node_modules
 import { Button, ButtonGroup, OverlayTrigger, Popover } from 'react-bootstrap';
 
-// imports from own namespace
-import { ButtonTooltip } from '/app/packs/shared_components/generic/Utils';
+// imports from other namespace
+import ButtonTooltip from '/app/packs/shared_components/generic/buttons/ButtonTooltip';
 
 const renderDeleteButton = (deleteProfile) => {
   const popover = (

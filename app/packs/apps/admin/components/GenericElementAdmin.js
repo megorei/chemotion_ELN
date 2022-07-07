@@ -7,22 +7,26 @@ import { findIndex, filter, sortBy, orderBy } from 'lodash';
 
 // imports from other namespaces
 import AdminFetcher from '/app/packs/src/components/fetchers/AdminFetcher';
-import LoadingActions from '/app/packs/src/components/actions/LoadingActions';
-import LoadingModal from '/app/packs/src/components/common/LoadingModal';
-import { ElementField } from '/app/packs/src/components/elements/ElementField';
-
-// imports from own namespace
 import AttrCopyModal from '/app/packs/shared_components/generic/AttrCopyModal';
 import AttrEditModal from '/app/packs/shared_components/generic/AttrEditModal';
 import AttrNewModal from '/app/packs/shared_components/generic/AttrNewModal';
+import ButtonTooltip from '/app/packs/shared_components/generic/buttons/ButtonTooltip';
 import FieldCondEditModal from '/app/packs/shared_components/generic/FieldCondEditModal';
+import GenericDummy from '/app/packs/src/components/models/GenericDummy';
 import LayerAttrEditModal from '/app/packs/shared_components/generic/LayerAttrEditModal';
 import LayerAttrNewModal from '/app/packs/shared_components/generic/LayerAttrNewModal';
+import LoadingActions from '/app/packs/src/components/actions/LoadingActions';
+import LoadingModal from '/app/packs/src/components/common/LoadingModal';
+import notification from '/app/packs/utilities/notification';
 import Preview from '/app/packs/shared_components/generic/Preview';
 import SelectAttrNewModal from '/app/packs/shared_components/generic/SelectAttrNewModal';
 import TemplateJsonModal from '/app/packs/shared_components/generic/TemplateJsonModal';
 import UploadModal from '/app/packs/shared_components/generic/UploadModal';
-import { ButtonTooltip, validateLayerInput, validateSelectList, notification, reUnit, GenericDummy } from '/app/packs/shared_components/generic/Utils';
+import { ElementField } from '/app/packs/src/components/elements/ElementField';
+
+// imports from own namespace
+import { validateLayerInput, validateSelectList } from '/app/packs/apps/admin/utilities/validations';
+import { reUnit } from '/app/packs/apps/admin/utilities/utilities';
 
 const validateKlass = klass => (/\b[a-z]{3,5}\b/g.test(klass));
 const validateField = field => (/^[a-zA-Z0-9_]*$/g.test(field));
