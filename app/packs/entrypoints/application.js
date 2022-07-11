@@ -2,7 +2,7 @@
 
 // var React = require('react');
 
-var Home = require('/app/packs/apps/home/Home');
+var Home = require('/app/packs/apps/home/index');
 var Admin = require('/app/packs/apps/admin/index');
 
 var CnC = require('../src/libCnC/CnC');
