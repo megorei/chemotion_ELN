@@ -1,16 +1,18 @@
+// imports from node_modules
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { Grid, Row, Col } from 'react-bootstrap';
 import RFB from '@novnc/novnc/lib/rfb';
 import { uniq } from 'lodash';
-// import Immutable from 'immutable';
 
-import Navigation from './Navigation';
-import DeviceActions from '../components/actions/UserActions';
-import DeviceStore from '../components/stores/UserStore';
-import FocusNovnc from '../components/FocusNovnc';
-import { ConnectedBtn, DisconnectedBtn } from '../components/NovncStatus';
-import UsersFetcher from '../components/fetchers/UsersFetcher';
+// imports from other namespaces
+import DeviceActions from '/app/packs/src/components/actions/UserActions';
+import DeviceStore from '/app/packs/src/components/stores/UserStore';
+import UsersFetcher from '/app/packs/src/components/fetchers/UsersFetcher';
+
+// imports from own namespace
+import { ConnectedBtn, DisconnectedBtn } from '/app/packs/apps/command_and_control/components/NovncStatus';
+import FocusNovnc from '/app/packs/apps/command_and_control/components/FocusNovnc';
+import Navigation from '/app/packs/apps/command_and_control/components/Navigation';
 
 // Timeout before disconnection when not focused
 const TIME_DISCO = 180000;
@@ -19,7 +21,7 @@ const TIME_BLUR = 55000;
 // Interval to query connection counter
 const TIME_CONN = 4000;
 
-class CnC extends React.Component {
+export default class CnC extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -62,9 +64,9 @@ class CnC extends React.Component {
 
   shouldComponentUpdate(nextState) {
     return this.state.connected !== nextState.connected
-    || this.state.rfb !== nextState.rfb
-    || this.state.selected.id !== nextState.selected.id
-    || this.state.isNotFocused !== nextState.isNotFocused;
+      || this.state.rfb !== nextState.rfb
+      || this.state.selected.id !== nextState.selected.id
+      || this.state.isNotFocused !== nextState.isNotFocused;
   }
 
   componentWillUnmount() {
@@ -271,7 +273,3 @@ class CnC extends React.Component {
     );
   }
 }
-document.addEventListener('DOMContentLoaded', () => {
-  const domElement = document.getElementById('CnC');
-  if (domElement) { ReactDOM.render(<CnC />, domElement); }
-});

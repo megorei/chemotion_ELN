@@ -4,8 +4,8 @@
 
 var Home = require('/app/packs/apps/home/index');
 var Admin = require('/app/packs/apps/admin/index');
+var CnC = require('/app/packs/apps/command_and_control/index');
 
-var CnC = require('../src/libCnC/CnC');
 var ChemScanner = require('../src/components/chemscanner/ChemScanner');
 var ChemSpectra = require('../src/components/chemspectra/ChemSpectra');
 var ChemSpectraEditor = require('../src/components/chemspectra/ChemSpectraEditor');
