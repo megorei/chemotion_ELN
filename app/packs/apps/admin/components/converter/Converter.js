@@ -774,4 +774,4 @@ class Converter extends Component {
   }
 }
 
-export default AdminApp;
+export default Converter;
