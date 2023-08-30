@@ -15,8 +15,12 @@ import { solventOptions } from 'src/components/staticDropdownOptions/options';
 import SampleDetailsSolvents from 'src/apps/mydb/elements/details/samples/propertiesTab/SampleDetailsSolvents';
 import PrivateNoteElement from 'src/apps/mydb/elements/details/PrivateNoteElement';
 import NotificationActions from 'src/stores/alt/actions/NotificationActions';
+import FormEditorModal from 'src/components/formEditorModal/FormEditorModal';
+import { StoreContext } from 'src/stores/mobx/RootStore';
 
 export default class SampleForm extends React.Component {
+  static contextType = StoreContext;
+
   constructor(props) {
     super(props);
     this.state = {
@@ -697,6 +701,14 @@ export default class SampleForm extends React.Component {
               <div className="properties-form" style={{ width: '100%' }}>
                 <tr>
                   <td colSpan="4">
+                    <Button bsSize="xsmall" bsStyle="primary"
+                      title="Edit form fields"
+                      className="edit-form-fields"
+                      onClick={() => this.context.formEditor.showFormEditorModal('sample')}
+                    >
+                      <i className="fa fa-cog"></i>
+                    </Button>
+                    <FormEditorModal />
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <div style={{ width: '100%', display: 'flex' }}>
                         {this.moleculeInput()}
@@ -707,15 +719,15 @@ export default class SampleForm extends React.Component {
                   {this.topSecretCheckbox(sample)}
                 </div> */}
                       {
-                  enableSampleDecoupled ? (
-                    <div
-                      style={{ paddingLeft: '10px' }}
-                      className="decoupled-checkbox"
-                    >
-                      {this.decoupledCheckbox(sample)}
-                    </div>
-                  ) : null
-                }
+                        enableSampleDecoupled ? (
+                          <div
+                            style={{ paddingLeft: '10px' }}
+                            className="decoupled-checkbox"
+                          >
+                            {this.decoupledCheckbox(sample)}
+                          </div>
+                        ) : null
+                      }
                     </div>
                   </td>
                 </tr>
@@ -742,18 +754,18 @@ export default class SampleForm extends React.Component {
                   </td>
                 </tr>
                 {sample.decoupled
-            && (
-            <tr>
-              {
-                this.numInput(sample, 'molecular_mass', 'g/mol', ['n'], 5, 'Molecular mass', '', isDisabled)
-              }
-              <td colSpan="3">
-                {
-                  this.textInput(sample, 'sum_formula', 'Sum formula')
-                }
-              </td>
-            </tr>
-            )}
+                  && (
+                    <tr>
+                      {
+                        this.numInput(sample, 'molecular_mass', 'g/mol', ['n'], 5, 'Molecular mass', '', isDisabled)
+                      }
+                      <td colSpan="3">
+                        {
+                          this.textInput(sample, 'sum_formula', 'Sum formula')
+                        }
+                      </td>
+                    </tr>
+                  )}
 
                 <tr className="visible-hd">
                   <td colSpan="6">
@@ -779,19 +791,19 @@ export default class SampleForm extends React.Component {
                               >
                                 <Tab eventKey="density" title="Density">
                                   {
-                              this.numInputWithoutTable(sample, 'density', 'g/ml', ['n'], 5, '', '', polyDisabled, '', false, isPolymer)
-                            }
+                                    this.numInputWithoutTable(sample, 'density', 'g/ml', ['n'], 5, '', '', polyDisabled, '', false, isPolymer)
+                                  }
                                 </Tab>
                                 <Tab eventKey="molarity" title="Molarity">
                                   {
-                              this.numInputWithoutTable(sample, 'molarity_value', 'M', ['n'], 5, '', '', polyDisabled, '', false, isPolymer)
-                            }
+                                    this.numInputWithoutTable(sample, 'molarity_value', 'M', ['n'], 5, '', '', polyDisabled, '', false, isPolymer)
+                                  }
                                 </Tab>
                               </Tabs>
                               <div style={{ width: '40%', paddingLeft: '5px' }}>
                                 {
-                            this.numInputWithoutTable(sample, 'purity', 'n', ['n'], 5, 'Purity/Concentration', '', isDisabled)
-                          }
+                                  this.numInputWithoutTable(sample, 'purity', 'n', ['n'], 5, 'Purity/Concentration', '', isDisabled)
+                                }
                               </div>
                             </div>
                           </td>

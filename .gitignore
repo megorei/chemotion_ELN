@@ -185,6 +185,7 @@ vendor/bundle/*
 vendor/cache/*
 .idea/*
 shrine/*
+config/shrine_config.yml
 .docker-sync/
 
 public/sprite.png
@@ -194,3 +195,6 @@ public/sprite.png
 /public/svgedit
 
 !spec/fixtures/import/sample_import_template.xlsx
+
+# generic elements
+data/klasses.json

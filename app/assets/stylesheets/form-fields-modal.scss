@@ -1,0 +1,98 @@
+.edit-form-fields {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  color: #fff;
+}
+
+[dialogas=form-editor].modal {
+  width: fit-content;
+  height: fit-content;
+  max-height: 87vh;
+  top: calc(calc(100% - 92vh));
+  left: calc(calc(100% - 80vw) / 2);
+}
+
+[dialogas=form-editor] .modal-dialog {
+  width: 80vw !important;
+  position: relative !important;
+  top: 0;
+  left: 0;
+  transform: none !important;
+  margin: 5px 20px 22px 15px;
+}
+
+[dialogas=form-editor] .modal-content {
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  height: fit-content;
+}
+
+[dialogas=form-editor] .modal-header {
+  background: #ddd;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+  padding: 10px 15px 10px 0;
+}
+
+[dialogas=form-editor] .modal-header .close {
+  opacity: 0.4;
+  font-size: 25px;
+  line-height: 1.3;
+}
+
+[dialogas=form-editor] .modal-header .move {
+  margin-right: 15px;
+}
+
+[dialogas=form-editor] .modal-header .modal-title {
+  padding: 5px 0;
+}
+
+[dialogas=form-editor] .modal-header .window-minimize {
+  color: rgba(0, 0, 0, 0.4);
+  float: right;
+  margin-top: -62px;
+  margin-right: 15px;
+}
+
+[dialogas=form-editor] .modal-header .window-minimize:hover {
+  cursor: pointer;
+}
+
+[dialogas=form-editor] .modal-body {
+  padding: 0;
+}
+
+@media screen and (min-width: 768px) {
+  [dialogas=form-editor] .modal-header .window-minimize {
+    margin-top: -22px;
+  }
+}
+
+.form-container {
+  display: block;
+}
+
+.form-container.minimized {
+  display: none;
+}
+
+.form-fields {
+  padding: 20px 15px;
+  height: 51.5vh;
+  position: relative;
+}
+
+.form-editor-buttons button:last-child {
+  margin-right: 20px;
+}
+
+.scrollable-content {
+  clear: both;
+  overflow-y: auto;
+  height: calc(49vh - 85px);
+  margin-bottom: 39px;
+  .alert {
+    margin-left: 15px;
+  }
+}
