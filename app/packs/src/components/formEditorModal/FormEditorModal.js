@@ -7,9 +7,8 @@ import { StoreContext } from 'src/stores/mobx/RootStore';
 const FormEditorModal = () => {
   const formEditorStore = useContext(StoreContext).formEditor;
   let minimizedClass = formEditorStore.modalMinimized ? ' minimized' : '';
-  let elementType = formEditorStore.elementType
-  let elementStructure = formEditorStore.elementStructure;
-  //console.log(formEditorStore.element);
+  let elementType = formEditorStore.elementType;
+  let elementStructure = formEditorStore.elementStructure.elements[elementType];
 
   const saveFormFields = () => {
 
@@ -34,7 +33,8 @@ const FormEditorModal = () => {
   }
 
   const MapElementStructure = () => {
-    if (!elementType) { return ''; }
+    //console.log(elementStructure);
+    if (!elementType || !elementStructure) { return ''; }
 
     let fields = [];
     let i = 0;
