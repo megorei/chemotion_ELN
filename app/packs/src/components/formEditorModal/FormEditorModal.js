@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Button, ButtonToolbar, Modal, Checkbox } from 'react-bootstrap';
+import { Button, ButtonToolbar, Modal, Checkbox, FormGroup, FormControl } from 'react-bootstrap';
 import Draggable from "react-draggable";
 import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
@@ -18,12 +18,23 @@ const FormEditorModal = () => {
     formEditorStore.changeFieldVisibility(field, e.target.checked);
   }
 
+  const textInput = (field, type, i) => {
+    return (
+      <FormGroup key={`${field.key}-${field.label}`} className={`column-size-${field.column_size}`}>
+        {checkboxInput(field, i)}
+        <FormControl
+          id={`input_${field.key}`}
+          type="text"
+          key={`${field.key}-${i}-${type}`}
+        />
+      </FormGroup>
+    );
+  }
+
   const checkboxInput = (field, i) => {
-    let column = field.opt ? `${field.column}-${field.opt}` : field.column;
-    //console.log(field);
     return (
       <Checkbox
-        key={`${column}-${i}`}
+        key={`${field.key}-${i}`}
         checked={field.visible}
         onChange={changeCheckboxField(field)}
       >
@@ -32,24 +43,62 @@ const FormEditorModal = () => {
     );
   }
 
+  const fieldsByType = (field, fields, i) => {
+    // switch (field.type) {
+    //   case 'text':
+    //   case 'textarea':
+    //   case 'formula-field':
+    //     fields.push(textInput(field, 'text', i));
+    //     break;
+    // }
+    // return fields;
+    fields.push(textInput(field, 'text', i));
+    return fields;
+  }
+
+  const sectionHeadline = (section) => {
+    if (section.label === '') { return '' }
+    let toggleClass = section.toggle == true ? ' toggle' : '';
+
+    return (
+      <div className={`section-headline${toggleClass}`} key={section.key}>{section.label}</div>
+    );
+  }
+
+  const groupedRowFields = (rowClassName, rowFields) => {
+    return (
+      <div className={rowClassName} key={`${rowClassName}-${Math.random() * 1000}`}>{rowFields}</div>
+    );
+  }
+
   const MapElementStructure = () => {
-    //console.log(elementStructure);
     if (!elementType || !elementStructure) { return ''; }
 
     let fields = [];
-    let i = 0;
-    elementStructure.map((section) => {
-      section.rows.map((row) => {
-        row.fields.map((field) => {
-          i = i + 1;
+
+    elementStructure.map((section, j) => {
+      if (section.label == '' && j !== 0) {
+        fields.push(<hr className='section-spacer' key={`spacer-${j}`} />);
+      } else {
+        fields.push(sectionHeadline(section));
+      }
+
+      section.rows.map((row, i) => {
+        let rowClassName = row.cols !== '4' ? `grouped-fields-row cols-${row.cols}` : 'grouped-fields-row';
+        let rowFields = [];
+
+        row.fields.map((field, i) => {
+          let subFields = [];
           if (field.sub_fields) {
             field.sub_fields.map((sub_field) => {
-              fields.push(checkboxInput(sub_field, i));
+              fieldsByType(sub_field, subFields, i);
             });
           } else {
-            fields.push(checkboxInput(field, i));
+            fieldsByType(field, subFields, i);
           }
+          rowFields.push(subFields);
         });
+        fields.push(groupedRowFields(rowClassName, rowFields));
       });
     });
     return fields;
@@ -80,8 +129,6 @@ const FormEditorModal = () => {
           <div className={`form-container${minimizedClass}`}>
             <div className="form-fields">
               <div className="scrollable-content">
-                {`List of all form fields of ${elementType}`}
-                <br />
                 {MapElementStructure()}
               </div>
               <ButtonToolbar className="form-editor-buttons">

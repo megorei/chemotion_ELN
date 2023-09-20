@@ -69,6 +69,15 @@
   }
 }
 
+@media screen and (min-width: 1500px) {
+  [dialogas=form-editor].modal {
+    left: calc(calc(100% - 1300px) / 2);
+  }
+  [dialogas=form-editor] .modal-dialog {
+    width: 1300px !important;
+  }
+}
+
 .form-container {
   display: block;
 }
@@ -96,3 +105,59 @@
     margin-left: 15px;
   }
 }
+
+.grouped-fields-row {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.grouped-fields-row .form-group {
+  width: 24%;
+  margin-right: 1%;
+}
+.grouped-fields-row.cols-1 .form-group {
+  width: 100%;
+  margin-right: 1%;
+  &.column-size-column {
+    width: 24%;
+  }
+}
+.grouped-fields-row.cols-2 .form-group {
+  width: 49%;
+  margin-right: 1%;
+}
+.grouped-fields-row.cols-3 .form-group {
+  width: 32.25%;
+  margin-right: 1%;
+}
+
+div[class^="grouped-fields-row cols-"] .form-group.column-size-big {
+  width: 39%;
+}
+div[class^="grouped-fields-row cols-"] .form-group.column-size-middle {
+  width: 29%;
+}
+div[class^="grouped-fields-row cols-"] .form-group.column-size-small {
+  width: 9%;
+}
+
+.section-headline {
+  background-color: #f5f5f5;
+  color: #333;
+  font-weight: bold;
+  font-size: 1.1em;
+  padding: 5px;
+  padding-left: 10px;
+  margin: 10px 0;
+  margin-right: 1%;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+
+.section-spacer {
+  border-top: 1px solid #ddd;
+  margin-top: 13px;
+  margin-bottom: 15px;
+  margin-right: 1%;
+}
+

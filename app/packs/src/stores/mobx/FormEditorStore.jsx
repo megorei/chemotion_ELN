@@ -30,14 +30,20 @@ export const FormEditorStore = types
       let values = fields ? fields : [{}];
       self.element_structure = values;
     },
-    changeFieldVisibility(field, visibility) {
+    changeFieldVisibility(selected_field, visibility) {
       let structure = cloneDeep(self.element_structure);
 
-      structure.elements[self.element_type].map((section, i) => {
-        section.rows.map((row, j) => {
-          row.fields.map((f, k) => {
-            if (f.key == field.key) {
-              f.visible = visibility;
+      structure.elements[self.element_type].map((section) => {
+        section.rows.map((row) => {
+          row.fields.map((field) => {
+            if (field.sub_fields) {
+              field.sub_fields.map((sub_field) => {
+                if (sub_field.key == selected_field.key) {
+                  sub_field.visible = visibility;
+                }
+              });
+            } else if (field.key == selected_field.key) {
+              field.visible = visibility;
             }
           });
         });

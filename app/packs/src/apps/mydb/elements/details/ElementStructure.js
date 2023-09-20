@@ -10,6 +10,7 @@ export default {
             fields: [
               {
                 column: 'xref',
+                column_size: 'column', // wie breit soll die Spalte dargestellt werden?
                 opt: 'cas',
                 key: 'xref-cas',
                 label: 'CAS',
@@ -32,6 +33,7 @@ export default {
             fields: [
               {
                 column: 'iupac_name', // db feld
+                column_size: 'big',
                 key: 'iupac_name',
                 label: 'Molecule',
                 type: 'moleculeSelect', // spezielles select
@@ -42,6 +44,7 @@ export default {
               },
               {
                 column: 'stereo',
+                column_size: 'column',
                 opt: 'abs', // zusätzliche db Feld Info für jsonb Felder
                 key: 'stereo-abs',
                 label: 'Stereo Abs',
@@ -54,6 +57,7 @@ export default {
               },
               {
                 column: 'stereo',
+                column_size: 'column',
                 opt: 'rel',
                 key: 'stereo-rel',
                 label: 'Stereo Rel',
@@ -67,6 +71,7 @@ export default {
               },
               {
                 column: 'decoupled',
+                column_size: 'small',
                 key: 'decoupled',
                 label: 'Decoupled',
                 type: 'checkbox',
@@ -86,6 +91,7 @@ export default {
             fields: [
               {
                 column: 'name',
+                column_size: 'column',
                 key: 'name',
                 label: 'Name',
                 type: 'text',
@@ -96,6 +102,7 @@ export default {
               },
               {
                 column: 'external_label',
+                column_size: 'column',
                 key: 'external-label',
                 label: 'External Label',
                 type: 'text',
@@ -106,6 +113,7 @@ export default {
               },
               {
                 column: 'xref',
+                column_size: 'column',
                 opt: 'inventory_label',
                 key: 'xref-inventory-label',
                 label: 'Inventory label',
@@ -122,6 +130,7 @@ export default {
             fields: [
               {
                 column: 'target_amount_value',
+                column_size: 'big',
                 key: 'target-amount-value',
                 label: 'Amount',
                 type: 'amount', // 3 Felder mit Berechnungen und Wechsel der Einheit (textWithAddOn)
@@ -141,6 +150,7 @@ export default {
                 sub_fields: [ // wird als verschachtelte tabs dargestellt
                   {
                     column: 'density',
+                    column_size: 'middle',
                     key: 'density',
                     label: 'Density',
                     type: 'textWithAddOn', // value wird angepasst aus 2 wird 2.0000
@@ -152,6 +162,7 @@ export default {
                   },
                   {
                     column: 'molarity_value',
+                    column_size: 'middle',
                     key: 'molarity-value',
                     label: 'Molarity',
                     type: 'textWithAddOn', // value wird angepasst aus 2 wird 2.0000
@@ -165,6 +176,7 @@ export default {
               },
               {
                 column: 'purity',
+                column_size: 'middle',
                 key: 'purity',
                 label: 'Purity / Concentration',
                 type: 'text', // value wird angepasst aus 2 wird 2.0000
@@ -187,6 +199,7 @@ export default {
             fields: [
               {
                 column: 'boiling_point',
+                column_size: 'column',
                 key: 'boiling-point',
                 label: 'Boiling point',
                 type: 'textWithAddOn',
@@ -198,6 +211,7 @@ export default {
               },
               {
                 column: 'melting_point',
+                column_size: 'column',
                 key: 'melting-point',
                 label: 'Melting point',
                 type: 'textWithAddOn',
@@ -209,6 +223,7 @@ export default {
               },
               {
                 column: 'xref',
+                column_size: 'column',
                 opt: 'flash_point',
                 key: 'xref-flash-point',
                 label: 'Flash Point',
@@ -226,6 +241,7 @@ export default {
             fields: [
               {
                 column: 'xref',
+                column_size: 'column',
                 opt: 'refractive_index',
                 key: 'xref-refractive-index',
                 label: 'Refractive Index',
@@ -237,6 +253,7 @@ export default {
               },
               {
                 column: 'xref',
+                column_size: 'column',
                 opt: 'form',
                 key: 'xref-form',
                 label: 'Form',
@@ -248,6 +265,7 @@ export default {
               },
               {
                 column: 'xref',
+                column_size: 'column',
                 opt: 'color',
                 key: 'xref-color',
                 label: 'Color',
@@ -259,6 +277,7 @@ export default {
               },
               {
                 column: 'xref',
+                column_size: 'column',
                 opt: 'solubility',
                 key: 'xref-solubility',
                 label: 'Solubility',
@@ -282,6 +301,7 @@ export default {
             fields: [
               {
                 column: 'solvent',
+                column_size: 'full',
                 key: 'solvent',
                 label: 'Solvent',
                 type: 'solventSelect', // spezial select mit molecule dropdown und ausgewählten Feldern darunter
@@ -335,6 +355,7 @@ export default {
             fields: [
               {
                 column: 'description',
+                column_size: 'full',
                 key: 'description',
                 label: 'Description',
                 type: 'textarea',
@@ -350,6 +371,7 @@ export default {
             fields: [
               {
                 column: 'location',
+                column_size: 'full',
                 key: 'location',
                 label: 'Location',
                 type: 'text',
@@ -365,6 +387,7 @@ export default {
             fields: [
               {
                 column: 'content',
+                column_size: 'full',
                 key: 'private-note-content',
                 label: 'Private Note',
                 type: 'privat-note', // eigenes component
