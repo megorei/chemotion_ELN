@@ -16,7 +16,7 @@ export default {
                 label: 'CAS',
                 type: 'cas', // spezial feld mit addon, select
                 visible: true,
-                default: '',
+                default: 'CAS number',
                 required: false,
                 description: '',
               },
@@ -30,6 +30,8 @@ export default {
         rows: [
           {
             cols: 4, // felder pro reihe
+            visible: true,
+            key: 'iupac_name_stereo_decoupled',
             fields: [
               {
                 column: 'iupac_name', // db feld
@@ -38,7 +40,7 @@ export default {
                 label: 'Molecule',
                 type: 'moleculeSelect', // spezielles select
                 visible: true, // für modal zur auswahl, was angezeigt werden soll
-                default: '', // default wert im feld
+                default: 'Molecule name', // default wert im feld
                 required: false, // validierung?
                 description: '', // mouseover über headline oder icon ...
               },
@@ -46,7 +48,7 @@ export default {
                 column: 'stereo',
                 column_size: 'column',
                 opt: 'abs', // zusätzliche db Feld Info für jsonb Felder
-                key: 'stereo-abs',
+                key: 'stereo_abs',
                 label: 'Stereo Abs',
                 type: 'select',
                 option_layers: "stereoAbsOptions", // Options für select / checkboxes etc.
@@ -59,7 +61,7 @@ export default {
                 column: 'stereo',
                 column_size: 'column',
                 opt: 'rel',
-                key: 'stereo-rel',
+                key: 'stereo_rel',
                 label: 'Stereo Rel',
                 type: 'select',
                 option_layers: "stereoRelOptions",
@@ -88,6 +90,8 @@ export default {
           },
           {
             cols: 3,
+            visible: true,
+            key: 'name_external_label_xref_inventory_label',
             fields: [
               {
                 column: 'name',
@@ -96,14 +100,14 @@ export default {
                 label: 'Name',
                 type: 'text',
                 visible: true,
-                default: '',
+                default: 'Name of sample',
                 required: false,
                 description: '',
               },
               {
                 column: 'external_label',
                 column_size: 'column',
-                key: 'external-label',
+                key: 'external_label',
                 label: 'External Label',
                 type: 'text',
                 visible: true,
@@ -115,7 +119,7 @@ export default {
                 column: 'xref',
                 column_size: 'column',
                 opt: 'inventory_label',
-                key: 'xref-inventory-label',
+                key: 'xref_inventory_label',
                 label: 'Inventory label',
                 type: 'text',
                 visible: true,
@@ -126,12 +130,44 @@ export default {
             ],
           },
           {
+            cols: 2,
+            visible: true,
+            key: 'molecular_mass_sum_formular',
+            fields: [
+              {
+                column: 'molecular_mass',
+                column_size: 'column',
+                key: 'molecular_mass',
+                label: 'Molecular mass',
+                type: 'textWithAddOn', // value wird angepasst aus 2 wird 2.0000 => numeric field
+                addon: 'g/mol',
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+              },
+              {
+                column: 'sum_formula',
+                column_size: 'column',
+                key: 'sum_formula',
+                label: 'Sum formula',
+                type: 'text',
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+              },
+            ],
+          },
+          {
             cols: 3,
+            visible: true,
+            key: 'target_amount_value_density_molarity_purity',
             fields: [
               {
                 column: 'target_amount_value',
-                column_size: 'big',
-                key: 'target-amount-value',
+                column_size: 'half',
+                key: 'target_amount_value',
                 label: 'Amount',
                 type: 'amount', // 3 Felder mit Berechnungen und Wechsel der Einheit (textWithAddOn)
                 // type: 'system-defined',
@@ -143,14 +179,14 @@ export default {
               },
               {
                 label: '',
-                key: 'density-molarity',
-                column: 'density-molarity',
+                key: 'density_molarity',
+                column: 'density_molarity',
                 type: 'tab',
                 visible: true,
                 sub_fields: [ // wird als verschachtelte tabs dargestellt
                   {
                     column: 'density',
-                    column_size: 'middle',
+                    column_size: 'quarter',
                     key: 'density',
                     label: 'Density',
                     type: 'textWithAddOn', // value wird angepasst aus 2 wird 2.0000
@@ -162,8 +198,8 @@ export default {
                   },
                   {
                     column: 'molarity_value',
-                    column_size: 'middle',
-                    key: 'molarity-value',
+                    column_size: 'quarter',
+                    key: 'molarity_value',
                     label: 'Molarity',
                     type: 'textWithAddOn', // value wird angepasst aus 2 wird 2.0000
                     addon: 'M',
@@ -176,7 +212,7 @@ export default {
               },
               {
                 column: 'purity',
-                column_size: 'middle',
+                column_size: 'quarter',
                 key: 'purity',
                 label: 'Purity / Concentration',
                 type: 'text', // value wird angepasst aus 2 wird 2.0000
@@ -196,11 +232,13 @@ export default {
         rows: [
           {
             cols: 3,
+            visible: true,
+            key: 'boiling_point_melting_point_xref_flash_point',
             fields: [
               {
                 column: 'boiling_point',
                 column_size: 'column',
-                key: 'boiling-point',
+                key: 'boiling_point',
                 label: 'Boiling point',
                 type: 'textWithAddOn',
                 addon: '°C',
@@ -212,7 +250,7 @@ export default {
               {
                 column: 'melting_point',
                 column_size: 'column',
-                key: 'melting-point',
+                key: 'melting_point',
                 label: 'Melting point',
                 type: 'textWithAddOn',
                 addon: '°C',
@@ -225,10 +263,11 @@ export default {
                 column: 'xref',
                 column_size: 'column',
                 opt: 'flash_point',
-                key: 'xref-flash-point',
+                key: 'xref_flash_point',
                 label: 'Flash Point',
                 type: 'system-defined', // hat noch berechnungen
                 option_layers: 'temperature',
+                addon: '°C',
                 visible: true,
                 default: '',
                 required: false,
@@ -238,12 +277,14 @@ export default {
           },
           {
             cols: 4,
+            visible: true,
+            key: 'xref_refractive_index_xref_form_xref_color_xref_solubility',
             fields: [
               {
                 column: 'xref',
                 column_size: 'column',
                 opt: 'refractive_index',
-                key: 'xref-refractive-index',
+                key: 'xref_refractive_index',
                 label: 'Refractive Index',
                 type: 'text',
                 visible: true,
@@ -255,7 +296,7 @@ export default {
                 column: 'xref',
                 column_size: 'column',
                 opt: 'form',
-                key: 'xref-form',
+                key: 'xref_form',
                 label: 'Form',
                 type: 'text',
                 visible: true,
@@ -267,7 +308,7 @@ export default {
                 column: 'xref',
                 column_size: 'column',
                 opt: 'color',
-                key: 'xref-color',
+                key: 'xref_color',
                 label: 'Color',
                 type: 'text',
                 visible: true,
@@ -279,7 +320,7 @@ export default {
                 column: 'xref',
                 column_size: 'column',
                 opt: 'solubility',
-                key: 'xref-solubility',
+                key: 'xref_solubility',
                 label: 'Solubility',
                 type: 'text',
                 visible: true,
@@ -306,7 +347,7 @@ export default {
                 label: 'Solvent',
                 type: 'solventSelect', // spezial select mit molecule dropdown und ausgewählten Feldern darunter
                 visible: true,
-                default: '',
+                default: 'Select solvents or drag-n-drop molecules from the sample list',
                 required: false,
                 description: '',
               },
@@ -314,11 +355,13 @@ export default {
           },
           // {
           //   cols: 3,
+          //   visible: true,
+          //   key: 'solvent_label_solvent_ration_trash',
           //   fields: [
           //     {
           //       column: 'solvent',
           //       opt: 'label',
-          //       key: 'solvent-label',
+          //       key: 'solvent_label',
           //       label: 'Label',
           //       type: 'text', // disabled
           //       visible: true,
@@ -329,7 +372,7 @@ export default {
           //     {
           //       column: 'solvent',
           //       opt: 'ratio',
-          //       key: 'solvent-ratio',
+          //       key: 'solvent_ratio',
           //       label: 'Ratio',
           //       type: 'text', // nur zahlen
           //       visible: true,
@@ -359,6 +402,7 @@ export default {
                 key: 'description',
                 label: 'Description',
                 type: 'textarea',
+                rows: 3,
                 visible: true,
                 default: '',
                 required: false,
@@ -390,7 +434,8 @@ export default {
                 column_size: 'full',
                 key: 'private-note-content',
                 label: 'Private Note',
-                type: 'privat-note', // eigenes component
+                type: 'privat_note', // eigenes component
+                rows: 3,
                 visible: true,
                 default: '',
                 required: false,

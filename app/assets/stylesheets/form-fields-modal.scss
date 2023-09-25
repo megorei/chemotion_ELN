@@ -8,13 +8,13 @@
 [dialogas=form-editor].modal {
   width: fit-content;
   height: fit-content;
-  max-height: 87vh;
+  max-height: 94vh;
   top: calc(calc(100% - 92vh));
-  left: calc(calc(100% - 80vw) / 2);
+  left: calc(calc(100% - 85vw) / 2);
 }
 
 [dialogas=form-editor] .modal-dialog {
-  width: 80vw !important;
+  width: 85vw !important;
   position: relative !important;
   top: 0;
   left: 0;
@@ -88,7 +88,7 @@
 
 .form-fields {
   padding: 20px 15px;
-  height: 51.5vh;
+  height: 71.5vh;
   position: relative;
 }
 
@@ -99,7 +99,7 @@
 .scrollable-content {
   clear: both;
   overflow-y: auto;
-  height: calc(49vh - 85px);
+  height: calc(69vh - 85px);
   margin-bottom: 39px;
   .alert {
     margin-left: 15px;
@@ -109,7 +109,10 @@
 .grouped-fields-row {
   display: flex;
   flex-wrap: wrap;
-  width: 100%;
+  width: 99%;
+  margin-bottom: 10px;
+  margin-right: 1%;
+  padding-left: 13px;
 }
 .grouped-fields-row .form-group {
   width: 24%;
@@ -118,6 +121,7 @@
 .grouped-fields-row.cols-1 .form-group {
   width: 100%;
   margin-right: 1%;
+  margin-top: 7px;
   &.column-size-column {
     width: 24%;
   }
@@ -130,34 +134,171 @@
   width: 32.25%;
   margin-right: 1%;
 }
+.grouped-fields-row.amount {
+  margin: 0;
+  padding-left: 0;
+  width: 100%;
+}
+.grouped-fields-row.amount Button {
+  width: 34px;
+  height: 34px;
+  margin-right: 5px;
+}
+.grouped-fields-row.amount .form-group {
+  width: calc((100% / 3) - 3%);
+  margin-right: 1%;
+  &:last-child {
+    margin-right: 0;
+  }
+}
 
-div[class^="grouped-fields-row cols-"] .form-group.column-size-big {
-  width: 39%;
-}
-div[class^="grouped-fields-row cols-"] .form-group.column-size-middle {
-  width: 29%;
-}
-div[class^="grouped-fields-row cols-"] .form-group.column-size-small {
-  width: 9%;
+div[class^="grouped-fields-row cols-"] {
+  .form-group.column-size-big {
+    width: 39%;
+  }
+  .form-group.column-size-half {
+    width: 49%;
+  }
+  .form-group.column-size-middle {
+    width: 29%;
+  }
+  .form-group.column-size-quarter, .tab.column-size-quarter {
+    width: 24%;
+  }
+  .form-group.column-size-small {
+    width: 9%;
+  }
+  .tab {
+    margin-right: 1%;
+    margin-bottom: 5px;
+  }
+  .tab.column-size-quarter .form-group.column-size-quarter {
+    width: 100%;
+  }
+  .tab-content.form-group {
+    width: 100%;
+    margin-right: 0;
+  }
+  .nav-tabs {
+    border-bottom: none;
+  }
+  .nav > li > a {
+    padding: 0 15px;
+    margin-bottom: 5px;
+    color: #999;
+    font-weight: bold;
+    border: none;
+    border-left: 1px solid #ddd;
+  }
+  .nav > li > a:hover, .nav > li > a:focus {
+    border: none;
+    border-left: 1px solid #ddd;
+    background: none;
+  }
+  .nav > li:first-child > a {
+    border-left: none;
+    padding-left: 21px;
+  }
+  .nav > li.active > a {
+    color: #333;
+  }
+  .Select.is-disabled > .Select-control, .form-control[disabled], fieldset[disabled] .form-control {
+    background-color: #fff;
+    color: #aaa;
+  }
+  .Select.has-value.Select--single > .Select-control .Select-value .Select-value-label,
+  .Select.has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {
+    color: #aaa;
+  }
+  .grouped-addons, .form-control {
+    width: calc(100% - 20px);
+    display: inline-block;
+    vertical-align: top;
+  }
+  .grouped-addons input {
+    width: 100%;
+  }
+  .checkbox-visibility {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    display: inline-block;
+    width: 20px;
+  }
+  .checkbox-visibility label {
+    font-weight: bold;
+  }
+  .checkbox-visibility.full-row {
+    flex-basis: calc(100% + 13px);
+    margin-bottom: 10px;
+    margin-top: 0;
+    margin-left: -13px;
+    padding: 7px 0 6px 13px;
+    background: #eee linear-gradient(180deg, rgba(221,221,221,1) 0%, rgba(238,238,238,1) 6%, rgba(255,255,255,1) 100%);
+
+    label {
+      font-weight: normal;
+      text-transform: uppercase;
+    }
+  }
+  .checkbox.disabled {
+    margin-top: 5px;
+    margin-bottom: 0;
+  }
+  input[type="checkbox"] {
+    accent-color: #327ab7;
+  }
+  .control-label {
+    width: 100%;
+    margin-left: 21px;
+    &.amount-label {
+      margin-left: 60px;
+    }
+  }
 }
 
 .section-headline {
-  background-color: #f5f5f5;
+  background-color: #ddd;
   color: #333;
   font-weight: bold;
   font-size: 1.1em;
   padding: 5px;
   padding-left: 10px;
-  margin: 10px 0;
+  margin: 8px 0 13px 0;
   margin-right: 1%;
-  border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
+  border-top: 1px solid rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
 }
 
 .section-spacer {
   border-top: 1px solid #ddd;
-  margin-top: 13px;
+  margin-top: 10px;
   margin-bottom: 15px;
   margin-right: 1%;
 }
 
+.section.toggle {
+  padding: 0 10px 0 13px;
+}
+.section.toggle + .section:not(.toggle) {
+  padding-top: 12px;
+  margin-top: 13px;
+  border-top: 1px solid rgba(0, 0, 0, 0.3);
+}
+.section.toggle .section-headline {
+  width: calc(100% + 13px);
+  margin-left: -13px;
+}
+.section.toggle .grouped-fields-row {
+    width: calc(100% - 10px);
+}
+
+.input-group-addon.addon-white {
+  background-color: #fff;
+}
+.input-group-addon.addon-green {
+  background-color: #449d44;
+  color: #fff;
+}
+.glyphicon.glyphicon-info-sign.with-padding {
+  padding-left: 5px;
+}

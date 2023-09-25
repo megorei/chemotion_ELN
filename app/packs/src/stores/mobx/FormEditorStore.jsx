@@ -35,6 +35,9 @@ export const FormEditorStore = types
 
       structure.elements[self.element_type].map((section) => {
         section.rows.map((row) => {
+          if (row.key == selected_field.key) {
+            row.visible = visibility;
+          }
           row.fields.map((field) => {
             if (field.sub_fields) {
               field.sub_fields.map((sub_field) => {
