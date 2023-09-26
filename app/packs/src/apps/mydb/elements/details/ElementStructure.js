@@ -448,6 +448,45 @@ export default {
           },
         ],
       },
+      //{
+      //  label: 'Elemental composition',
+      //  key: 'elemental_composion',
+      //  toggle: true
+      //  rows: [
+      //    {
+      //      cols: 1,
+      //      fields: [
+      //        {
+      //          column: 'formula',
+      //          column_size: 'full',
+      //          key: 'formula_data',
+      //          label: 'By molecule formula',
+      //          type: 'non_editable_text',
+      //          visible: true,
+      //          default: '',
+      //          required: false,
+      //          description: '',
+      //        },
+      //      ],
+      //    },
+      //    {
+      //      cols: 1,
+      //      fields: [
+      //        {
+      //          column: 'found',
+      //          column_size: 'full',
+      //          key: 'found_data',
+      //          label: 'Experimental',
+      //          type: 'elementalComposionFields',
+      //          visible: true,
+      //          default: '',
+      //          required: false,
+      //          description: '',
+      //        },
+      //      ],
+      //    },
+      //  ],
+      //},
     ],
   }
 }

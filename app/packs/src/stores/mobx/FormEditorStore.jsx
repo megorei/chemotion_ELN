@@ -35,17 +35,19 @@ export const FormEditorStore = types
 
       structure.elements[self.element_type].map((section) => {
         section.rows.map((row) => {
+          let row_changed = false;
           if (row.key == selected_field.key) {
             row.visible = visibility;
+            row_changed = true;
           }
           row.fields.map((field) => {
             if (field.sub_fields) {
               field.sub_fields.map((sub_field) => {
-                if (sub_field.key == selected_field.key) {
+                if (sub_field.key == selected_field.key || row_changed) {
                   sub_field.visible = visibility;
                 }
               });
-            } else if (field.key == selected_field.key) {
+            } else if (field.key == selected_field.key || row_changed) {
               field.visible = visibility;
             }
           });
