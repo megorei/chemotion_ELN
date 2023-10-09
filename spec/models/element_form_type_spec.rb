@@ -1,4 +1,6 @@
-require 'rails_helper'
+# frozen_string_literal: true
 
-RSpec.describe ElementFormType, type: :model do
-end
+# require 'rails_helper'
+
+# RSpec.describe ElementFormType, type: :model do
+# end
