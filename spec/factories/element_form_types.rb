@@ -5,7 +5,7 @@ FactoryBot.define do
     name { 'Organic chemistry' }
     description { 'default' }
     enabled { true }
-    creator { create(:user) }
+    creator { association(:user) }
 
     trait :sample_type do
       element_type { 'sample' }
