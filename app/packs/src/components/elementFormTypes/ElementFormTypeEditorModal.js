@@ -7,22 +7,20 @@ import Select from 'react-select';
 import Draggable from "react-draggable";
 import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
-//import UserStore from 'src/stores/alt/stores/UserStore';
 
-const FormEditorModal = () => {
-  const formEditorStore = useContext(StoreContext).formEditor;
-  let minimizedClass = formEditorStore.modalMinimized ? ' minimized' : '';
-  let elementType = formEditorStore.elementType;
-  let elementStructure = formEditorStore.elementStructure.elements[elementType];
-  //const { unitsSystem } = UserStore.getState();
-  //console.log(unitsSystem);
+
+const ElementFormTypeEditorModal = () => {
+  const elementFormTypesStore = useContext(StoreContext).elementFormTypes;
+  let minimizedClass = elementFormTypesStore.modalMinimized ? ' minimized' : '';
+  let elementType = elementFormTypesStore.elementFormType.element_type;
+  let elementStructure = elementFormTypesStore.elementStructure.columns;
 
   const saveFormFields = () => {
-
+    elementFormTypesStore.saveStructure();
   }
 
   const changeCheckboxField = (field) => (e) => {
-    formEditorStore.changeFieldVisibility(field, e.target.checked);
+    elementFormTypesStore.changeFieldVisibility(field, e.target.checked);
   }
 
   const casInput = (field, type, i) => {
@@ -342,14 +340,11 @@ const FormEditorModal = () => {
     let fields = [];
 
     elementStructure.map((section, i) => {
-      //if (section.label == '' && i !== 0) {
-      //  fields.push(<hr className='section-spacer' key={`spacer-${i}`} />);
-      //} else {
-      //  fields.push(sectionHeadline(section));
-      //}
-      //fields.push(sectionHeadline(section));
       let sectionFields = [];
       let toggleClass = section.toggle == true ? ' toggle' : '';
+      if (section.label == '' && i !== 0) {
+        sectionFields.push(<hr className='section-spacer' key={`spacer-${i}`} />);
+      }
       sectionFields.push(sectionHeadline(section));
 
       section.rows.map((row, j) => {
@@ -363,9 +358,6 @@ const FormEditorModal = () => {
           let subFields = [];
           if (field.sub_fields && field.type == 'tab') {
             subFields.push(tabsWithInput(field.sub_fields, k));
-            //field.sub_fields.map((sub_field) => {
-            //  fieldsByType(sub_field, subFields, k);
-            //});
           } else {
             fieldsByType(field, subFields, k);
           }
@@ -382,8 +374,8 @@ const FormEditorModal = () => {
   return (
     <Draggable handle=".handle">
       <Modal
-        show={formEditorStore.formEditorModalVisible}
-        onHide={() => formEditorStore.handleCancel()}
+        show={elementFormTypesStore.editorModalVisible}
+        onHide={() => elementFormTypesStore.handleCancel()}
         backdrop={false}
         dialogas="form-editor"
       >
@@ -397,7 +389,7 @@ const FormEditorModal = () => {
           <div className="col-md-1 col-sm-1">
             <i
               className="fa fa-window-minimize window-minimize"
-              onClick={() => formEditorStore.toggleModalMinimized()} />
+              onClick={() => elementFormTypesStore.toggleModalMinimized()} />
           </div>
         </Modal.Header>
         <Modal.Body>
@@ -407,7 +399,7 @@ const FormEditorModal = () => {
                 {MapElementStructure()}
               </div>
               <ButtonToolbar className="form-editor-buttons">
-                <Button bsStyle="warning" onClick={() => formEditorStore.handleCancel()}>
+                <Button bsStyle="warning" onClick={() => elementFormTypesStore.handleCancel()}>
                   Cancel
                 </Button>
                 <Button bsStyle="primary" onClick={saveFormFields} >
@@ -422,4 +414,4 @@ const FormEditorModal = () => {
   );
 };
 
-export default observer(FormEditorModal);
+export default observer(ElementFormTypeEditorModal);

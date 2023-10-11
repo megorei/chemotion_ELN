@@ -5,14 +5,16 @@ import {
 } from 'react-bootstrap';
 import Select from 'react-select';
 import JSONInput from 'react-json-editor-ajrm';
+import ElementFormTypeEditorModal from 'src/components/elementFormTypes/ElementFormTypeEditorModal';
 import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 
 const ElementFormType = () => {
-  const formEditorStore = useContext(StoreContext).formEditor;
+  const elementFormTypesStore = useContext(StoreContext).elementFormTypes;
   let tbody = null;
   const editTooltip = <Tooltip id="edit_tooltip">Edit Element form type</Tooltip>;
   const jsonTooltip = <Tooltip id="json_tooltip">Edit JSON</Tooltip>;
+  const formTooltip = <Tooltip id="form_tooltip">Edit form fields</Tooltip>
 
   const deletePopover = (id, name) => {
     return (
@@ -32,12 +34,73 @@ const ElementFormType = () => {
   }
 
   useEffect(() => {
-    formEditorStore.load();
+    elementFormTypesStore.load();
   }, []);
 
-  const openModal = (content, id) => {
-    formEditorStore.showAdminModal();
-    formEditorStore.changeAdminModalContent(content, id);
+  const openModal = (content, id, type) => {
+    if (content == 'form') {
+      elementFormTypesStore.showEditorModal(type, id);
+    } else {
+      elementFormTypesStore.showAdminModal();
+      elementFormTypesStore.changeAdminModalContent(content, id);
+    }
+  }
+
+  const saveElementFormType = () => {
+    elementFormTypesStore.changeErrorMessage('Please type in a name and select an Element');
+
+    if (elementFormTypesStore.elementFormType.name !== '' && elementFormTypesStore.elementFormType.element_type !== '') {
+      if (elementFormTypesStore.adminModalContent == 'add-object') {
+        elementFormTypesStore.createElementFormType(elementFormTypesStore.elementFormType);
+      } else {
+        elementFormTypesStore.updateElementFormType(elementFormTypesStore.elementFormType);
+      }
+
+      elementFormTypesStore.handleAdminCancel();
+      elementFormTypesStore.changeErrorMessage('');
+    }
+  }
+
+  const deleteElementFormType = (id) => {
+    elementFormTypesStore.deleteElementFormType(id);
+  }
+
+  const showErrorMessage = () => {
+    if (elementFormTypesStore.errorMessage) {
+      return <Alert bsStyle="danger" className='element-form-type-alert'>{elementFormTypesStore.errorMessage}</Alert>;
+    }
+  }
+
+  const showSuccessMessage = () => {
+    if (elementFormTypesStore.showSuccessMessage) {
+      return <Alert bsStyle="success" className='element-form-type-success'>Sucessfully saved</Alert>;
+    }
+  }
+
+  const modalTitleByContent = () => {
+    switch (elementFormTypesStore.adminModalContent) {
+      case 'edit-object':
+        return 'Edit Element Form Type';
+        break;
+      case 'add-object':
+        return 'Add new Element Form Type';
+        break;
+      case 'json':
+        return 'Edit json';
+        break;
+    }
+  }
+
+  const contentForm = () => {
+    switch (elementFormTypesStore.adminModalContent) {
+      case 'edit-object':
+      case 'add-object':
+        return ElementFormTypeForm();
+        break;
+      case 'json':
+        return StructureJsonForm();
+        break;
+    }
   }
 
   const fieldValue = (field, e) => {
@@ -52,71 +115,17 @@ const ElementFormType = () => {
       case 'enabled':
         return e.target.checked;
         break;
+      case 'structure':
+        return e.jsObject;
+        break;
     }
   }
 
   const onChange = (field) => (e) => {
     let value = fieldValue(field, e);
-    let elementFormType = { ...formEditorStore.elementFormType }
+    let elementFormType = { ...elementFormTypesStore.elementFormType }
     elementFormType[field] = value;
-    formEditorStore.addElementFormTypeValues(elementFormType);
-  }
-
-  const saveElementFormType = () => {
-    formEditorStore.changeErrorMessage('Please type in a name and select an Element');
-
-    if (formEditorStore.elementFormType.name !== '' && formEditorStore.elementFormType.element_type !== '') {
-      if (formEditorStore.adminModalContent == 'edit-object') {
-        formEditorStore.updateElementFormType(formEditorStore.elementFormType);
-      } else {
-        formEditorStore.createElementFormType(formEditorStore.elementFormType);
-      }
-
-      formEditorStore.handleAdminCancel();
-      formEditorStore.changeErrorMessage('')
-    }
-  }
-
-  const deleteElementFormType = (id) => {
-    formEditorStore.deleteElementFormType(id);
-  }
-
-  const showErrorMessage = () => {
-    if (formEditorStore.errorMessage) {
-      return <Alert bsStyle="danger" className='element-form-type-alert'>{formEditorStore.errorMessage}</Alert>;
-    }
-  }
-
-  const modalTitleByContent = () => {
-    switch (formEditorStore.adminModalContent) {
-      case 'edit-object':
-        return 'Edit Element Form Type';
-        break;
-      case 'add-object':
-        return 'Add new Element Form Type';
-        break;
-      case 'json':
-        return 'Edit json';
-        break;
-      case 'form':
-        return 'Edit form';
-        break;
-    }
-  }
-
-  const contentForm = () => {
-    switch (formEditorStore.adminModalContent) {
-      case 'edit-object':
-      case 'add-object':
-        return ElementFormTypeForm();
-        break;
-      case 'json':
-        return StructureJsonForm();
-        break;
-      case 'form':
-        return 'Edit form';
-        break;
-    }
+    elementFormTypesStore.addElementFormTypeValues(elementFormType);
   }
 
   const ElementFormTypeForm = () => {
@@ -129,13 +138,13 @@ const ElementFormType = () => {
         <FormGroup controlId="formControlName">
           <InputGroup className='element-form-type-group'>
             <InputGroup.Addon className='element-form-type-label'>Name *</InputGroup.Addon>
-            <FormControl type="text" name="name" value={formEditorStore.elementFormType.name} onChange={onChange('name')} />
+            <FormControl type="text" name="name" value={elementFormTypesStore.elementFormType.name} onChange={onChange('name')} />
           </InputGroup>
         </FormGroup>
         <FormGroup controlId="formControlDescription">
           <InputGroup className='element-form-type-group'>
             <InputGroup.Addon className='element-form-type-label'>Description</InputGroup.Addon>
-            <FormControl type="text" name="description" value={formEditorStore.elementFormType.description} onChange={onChange('description')} />
+            <FormControl type="text" name="description" value={elementFormTypesStore.elementFormType.description} onChange={onChange('description')} />
           </InputGroup>
         </FormGroup>
         <FormGroup controlId="formControlElementType">
@@ -145,20 +154,20 @@ const ElementFormType = () => {
               name="element_type"
               options={elementOptions}
               placeholder="Select Element"
-              value={formEditorStore.elementFormType.element_type}
+              value={elementFormTypesStore.elementFormType.element_type}
               isClearable={true}
               onChange={onChange('element_type')}
             />
           </InputGroup>
         </FormGroup>
         <FormGroup controlId="formControlEnabled">
-          <Checkbox inline type="checkbox" name="enabled" checked={formEditorStore.elementFormType.enabled} onChange={onChange('enabled')}>Enable globally</Checkbox>
+          <Checkbox inline type="checkbox" name="enabled" checked={elementFormTypesStore.elementFormType.enabled} onChange={onChange('enabled')}>Enable globally</Checkbox>
         </FormGroup>
         <FormGroup>
           <span>* Required</span>
         </FormGroup>
         <FormGroup>
-          <Button bsStyle="warning" onClick={formEditorStore.handleAdminCancel} >
+          <Button bsStyle="warning" onClick={elementFormTypesStore.handleAdminCancel} >
             Cancel&nbsp;
           </Button>
           &nbsp;
@@ -175,24 +184,24 @@ const ElementFormType = () => {
     return (
       <Form horizontal className="input-form">
         <FormGroup controlId="formControlName">
-          <InputGroup className='element-form-type-group'>
-            <InputGroup.Addon className='element-form-type-label'>Name</InputGroup.Addon>
-            <FormControl type="text" name="name" defaultValue={formEditorStore.elementFormType.name} readOnly />
-          </InputGroup>
+          <b>
+            Name:&nbsp;
+            {elementFormTypesStore.elementFormType.name}
+          </b>
         </FormGroup>
         <FormGroup controlId="formControlJson">
           <JSONInput
-            placeholder={formEditorStore.elementFormType.structure}
+            placeholder={elementFormTypesStore.elementFormType.structure}
             width="100%"
             onChange={onChange('structure')}
           />
         </FormGroup>
         <FormGroup>
-          <Button bsStyle="warning" onClick={formEditorStore.handleAdminCancel} >
+          <Button bsStyle="warning" onClick={elementFormTypesStore.handleAdminCancel} >
             Cancel&nbsp;
           </Button>
           &nbsp;
-          <Button bsStyle="primary" onClick={saveElementFormType()} >
+          <Button bsStyle="primary" onClick={() => saveElementFormType()} >
             Save&nbsp;
             <i className="fa fa-save" />
           </Button>
@@ -203,7 +212,7 @@ const ElementFormType = () => {
 
   const renderModal = () => {
     return (
-      <Modal show={formEditorStore.adminModalVisible} onHide={formEditorStore.handleAdminCancel}>
+      <Modal show={elementFormTypesStore.adminModalVisible} onHide={elementFormTypesStore.handleAdminCancel}>
         <Modal.Header closeButton><Modal.Title>{modalTitleByContent()}</Modal.Title></Modal.Header>
         <Modal.Body style={{ overflow: 'auto' }}>
           <div className="col-md-12">
@@ -216,8 +225,8 @@ const ElementFormType = () => {
   }
 
   const renderList = () => {
-    if (formEditorStore.elementFormTypes.length >= 1) {
-      tbody = Object.values(formEditorStore.elementFormTypes).map((row, i) => {
+    if (elementFormTypesStore.elementFormTypes.length >= 1) {
+      tbody = Object.values(elementFormTypesStore.elementFormTypes).map((row, i) => {
         return (
           <tbody key={`tbody_${row.id}`}>
             <tr key={`row_${row.id}`} id={`row_${row.id}`} style={{ fontWeight: 'bold' }}>
@@ -227,19 +236,28 @@ const ElementFormType = () => {
                   <Button
                     bsSize="xsmall"
                     bsStyle="info"
-                    onClick={() => openModal('edit-object', row.id)}
+                    onClick={() => openModal('edit-object', row.id, row.element_type)}
                   >
                     <i className="fa fa-pencil-square-o" />
+                  </Button>
+                </OverlayTrigger>
+                &nbsp;
+                <OverlayTrigger placement="bottom" overlay={formTooltip} >
+                  <Button
+                    bsSize="xsmall"
+                    bsStyle="primary"
+                    onClick={() => openModal('form', row.id, row.element_type)}
+                  >
+                    <i className="fa fa-cog" />
                   </Button>
                 </OverlayTrigger>
                 &nbsp;
                 <OverlayTrigger placement="bottom" overlay={jsonTooltip} >
                   <Button
                     bsSize="xsmall"
-                    bsStyle="warning"
-                    onClick={() => openModal('json', row.id)}
+                    onClick={() => openModal('json', row.id, row.element_type)}
                   >
-                    <i className="fa fa-cog" />
+                    <i className="fa fa-code" />
                   </Button>
                 </OverlayTrigger>
                 &nbsp;
@@ -272,20 +290,22 @@ const ElementFormType = () => {
         New Element Form Type&nbsp;
         <i className="fa fa-plus" />
       </Button>
+      {showSuccessMessage()}
       <Table responsive condensed hover>
         <thead>
           <tr style={{ backgroundColor: '#ddd' }}>
             <th width="5%">#</th>
-            <th width="10%">Actions</th>
+            <th width="15%">Actions</th>
             <th width="5%">ID</th>
             <th width="30%">Name</th>
-            <th width="40%">Description</th>
+            <th width="35%">Description</th>
             <th width="10%">Enabled</th>
           </tr>
         </thead>
         {renderList()}
       </Table>
       {renderModal()}
+      <ElementFormTypeEditorModal />
     </>
   );
 };

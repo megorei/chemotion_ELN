@@ -15,7 +15,7 @@ import { solventOptions } from 'src/components/staticDropdownOptions/options';
 import SampleDetailsSolvents from 'src/apps/mydb/elements/details/samples/propertiesTab/SampleDetailsSolvents';
 import PrivateNoteElement from 'src/apps/mydb/elements/details/PrivateNoteElement';
 import NotificationActions from 'src/stores/alt/actions/NotificationActions';
-import FormEditorModal from 'src/components/formEditorModal/FormEditorModal';
+import ElementFormTypeEditorModal from 'src/components/elementFormTypes/ElementFormTypeEditorModal';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 
 export default class SampleForm extends React.Component {
@@ -704,11 +704,11 @@ export default class SampleForm extends React.Component {
                     <Button bsSize="xsmall" bsStyle="primary"
                       title="Edit form fields"
                       className="edit-form-fields"
-                      onClick={() => this.context.formEditor.showFormEditorModal('sample')}
+                      onClick={() => this.context.elementFormTypes.showEditorModal('sample')}
                     >
                       <i className="fa fa-cog"></i>
                     </Button>
-                    <FormEditorModal />
+                    <ElementFormTypeEditorModal />
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <div style={{ width: '100%', display: 'flex' }}>
                         {this.moleculeInput()}

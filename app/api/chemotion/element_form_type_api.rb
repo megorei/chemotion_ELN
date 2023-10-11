@@ -5,7 +5,7 @@ module Chemotion
     resource :element_form_types do
       desc 'Index: List all element form types'
       get do
-        present ElementFormType.all, with: Entities::ElementFormTypeEntity
+        present ElementFormType.order(:name), with: Entities::ElementFormTypeEntity
       end
 
       desc 'create a new element form type'

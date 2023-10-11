@@ -1,6 +1,6 @@
 export default {
-  elements: {
-    sample: [
+  sample: {
+    columns: [
       {
         label: '',
         key: 'header', // wird im oberen Berech des samples dargestellt
@@ -25,7 +25,7 @@ export default {
         ],
       },
       {
-        label: '', // headline oder leer
+        label: 'Basic properties', // headline oder leer
         key: 'basic',
         rows: [
           {
@@ -35,7 +35,7 @@ export default {
             fields: [
               {
                 column: 'iupac_name', // db feld
-                column_size: 'big',
+                column_size: 'column',
                 key: 'iupac_name',
                 label: 'Molecule',
                 type: 'moleculeSelect', // spezielles select
@@ -73,7 +73,7 @@ export default {
               },
               {
                 column: 'decoupled',
-                column_size: 'small',
+                column_size: 'column',
                 key: 'decoupled',
                 label: 'Decoupled',
                 type: 'checkbox',
@@ -89,7 +89,7 @@ export default {
             ],
           },
           {
-            cols: 3,
+            cols: 4,
             visible: true,
             key: 'name_external_label_xref_inventory_label',
             fields: [
@@ -126,6 +126,20 @@ export default {
                 default: '',
                 required: false,
                 description: '',
+              },
+              {
+                column: 'dry_solvent',
+                column_size: 'column',
+                key: 'dry_solvent',
+                label: 'Dry Solvent',
+                type: 'checkbox',
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+                conditions: { // darf nur unter bestimmten Bedingungen angezeigt werden
+                  can_update: true,
+                },
               },
             ],
           },
@@ -226,9 +240,9 @@ export default {
         ],
       },
       {
-        label: 'Properties',
+        label: 'Additional properties',
         key: 'properties',
-        toggle: true, // Felder können auf und zu geklappt werden
+        toggle: false, // Felder können auf und zu geklappt werden
         rows: [
           {
             cols: 3,
@@ -335,7 +349,7 @@ export default {
       {
         label: 'Solvents',
         key: 'solvents',
-        toggle: true,
+        toggle: false,
         rows: [
           {
             cols: 1,

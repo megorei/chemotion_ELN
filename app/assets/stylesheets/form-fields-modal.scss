@@ -109,7 +109,7 @@
 .grouped-fields-row {
   display: flex;
   flex-wrap: wrap;
-  width: 99%;
+  width: 98%;
   margin-bottom: 10px;
   margin-right: 1%;
   padding-left: 13px;
@@ -145,7 +145,7 @@
   margin-right: 5px;
 }
 .grouped-fields-row.amount .form-group {
-  width: calc((100% / 3) - 3%);
+  width: calc((100% / 3) - 4%);
   margin-right: 1%;
   &:last-child {
     margin-right: 0;
@@ -222,7 +222,6 @@ div[class^="grouped-fields-row cols-"] {
     margin-top: 4px;
     margin-bottom: 4px;
     display: inline-block;
-    width: 20px;
   }
   .checkbox-visibility label {
     font-weight: bold;
