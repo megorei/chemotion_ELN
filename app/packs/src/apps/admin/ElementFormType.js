@@ -272,9 +272,9 @@ const ElementFormType = () => {
                   </Button>
                 </OverlayTrigger>
               </td>
-              <td>{row.id}</td>
               <td>{row.name}</td>
               <td>{row.description}</td>
+              <td>{row.element_type}</td>
               <td>{row.enabled === true ? 'true' : 'false'}</td>
             </tr>
           </tbody>
@@ -296,9 +296,9 @@ const ElementFormType = () => {
           <tr style={{ backgroundColor: '#ddd' }}>
             <th width="5%">#</th>
             <th width="15%">Actions</th>
-            <th width="5%">ID</th>
-            <th width="30%">Name</th>
-            <th width="35%">Description</th>
+            <th width="20%">Name</th>
+            <th width="30%">Description</th>
+            <th width="20%">Element type</th>
             <th width="10%">Enabled</th>
           </tr>
         </thead>
