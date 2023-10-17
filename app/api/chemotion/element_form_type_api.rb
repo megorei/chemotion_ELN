@@ -4,8 +4,17 @@ module Chemotion
   class ElementFormTypeAPI < Grape::API
     resource :element_form_types do
       desc 'Index: List all element form types'
+      params do
+        optional :element_type, type: String, values: %w[sample reaction wellplate screen]
+      end
       get do
-        present ElementFormType.order(:name), with: Entities::ElementFormTypeEntity
+        element_form_types =
+          if params[:element_type]
+            ElementFormType.enabled_for(current_user).by_element_type(params[:element_type]).order(:name)
+          else
+            ElementFormType.order(:name)
+          end
+        present element_form_types, with: Entities::ElementFormTypeEntity
       end
 
       desc 'create a new element form type'

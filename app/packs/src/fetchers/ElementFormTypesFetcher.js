@@ -9,11 +9,21 @@ export default class ElementFormTypesFetcher {
       .then(json => json.element_form_types)
       .catch(errorMessage => console.log(errorMessage));
   }
-  static fetchById(id) {
+
+  static fetchById(elementFormTypeId) {
     return fetch(
-      `/api/v1/element_form_types/${id}`,
+      `/api/v1/element_form_types/${elementFormTypeId}`,
       { ...this._httpOptions() }
     ).then(response => response.json())
+      .catch(errorMessage => console.log(errorMessage));
+  }
+
+  static fetchByElementType(elementType) {
+    return fetch(
+      `/api/v1/element_form_types?element_type=${elementType}`,
+      { ...this._httpOptions() }
+    ).then(response => response.json())
+      .then(json => json.element_form_types)
       .catch(errorMessage => console.log(errorMessage));
   }
 
@@ -39,9 +49,9 @@ export default class ElementFormTypesFetcher {
       .catch(errorMessage => console.log(errorMessage));
   }
 
-  static deleteElementFormType(id) {
+  static deleteElementFormType(elementFormTypeId) {
     return fetch(
-      `/api/v1/element_form_types/${id}`,
+      `/api/v1/element_form_types/${elementFormTypeId}`,
       { ...this._httpOptions('DELETE') }
     ).then(response => response.json())
       .catch(errorMessage => console.log(errorMessage));
