@@ -15,12 +15,8 @@ import { solventOptions } from 'src/components/staticDropdownOptions/options';
 import SampleDetailsSolvents from 'src/apps/mydb/elements/details/samples/propertiesTab/SampleDetailsSolvents';
 import PrivateNoteElement from 'src/apps/mydb/elements/details/PrivateNoteElement';
 import NotificationActions from 'src/stores/alt/actions/NotificationActions';
-import ElementFormTypeEditorModal from 'src/components/elementFormTypes/ElementFormTypeEditorModal';
-import { StoreContext } from 'src/stores/mobx/RootStore';
 
 export default class SampleForm extends React.Component {
-  static contextType = StoreContext;
-
   constructor(props) {
     super(props);
     this.state = {
@@ -701,14 +697,6 @@ export default class SampleForm extends React.Component {
               <div className="properties-form" style={{ width: '100%' }}>
                 <tr>
                   <td colSpan="4">
-                    <Button bsSize="xsmall" bsStyle="primary"
-                      title="Edit form fields"
-                      className="edit-form-fields"
-                      onClick={() => this.context.elementFormTypes.showEditorModal('sample')}
-                    >
-                      <i className="fa fa-cog"></i>
-                    </Button>
-                    <ElementFormTypeEditorModal />
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <div style={{ width: '100%', display: 'flex' }}>
                         {this.moleculeInput()}

@@ -127,7 +127,7 @@ const ElementFormTypeEditorModal = () => {
     );
   }
 
-  const selectInput = (field, type, i) => {
+  const selectInput = (field, i) => {
     let options = [{ value: field.default, label: field.default }];
     let defaultValue = field.default ? options[0] : 'Select ...';
 
@@ -137,7 +137,8 @@ const ElementFormTypeEditorModal = () => {
         {checkboxInput(field, i)}
         <div className="grouped-addons">
           <Select
-            name="stereoAbs"
+            name={field.key}
+            key={field.key}
             clearable={false}
             disabled={true}
             options={options}
@@ -279,7 +280,7 @@ const ElementFormTypeEditorModal = () => {
         break;
       case 'select':
       case 'solventSelect':
-        fields.push(selectInput(field, 'select', i));
+        fields.push(selectInput(field, i));
         break;
       case 'checkbox':
         fields.push(showCheckboxInput(field, 'checkbox', i));

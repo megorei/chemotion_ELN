@@ -153,12 +153,20 @@ export default {
                 column_size: 'column',
                 key: 'molecular_mass',
                 label: 'Molecular mass',
-                type: 'textWithAddOn', // value wird angepasst aus 2 wird 2.0000 => numeric field
-                addon: 'g/mol',
+                type: 'textWithAddOn',
+                addon: 'mg/mol', // addon ist hier website wert
+                unit: 'g/mol', // unit ist wert in DB
+                option_layers: 'molecularMassOptions',
+                prefixes: ['m', 'n'],
+                precision: 5,
                 visible: true,
                 default: '',
                 required: false,
                 description: '',
+                setterNewValue: 'setMolecularMass',
+                conditions: {
+                  decoupled: true,
+                }
               },
               {
                 column: 'sum_formula',
@@ -170,6 +178,9 @@ export default {
                 default: '',
                 required: false,
                 description: '',
+                conditions: {
+                  decoupled: true,
+                }
               },
             ],
           },
@@ -183,13 +194,80 @@ export default {
                 column_size: 'half',
                 key: 'target_amount_value',
                 label: 'Amount',
-                type: 'amount', // 3 Felder mit Berechnungen und Wechsel der Einheit (textWithAddOn)
-                // type: 'system-defined',
-                // option_layers: 'mass',
+                type: 'amount',
                 visible: true,
                 default: '',
                 required: false,
                 description: '',
+                sub_fields: [ // 3 Felder mit Berechnungen und Wechsel der Einheit (textWithAddOn)
+                  {
+                    column: 'amount_g',
+                    key: 'target_amount_value_amount_g',
+                    label: '',
+                    type: 'textWithAddOn',
+                    addon: 'mg', // addon ist hier website wert
+                    unit: 'g', // unit ist wert in DB
+                    option_layers: 'amountGOptions',
+                    prefixes: ['m', 'n', 'u'],
+                    precision: 4,
+                    default: '',
+                    setterNewValue: 'setAmount',
+                    conditions: {
+                      can_update: true,
+                    }
+                  },
+                  {
+                    column: 'amount_l',
+                    key: 'target_amount_value_amount_l',
+                    label: '',
+                    type: 'textWithAddOn',
+                    addon: 'ml', // addon ist hier website wert
+                    unit: 'l', // unit ist wert in DB
+                    option_layers: 'amountLOptions',
+                    prefixes: ['m', 'u', 'n'],
+                    precision: 5,
+                    default: '',
+                    setterNewValue: 'setAmount',
+                    conditions: {
+                      can_update: true,
+                      has_density: true,
+                      has_molarity: true,
+                      contains_residues: false,
+                    }
+                  },
+                  {
+                    column: 'amount_mol',
+                    key: 'target_amount_value_amount_mol',
+                    label: '',
+                    type: 'textWithAddOn',
+                    addon: 'mmol', // addon ist hier website wert
+                    unit: 'mol', // unit ist wert in DB
+                    option_layers: 'amountMolOptions',
+                    prefixes: ['m', 'n'],
+                    precision: 4,
+                    default: '',
+                    setterNewValue: 'setAmount',
+                    conditions: {
+                      can_update: true,
+                    }
+                  },
+                  {
+                    column: 'defined_part_amount',
+                    key: 'target_amount_value_defined_part_amount',
+                    label: 'Attached',
+                    type: 'textWithAddOn',
+                    addon: 'mg', // addon ist hier website wert
+                    unit: 'g', // unit ist wert in DB
+                    option_layers: 'amountLOptions',
+                    prefixes: ['m', 'n'],
+                    precision: 4,
+                    default: '',
+                    setterNewValue: 'setAmount',
+                    conditions: {
+                      contains_residues: true,
+                    }
+                  },
+                ],
               },
               {
                 label: '',
@@ -205,10 +283,16 @@ export default {
                     label: 'Density',
                     type: 'textWithAddOn', // value wird angepasst aus 2 wird 2.0000
                     addon: 'g/ml',
+                    prefixes: ['n'],
+                    precision: 5,
                     visible: true,
                     default: '',
                     required: false,
                     description: '',
+                    setterNewValue: 'setDensity',
+                    conditions: {
+                      can_update: true,
+                    }
                   },
                   {
                     column: 'molarity_value',
@@ -217,10 +301,16 @@ export default {
                     label: 'Molarity',
                     type: 'textWithAddOn', // value wird angepasst aus 2 wird 2.0000
                     addon: 'M',
+                    prefixes: ['n'],
+                    precision: 5,
                     visible: true,
                     default: '',
                     required: false,
                     description: '',
+                    setterNewValue: 'setMolarity',
+                    conditions: {
+                      can_update: true,
+                    }
                   },
                 ],
               },
@@ -229,11 +319,16 @@ export default {
                 column_size: 'quarter',
                 key: 'purity',
                 label: 'Purity / Concentration',
-                type: 'text', // value wird angepasst aus 2 wird 2.0000
+                type: 'numeric', // value wird angepasst aus 2 wird 2.0000
+                prefixes: ['n'],
+                precision: 5,
                 visible: true,
                 default: '',
                 required: false,
                 description: '',
+                conditions: {
+                  can_update: true,
+                }
               },
             ],
           },
@@ -250,10 +345,10 @@ export default {
             key: 'boiling_point_melting_point_xref_flash_point',
             fields: [
               {
-                column: 'boiling_point',
+                column: 'melting_point',
                 column_size: 'column',
-                key: 'boiling_point',
-                label: 'Boiling point',
+                key: 'melting_point',
+                label: 'Melting point',
                 type: 'textWithAddOn',
                 addon: '°C',
                 visible: true,
@@ -262,10 +357,10 @@ export default {
                 description: '',
               },
               {
-                column: 'melting_point',
+                column: 'boiling_point',
                 column_size: 'column',
-                key: 'melting_point',
-                label: 'Melting point',
+                key: 'boiling_point',
+                label: 'Boiling point',
                 type: 'textWithAddOn',
                 addon: '°C',
                 visible: true,
@@ -279,8 +374,8 @@ export default {
                 opt: 'flash_point',
                 key: 'xref_flash_point',
                 label: 'Flash Point',
-                type: 'system-defined', // hat noch berechnungen
-                option_layers: 'temperature',
+                type: 'system-defined', // hat noch berechnungen (numeric input)
+                option_layers: 'temperatureOptions',
                 addon: '°C',
                 visible: true,
                 default: '',

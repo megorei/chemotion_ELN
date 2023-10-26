@@ -317,3 +317,73 @@ button.element-form-type-add-button {
   margin-left: -15px;
   margin-right: -15px;
 }
+
+.sample-form-fields {
+  position: relative;
+  padding: 10px 15px;
+  margin-bottom: -1px;
+  background-color: #fff;
+
+  .section-headline {
+    margin-right: 0;
+  }
+
+  .grouped-fields-row {
+    width: 100%;
+    padding-left: 0;
+  }
+
+  div[class^="grouped-fields-row cols-"] {
+    .control-label {
+      margin-left: 0;
+    }
+    .grouped-addons, .form-control {
+      width: 100%;
+    }
+    .Select.has-value.Select--single > .Select-control .Select-value .Select-value-label,
+    .Select.has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {
+      color: #333;
+    }
+    .nav > li:first-child > a {
+      padding-left: 0;
+    }
+  }
+
+  .css-1okebmr-indicatorSeparator {
+    background-color: #fff;
+  }
+
+  .checkbox {
+    margin-top: 30px;
+  }
+
+  .input-group-btn button {
+    margin-right: 0;
+    width: auto;
+    font-size: 13px;
+    padding: 6px 8px;
+
+    &.addon-green {
+      background-color: #449d44;
+      color: #fff;
+    }
+    &.addon-grey {
+      background-color: #eee;
+    }
+  }
+
+  .input-group {
+    z-index: 0;
+  }
+
+  .input-group-addon {
+    font-size: 13px;
+    padding: 6px 8px;
+  }
+
+  .grouped-fields-row.amount {
+    .form-group {
+      width: calc((100% / 3) - 3.5%);
+    }
+  }
+}
