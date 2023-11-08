@@ -31,12 +31,12 @@ export default {
           {
             cols: 4, // felder pro reihe
             visible: true,
-            key: 'iupac_name_stereo_decoupled',
+            key: 'molecule_name_stereo_decoupled',
             fields: [
               {
-                column: 'iupac_name', // db feld
+                column: 'molecule_name', // db feld
                 column_size: 'column',
-                key: 'iupac_name',
+                key: 'molecule_name',
                 label: 'Molecule',
                 type: 'moleculeSelect', // spezielles select
                 visible: true, // für modal zur auswahl, was angezeigt werden soll
@@ -166,7 +166,7 @@ export default {
                 setterNewValue: 'setMolecularMass',
                 conditions: {
                   decoupled: true,
-                }
+                },
               },
               {
                 column: 'sum_formula',
@@ -180,7 +180,7 @@ export default {
                 description: '',
                 conditions: {
                   decoupled: true,
-                }
+                },
               },
             ],
           },
@@ -214,7 +214,7 @@ export default {
                     setterNewValue: 'setAmount',
                     conditions: {
                       can_update: true,
-                    }
+                    },
                   },
                   {
                     column: 'amount_l',
@@ -233,7 +233,7 @@ export default {
                       has_density: true,
                       has_molarity: true,
                       contains_residues: false,
-                    }
+                    },
                   },
                   {
                     column: 'amount_mol',
@@ -249,7 +249,7 @@ export default {
                     setterNewValue: 'setAmount',
                     conditions: {
                       can_update: true,
-                    }
+                    },
                   },
                   {
                     column: 'defined_part_amount',
@@ -265,7 +265,7 @@ export default {
                     setterNewValue: 'setAmount',
                     conditions: {
                       contains_residues: true,
-                    }
+                    },
                   },
                 ],
               },
@@ -292,7 +292,7 @@ export default {
                     setterNewValue: 'setDensity',
                     conditions: {
                       can_update: true,
-                    }
+                    },
                   },
                   {
                     column: 'molarity_value',
@@ -310,7 +310,7 @@ export default {
                     setterNewValue: 'setMolarity',
                     conditions: {
                       can_update: true,
-                    }
+                    },
                   },
                 ],
               },
@@ -328,7 +328,7 @@ export default {
                 description: '',
                 conditions: {
                   can_update: true,
-                }
+                },
               },
             ],
           },
@@ -349,24 +349,34 @@ export default {
                 column_size: 'column',
                 key: 'melting_point',
                 label: 'Melting point',
-                type: 'textWithAddOn',
+                type: 'textRangeWithAddOn',
                 addon: '°C',
                 visible: true,
                 default: '',
                 required: false,
-                description: '',
+                setterNewValue: 'updateRange',
+                description: 'Use space-separated value to input a Temperature range',
+                conditions: {
+                  can_update: true,
+                  isPolymer: false,
+                },
               },
               {
                 column: 'boiling_point',
                 column_size: 'column',
                 key: 'boiling_point',
                 label: 'Boiling point',
-                type: 'textWithAddOn',
+                type: 'textRangeWithAddOn',
                 addon: '°C',
                 visible: true,
                 default: '',
                 required: false,
-                description: '',
+                setterNewValue: 'updateRange',
+                description: 'Use space-separated value to input a Temperature range',
+                conditions: {
+                  can_update: true,
+                  isPolymer: false,
+                },
               },
               {
                 column: 'xref',
@@ -374,9 +384,10 @@ export default {
                 opt: 'flash_point',
                 key: 'xref_flash_point',
                 label: 'Flash Point',
-                type: 'system-defined', // hat noch berechnungen (numeric input)
+                type: 'flashPoint', // hat noch berechnungen (numeric input)
                 option_layers: 'temperatureOptions',
                 addon: '°C',
+                prefixes: ['n'],
                 visible: true,
                 default: '',
                 required: false,
@@ -455,6 +466,7 @@ export default {
                 key: 'solvent',
                 label: 'Solvent',
                 type: 'solventSelect', // spezial select mit molecule dropdown und ausgewählten Feldern darunter
+                option_layers: 'defaultMultiSolventsSmilesOptions',
                 visible: true,
                 default: 'Select solvents or drag-n-drop molecules from the sample list',
                 required: false,
@@ -462,40 +474,6 @@ export default {
               },
             ],
           },
-          // {
-          //   cols: 3,
-          //   visible: true,
-          //   key: 'solvent_label_solvent_ration_trash',
-          //   fields: [
-          //     {
-          //       column: 'solvent',
-          //       opt: 'label',
-          //       key: 'solvent_label',
-          //       label: 'Label',
-          //       type: 'text', // disabled
-          //       visible: true,
-          //       default: '',
-          //       required: false,
-          //       description: '',
-          //     },
-          //     {
-          //       column: 'solvent',
-          //       opt: 'ratio',
-          //       key: 'solvent_ratio',
-          //       label: 'Ratio',
-          //       type: 'text', // nur zahlen
-          //       visible: true,
-          //       default: '',
-          //       required: false,
-          //       description: '',
-          //     },
-          //     {
-          //       column: 'solvent',
-          //       label: '',
-          //       type: 'trash', // ausgewähltes Molecule löschen
-          //     },
-          //   ],
-          // },
         ],
       },
       {

@@ -83,13 +83,13 @@ export default class PrivateNoteElement extends React.Component {
     }
 
     return (
-      <div style={{ marginBottom: '10px' }}>
+      <div style={{ marginBottom: '10px', width: '100%' }}>
         <FormGroup>
           <OverlayTrigger
             placement="top"
             overlay={
               <Tooltip id="private-note">Only you can see this note</Tooltip>
-          }
+            }
           >
             <ControlLabel>
               Private Note

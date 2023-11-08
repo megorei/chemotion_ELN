@@ -5,11 +5,15 @@ import {
 } from 'react-bootstrap';
 import Select from 'react-select3';
 import CreatableSelect from 'react-select3/creatable';
+import VirtualizedSelect from 'react-virtualized-select';
 import ElementFormTypeEditorModal from 'src/components/elementFormTypes/ElementFormTypeEditorModal';
 import PrivateNoteElement from 'src/apps/mydb/elements/details/PrivateNoteElement';
 import { metPreConv } from 'src/utilities/metricPrefix';
+import { useDrop } from 'react-dnd';
+import DragDropItemTypes from 'src/components/DragDropItemTypes';
 import UserStore from 'src/stores/alt/stores/UserStore';
 import * as FieldOptions from 'src/components/staticDropdownOptions/options';
+import { ionic_liquids } from 'src/components/staticDropdownOptions/ionic_liquids';
 import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 
@@ -26,17 +30,33 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
   //console.log(unitsSystem);
   //console.log(FieldOptions);
 
+  const [{ isOver, canDrop }, dropRef] = useDrop({
+    accept: [
+      DragDropItemTypes.SAMPLE,
+      DragDropItemTypes.MOLECULE
+    ],
+    drop: (item, monitor) => {
+      const tagGroup = monitor.getItemType() === 'molecule' ? true : '';
+      elementFormTypesStore.addSolventValues(element, tagGroup);
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+      canDrop: monitor.canDrop(),
+    }),
+  });
+
   useEffect(() => {
     elementFormTypesStore.initFormByElementType('sample', sample);
     console.log(elementFormTypesStore.element);
   }, []);
-
 
   const valueByType = (type, e) => {
     switch (type) {
       case 'text':
       case 'textarea':
       case 'textWithAddOn':
+      case 'textRangeWithAddOn':
+      case 'flashPoint':
       case 'system-defined':
       case 'formula-field':
       case 'subGroupWithAddOn':
@@ -55,50 +75,110 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
   }
 
   const handleNumericValue = (e, field, metric) => {
-    const inputField = e.target;
-    const { value, selectionStart } = inputField;
+    let { value, selectionStart } = e.target;
     const fieldValue = field.opt ? element[field.column][field.opt] : element[field.column];
-    let newValue = value;
     const lastChar = value[selectionStart - 1] || '';
 
     if (lastChar !== '' && !lastChar.match(/-|\d|\.|(,)/)) return 0;
 
-    const md = lastChar.match(/-|\d/);
-    const mc = lastChar.match(/\.|(,)/);
+    const decimal = lastChar.match(/-|\d/);
+    const comma = lastChar.match(/\.|(,)/);
 
-    if (mc && mc[1]) {
-      newValue = `${value.slice(0, selectionStart - 1)}.${value.slice(selectionStart)}`;
+    if (comma && comma[1]) {
+      value = `${value.slice(0, selectionStart - 1)}.${value.slice(selectionStart)}`;
     }
 
-    newValue = newValue.replace('--', '');
-    newValue = newValue.replace('..', '.');
-    const matchMinus = newValue.match(/\d+(-+)\d*/);
-    if (matchMinus && matchMinus[1]) newValue = newValue.replace(matchMinus[1], '');
+    value = value.replace('--', '');
+    value = value.replace('..', '.');
+    const matchMinus = value.match(/\d+(-+)\d*/);
+    if (matchMinus && matchMinus[1]) { value = value.replace(matchMinus[1], '') };
 
-    if (md || mc) {
-      return newValue;
+    if (decimal || comma) {
+      return value;
     } else {
       return metPreConv(fieldValue, 'n', metric);;
     }
+  }
+
+  const handleNumRangeValue = (e) => {
+    let { value, selectionStart } = e.target;
+    const lastChar = value[selectionStart - 1] || '';
+    let lower = '';
+    let upper = '';
+
+    if (lastChar !== '' && !lastChar.match(/-|\d|\.| |(,)/)) {
+      const reg = new RegExp(lastChar, 'g');
+      value = value.replace(reg, '');
+    } else {
+      value = value.replace(/--/g, '');
+      value = value.replace(/,/g, '.');
+      value = value.replace(/\.+\./g, '.');
+      value = value.replace(/ - /g, ' ');
+    }
+
+    lower = value;
+    upper = value;
+
+    const result = value.match(/[-.0-9]+|[0-9]/g);
+    if (result) {
+      const nums = result.filter(r => !isNaN(r));
+      if (nums.length > 0) {
+        if (nums.length === 1) {
+          lower = nums.shift();
+          upper = lower;
+        } else {
+          lower = nums.shift();
+          upper = nums.pop();
+        }
+        lower = Number.parseFloat(lower);
+        upper = Number.parseFloat(upper);
+      }
+    }
+
+    return { lower, upper, value };
   }
 
   const handleFieldChanged = (field, type) => (e) => {
     let value = e === null ? '' : valueByType(type, e);
     const { unit, metric } = unitAndMeticByField(field);
 
-    // if element form type => structure wechseln
-    if (field.prefixes && field.precision) {
+    if (field == 'element_form_type_id') {
+      elementFormTypesStore.changeElementFormType(value);
+    } else if (field.prefixes && field.precision) {
       value = metPreConv(value, metric, 'n');
       const numericValue = handleNumericValue(e, field, metric);
       elementFormTypesStore.changeNumericValues(field, value, unit, metric, numericValue);
+    } else if (type == 'textRangeWithAddOn') {
+      const { lower, upper, value } = handleNumRangeValue(e);
+      elementFormTypesStore.changeNumRangeValues(field, lower, upper, unit, metric, value);
+    } else if (type == 'flashPoint') {
+      elementFormTypesStore.changeFlashPointValues(field, value, unit, metric);
     } else {
-      console.log(field);
       elementFormTypesStore.changeElementValues(field, value);
     }
   }
 
+  const changeSolventRatio = (solvent) => (e) => {
+    solvent.ratio = e.target.value;
+    elementFormTypesStore.changeSolventValues(solvent);
+  }
+
+  const deleteSolvent = (solvent) => {
+    elementFormTypesStore.deleteSolvent(solvent);
+  }
+
+  const createDefaultSolvents = (e) => {
+    const solvent = e.value;
+    const smiles = solvent.smiles;
+    elementFormTypesStore.fetchMoleculeBySmiles(smiles, solvent);
+    console.log(elementFormTypesStore.solventErrorMessage);
+  };
+
   const fieldHasFocusAndBlurOptions = (field, type) => {
-    const columns = ['molecular_mass', 'molarity_value', 'density', 'purity'];
+    const columns = [
+      'molecular_mass', 'molarity_value', 'density', 'purity',
+      'melting_point', 'boiling_point'
+    ];
     return type == 'amount' || columns.includes(field.column) ? true : false;
   }
 
@@ -106,7 +186,12 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
     if (!fieldHasFocusAndBlurOptions(field, type)) { return null; }
 
     const { unit, metric } = unitAndMeticByField(field);
-    const numericValue = handleNumericValue(e, field, metric);
+    let numericValue = handleNumericValue(e, field, metric);
+
+    if (type == 'textRangeWithAddOn') {
+      numericValue = e.target.value.trim().replace(/ – /g, ' ');
+    }
+
     elementFormTypesStore.changeActiveUnits(field.key, unit, metric, numericValue);
     elementFormTypesStore.changeElementFocus(field.key, true);
   }
@@ -117,13 +202,36 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
     elementFormTypesStore.changeElementFocus(field.key, false);
   }
 
-  const changeUnit = (options, key, prefixes) => (e) => {
+  const kelvinToCelsius = (value) => value - 273.15;
+  const celsiusToFahrenheit = (value) => ((value * 9) / 5) + 32;
+  const fahrenheitToKelvin = (value) => (((value - 32) * 5) / 9) + 273.15;
+
+  const calculateTemperatures = (activeUnit, value) => {
+    if (value == '') { return ''; }
+
+    switch (activeUnit) {
+      case '°C':
+        return celsiusToFahrenheit(value);
+      case '°F':
+        return fahrenheitToKelvin(value);
+      case 'K':
+        return kelvinToCelsius(value);
+    }
+  }
+
+  const changeUnit = (options, field) => (e) => {
     let activeUnit = e.target.innerHTML;
     let activeUnitIndex = options.findIndex((f) => { return f.value == activeUnit });
     let nextUnitIndex = activeUnitIndex === options.length - 1 ? 0 : activeUnitIndex + 1;
     let nextUnit = options[nextUnitIndex].value;
-    let metric = prefixes[nextUnitIndex];
-    elementFormTypesStore.changeActiveUnits(key, nextUnit, metric);
+    let metric = field.prefixes[nextUnitIndex];
+    let value = '';
+    if (field.type == 'flashPoint') {
+      value = calculateTemperatures(activeUnit, element[field.column][field.opt].value);
+      elementFormTypesStore.changeFlashPointValues(field, value, nextUnit, metric);
+    } else {
+      elementFormTypesStore.changeActiveUnits(field.key, nextUnit, metric, value);
+    }
   }
 
   const unitAndMeticByField = (field) => {
@@ -140,18 +248,24 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
     const { focused } = isFieldFocused(field, '');
 
     if (field.prefixes && field.precision) {
-      let { metric, acitveUnitValue } = unitAndMeticByField(field);
+      const { metric, acitveUnitValue } = unitAndMeticByField(field);
 
       if (focused) {
-        console.log('focused', value, acitveUnitValue);
         value = acitveUnitValue ? acitveUnitValue : metPreConv(value, 'n', metric) || '';
       } else {
-        console.log('notFocused', value);
         value = metPreConv(value, 'n', metric).toPrecision(field.precision);
       }
+
+      value = value === 'NaN' ? 0.0.toPrecision(field.precision) : value;
     }
 
     return value;
+  }
+
+  const numRangeValue = (field) => {
+    const { focused } = isFieldFocused(field, '');
+    const { acitveUnitValue } = unitAndMeticByField(field);
+    return focused && acitveUnitValue ? acitveUnitValue : element[`${field.column}_display`];
   }
 
   const isFieldFocused = (field, amountKey) => {
@@ -175,23 +289,25 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
     let value = options.find((o) => { return element.element_form_type_id && o.value == element.element_form_type_id });
 
     return (
-      <FormGroup key={`sample-element-form-type-select`} className={`column-size-column`}>
+      <FormGroup key={`sample-element-form-type-select`} className={`select-with-button column-size-column`}>
         <ControlLabel>Element form type</ControlLabel>
-        <Select
-          name="element_form_type_id"
-          clearable={true}
-          options={options}
-          key="element-form-type-select-key"
-          onChange={handleFieldChanged('element_form_type_id', 'select')}
-          value={value}
-        />
-        <Button bsSize="xsmall" bsStyle="primary"
-          title="Edit form fields"
-          className="edit-form-fields"
-          onClick={() => elementFormTypesStore.showEditorModal('sample')}
-        >
-          <i className="fa fa-cog"></i>
-        </Button>
+        <div className="grouped-fields-row">
+          <Select
+            name="element_form_type_id"
+            clearable={true}
+            options={options}
+            key="element-form-type-select-key"
+            onChange={handleFieldChanged('element_form_type_id', 'select')}
+            value={value}
+          />
+          <Button bsStyle="primary"
+            title="Edit form fields"
+            className="edit-form-fields"
+            onClick={() => elementFormTypesStore.showEditorModal('sample')}
+          >
+            <i className="fa fa-cog"></i>
+          </Button>
+        </div>
       </FormGroup>
     );
   }
@@ -202,8 +318,11 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
     if (field.conditions) {
       Object.entries(field.conditions).map(([key, value]) => {
         const isMolarityDensity = ['has_molarity', 'has_density'].includes(key);
+        const isPolymer = (element.molfile || '').indexOf(' R# ') !== -1;
 
         if (isMolarityDensity && !element['has_molarity'] && !element['has_density']) {
+          notAllowed.push(key);
+        } else if (key == 'isPolymer' && isPolymer != value) {
           notAllowed.push(key);
         } else if (element[key] !== undefined && element[key] != value && !isMolarityDensity) {
           notAllowed.push(key);
@@ -214,6 +333,21 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
       });
     }
     return notAllowed;
+  }
+
+  const infoButton = (field) => {
+    if (!field.description) { return null; }
+
+    return (
+      <OverlayTrigger
+        placement="top"
+        overlay={
+          <Tooltip id={field.column}>{field.description}</Tooltip>
+        }
+      >
+        <span className="glyphicon glyphicon-info-sign with-padding" />
+      </OverlayTrigger>
+    );
   }
 
   const numericInput = (field, type) => {
@@ -236,17 +370,21 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
     );
   }
 
-  const addonButton = (field, color) => {
+  const addonButton = (field, color, elementUnit = '') => {
     let addon = (<InputGroup.Addon>{field.addon}</InputGroup.Addon>);
 
     if (field.option_layers) {
       const options = optionsForSelect(field);
       const { unit } = unitAndMeticByField(field);
+      const fieldUnit = elementUnit && !unit ? elementUnit : unit;
 
       addon = (
         <InputGroup.Button>
-          <Button className={`addon-${color}`} onClick={changeUnit(options, field.key, field.prefixes)}>
-            {unit}
+          <Button
+            className={`addon-${color}`}
+            onClick={changeUnit(options, field)}
+          >
+            {fieldUnit}
           </Button>
         </InputGroup.Button>
       );
@@ -254,7 +392,57 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
     return addon;
   }
 
+  const flashPointInput = (field, type) => {
+    const column = element[field.column][field.opt];
+    const unit = column ? column.unit : '';
+
+    return (
+      <FormGroup key={`${field.key}-${field.label}`} className={`column-size-${field.column_size}`}>
+        <ControlLabel>{field.label}</ControlLabel>
+        <div className="grouped-addons">
+          <InputGroup>
+            <FormControl
+              type="text"
+              key={field.key}
+              value={column ? column.value : ''}
+              onChange={handleFieldChanged(field, type)}
+            />
+            {addonButton(field, 'green', unit)}
+          </InputGroup>
+        </div>
+      </FormGroup>
+    );
+  }
+
+  const textRangeWithAddOnInput = (field, type) => {
+    const isDisabled = allowToDisplayField(field).length >= 1 ? true : false;
+    const value = numRangeValue(field);
+
+    return (
+      <FormGroup key={`${field.key}-${field.label}`} className={`column-size-${field.column_size}`}>
+        <ControlLabel>
+          {field.label}
+          {infoButton(field)}
+        </ControlLabel>
+        <InputGroup data-cy={`cy_${field.label}`}>
+          <FormControl
+            type="text"
+            key={field.key}
+            value={value}
+            disabled={isDisabled}
+            onChange={handleFieldChanged(field, type)}
+            onFocus={handleFieldFocus(field, type)}
+            onBlur={handleFieldBlur(field, type)}
+          />
+          <InputGroup.Addon>{field.addon}</InputGroup.Addon>
+        </InputGroup>
+      </FormGroup>
+    );
+  }
+
   const textWithAddOnInput = (field, type, tabOrAmount = false, color = 'green') => {
+    if (field.conditions && field.conditions.decoupled && !element.decoupled) { return null; }
+
     let label = (<ControlLabel>{field.label}</ControlLabel>);
     const value = valueOrCalculateNumericValue(field);
     const className = type == 'amount' ? 'column-size-amount' : `column-size-${field.column_size}`;
@@ -326,11 +514,61 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
         name={field.column}
         key={`${field.key}-${index}`}
         checked={element[field.column]}
-        onChange={handleFieldChanged(field.column, type)}
+        onChange={handleFieldChanged(field, type)}
       >
         {field.label}
       </Checkbox>
     );
+  }
+
+  const solventRowHeader = () => {
+    return (
+      <div className='selected-solvents' key='solvent_list_header'>
+        <span>Label</span>
+        <span>Ratio</span>
+      </div>
+    );
+  }
+
+  const solventRow = (solvent, i) => {
+    return (
+      <div className="selected-solvents" key={`${solvent.smiles}-${i}`}>
+        <FormControl
+          type="text"
+          key={`${solvent.label}_${i}`}
+          value={solvent.label}
+          disabled
+        />
+        <FormControl
+          type="number"
+          key={`${solvent.ratio}_${i}`}
+          value={solvent.ratio}
+          onChange={changeSolventRatio(solvent)}
+        />
+        <Button
+          bsStyle="danger"
+          onClick={() => deleteSolvent(solvent)}
+          key={`${solvent.inchikey}_${i}`}
+          className='delete-solvent'
+        >
+          <i className="fa fa-trash-o fa-lg" />
+        </Button>
+      </div>
+    );
+  }
+
+  const selectedSolvents = (index) => {
+    const elementSolvents = element.solvent;
+    let solvents = [];
+
+    if (elementSolvents && elementSolvents.length == 0) { return solvents; }
+
+    solvents.push(solventRowHeader());
+
+    elementSolvents.map((solvent, i) => {
+      solvents.push(solventRow(solvent, index + i));
+    });
+    return solvents;
   }
 
   const optionsForSelect = (field) => {
@@ -338,15 +576,66 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
     let systemOptions = unitsSystem.fields.find((u) => { return u.field === field.option_layers });
 
     options = systemOptions ? systemOptions.units : FieldOptions[field.option_layers];
+    if (options && options[0] && options[0].value !== '') {
+      options.unshift({ label: '', value: '' });
+    }
 
     return options;
   }
 
+  const ionicLiquidOptions = (defaultOptions) => {
+    return Object.keys(ionic_liquids)
+      .reduce((solvents, ionicLiquid) => solvents.concat({
+        label: ionicLiquid,
+        value: {
+          external_label: ionicLiquid,
+          smiles: ionic_liquids[ionicLiquid],
+          density: 1.0
+        }
+      }), defaultOptions);
+  }
+
+  const dragAndDropStyle = () => {
+    let style = { width: '100%' };
+    if (canDrop) {
+      style.borderStyle = 'dashed';
+      style.padding = '0 10px';
+    }
+    if (isOver && canDrop) {
+      style.borderColor = '#337ab7';
+    }
+    return style;
+  }
+
+  const solventSelectInput = (field, type, index) => {
+    const defaultOptions = optionsForSelect(field);
+    const options = ionicLiquidOptions(defaultOptions);
+    const solvents = selectedSolvents(index);
+
+    return (
+      <div style={dragAndDropStyle()} ref={dropRef} key="solvent-drag-n-drop">
+        <FormGroup key={`${field.key}-${field.label}`} className={`solvent-select column-size-${field.column_size}`}>
+          <ControlLabel>{field.label}</ControlLabel>
+          <div className="grouped-addons">
+            <VirtualizedSelect
+              name={field.column}
+              key={`${field.key}-${index}`}
+              multi={false}
+              options={options}
+              placeholder={field.default}
+              onChange={createDefaultSolvents}
+            />
+          </div>
+          {solvents}
+        </FormGroup>
+      </div>
+    );
+  }
+
   const selectInput = (field, type, index) => {
-    let options = optionsForSelect(field);
-    let columnValue = field.opt ? element[field.column][field.opt] : element[field.column];
-    let fieldValue = field.opt ? field : field.column;
-    let value = options.find((o) => { return o.value == columnValue });
+    const options = optionsForSelect(field);
+    const columnValue = field.opt ? element[field.column][field.opt] : element[field.column];
+    const value = options.find((o) => { return o.value == columnValue });
 
     return (
       <FormGroup key={`${field.key}-${field.label}`} className={`column-size-${field.column_size}`}>
@@ -358,7 +647,7 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
             options={options}
             value={value}
             disabled={!element.can_update}
-            onChange={handleFieldChanged(fieldValue, type)}
+            onChange={handleFieldChanged(field, type)}
           />
         </div>
       </FormGroup>
@@ -382,14 +671,14 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
       <FormGroup key={`${field.key}-${field.label}`} className={`column-size-${field.column_size}`}>
         <ControlLabel>{field.label}</ControlLabel>
         <div className="grouped-addons">
-          <InputGroup>
+          <InputGroup className="molecule-name">
             <CreatableSelect
               name="moleculeName"
               value={element.molecule_name}
               options={element.molecule_names}
               disabled={!element.can_update}
               onCreateOption={createMoleculeName}
-              onChange={handleFieldChanged('molecule_name', type)}
+              onChange={handleFieldChanged(field, type)}
             />
             <InputGroup.Addon className="addon-white">
               <Glyphicon glyph="pencil" onClick={() => showStructureEditor(!element.can_update)} />
@@ -420,6 +709,7 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
 
   const textInput = (field, type) => {
     let value = valueOrCalculateNumericValue(field);
+    if (field.conditions && field.conditions.decoupled && !element.decoupled) { return null; }
 
     return (
       <FormGroup key={`${field.key}-${field.label}`} className={`column-size-${field.column_size}`}>
@@ -483,7 +773,9 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
       case 'select':
         fields.push(selectInput(field, 'select', index));
         break;
-      // case 'solventSelect':
+      case 'solventSelect':
+        fields.push(solventSelectInput(field, 'select', index));
+        break;
       case 'checkbox':
         fields.push(checkboxInput(field, 'checkbox', index));
         break;
@@ -493,6 +785,12 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
         break;
       case 'numeric':
         fields.push(numericInput(field, 'numeric'));
+        break;
+      case 'textRangeWithAddOn':
+        fields.push(textRangeWithAddOnInput(field, 'textRangeWithAddOn'));
+        break;
+      case 'flashPoint':
+        fields.push(flashPointInput(field, 'flashPoint'));
         break;
       default:
         fields.push(textInput(field, 'text'));
@@ -531,9 +829,11 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
       section.rows.map((row, j) => {
         let rowClassName = `grouped-fields-row cols-${row.cols}`;
         let rowFields = [];
+        if (row.visible !== undefined && !row.visible) { return; }
 
         row.fields.map((field) => {
           if (field.opt == 'cas') { return; }
+          if (field.visible !== undefined && !field.visible) { return; }
 
           let subFields = [];
           if (field.sub_fields && field.type == 'tab') {

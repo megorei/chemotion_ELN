@@ -4,6 +4,8 @@ import { cloneDeep } from 'lodash';
 
 import ElementFormTypesFetcher from 'src/fetchers/ElementFormTypesFetcher';
 import MoleculesFetcher from 'src/fetchers/MoleculesFetcher';
+import Molecule from 'src/models/Molecule';
+import Sample from 'src/models/Sample';
 import ElementStructures from 'src/components/elementFormTypes/ElementStructures';
 
 const ElementFormType = types.model({
@@ -35,10 +37,11 @@ export const ElementFormTypesStore = types
     element: types.optional(types.frozen({}), {}),
     element_structure: types.optional(types.frozen({}), {}),
     element_type_options: types.optional(types.array(types.frozen({})), []),
-    error_message: types.optional(types.string, ""),
+    error_message: types.optional(types.string, ''),
     show_success_message: types.optional(types.boolean, false),
     active_units: types.optional(types.array(types.frozen({})), []),
     element_has_focus: types.optional(types.array(types.frozen({})), []),
+    solvent_error_message: types.optional(types.string, ''),
   })
   .actions(self => ({
     load: flow(function* loadElementFormTypes() {
@@ -82,6 +85,19 @@ export const ElementFormTypesStore = types
         self.element_form_types.delete(elementFormTypeId)
       }
       return result
+    }),
+    fetchMoleculeBySmiles: flow(function* fetchMoleculeBySmiles(smiles, solvent) {
+      let result = yield MoleculesFetcher.fetchBySmi(smiles);
+      if (result) {
+        const molecule = new Molecule(result);
+        const moleculeDensity = molecule.density;
+        const solventDensity = solvent.density || 1;
+
+        molecule.density = (moleculeDensity && moleculeDensity > 0) || solventDensity;
+        self.addSolventValues(molecule, '');
+      } else {
+        self.solvent_error_message = 'Failed to fetch molecule data.'
+      }
     }),
     updateMoleculeNames: flow(function* updateMoleculeNames(newMoleculeName) {
       if (!self.element.molecule) { return null; }
@@ -169,6 +185,13 @@ export const ElementFormTypesStore = types
       }
       self.element = element;
     },
+    changeElementFormType(elementFormTypeId) {
+      const element = cloneDeep(self.element);
+
+      self.fetchById(elementFormTypeId);
+      element.element_form_type_id = elementFormTypeId;
+      self.element = element;
+    },
     changeNumericValues(field, value, unit, metric, numericValue) {
       const element = cloneDeep(self.element);
       const values = { unit: field.unit, value: value, metricPrefix: metric };
@@ -185,6 +208,46 @@ export const ElementFormTypesStore = types
 
       self.element = element;
       self.changeActiveUnits(field.key, unit, metric, numericValue);
+    },
+    changeNumRangeValues(field, lower, upper, unit, metric, numericValue) {
+      const element = cloneDeep(self.element);
+      element.updateRange(field.column, lower, upper);
+      self.element = element;
+
+      if (unit && metric) {
+        self.changeActiveUnits(field.key, unit, metric, numericValue);
+      }      
+    },
+    changeFlashPointValues(field, value, unit, metric) {
+      const element = cloneDeep(self.element);
+      const values = { value: value, unit: unit };
+      element[field.column][field.opt] = values;
+      self.element = element;
+      self.changeActiveUnits(field.key, unit, metric, value);
+    },
+    addSolventValues(molecule, tagGroup) {
+      let splitSample;
+      let element = cloneDeep(self.element);
+
+      if (molecule instanceof Molecule || false) {
+        // Create new Sample with counter
+        splitSample = Sample.buildNew(molecule, element.collection_id, tagGroup);
+      } else if (molecule instanceof Sample) {
+        splitSample = element.buildChild();
+      }
+
+      element.addSolvent(splitSample)
+      self.element = element
+    },
+    changeSolventValues(solvent) {
+      const element = cloneDeep(self.element);
+      element.updateSolvent(solvent);
+      self.element = element;
+    },
+    deleteSolvent(solvent) {
+      const element = cloneDeep(self.element);
+      element.deleteSolvent(solvent)
+      self.element = element;
     },
     toggleModalMinimized() {
       self.modal_minimized = !self.modal_minimized;
@@ -258,4 +321,5 @@ export const ElementFormTypesStore = types
     get showSuccessMessage() { return self.show_success_message },
     get activeUnits() { return values(self.active_units) },
     get ElementHasFocus() { return values(self.element_has_focus) },
+    get solventErrorMessage() { return self.solvent_error_message },
   }));
