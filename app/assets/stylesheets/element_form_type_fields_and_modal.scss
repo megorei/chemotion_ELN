@@ -85,6 +85,24 @@
   position: relative;
 }
 
+.form-fields .css-yk16xz-control, .form-fields .css-1pahdxg-control,
+.sample-form-fields  .css-yk16xz-control, .sample-form-fields .css-1pahdxg-control {
+  height: 34px;
+  min-height: 34px;
+}
+
+.form-fields .css-g1d714-ValueContainer, .sample-form-fields .css-g1d714-ValueContainer {
+  position: unset;
+}
+
+.form-fields div.css-1pahdxg-control, .sample-form-fields div.css-1pahdxg-control {
+  z-index: 10000;
+}
+.form-fields div.css-26l3qy-menu, .sample-form-fields div.css-26l3qy-menu {
+  z-index: 10002;
+  margin-top: 0;
+}
+
 .form-editor-buttons button:last-child {
   margin-right: 20px;
 }
@@ -280,10 +298,11 @@ div[class^="grouped-fields-row cols-"] {
 }
 
 .edit-form-fields.btn {
-  width: 37px;
-  height: 37px;
+  width: 34px;
+  height: 34px;
   margin-left: 5px;
-  padding-left: 11px;
+  padding-left: 9px;
+  padding-top: 4px;
   color: #fff;
   font-size: 17px;
 }
@@ -393,13 +412,6 @@ button.element-form-type-add-button {
 
   .input-group.molecule-name {
     z-index: 10000;
-  }
-
-  div.css-1pahdxg-control {
-    z-index: 10000;
-  }
-  div.css-26l3qy-menu {
-    z-index: 10002;
   }
 
   .input-group-addon {

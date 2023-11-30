@@ -303,7 +303,7 @@ const SampleFormByType = ({ sample, parent, customizableField, enableDecoupled, 
           <Button bsStyle="primary"
             title="Edit form fields"
             className="edit-form-fields"
-            onClick={() => elementFormTypesStore.showEditorModal('sample')}
+            onClick={() => elementFormTypesStore.showEditorModal('sample', element.element_form_type_id)}
           >
             <i className="fa fa-cog"></i>
           </Button>

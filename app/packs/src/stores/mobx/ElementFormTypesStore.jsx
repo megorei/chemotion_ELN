@@ -270,7 +270,7 @@ export const ElementFormTypesStore = types
             row_changed = true;
           }
           row.fields.map((field) => {
-            if (field.sub_fields) {
+            if (field.sub_fields && field.key !== 'target_amount_value') {
               field.sub_fields.map((sub_field) => {
                 if (sub_field.key == selected_field.key || row_changed) {
                   sub_field.visible = visibility;

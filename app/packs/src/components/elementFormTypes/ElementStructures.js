@@ -10,7 +10,7 @@ export default {
             fields: [
               {
                 column: 'xref',
-                column_size: 'column', // wie breit soll die Spalte dargestellt werden?
+                column_size: 'middle', // wie breit soll die Spalte dargestellt werden?
                 opt: 'cas',
                 key: 'xref-cas',
                 label: 'CAS',

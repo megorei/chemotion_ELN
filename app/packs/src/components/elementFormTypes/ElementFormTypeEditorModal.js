@@ -3,7 +3,8 @@ import {
   Button, ButtonToolbar, Modal, Checkbox, FormGroup, FormControl, InputGroup,
   OverlayTrigger, Tooltip, Glyphicon, ControlLabel, Tabs, Tab
 } from 'react-bootstrap';
-import Select from 'react-select';
+import Select from 'react-select3';
+import CreatableSelect from 'react-select3/creatable';
 import Draggable from "react-draggable";
 import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
@@ -35,12 +36,11 @@ const ElementFormTypeEditorModal = () => {
         <div className="grouped-addons">
           <InputGroup>
             <InputGroup.Addon>CAS</InputGroup.Addon>
-            <Select.Creatable
+            <CreatableSelect
               name="cas"
-              multi={false}
-              disabled={true}
-              options={options}
               value={defaultValue}
+              options={options}
+              disabled={true}
             />
             <InputGroup.Addon>
               <OverlayTrigger placement="bottom" overlay={<Tooltip id="assign_button">copy to clipboard</Tooltip>}>
@@ -110,13 +110,11 @@ const ElementFormTypeEditorModal = () => {
         {checkboxInput(field, i)}
         <div className="grouped-addons">
           <InputGroup>
-            <Select.Creatable
+            <CreatableSelect
               name="moleculeName"
-              multi={false}
-              clearable={false}
-              disabled={true}
-              options={options}
               value={defaultValue}
+              options={options}
+              disabled={true}
             />
             <InputGroup.Addon className="addon-white">
               <Glyphicon glyph="pencil" />
@@ -315,7 +313,7 @@ const ElementFormTypeEditorModal = () => {
         id={`tab${tabId}`}
         className={`tab column-size-${sub_fields[0].column_size}`}
         defaultActiveKey={sub_fields[0].key}
-        key={`tabs-${Math.random() * 1000}`}>
+        key={`tabs-${tabId}`}>
         {tabs}
       </Tabs>
     );
@@ -329,9 +327,9 @@ const ElementFormTypeEditorModal = () => {
     );
   }
 
-  const groupedRowFields = (rowClassName, rowFields) => {
+  const groupedRowFields = (rowClassName, rowFields, index) => {
     return (
-      <div className={rowClassName} key={`${rowClassName}-${Math.random() * 1000}`}>{rowFields}</div>
+      <div className={rowClassName} key={`${rowClassName}-${index}`}>{rowFields}</div>
     );
   }
 
@@ -339,6 +337,7 @@ const ElementFormTypeEditorModal = () => {
     if (!elementType || !elementStructure) { return ''; }
 
     let fields = [];
+    let index = 1;
 
     elementStructure.map((section, i) => {
       let sectionFields = [];
@@ -351,20 +350,23 @@ const ElementFormTypeEditorModal = () => {
       section.rows.map((row, j) => {
         let rowClassName = `grouped-fields-row cols-${row.cols}`;
         let rowFields = [];
-        if (row.visible !== undefined) {
+        if (row.cols !== 1 && row.visible !== undefined) {
           rowFields.push(checkboxInput(row, j));
         }
 
         row.fields.map((field, k) => {
           let subFields = [];
           if (field.sub_fields && field.type == 'tab') {
-            subFields.push(tabsWithInput(field.sub_fields, k));
+            subFields.push(tabsWithInput(field.sub_fields, index));
+            index += 1;
           } else {
-            fieldsByType(field, subFields, k);
+            fieldsByType(field, subFields, index);
+            index += 1;
           }
           rowFields.push(subFields);
+          index += 1;
         });
-        sectionFields.push(groupedRowFields(rowClassName, rowFields));
+        sectionFields.push(groupedRowFields(rowClassName, rowFields, index));
         fields.push(<div className={`section${toggleClass}`} key={`section-${i}-${j}`}>{sectionFields}</div>);
         sectionFields = [];
       });
