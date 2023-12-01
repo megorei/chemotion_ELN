@@ -1,0 +1,579 @@
+export default {
+  sample: {
+    columns: [
+      {
+        label: '',
+        key: 'header', // wird im oberen Berech des samples dargestellt
+        rows: [
+          {
+            cols: 1,
+            fields: [
+              {
+                column: 'xref',
+                column_size: 'middle', // wie breit soll die Spalte dargestellt werden?
+                opt: 'cas',
+                key: 'xref-cas',
+                label: 'CAS',
+                type: 'cas', // spezial feld mit addon, select
+                visible: true,
+                default: 'CAS number',
+                required: false,
+                description: '',
+              },
+            ]
+          }
+        ],
+      },
+      {
+        label: 'Basic properties', // headline oder leer
+        key: 'basic',
+        rows: [
+          {
+            cols: 4, // felder pro reihe
+            visible: true,
+            key: 'molecule_name_stereo_decoupled',
+            fields: [
+              {
+                column: 'molecule_name', // db feld
+                column_size: 'column',
+                key: 'molecule_name',
+                label: 'Molecule',
+                type: 'moleculeSelect', // spezielles select
+                visible: true, // für modal zur auswahl, was angezeigt werden soll
+                default: 'Molecule name', // default wert im feld
+                required: false, // validierung?
+                description: '', // mouseover über headline oder icon ...
+              },
+              {
+                column: 'stereo',
+                column_size: 'column',
+                opt: 'abs', // zusätzliche db Feld Info für jsonb Felder
+                key: 'stereo_abs',
+                label: 'Stereo Abs',
+                type: 'select',
+                option_layers: "stereoAbsOptions", // Options für select / checkboxes etc.
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+              },
+              {
+                column: 'stereo',
+                column_size: 'column',
+                opt: 'rel',
+                key: 'stereo_rel',
+                label: 'Stereo Rel',
+                type: 'select',
+                option_layers: "stereoRelOptions",
+                label: 'Stereo Rel',
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+              },
+              {
+                column: 'decoupled',
+                column_size: 'column',
+                key: 'decoupled',
+                label: 'Decoupled',
+                type: 'checkbox',
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+                conditions: { // darf nur unter bestimmten Bedingungen angezeigt werden
+                  can_update: true,
+                  enable_decoupled: true, // default wird false an form übergeben
+                },
+              },
+            ],
+          },
+          {
+            cols: 4,
+            visible: true,
+            key: 'name_external_label_xref_inventory_label',
+            fields: [
+              {
+                column: 'name',
+                column_size: 'column',
+                key: 'name',
+                label: 'Name',
+                type: 'text',
+                visible: true,
+                default: 'Name of sample',
+                required: false,
+                description: '',
+              },
+              {
+                column: 'external_label',
+                column_size: 'column',
+                key: 'external_label',
+                label: 'External Label',
+                type: 'text',
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+              },
+              {
+                column: 'xref',
+                column_size: 'column',
+                opt: 'inventory_label',
+                key: 'xref_inventory_label',
+                label: 'Inventory label',
+                type: 'text',
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+              },
+              {
+                column: 'dry_solvent',
+                column_size: 'column',
+                key: 'dry_solvent',
+                label: 'Dry Solvent',
+                type: 'checkbox',
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+                conditions: { // darf nur unter bestimmten Bedingungen angezeigt werden
+                  can_update: true,
+                },
+              },
+            ],
+          },
+          {
+            cols: 2,
+            visible: true,
+            key: 'molecular_mass_sum_formular',
+            fields: [
+              {
+                column: 'molecular_mass',
+                column_size: 'column',
+                key: 'molecular_mass',
+                label: 'Molecular mass',
+                type: 'textWithAddOn',
+                addon: 'mg/mol', // addon ist hier website wert
+                unit: 'g/mol', // unit ist wert in DB
+                option_layers: 'molecularMassOptions',
+                prefixes: ['m', 'n'],
+                precision: 5,
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+                setterNewValue: 'setMolecularMass',
+                conditions: {
+                  decoupled: true,
+                },
+              },
+              {
+                column: 'sum_formula',
+                column_size: 'column',
+                key: 'sum_formula',
+                label: 'Sum formula',
+                type: 'text',
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+                conditions: {
+                  decoupled: true,
+                },
+              },
+            ],
+          },
+          {
+            cols: 3,
+            visible: true,
+            key: 'target_amount_value_density_molarity_purity',
+            fields: [
+              {
+                column: 'target_amount_value',
+                column_size: 'half',
+                key: 'target_amount_value',
+                label: 'Amount',
+                type: 'amount',
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+                sub_fields: [ // 3 Felder mit Berechnungen und Wechsel der Einheit (textWithAddOn)
+                  {
+                    column: 'amount_g',
+                    key: 'target_amount_value_amount_g',
+                    label: '',
+                    type: 'textWithAddOn',
+                    addon: 'mg', // addon ist hier website wert
+                    unit: 'g', // unit ist wert in DB
+                    option_layers: 'amountGOptions',
+                    prefixes: ['m', 'n', 'u'],
+                    precision: 4,
+                    default: '',
+                    setterNewValue: 'setAmount',
+                    conditions: {
+                      can_update: true,
+                    },
+                  },
+                  {
+                    column: 'amount_l',
+                    key: 'target_amount_value_amount_l',
+                    label: '',
+                    type: 'textWithAddOn',
+                    addon: 'ml', // addon ist hier website wert
+                    unit: 'l', // unit ist wert in DB
+                    option_layers: 'amountLOptions',
+                    prefixes: ['m', 'u', 'n'],
+                    precision: 5,
+                    default: '',
+                    setterNewValue: 'setAmount',
+                    conditions: {
+                      can_update: true,
+                      has_density: true,
+                      has_molarity: true,
+                      contains_residues: false,
+                    },
+                  },
+                  {
+                    column: 'amount_mol',
+                    key: 'target_amount_value_amount_mol',
+                    label: '',
+                    type: 'textWithAddOn',
+                    addon: 'mmol', // addon ist hier website wert
+                    unit: 'mol', // unit ist wert in DB
+                    option_layers: 'amountMolOptions',
+                    prefixes: ['m', 'n'],
+                    precision: 4,
+                    default: '',
+                    setterNewValue: 'setAmount',
+                    conditions: {
+                      can_update: true,
+                    },
+                  },
+                  {
+                    column: 'defined_part_amount',
+                    key: 'target_amount_value_defined_part_amount',
+                    label: 'Attached',
+                    type: 'textWithAddOn',
+                    addon: 'mg', // addon ist hier website wert
+                    unit: 'g', // unit ist wert in DB
+                    option_layers: 'amountLOptions',
+                    prefixes: ['m', 'n'],
+                    precision: 4,
+                    default: '',
+                    setterNewValue: 'setAmount',
+                    conditions: {
+                      contains_residues: true,
+                    },
+                  },
+                ],
+              },
+              {
+                label: '',
+                key: 'density_molarity',
+                column: 'density_molarity',
+                type: 'tab',
+                visible: true,
+                sub_fields: [ // wird als verschachtelte tabs dargestellt
+                  {
+                    column: 'density',
+                    column_size: 'quarter',
+                    key: 'density',
+                    label: 'Density',
+                    type: 'textWithAddOn', // value wird angepasst aus 2 wird 2.0000
+                    addon: 'g/ml',
+                    prefixes: ['n'],
+                    precision: 5,
+                    visible: true,
+                    default: '',
+                    required: false,
+                    description: '',
+                    setterNewValue: 'setDensity',
+                    conditions: {
+                      can_update: true,
+                    },
+                  },
+                  {
+                    column: 'molarity_value',
+                    column_size: 'quarter',
+                    key: 'molarity_value',
+                    label: 'Molarity',
+                    type: 'textWithAddOn', // value wird angepasst aus 2 wird 2.0000
+                    addon: 'M',
+                    prefixes: ['n'],
+                    precision: 5,
+                    visible: true,
+                    default: '',
+                    required: false,
+                    description: '',
+                    setterNewValue: 'setMolarity',
+                    conditions: {
+                      can_update: true,
+                    },
+                  },
+                ],
+              },
+              {
+                column: 'purity',
+                column_size: 'quarter',
+                key: 'purity',
+                label: 'Purity / Concentration',
+                type: 'numeric', // value wird angepasst aus 2 wird 2.0000
+                prefixes: ['n'],
+                precision: 5,
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+                conditions: {
+                  can_update: true,
+                },
+              },
+            ],
+          },
+        ],
+      },
+      {
+        label: 'Additional properties',
+        key: 'properties',
+        toggle: false, // Felder können auf und zu geklappt werden
+        rows: [
+          {
+            cols: 3,
+            visible: true,
+            key: 'boiling_point_melting_point_xref_flash_point',
+            fields: [
+              {
+                column: 'melting_point',
+                column_size: 'column',
+                key: 'melting_point',
+                label: 'Melting point',
+                type: 'textRangeWithAddOn',
+                addon: '°C',
+                visible: true,
+                default: '',
+                required: false,
+                setterNewValue: 'updateRange',
+                description: 'Use space-separated value to input a Temperature range',
+                conditions: {
+                  can_update: true,
+                  isPolymer: false,
+                },
+              },
+              {
+                column: 'boiling_point',
+                column_size: 'column',
+                key: 'boiling_point',
+                label: 'Boiling point',
+                type: 'textRangeWithAddOn',
+                addon: '°C',
+                visible: true,
+                default: '',
+                required: false,
+                setterNewValue: 'updateRange',
+                description: 'Use space-separated value to input a Temperature range',
+                conditions: {
+                  can_update: true,
+                  isPolymer: false,
+                },
+              },
+              {
+                column: 'xref',
+                column_size: 'column',
+                opt: 'flash_point',
+                key: 'xref_flash_point',
+                label: 'Flash Point',
+                type: 'flashPoint', // hat noch berechnungen (numeric input)
+                option_layers: 'temperatureOptions',
+                addon: '°C',
+                prefixes: ['n'],
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+              },
+            ],
+          },
+          {
+            cols: 4,
+            visible: true,
+            key: 'xref_refractive_index_xref_form_xref_color_xref_solubility',
+            fields: [
+              {
+                column: 'xref',
+                column_size: 'column',
+                opt: 'refractive_index',
+                key: 'xref_refractive_index',
+                label: 'Refractive Index',
+                type: 'text',
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+              },
+              {
+                column: 'xref',
+                column_size: 'column',
+                opt: 'form',
+                key: 'xref_form',
+                label: 'Form',
+                type: 'text',
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+              },
+              {
+                column: 'xref',
+                column_size: 'column',
+                opt: 'color',
+                key: 'xref_color',
+                label: 'Color',
+                type: 'text',
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+              },
+              {
+                column: 'xref',
+                column_size: 'column',
+                opt: 'solubility',
+                key: 'xref_solubility',
+                label: 'Solubility',
+                type: 'text',
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        label: 'Solvents',
+        key: 'solvents',
+        toggle: false,
+        rows: [
+          {
+            cols: 1,
+            fields: [
+              {
+                column: 'solvent',
+                column_size: 'full',
+                key: 'solvent',
+                label: 'Solvent',
+                type: 'solventSelect', // spezial select mit molecule dropdown und ausgewählten Feldern darunter
+                option_layers: 'defaultMultiSolventsSmilesOptions',
+                visible: true,
+                default: 'Select solvents or drag-n-drop molecules from the sample list',
+                required: false,
+                description: '',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        label: '',
+        key: 'basic',
+        rows: [
+          {
+            cols: 1,
+            fields: [
+              {
+                column: 'description',
+                column_size: 'full',
+                key: 'description',
+                label: 'Description',
+                type: 'textarea',
+                rows: 3,
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+              },
+            ],
+          },
+          {
+            cols: 1,
+            fields: [
+              {
+                column: 'location',
+                column_size: 'full',
+                key: 'location',
+                label: 'Location',
+                type: 'text',
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+              },
+            ],
+          },
+          {
+            cols: 1,
+            fields: [
+              {
+                column: 'content',
+                column_size: 'full',
+                key: 'private-note-content',
+                label: 'Private Note',
+                type: 'privat_note', // eigenes component
+                rows: 3,
+                visible: true,
+                default: '',
+                required: false,
+                description: '',
+                conditions: {
+                  can_update: true,
+                },
+              },
+            ],
+          },
+        ],
+      },
+      //{
+      //  label: 'Elemental composition',
+      //  key: 'elemental_composion',
+      //  toggle: true
+      //  rows: [
+      //    {
+      //      cols: 1,
+      //      fields: [
+      //        {
+      //          column: 'formula',
+      //          column_size: 'full',
+      //          key: 'formula_data',
+      //          label: 'By molecule formula',
+      //          type: 'non_editable_text',
+      //          visible: true,
+      //          default: '',
+      //          required: false,
+      //          description: '',
+      //        },
+      //      ],
+      //    },
+      //    {
+      //      cols: 1,
+      //      fields: [
+      //        {
+      //          column: 'found',
+      //          column_size: 'full',
+      //          key: 'found_data',
+      //          label: 'Experimental',
+      //          type: 'elementalComposionFields',
+      //          visible: true,
+      //          default: '',
+      //          required: false,
+      //          description: '',
+      //        },
+      //      ],
+      //    },
+      //  ],
+      //},
+    ],
+  }
+}

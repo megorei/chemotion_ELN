@@ -219,6 +219,8 @@ class Sample < ApplicationRecord
   belongs_to :creator, foreign_key: :created_by, class_name: 'User'
   belongs_to :molecule, optional: true
 
+  belongs_to :element_form_type, optional: true
+
   accepts_nested_attributes_for :molecule_name
   accepts_nested_attributes_for :collections_samples
   accepts_nested_attributes_for :molecule, update_only: true

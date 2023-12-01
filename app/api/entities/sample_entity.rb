@@ -22,6 +22,8 @@ module Entities
       expose :comments,                                     using: 'Entities::CommentEntity'
       expose :comment_count
       expose :dry_solvent
+      expose :element_form_type_id
+      expose :element_form_type,                            using: 'Entities::ElementFormTypeEntity'
     end
 
     # Level 1 attributes

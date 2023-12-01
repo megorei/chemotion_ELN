@@ -47,6 +47,7 @@ import ToggleSection from 'src/components/common/ToggleSection';
 import SampleName from 'src/components/common/SampleName';
 import ClipboardCopyText from 'src/components/common/ClipboardCopyText';
 import SampleForm from 'src/apps/mydb/elements/details/samples/propertiesTab/SampleForm';
+import SampleFormByType from 'src/apps/mydb/elements/details/samples/propertiesTab/SampleFormByType';
 import ComputedPropsContainer from 'src/components/computedProps/ComputedPropsContainer';
 import ComputedPropLabel from 'src/apps/mydb/elements/labels/ComputedPropLabel';
 import Utils from 'src/utilities/Functions';
@@ -174,8 +175,8 @@ export default class SampleDetails extends React.Component {
   UNSAFE_componentWillReceiveProps(nextProps) {
     if (
       (nextProps.sample.isNew
-       && (typeof (nextProps.sample.molfile) === 'undefined'
-        || (nextProps.sample.molfile || '').length === 0)
+        && (typeof (nextProps.sample.molfile) === 'undefined'
+          || (nextProps.sample.molfile || '').length === 0)
       )
       || (typeof (nextProps.sample.molfile) !== 'undefined' && nextProps.sample.molecule.inchikey === 'DUMMY')
     ) {
@@ -763,9 +764,9 @@ export default class SampleDetails extends React.Component {
           <b>Chemical identifiers</b>
           {sample.decoupled
             && (
-            <span className="text-danger">
-              &nbsp;[decoupled]
-            </span>
+              <span className="text-danger">
+                &nbsp;[decoupled]
+              </span>
             )}
         </Col>
         <div className="col-md-6">
@@ -810,6 +811,14 @@ export default class SampleDetails extends React.Component {
         {
           !sample.isNew && <CommentSection section="sample_properties" element={sample} />
         }
+        <SampleFormByType
+          sample={sample}
+          parent={this}
+          customizableField={this.customizableField}
+          enableDecoupled={this.enableSampleDecoupled}
+          decoupleMolecule={this.decoupleMolecule}
+        />
+        <hr />
         <ListGroupItem>
           <SampleForm
             sample={sample}
@@ -1271,7 +1280,7 @@ export default class SampleDetails extends React.Component {
         ElementActions.updateSample(sample);
         Utils.downloadFile({
           contents: `/api/v1/code_logs/print_analyses_codes?sample_id=${sample.id}`
-                    + `&analyses_ids[]=${analysis.id}&type=nmr_analysis&size=small`
+            + `&analyses_ids[]=${analysis.id}&type=nmr_analysis&size=small`
         });
         break;
       case chmoConversions.nmr_13c.termId:
@@ -1280,7 +1289,7 @@ export default class SampleDetails extends React.Component {
         ElementActions.updateSample(sample);
         Utils.downloadFile({
           contents: `/api/v1/code_logs/print_analyses_codes?sample_id=${sample.id}`
-          + `&analyses_ids[]=${analysis.id}&type=nmr_analysis&size=small`
+            + `&analyses_ids[]=${analysis.id}&type=nmr_analysis&size=small`
         });
         break;
       case 'Others':
@@ -1288,7 +1297,7 @@ export default class SampleDetails extends React.Component {
         ElementActions.updateSample(sample);
         Utils.downloadFile({
           contents: `/api/v1/code_logs/print_analyses_codes?sample_id=${sample.id}`
-                    + `&analyses_ids[]=${a1.id}&type=analysis&size=small`
+            + `&analyses_ids[]=${a1.id}&type=analysis&size=small`
         });
         break;
       case 'Others2x':
@@ -1297,7 +1306,7 @@ export default class SampleDetails extends React.Component {
         ElementActions.updateSample(sample);
         Utils.downloadFile({
           contents: `/api/v1/code_logs/print_analyses_codes?sample_id=${sample.id}`
-                    + `&analyses_ids[]=${a1.id}&analyses_ids[]=${a2.id}&type=analysis&size=small`
+            + `&analyses_ids[]=${a1.id}&analyses_ids[]=${a2.id}&type=analysis&size=small`
         });
         break;
       case 'Others3x':
@@ -1307,7 +1316,7 @@ export default class SampleDetails extends React.Component {
         ElementActions.updateSample(sample);
         Utils.downloadFile({
           contents: `/api/v1/code_logs/print_analyses_codes?sample_id=${sample.id}`
-              + `&analyses_ids[]=${a1.id}&analyses_ids[]=${a2.id}&analyses_ids[]=${a3.id}&type=analysis&size=small`
+            + `&analyses_ids[]=${a1.id}&analyses_ids[]=${a2.id}&analyses_ids[]=${a3.id}&type=analysis&size=small`
         });
         break;
       default:
@@ -1533,29 +1542,29 @@ export default class SampleDetails extends React.Component {
     const { pageMessage } = this.state;
     const messageBlock = (pageMessage
       && (pageMessage.error.length > 0 || pageMessage.warning.length > 0)) ? (
-        <Alert bsStyle="warning" style={{ marginBottom: 'unset', padding: '5px', marginTop: '10px' }}>
-          <strong>Structure Alert</strong>
-&nbsp;
-          <Button
-            bsSize="xsmall"
-            bsStyle="warning"
-            onClick={() => this.setState({ pageMessage: null })}
-          >
-            Close Alert
-          </Button>
-          <br />
-          {
+      <Alert bsStyle="warning" style={{ marginBottom: 'unset', padding: '5px', marginTop: '10px' }}>
+        <strong>Structure Alert</strong>
+        &nbsp;
+        <Button
+          bsSize="xsmall"
+          bsStyle="warning"
+          onClick={() => this.setState({ pageMessage: null })}
+        >
+          Close Alert
+        </Button>
+        <br />
+        {
           pageMessage.error.map((m) => (
             <div key={uuid.v1()}>{m}</div>
           ))
         }
-          {
+        {
           pageMessage.warning.map((m) => (
             <div key={uuid.v1()}>{m}</div>
           ))
         }
-        </Alert>
-      ) : null;
+      </Alert>
+    ) : null;
 
     const activeTab = (this.state.activeTab !== 0 && stb.indexOf(this.state.activeTab) > -1
       && this.state.activeTab) || visible.get(0);

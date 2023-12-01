@@ -707,15 +707,15 @@ export default class SampleForm extends React.Component {
                   {this.topSecretCheckbox(sample)}
                 </div> */}
                       {
-                  enableSampleDecoupled ? (
-                    <div
-                      style={{ paddingLeft: '10px' }}
-                      className="decoupled-checkbox"
-                    >
-                      {this.decoupledCheckbox(sample)}
-                    </div>
-                  ) : null
-                }
+                        enableSampleDecoupled ? (
+                          <div
+                            style={{ paddingLeft: '10px' }}
+                            className="decoupled-checkbox"
+                          >
+                            {this.decoupledCheckbox(sample)}
+                          </div>
+                        ) : null
+                      }
                     </div>
                   </td>
                 </tr>
@@ -742,18 +742,18 @@ export default class SampleForm extends React.Component {
                   </td>
                 </tr>
                 {sample.decoupled
-            && (
-            <tr>
-              {
-                this.numInput(sample, 'molecular_mass', 'g/mol', ['n'], 5, 'Molecular mass', '', isDisabled)
-              }
-              <td colSpan="3">
-                {
-                  this.textInput(sample, 'sum_formula', 'Sum formula')
-                }
-              </td>
-            </tr>
-            )}
+                  && (
+                    <tr>
+                      {
+                        this.numInput(sample, 'molecular_mass', 'g/mol', ['n'], 5, 'Molecular mass', '', isDisabled)
+                      }
+                      <td colSpan="3">
+                        {
+                          this.textInput(sample, 'sum_formula', 'Sum formula')
+                        }
+                      </td>
+                    </tr>
+                  )}
 
                 <tr className="visible-hd">
                   <td colSpan="6">
@@ -779,19 +779,19 @@ export default class SampleForm extends React.Component {
                               >
                                 <Tab eventKey="density" title="Density">
                                   {
-                              this.numInputWithoutTable(sample, 'density', 'g/ml', ['n'], 5, '', '', polyDisabled, '', false, isPolymer)
-                            }
+                                    this.numInputWithoutTable(sample, 'density', 'g/ml', ['n'], 5, '', '', polyDisabled, '', false, isPolymer)
+                                  }
                                 </Tab>
                                 <Tab eventKey="molarity" title="Molarity">
                                   {
-                              this.numInputWithoutTable(sample, 'molarity_value', 'M', ['n'], 5, '', '', polyDisabled, '', false, isPolymer)
-                            }
+                                    this.numInputWithoutTable(sample, 'molarity_value', 'M', ['n'], 5, '', '', polyDisabled, '', false, isPolymer)
+                                  }
                                 </Tab>
                               </Tabs>
                               <div style={{ width: '40%', paddingLeft: '5px' }}>
                                 {
-                            this.numInputWithoutTable(sample, 'purity', 'n', ['n'], 5, 'Purity/Concentration', '', isDisabled)
-                          }
+                                  this.numInputWithoutTable(sample, 'purity', 'n', ['n'], 5, 'Purity/Concentration', '', isDisabled)
+                                }
                               </div>
                             </div>
                           </td>

@@ -279,7 +279,7 @@ module Chemotion
         end
 
         get do
-          sample = Sample.includes(:molecule, :residues, :elemental_compositions, :container)
+          sample = Sample.includes(:molecule, :residues, :elemental_compositions, :container, :element_form_type)
                          .find(params[:id])
           present(
             sample,
