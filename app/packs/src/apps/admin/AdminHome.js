@@ -4,7 +4,7 @@ import AdminNavigation from 'src/apps/admin/AdminNavigation';
 import Notifications from 'src/components/Notifications';
 import AdminDashboard from 'src/apps/admin/AdminDashboard';
 import UserManagement from 'src/apps/admin/UserManagement';
-import GroupsDevices from 'src/apps/admin/GroupsDevices';
+import GroupsAndDevices from 'src/apps/admin/groupsAndDevices/GroupsAndDevices';
 import MessagePublish from 'src/apps/admin/MessagePublish';
 import DataCollector from 'src/apps/admin/DataCollector';
 import OlsTerms from 'src/apps/admin/OlsTerms';
@@ -88,7 +88,7 @@ class AdminHome extends React.Component {
             <NavItem eventKey={8}>Text Templates</NavItem>
             <NavItem eventKey={2}>Message Publish</NavItem>
             <NavItem eventKey={5}>Load OLS Terms</NavItem>
-	    {/* <NavItem eventKey={12}>Report-template Management</NavItem> */}
+            {/* <NavItem eventKey={12}>Report-template Management</NavItem> */}
             <NavItem eventKey={13}>Delayed Jobs </NavItem>
           </Nav>
         </Col>
@@ -136,7 +136,7 @@ class AdminHome extends React.Component {
     const { contentClassName } = this.state;
     return (
       <Col className={contentClassName} >
-        <GroupsDevices />
+        <GroupsAndDevices />
       </Col>
     );
   }

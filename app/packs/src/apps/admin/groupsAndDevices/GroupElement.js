@@ -4,7 +4,7 @@ import AdminFetcher from 'src/fetchers/AdminFetcher';
 import { findIndex } from 'lodash';
 import DeleteGroupDeviceButton from 'src/apps/admin/DeleteGroupDeviceButton';
 
-export default class AdminGroupElement extends React.Component {
+export default class GroupElement extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -15,12 +15,6 @@ export default class AdminGroupElement extends React.Component {
 
     this.toggleUsers = this.toggleUsers.bind(this);
     this.toggleDevices = this.toggleDevices.bind(this);
-  }
-
-  componentDidMount() {
-  }
-
-  componentWillUnmount() {
   }
 
   setGroupAdmin(groupRec, userRec, setAdmin = true) {
@@ -62,7 +56,7 @@ export default class AdminGroupElement extends React.Component {
   renderGroupButtons(group) {
     return (
       <td>
-        <ButtonGroup aria-label="Group-Users">
+        <ButtonGroup aria-label="Group-Users" className="group-devices-button-group">
           <OverlayTrigger placement="top" overlay={<Tooltip id="groupUsersShow">List Group-Users</Tooltip>}>
             <Button bsSize="xsmall" type="button" bsStyle="info" onClick={this.toggleUsers} >
               <i className="fa fa-users" />&nbsp;({group.users.length < 10 ? `0${group.users.length}` : group.users.length})
@@ -73,9 +67,9 @@ export default class AdminGroupElement extends React.Component {
               <i className="fa fa-user" /><i className="fa fa-plus" />
             </Button>
           </OverlayTrigger>
-        </ButtonGroup>&nbsp;&nbsp;
+        </ButtonGroup>
 
-        <ButtonGroup>
+        <ButtonGroup className="group-devices-button-group">
           <OverlayTrigger placement="top" overlay={<Tooltip id="groupDevicesShow">List Group-Devices</Tooltip>}>
             <Button bsSize="xsmall" type="button" bsStyle="success" onClick={this.toggleDevices} >
               <i className="fa fa-server" />&nbsp;({group.devices.length < 10 ? `0${group.devices.length}` : group.devices.length})
@@ -86,7 +80,8 @@ export default class AdminGroupElement extends React.Component {
               <i className="fa fa-laptop" /><i className="fa fa-plus" />
             </Button>
           </OverlayTrigger>
-        </ButtonGroup>&nbsp;&nbsp;
+        </ButtonGroup>
+
         <ButtonGroup>
           <DeleteGroupDeviceButton rootType={'Group'}
             groupRec={group}
@@ -102,27 +97,24 @@ export default class AdminGroupElement extends React.Component {
     const isAdmin = group.admins && group.admins.filter(a => (a.id === user.id)).length > 0;
     const adminTooltip = isAdmin === true ? 'set to normal user' : 'set to Administrator';
     return (
-      <td>
-        <ButtonGroup className="actions">
-          <OverlayTrigger placement="top" overlay={<Tooltip id="userAdmin">{adminTooltip}</Tooltip>}>
-            <Button
-              bsSize="xsmall"
-              type="button"
-              bsStyle={isAdmin === true ? 'default' : 'info'}
-              onClick={() => this.setGroupAdmin(group, user, !isAdmin)}
-            >
-              <i className="fa fa-key" />
-            </Button>
-          </OverlayTrigger>
-          <DeleteGroupDeviceButton rootType={'Group'}
-            actionType={'Person'}
-            groupRec={group}
-            userRec={user}
-            currentState={this.state}
-            onChangeGroupData={this.props.onChangeGroupData} />
-        </ButtonGroup>
-        &nbsp;&nbsp;
-      </td>
+      <ButtonGroup className="actions group-devices-button-group">
+        <OverlayTrigger placement="top" overlay={<Tooltip id="userAdmin">{adminTooltip}</Tooltip>}>
+          <Button
+            bsSize="xsmall"
+            type="button"
+            bsStyle={isAdmin === true ? 'default' : 'info'}
+            onClick={() => this.setGroupAdmin(group, user, !isAdmin)}
+          >
+            <i className="fa fa-key" />
+          </Button>
+        </OverlayTrigger>
+        <DeleteGroupDeviceButton rootType={'Group'}
+          actionType={'Person'}
+          groupRec={group}
+          userRec={user}
+          currentState={this.state}
+          onChangeGroupData={this.props.onChangeGroupData} />
+      </ButtonGroup>
     );
   }
 
@@ -146,7 +138,7 @@ export default class AdminGroupElement extends React.Component {
         </tr>
         <tr className={'collapse' + (showUsers ? 'in' : '')} id={`div_row_${groupElement.id}`}>
           <td colSpan="7">
-            <Panel>
+            <Panel key={`group-panel-${groupElement.id}-key`}>
               <Panel.Heading>
                 <Panel.Title>
                   Users in Group: {groupElement.name}

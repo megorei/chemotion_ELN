@@ -3,7 +3,7 @@ import { ButtonGroup, OverlayTrigger, Tooltip, Button, Table, Panel } from 'reac
 import AdminFetcher from 'src/fetchers/AdminFetcher';
 import DeleteGroupDeviceButton from 'src/apps/admin/DeleteGroupDeviceButton';
 
-export default class AdminDeviceElement extends React.Component {
+export default class DeviceElement extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -13,12 +13,6 @@ export default class AdminDeviceElement extends React.Component {
     };
 
     this.toggleUsers = this.toggleUsers.bind(this);
-  }
-
-  componentDidMount() {
-  }
-
-  componentWillUnmount() {
   }
 
   fetch(type) {
@@ -46,7 +40,7 @@ export default class AdminDeviceElement extends React.Component {
   renderDeviceButtons(device) {
     return (
       <td>
-        <ButtonGroup aria-label="Device-Users">
+        <ButtonGroup aria-label="Device-Users" className="group-devices-button-group">
           <OverlayTrigger placement="top" overlay={<Tooltip id="deviceUsersShow">List Device-Users</Tooltip>}>
             <Button bsSize="xsmall" type="button" bsStyle="info" onClick={this.toggleUsers} >
               <i className="fa fa-users" />&nbsp;({device.users.length < 10 ? `0${device.users.length}` : device.users.length})
@@ -67,7 +61,15 @@ export default class AdminDeviceElement extends React.Component {
               <i className="fa fa-laptop" />
             </Button>
           </OverlayTrigger>
-        </ButtonGroup>&nbsp;&nbsp;
+        </ButtonGroup>
+
+        <ButtonGroup className="group-devices-button-group">
+          <OverlayTrigger placement="bottom" overlay={<Tooltip id="inchi_tooltip">Edit Device Details</Tooltip>} >
+            <Button bsSize="xsmall" bsStyle="primary" onClick={() => this.props.onShowDeviceDetailModal(device)}>
+              <i className="fa fa-list-alt" />
+            </Button>
+          </OverlayTrigger>
+        </ButtonGroup>
 
         <ButtonGroup>
           <DeleteGroupDeviceButton rootType={'Device'}
@@ -96,7 +98,7 @@ export default class AdminDeviceElement extends React.Component {
         </tr>
         <tr className={'collapse' + (showUsers ? 'in' : '')} id={`div_row_du${deviceElement.id}`}>
           <td colSpan="5">
-            <Panel>
+            <Panel key={`device-panel-${deviceElement.id}-key`}>
               <Panel.Heading>
                 <Panel.Title>
                   Device: [{deviceElement.name}] managed by following users/groups <br />

@@ -1,12 +1,16 @@
 import React from 'react';
-import { Modal, Panel, Table, Button, FormGroup, ControlLabel, Form, Tooltip, FormControl, OverlayTrigger, Col, Row } from 'react-bootstrap';
+import {
+  Modal, Panel, Table, Button, FormGroup, ControlLabel, Form, Tooltip,
+  FormControl, OverlayTrigger, Col, Row
+} from 'react-bootstrap';
 import Select from 'react-select';
 import { findIndex, filter } from 'lodash';
 import AdminFetcher from 'src/fetchers/AdminFetcher';
 import { selectUserOptionFormater } from 'src/utilities/selectHelper';
 
-import AdminGroupElement from 'src/apps/admin/AdminGroupElement';
-import AdminDeviceElement from 'src/apps/admin/AdminDeviceElement';
+import GroupElement from 'src/apps/admin/groupsAndDevices/GroupElement';
+import DeviceElement from 'src/apps/admin/groupsAndDevices/DeviceElement';
+import DeviceDetailModal from 'src/apps/admin/groupsAndDevices/DeviceDetailModal';
 import { formatDate } from 'src/utilities/timezoneHelper';
 
 export default class GroupsDevices extends React.Component {
@@ -18,29 +22,35 @@ export default class GroupsDevices extends React.Component {
       showModal: false,
       showCreateModal: false,
       showDeviceMetadataModal: false,
+      showDeviceDetailModal: false,
       rootType: '', // Group, Device
-      actionType: 'Person', // Person Group Device Adm
+      actionType: 'Person', // Person Group Device Admin
       root: {},
       device: {},
       deviceMetadata: {
         dates: []
-      }
+      },
+      deviceDetail: {}
     };
     this.handleSelectUser = this.handleSelectUser.bind(this);
     this.loadUserByNameType = this.loadUserByNameType.bind(this);
     this.handleShowModal = this.handleShowModal.bind(this);
     this.handleShowDeviceMetadataModal = this.handleShowDeviceMetadataModal.bind(this);
+    this.handleShowDeviceDetailModal = this.handleShowDeviceDetailModal.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleCloseDeviceMetadata = this.handleCloseDeviceMetadata.bind(this);
+    this.handleCloseDeviceDetail = this.handleCloseDeviceDetail.bind(this);
     this.handleShowCreateModal = this.handleShowCreateModal.bind(this);
     this.handleCloseGroup = this.handleCloseGroup.bind(this);
     this.handleGroupChange = this.handleGroupChange.bind(this);
     this.handleDeviceChange = this.handleDeviceChange.bind(this);
+    this.handleDefaultDeviceDetail = this.handleDefaultDeviceDetail.bind(this);
   }
 
   componentDidMount() {
     this.fetch('Group');
     this.fetch('Device');
+    this.handleDefaultDeviceDetail();
   }
 
   componentWillUnmount() {
@@ -52,6 +62,17 @@ export default class GroupsDevices extends React.Component {
 
   handleDeviceChange() {
     this.fetch('Device');
+  }
+
+  handleDefaultDeviceDetail() {
+    this.state.deviceDetail = {
+      serial_number: '',
+      user_ids: [],
+      users: [],
+      verification_status: '',
+      active: false,
+      visibility: false
+    }
   }
 
   setGroupAdmin(groupRec, userRec, setAdmin = true) {
@@ -150,6 +171,35 @@ export default class GroupsDevices extends React.Component {
 
   deviceMetadataDoiExists() {
     return this.state.deviceMetadata.doi
+  }
+
+  handlefetchDeviceDetailByDeviceId(deviceID) {
+    AdminFetcher.fetchDeviceDetailByDeviceId(deviceID)
+      .then((result) => {
+        if (result.device_detail) {
+          this.setState({
+            deviceDetail: result.device_detail
+          });
+        } else {
+          this.handleDefaultDeviceDetail();
+        }
+      });
+  }
+
+  handleShowDeviceDetailModal(device) {
+    this.setState({
+      showDeviceDetailModal: true,
+      device: device
+    });
+    this.handlefetchDeviceDetailByDeviceId(device.id);
+  }
+
+  handleCloseDeviceDetail() {
+    this.setState({
+      showDeviceDetailModal: false,
+      device: {}
+    });
+    this.handleDefaultDeviceDetail();
   }
 
   handleShowCreateModal(rootType) {
@@ -413,24 +463,39 @@ export default class GroupsDevices extends React.Component {
 
   renderGroups() {
     const { groups } = this.state;
-    const adminIcon = (<OverlayTrigger placement="top" overlay={<Tooltip id="admin">Group Administrator</Tooltip>}><i className="fa fa-key" /></OverlayTrigger>);
-    let tbody = '';
+    const adminIcon = (
+      <OverlayTrigger placement="top" overlay={<Tooltip id="admin">Group Administrator</Tooltip>}>
+        <i className="fa fa-key" />
+      </OverlayTrigger>
+    );
+    let tbody = null;
     if (Object.keys(groups).length <= 0) {
-      tbody = '';
+      tbody = null;
     } else {
       tbody = groups.map((g, idx) => (
-        <AdminGroupElement groupElement={g} index={idx} currentState={this.state}
-          onChangeGroupData={this.handleGroupChange} onShowModal={this.handleShowModal}></AdminGroupElement>
+        <GroupElement
+          groupElement={g}
+          index={idx}
+          currentState={this.state}
+          onChangeGroupData={this.handleGroupChange}
+          onShowModal={this.handleShowModal}
+        >
+        </GroupElement>
       ));
     }
 
     return (
-      <Panel>
+      <Panel key="group-panel-key">
         <Panel.Heading>
           <Panel.Title>
             Group List &nbsp;
             ({groups.length}) &nbsp;
-            <Button bsStyle="default" onClick={() => this.handleShowCreateModal('Group')}>Add New Group</Button>
+            <Button bsStyle="default"
+              key="add-new-group-button"
+              onClick={() => this.handleShowCreateModal('Group')}
+            >
+              Add New Group
+            </Button>
           </Panel.Title>
         </Panel.Heading>
         <Table responsive condensed hover>
@@ -453,22 +518,35 @@ export default class GroupsDevices extends React.Component {
   renderDevices() {
     const { devices } = this.state;
 
-    let tbody = '';
+    let tbody = null;
     if (typeof (devices) !== 'undefined' && Object.keys(devices).length <= 0) {
-      tbody = '';
+      tbody = null;
     } else {
       tbody = devices && devices.map((device, idx) => (
-        <AdminDeviceElement deviceElement={device} index={idx} currentState={this.state}
-          onChangeDeviceData={this.handleDeviceChange} onShowModal={this.handleShowModal} onShowDeviceMetadataModal={this.handleShowDeviceMetadataModal}></AdminDeviceElement>
+        <DeviceElement
+          deviceElement={device}
+          index={idx}
+          currentState={this.state}
+          onChangeDeviceData={this.handleDeviceChange}
+          onShowModal={this.handleShowModal}
+          onShowDeviceMetadataModal={this.handleShowDeviceMetadataModal}
+          onShowDeviceDetailModal={this.handleShowDeviceDetailModal}
+        >
+        </DeviceElement>
       ));
     }
 
     return (
-      <Panel>
+      <Panel key="device-panel-key">
         <Panel.Heading>
           <Panel.Title>
             Device List &nbsp; ({devices.length}) &nbsp;
-            <Button bsStyle="default" onClick={() => this.handleShowCreateModal('Device')}>Add New Device</Button>
+            <Button key="add-new-device-button"
+              bsStyle="default"
+              onClick={() => this.handleShowCreateModal('Device')}
+            >
+              Add New Device
+            </Button>
           </Panel.Title>
         </Panel.Heading>
         <Table responsive condensed hover>
@@ -584,7 +662,10 @@ export default class GroupsDevices extends React.Component {
                 </FormGroup>
                 {!this.deviceMetadataDoiExists() &&
                   <Col smOffset={0} sm={12}>
-                    <Button className="pull-right" bsStyle="danger" onClick={() => this.syncDeviceMetadataFromDataCite(device.id)}>
+                    <Button className="pull-right"
+                      bsStyle="danger"
+                      onClick={() => this.syncDeviceMetadataFromDataCite(device.id)}
+                    >
                       Sync from DataCite
                     </Button>
                   </Col>
@@ -682,7 +763,11 @@ export default class GroupsDevices extends React.Component {
                       </Col>
                       <Col smOffset={0} sm={2}>
                         <ControlLabel>Action</ControlLabel>
-                        <Button bsStyle="danger" className="pull-right" bsSize="small" onClick={() => this.removeDeviceMetadataDate(index)}>
+                        <Button bsStyle="danger"
+                          className="pull-right"
+                          bsSize="small"
+                          onClick={() => this.removeDeviceMetadataDate(index)}
+                        >
                           <i className="fa fa-trash-o" />
                         </Button>
                       </Col>
@@ -691,7 +776,11 @@ export default class GroupsDevices extends React.Component {
                 ))}
                 <Row>
                   <Col smOffset={0} sm={12}>
-                    <Button className="pull-right" bsStyle="success" bsSize="small" onClick={() => this.addDeviceMetadataDate()}>
+                    <Button className="pull-right"
+                      bsStyle="success"
+                      bsSize="small"
+                      onClick={() => this.addDeviceMetadataDate()}
+                    >
                       <i className="fa fa-plus" />
                     </Button>
                   </Col>
@@ -725,6 +814,16 @@ export default class GroupsDevices extends React.Component {
     );
   }
 
+  renderDeviceDetailModal() {
+    return (
+      <DeviceDetailModal
+        hideModal={this.handleCloseDeviceDetail}
+        currentState={this.state}
+      >
+      </DeviceDetailModal>
+    );
+  }
+
   renderModal() {
     const {
       showModal,
@@ -736,7 +835,7 @@ export default class GroupsDevices extends React.Component {
     let title = '';
     switch (rootType) {
       case 'Group':
-        if (actionType === 'Person') {
+        if (actionType === 'Persone') {
           title = `Add users to group: ${root.name}`;
         } else {
           title = `Add devices to group: ${root.name}`;
@@ -782,7 +881,13 @@ export default class GroupsDevices extends React.Component {
                 loadOptions={this.loadUserByNameType}
                 onChange={this.handleSelectUser}
               />
-              <Button bsSize="small" type="button" bsStyle="warning" onClick={() => this.addToRoot(root)}>Add</Button>
+              <Button bsSize="small"
+                type="button"
+                bsStyle="warning"
+                onClick={() => this.addToRoot(root)}
+              >
+                Add
+              </Button>
             </Panel.Body>
           </Panel>
         </Modal.Body>
@@ -792,12 +897,13 @@ export default class GroupsDevices extends React.Component {
 
   render() {
     return (
-      <div className="list-container-bottom">
+      <div className="list-container-bottom" key="list-container-bottom-key">
         {this.renderGroups()}
         {this.renderDevices()}
         {this.renderModal()}
         {this.renderCreateModal()}
         {this.renderDeviceMetadataModal()}
+        {this.renderDeviceDetailModal()}
       </div>
     );
   }
