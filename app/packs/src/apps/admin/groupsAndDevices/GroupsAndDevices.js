@@ -53,9 +53,6 @@ export default class GroupsDevices extends React.Component {
     this.handleDefaultDeviceDetail();
   }
 
-  componentWillUnmount() {
-  }
-
   handleGroupChange() {
     this.fetch('Group');
   }
@@ -479,6 +476,7 @@ export default class GroupsDevices extends React.Component {
           currentState={this.state}
           onChangeGroupData={this.handleGroupChange}
           onShowModal={this.handleShowModal}
+          key={`group-element-key-component-${idx}`}
         >
         </GroupElement>
       ));
@@ -531,6 +529,7 @@ export default class GroupsDevices extends React.Component {
           onShowModal={this.handleShowModal}
           onShowDeviceMetadataModal={this.handleShowDeviceMetadataModal}
           onShowDeviceDetailModal={this.handleShowDeviceDetailModal}
+          key={`device-element-key-component-${idx}`}
         >
         </DeviceElement>
       ));
