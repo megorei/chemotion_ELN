@@ -94,6 +94,34 @@ export default class AdminFetcher {
       });
   }
 
+  static fetchDeviceDetailByDeviceId(deviceId) {
+    return fetch(`/api/v1/admin/deviceDetail/${deviceId}`, {
+      credentials: 'same-origin',
+    })
+      .then(response => response.json())
+      .then(json => json)
+      .catch(errorMessage => {
+        console.log(errorMessage);
+      });
+  }
+
+  static postDeviceDetail(params) {
+    return fetch('/api/v1/admin/deviceDetail', {
+      credentials: 'same-origin',
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    })
+      .then(response => response.json())
+      .then(json => json)
+      .catch(errorMessage => {
+        console.log(errorMessage);
+      });
+  }
+
   static testSFTP(params) {
     return fetch('/api/v1/admin/sftpDevice/', {
       credentials: 'same-origin',

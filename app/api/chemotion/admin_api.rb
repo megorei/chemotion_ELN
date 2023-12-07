@@ -103,6 +103,37 @@ module Chemotion
         end
       end
 
+      namespace :deviceDetail do
+        desc 'Get device detail by device id'
+        params do
+          requires :device_id, type: Integer, desc: 'device id'
+        end
+        route_param :device_id do
+          get do
+            present DeviceDetail.find_by(device_id: params[:device_id]), with: Entities::DeviceDetailEntity,
+                                                                         root: 'device_detail'
+          end
+        end
+
+        desc 'create/update device detail'
+        params do
+          requires :device_id, type: Integer, desc: 'device id'
+          optional :serial_number, type: String, desc: 'device serical number'
+          optional :user_ids, type: Array, desc: 'device users'
+          optional :verification_status, type: String, default: 'none', desc: 'device verification status'
+          optional :active, type: Boolean, default: false, desc: 'device active'
+          optional :visibility, type: Boolean, default: false, desc: 'device visibility'
+        end
+        post do
+          attributes = declared(params, include_missing: false)
+          detail = DeviceDetail.find_or_initialize_by(device_id: attributes[:device_id])
+          detail.update!(attributes)
+          present detail.reload, with: Entities::DeviceDetailEntity, root: 'device_detail'
+        rescue ActiveRecord::RecordInvalid => e
+          { error: e.message }
+        end
+      end
+
       namespace :sftpDevice do # rubocop:disable Metrics/BlockLength
         desc 'Connect device via SFTP'
         params do
