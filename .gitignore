@@ -194,3 +194,5 @@ public/sprite.png
 /public/svgedit
 
 !spec/fixtures/import/sample_import_template.xlsx
+
+/data/klasses.json
