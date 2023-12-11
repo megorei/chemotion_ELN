@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_05_181337) do
+ActiveRecord::Schema.define(version: 2023_12_07_162454) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -361,6 +361,40 @@ ActiveRecord::Schema.define(version: 2023_12_05_181337) do
     t.datetime "updated_at"
     t.string "cron"
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
+  end
+
+  create_table "device_descriptions", force: :cascade do |t|
+    t.integer "device_id"
+    t.string "name"
+    t.string "short_label"
+    t.string "vendor_name"
+    t.string "vendor_id"
+    t.string "vendor_url"
+    t.string "serial_number"
+    t.string "doi"
+    t.string "doi_url"
+    t.string "device_type"
+    t.string "device_type_detail"
+    t.string "operation_mode"
+    t.datetime "installation_start_date"
+    t.datetime "installation_end_date"
+    t.text "description_and_comments"
+    t.jsonb "technical_operator"
+    t.jsonb "administrative_operator"
+    t.string "university_campus"
+    t.string "institute"
+    t.string "building"
+    t.string "room"
+    t.string "infrastructure_assignment"
+    t.string "access_options"
+    t.string "comments"
+    t.string "size"
+    t.string "weight"
+    t.string "application_name"
+    t.string "application_version"
+    t.text "description_for_methods_part"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "device_details", force: :cascade do |t|
