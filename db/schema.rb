@@ -206,6 +206,15 @@ ActiveRecord::Schema.define(version: 2024_04_24_120634) do
     t.datetime "deleted_at"
   end
 
+  create_table "collections_device_descriptions", force: :cascade do |t|
+    t.integer "collection_id"
+    t.integer "device_description_id"
+    t.datetime "deleted_at"
+    t.index ["collection_id"], name: "index_collections_device_descriptions_on_collection_id"
+    t.index ["deleted_at"], name: "index_collections_device_descriptions_on_deleted_at"
+    t.index ["device_description_id", "collection_id"], name: "index_on_device_description_and_collection", unique: true
+  end
+
   create_table "collections_elements", id: :serial, force: :cascade do |t|
     t.integer "collection_id"
     t.integer "element_id"
@@ -452,6 +461,7 @@ ActiveRecord::Schema.define(version: 2024_04_24_120634) do
     t.text "description_for_methods_part"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["device_id"], name: "index_device_descriptions_on_device_id"
   end
 
   create_table "device_metadata", id: :serial, force: :cascade do |t|
