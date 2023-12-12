@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_07_162454) do
+ActiveRecord::Schema.define(version: 2023_12_12_104538) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -159,6 +159,15 @@ ActiveRecord::Schema.define(version: 2023_12_07_162454) do
     t.index ["ancestry"], name: "index_collections_on_ancestry"
     t.index ["deleted_at"], name: "index_collections_on_deleted_at"
     t.index ["user_id"], name: "index_collections_on_user_id"
+  end
+
+  create_table "collections_device_descriptions", force: :cascade do |t|
+    t.integer "collection_id"
+    t.integer "device_description_id"
+    t.datetime "deleted_at"
+    t.index ["collection_id"], name: "index_collections_device_descriptions_on_collection_id"
+    t.index ["deleted_at"], name: "index_collections_device_descriptions_on_deleted_at"
+    t.index ["device_description_id", "collection_id"], name: "index_on_device_description_and_collection", unique: true
   end
 
   create_table "collections_elements", id: :serial, force: :cascade do |t|
@@ -395,6 +404,7 @@ ActiveRecord::Schema.define(version: 2023_12_07_162454) do
     t.text "description_for_methods_part"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["device_id"], name: "index_device_descriptions_on_device_id"
   end
 
   create_table "device_details", force: :cascade do |t|
