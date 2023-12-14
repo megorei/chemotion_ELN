@@ -21,7 +21,8 @@ const elementList = () => {
     { name: 'wellplate', label: 'Wellplate' },
     { name: 'screen', label: 'Screen' },
     { name: 'research_plan', label: 'Research Plan' },
-    { name: 'cell_line', label: 'Cell Line' }
+    { name: 'cell_line', label: 'Cell Line' },
+    { name: 'device_description', label: 'Device Description' }
   ];
   let genericEls = [];
   const currentUser = (UserStore.getState() && UserStore.getState().currentUser) || {};
@@ -225,7 +226,7 @@ export default class CreateButton extends React.Component {
   createBtn(type) {
     let iconClass = `icon-${type}`;
     const genericEls = UserStore.getState().genericEls || [];
-    const constEls = ['sample', 'reaction', 'screen', 'wellplate', 'research_plan'];
+    const constEls = ['sample', 'reaction', 'screen', 'wellplate', 'research_plan', 'device_description'];
     if (!constEls.includes(type) && typeof genericEls !== 'undefined' && genericEls !== null && genericEls.length > 0) {
       const genericEl = (genericEls && genericEls.find(el => el.name == type)) || {};
       iconClass = `${genericEl.icon_name}`;

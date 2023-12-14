@@ -273,6 +273,14 @@ $font-icons-research_plan: "\f0f6";
   content: "\f0a3";
 }
 
+.icon-device_description {
+  font-style: inherit;
+}
+.icon-device_description:before {
+  font-family: FontAwesome;
+  content: "\f1b2";
+}
+
 .exportModal {
    width: 60%;
    height: 100%;
