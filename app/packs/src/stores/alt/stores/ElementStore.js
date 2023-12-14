@@ -96,7 +96,15 @@ class ElementStore {
         pages: null,
         perPage: null
       },
+
       cell_lines: {
+        elements: [],
+        totalElements: 0,
+        page: null,
+        pages: null,
+        perPage: null
+      },
+      device_description: {
         elements: [],
         totalElements: 0,
         page: null,
@@ -157,6 +165,7 @@ class ElementStore {
       handleFetchScreensByCollectionId: ElementActions.fetchScreensByCollectionId,
       handlefetchResearchPlansByCollectionId: ElementActions.fetchResearchPlansByCollectionId,
       handlefetchCellLinesByCollectionId: ElementActions.fetchCellLinesByCollectionId,
+      handlefetchDeviceDescriptionsByCollectionId: ElementActions.fetchDeviceDescriptionsByCollectionId,
 
       handleFetchSampleById: ElementActions.fetchSampleById,
       handleCreateSample: ElementActions.createSample,
@@ -182,7 +191,7 @@ class ElementStore {
         ElementActions.tryFetchWellplateById,
         ElementActions.tryFetchGenericElById
       ],
-      handleFetchCellLineById:ElementActions.tryFetchCellLineElById,
+      handleFetchCellLineById: ElementActions.tryFetchCellLineElById,
       handleCloseWarning: ElementActions.closeWarning,
       handleCreateReaction: ElementActions.createReaction,
       handleCopyReactionFromId: ElementActions.copyReactionFromId,
@@ -210,6 +219,9 @@ class ElementStore {
       handleImportWellplateIntoResearchPlan: ElementActions.importWellplateIntoResearchPlan,
       handleImportTableFromSpreadsheet: ElementActions.importTableFromSpreadsheet,
 
+      handlefetchDeviceDescriptionById: ElementActions.fetchDeviceDescriptionById,
+      handleCreateDeviceDescription: ElementActions.createDeviceDescription,
+
       handleCreatePrivateNote: ElementActions.createPrivateNote,
       handleUpdatePrivateNote: ElementActions.updatePrivateNote,
 
@@ -227,6 +239,7 @@ class ElementStore {
           ElementActions.generateEmptySample,
           ElementActions.generateEmptyReaction,
           ElementActions.generateEmptyCellLine,
+          ElementActions.generateEmptyDeviceDescription,
           ElementActions.showReportContainer,
           ElementActions.showFormatContainer,
           ElementActions.showComputedPropsGraph,
@@ -658,6 +671,10 @@ class ElementStore {
     this.state.elements.cell_lines = result;
   }
 
+  handlefetchDeviceDescriptionsByCollectionId(result) {
+    this.state.elements.device_descriptions = result;
+  }
+
   // -- Samples --
 
   handleFetchSampleById(result) {
@@ -938,6 +955,17 @@ class ElementStore {
     this.setState({ selecteds: newSelecteds });
   }
 
+  // -- DeviceDescriptions --
+
+  handlefetchDeviceDescriptionById(result) {
+    this.changeCurrentElement(result);
+  }
+
+  handleCreateDeviceDescription(device_description) {
+    this.handleRefreshElements('device_description');
+    this.navigateToNewElement(device_description);
+  }
+
   // -- Reactions --
 
   handleFetchReactionById(result) {
@@ -966,7 +994,7 @@ class ElementStore {
     }
   }
 
-  handleFetchCellLineById(result){
+  handleFetchCellLineById(result) {
     this.changeCurrentElement(result);
   }
 
@@ -1352,6 +1380,9 @@ class ElementStore {
         this.handleRefreshElements('wellplate');
         this.handleUpdateWellplateAttaches(updatedElement);
         this.handleRefreshElements('sample');
+        break;
+      case 'device_description':
+        this.handleRefreshElements('device_description');
         break;
       case 'genericEl':
         this.handleRefreshElements('genericEl');

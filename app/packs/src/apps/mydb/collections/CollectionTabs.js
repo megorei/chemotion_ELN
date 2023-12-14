@@ -16,7 +16,8 @@ const elements = [
   { name: 'reaction', label: 'Reaction' },
   { name: 'wellplate', label: 'Wellplate' },
   { name: 'screen', label: 'Screen' },
-  { name: 'research_plan', label: 'Research Plan' }
+  { name: 'research_plan', label: 'Research Plan' },
+  { name: 'device_description', label: 'Device description' }
 ];
 
 export default class CollectionTabs extends React.Component {
@@ -129,10 +130,10 @@ export default class CollectionTabs extends React.Component {
     if (node.label === 'My Collections') {
       return (
         <FormControl 
-        value ="My Collections" 
-        type="text" 
-        className="root-label" 
-        disabled/>);
+          value="My Collections" 
+          type="text" 
+          className="root-label" 
+          disabled />);
     }
     return (
       <FormControl className="collection-label" type="text" value={node.label || ''} disabled />
@@ -168,7 +169,7 @@ export default class CollectionTabs extends React.Component {
                   onClick={this.onClickCollection.bind(this, node)}
                   title='Click to edit collection tab sorting'
                 >
-                  <i className='glyphicon glyphicon-pencil'/>
+                  <i className='glyphicon glyphicon-pencil' />
                 </Button>
               </ButtonGroup>
             </td>
