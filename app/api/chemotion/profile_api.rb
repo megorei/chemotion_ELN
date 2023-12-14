@@ -1,5 +1,6 @@
-module Chemotion
+# frozen_string_literal: true
 
+module Chemotion
   class ProfileLayoutHash < Grape::Validations::Validators::Base
     def validate_param!(attr_name, params)
       fail Grape::Exceptions::Validation, params: [@scope.full_name(attr_name)],
@@ -70,6 +71,7 @@ module Chemotion
           optional :layout_detail_sample, type: Hash, profile_layout_hash: true
           optional :layout_detail_wellplate, type: Hash, profile_layout_hash: true
           optional :layout_detail_screen, type: Hash, profile_layout_hash: true
+          optional :layout_detail_device_description, type: Hash, profile_layout_hash: true
           optional :export_selection, type: Hash do
             optional :sample, type: Array[Boolean]
             optional :reaction, type: Array[Boolean]
@@ -92,7 +94,13 @@ module Chemotion
         data = current_user.profile.data || {}
         available_ements = API::ELEMENTS + Labimotion::ElementKlass.where(is_active: true).pluck(:name)
 
-        data['layout'] = { 'sample' => 1, 'reaction' => 2, 'wellplate' => 3, 'screen' => 4, 'research_plan' => 5 } if data['layout'].nil?
+        if data['layout'].nil?
+          data['layout'] =
+            {
+              'sample' => 1, 'reaction' => 2, 'wellplate' => 3, 'screen' => 4,
+              'research_plan' => 5, 'device_description' => 6
+            }
+        end
 
         layout = data['layout'].select { |e| available_ements.include?(e) }
         data['layout'] = layout.sort_by { |_k, v| v }.to_h

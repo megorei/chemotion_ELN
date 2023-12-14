@@ -17,7 +17,7 @@ import ElementActions from 'src/stores/alt/actions/ElementActions';
 import { elementNames } from 'src/apps/generic/Utils';
 
 const upState = (state) => {
-  const { sample, reaction, screen, wellplate, research_plan } = state;
+  const { sample, reaction, screen, wellplate, research_plan, device_description } = state;
   const stateObj = {
     sample: {
       checkedAll: sample ? sample.checkedAll : false,
@@ -43,7 +43,12 @@ const upState = (state) => {
       checkedAll: research_plan ? research_plan.checkedAll : false,
       checkedIds: research_plan ? research_plan.checkedIds : List(),
       uncheckedIds: research_plan ? research_plan.uncheckedIds : List(),
-    }
+    },
+    device_description: {
+      checkedAll: device_description ? device_description.checkedAll : false,
+      checkedIds: device_description ? device_description.checkedIds : List(),
+      uncheckedIds: device_description ? device_description.uncheckedIds : List(),
+    },
   };
 
   // eslint-disable-next-line no-unused-expressions
@@ -96,7 +101,7 @@ export default class ManagingActions extends React.Component {
 
   onChange(state) {
     const {
-      sample, reaction, screen, wellplate, research_plan, genericEl, currentCollection
+      sample, reaction, screen, wellplate, research_plan, device_description, genericEl, currentCollection
     } = state;
     if (this.collectionChanged(state)) {
       this.setState({
@@ -149,7 +154,7 @@ export default class ManagingActions extends React.Component {
 
   checkUIState(state) {
     const genericNames = (this.state.genericEls && this.state.genericEls.map(el => el.name)) || [];
-    const elNames = ['sample', 'reaction', 'screen', 'wellplate', 'research_plan'].concat(genericNames);
+    const elNames = ['sample', 'reaction', 'screen', 'wellplate', 'research_plan', 'device_description'].concat(genericNames);
     const result = elNames.find(el => (this.state[el] && state[el] && (
       state[el].checkedIds !== this.state[el].checkedIds ||
       state[el].checkedAll !== this.state[el].checkedAll ||

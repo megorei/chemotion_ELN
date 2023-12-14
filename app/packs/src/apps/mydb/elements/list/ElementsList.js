@@ -167,7 +167,7 @@ export default class ElementsList extends React.Component {
       const { klasses } = UIStore.getState();
       genericKlasses = klasses;
     }
-    const elNames = ['sample', 'reaction', 'screen', 'wellplate', 'research_plan'].concat(genericKlasses);
+    const elNames = ['sample', 'reaction', 'screen', 'wellplate', 'research_plan', 'device_description'].concat(genericKlasses);
 
     elNames.forEach((type) => {
       const elementUI = state[type] || {
@@ -195,7 +195,7 @@ export default class ElementsList extends React.Component {
     const {
       visible, hidden, currentTab, totalCheckedElements
     } = this.state;
-    const constEls = ['sample', 'reaction', 'screen', 'wellplate', 'research_plan'];
+    const constEls = ['sample', 'reaction', 'screen', 'wellplate', 'research_plan', 'device_description'];
     const { overview, showReport } = this.props;
     const elementState = this.state;
 

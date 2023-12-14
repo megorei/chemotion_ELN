@@ -95,6 +95,13 @@ class ElementStore {
         pages: null,
         perPage: null
       },
+      device_description: {
+        elements: [],
+        totalElements: 0,
+        page: null,
+        pages: null,
+        perPage: null
+      },
     };
 
     this.state = {
@@ -144,6 +151,7 @@ class ElementStore {
       handleFetchWellplatesByCollectionId: ElementActions.fetchWellplatesByCollectionId,
       handleFetchScreensByCollectionId: ElementActions.fetchScreensByCollectionId,
       handlefetchResearchPlansByCollectionId: ElementActions.fetchResearchPlansByCollectionId,
+      handlefetchDeviceDescriptionsByCollectionId: ElementActions.fetchDeviceDescriptionsByCollectionId,
 
       handleFetchSampleById: ElementActions.fetchSampleById,
       handleCreateSample: ElementActions.createSample,
@@ -195,6 +203,9 @@ class ElementStore {
       handleImportWellplateIntoResearchPlan: ElementActions.importWellplateIntoResearchPlan,
       handleImportTableFromSpreadsheet: ElementActions.importTableFromSpreadsheet,
 
+      handlefetchDeviceDescriptionById: ElementActions.fetchDeviceDescriptionById,
+      handleCreateDeviceDescription: ElementActions.createDeviceDescription,
+
       handleCreatePrivateNote: ElementActions.createPrivateNote,
       handleUpdatePrivateNote: ElementActions.updatePrivateNote,
 
@@ -211,6 +222,7 @@ class ElementStore {
           ElementActions.generateEmptyResearchPlan,
           ElementActions.generateEmptySample,
           ElementActions.generateEmptyReaction,
+          ElementActions.generateEmptyDeviceDescription,
           ElementActions.showReportContainer,
           ElementActions.showFormatContainer,
           ElementActions.showComputedPropsGraph,
@@ -622,6 +634,10 @@ class ElementStore {
     this.state.elements.research_plans = result;
   }
 
+  handlefetchDeviceDescriptionsByCollectionId(result) {
+    this.state.elements.device_descriptions = result;
+  }
+
   // -- Samples --
 
   handleFetchSampleById(result) {
@@ -891,6 +907,17 @@ class ElementStore {
     const index = this.elementIndex(selecteds, result);
     const newSelecteds = this.updateElement(result, index);
     this.setState({ selecteds: newSelecteds });
+  }
+
+  // -- DeviceDescriptions --
+
+  handlefetchDeviceDescriptionById(result) {
+    this.changeCurrentElement(result);
+  }
+
+  handleCreateDeviceDescription(device_description) {
+    this.handleRefreshElements('device_description');
+    this.navigateToNewElement(device_description);
   }
 
   // -- Reactions --
@@ -1247,6 +1274,9 @@ class ElementStore {
         this.handleRefreshElements('wellplate');
         this.handleUpdateWellplateAttaches(updatedElement);
         this.handleRefreshElements('sample');
+        break;
+      case 'device_description':
+        this.handleRefreshElements('device_description');
         break;
       case 'genericEl':
         this.handleRefreshElements('genericEl');
