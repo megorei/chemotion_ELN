@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_12_12_104538) do
+ActiveRecord::Schema.define(version: 2023_12_13_174844) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -156,6 +156,7 @@ ActiveRecord::Schema.define(version: 2023_12_12_104538) do
     t.integer "researchplan_detail_level", default: 10
     t.integer "element_detail_level", default: 10
     t.jsonb "tabs_segment", default: {}
+    t.integer "device_description_detail_level", default: 10
     t.index ["ancestry"], name: "index_collections_on_ancestry"
     t.index ["deleted_at"], name: "index_collections_on_deleted_at"
     t.index ["user_id"], name: "index_collections_on_user_id"
