@@ -95,7 +95,7 @@ class ElementStore {
         pages: null,
         perPage: null
       },
-      device_description: {
+      device_descriptions: {
         elements: [],
         totalElements: 0,
         page: null,
