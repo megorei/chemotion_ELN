@@ -474,10 +474,10 @@ class ElementActions {
     };
   }
 
-  createCellLine(params){
+  createCellLine(params) {
     return (dispatch) => {
       const { currentUser } = UserStore.getState();
-      CellLinesFetcher.create(params,currentUser)
+      CellLinesFetcher.create(params, currentUser)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
@@ -486,12 +486,12 @@ class ElementActions {
     };
   }
 
-  generateEmptyCellLine(collectionId,template){
+  generateEmptyCellLine(collectionId, template) {
     const { currentUser } = UserStore.getState();
-    if (!currentUser) {return }
+    if (!currentUser) { return }
 
-    const cellLineSample= CellLine.buildEmpty(collectionId,`${currentUser.initials}-C${currentUser.cell_lines_count}`);
-    if(template){
+    const cellLineSample = CellLine.buildEmpty(collectionId, `${currentUser.initials}-C${currentUser.cell_lines_count}`);
+    if (template) {
       cellLineSample.copyMaterialFrom(template);
     }
     return cellLineSample;
@@ -857,15 +857,15 @@ class ElementActions {
     };
   }
 
-  updateCellLine(params){
-      return (dispatch) => {
-        CellLinesFetcher.update(params)
-          .then((result) => {
-            dispatch(result);
-          }).catch((errorMessage) => {
-            console.log(errorMessage);
-          });
-      };
+  updateCellLine(params) {
+    return (dispatch) => {
+      CellLinesFetcher.update(params)
+        .then((result) => {
+          dispatch(result);
+        }).catch((errorMessage) => {
+          console.log(errorMessage);
+        });
+    };
   }
 
   updateResearchPlan(params) {
@@ -931,7 +931,7 @@ class ElementActions {
 
   updateDeviceDescription(params) {
     return (dispatch) => {
-      DeviceDescriptionFetcher.update(params)
+      DeviceDescriptionFetcher.updateDeviceDescription(params)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
@@ -946,7 +946,7 @@ class ElementActions {
 
   createDeviceDescription(params) {
     return (dispatch) => {
-      DeviceDescriptionFetcher.create(params)
+      DeviceDescriptionFetcher.createDeviceDescription(params)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
