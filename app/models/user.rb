@@ -76,6 +76,7 @@ class User < ApplicationRecord
   # created vessels will be kept when the creator goes (dependent: nil).
   has_many :created_vessels, class_name: 'Vessel', inverse_of: :creator, dependent: nil
   has_many :cellline_samples, through: :collections
+  has_many :device_descriptions, through: :collections
 
   has_many :samples_created, foreign_key: :created_by, class_name: 'Sample'
 
@@ -292,6 +293,7 @@ class User < ApplicationRecord
                     'screen' => 4,
                     'research_plan' => 5,
                     'cell_line' => -1000,
+                    'device_description' => -1100
                   })
     end
     self.profile.update_columns(data: data)
