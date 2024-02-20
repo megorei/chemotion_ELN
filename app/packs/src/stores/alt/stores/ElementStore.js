@@ -276,6 +276,7 @@ class ElementStore {
         ElementActions.updateScreen,
         ElementActions.updateResearchPlan,
         ElementActions.updateCellLine,
+        ElementActions.updateDeviceDescription,
         ElementActions.updateGenericEl,
       ],
       handleUpdateEmbeddedResearchPlan: ElementActions.updateEmbeddedResearchPlan,
@@ -547,7 +548,7 @@ class ElementStore {
   handleDeleteElements(options) {
     this.waitFor(UIStore.dispatchToken);
     const ui_state = UIStore.getState();
-    const { sample, reaction, wellplate, screen, research_plan, currentCollection, cell_line } = ui_state;
+    const { sample, reaction, wellplate, screen, research_plan, currentCollection, cell_line, device_description } = ui_state;
     const selecteds = this.state.selecteds.map(s => ({ id: s.id, type: s.type }));
     const params = {
       options,
@@ -558,7 +559,8 @@ class ElementStore {
       research_plan,
       currentCollection,
       selecteds,
-      cell_line
+      cell_line,
+      device_description
     };
 
     const currentUser = (UserStore.getState() && UserStore.getState().currentUser) || {};
@@ -611,6 +613,7 @@ class ElementStore {
         if (layout.wellplate && layout.wellplate > 0) { this.handleRefreshElements('wellplate'); }
         if (layout.screen && layout.screen > 0) { this.handleRefreshElements('screen'); }
         if (layout.cell_line && layout.cell_line > 0) { this.handleRefreshElements('cell_line'); }
+        if (layout.device_description && layout.device_description > 0) { this.handleRefreshElements('device_description'); }
         if (!isSync && layout.research_plan && layout.research_plan > 0) { this.handleRefreshElements('research_plan'); }
 
 
@@ -1131,7 +1134,8 @@ class ElementStore {
         'fetchWellplatesByCollectionId',
         'fetchScreensByCollectionId',
         'fetchResearchPlansByCollectionId',
-        'fetchCellLinesByCollectionId'
+        'fetchCellLinesByCollectionId',
+        'fetchDeviceDescriptionsByCollectionId'
       ];
       if (allowedActions.includes(fn)) {
         ElementActions[fn](uiState.currentCollection.id, params, uiState.isSync, moleculeSort);
@@ -1381,6 +1385,7 @@ class ElementStore {
         this.handleRefreshElements('sample');
         break;
       case 'device_description':
+        this.changeCurrentElement(updatedElement);
         this.handleRefreshElements('device_description');
         break;
       case 'genericEl':
