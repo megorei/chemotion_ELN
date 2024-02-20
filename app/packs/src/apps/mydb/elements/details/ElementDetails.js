@@ -20,6 +20,7 @@ import StickyDiv from 'react-stickydiv';
 import UserStore from 'src/stores/alt/stores/UserStore';
 import WellplateDetails from 'src/apps/mydb/elements/details/wellplates/WellplateDetails';
 import CellLineDetails from 'src/apps/mydb/elements/details/cellLines/CellLineDetails';
+import { StoreContext } from 'src/stores/mobx/RootStore';
 import {
   Tabs, Tab, Label, Button
 } from 'react-bootstrap';
@@ -97,6 +98,8 @@ const tabInfoHash = {
 };
 
 export default class ElementDetails extends Component {
+  static contextType = StoreContext;
+
   constructor(props) {
     super(props);
     const { selecteds, activeKey, deletingElement } = ElementStore.getState();
@@ -217,7 +220,6 @@ export default class ElementDetails extends Component {
       case 'device_description':
         return (
           <DeviceDescriptionDetails
-            deviceDescription={el}
             toggleFullScreen={this.toggleFullScreen}
           />
         );
@@ -236,7 +238,7 @@ export default class ElementDetails extends Component {
       case 'literature_map':
         return <LiteratureDetails literatureMap={el} />;
       case 'cell_line':
-        return <CellLineDetails cellLineItem={el}  toggleFullScreen={this.toggleFullScreen}/>;
+        return <CellLineDetails cellLineItem={el} toggleFullScreen={this.toggleFullScreen} />;
       default:
         return (
           <div style={{ textAlign: 'center' }}>
@@ -275,15 +277,26 @@ export default class ElementDetails extends Component {
     );
   }
 
+  setDeviceDescription(el) {
+    if (el && el.type == 'device_description') {
+      this.context.deviceDescriptions.setDeviceDescription(el);
+    }
+  }
+
   render() {
     const {
       fullScreen, selecteds, activeKey, offsetTop
     } = this.state;
     const fScrnClass = fullScreen ? 'full-screen' : 'normal-screen';
 
+    if (selecteds.length >= 1) {
+      this.setDeviceDescription(selecteds[activeKey]);
+    }
+
     const selectedElements = selecteds.map((el, i) => {
       if (!el) return (<span />);
       const key = `${el.type}-${el.id}`;
+
       return (
         <Tab
           key={key}
