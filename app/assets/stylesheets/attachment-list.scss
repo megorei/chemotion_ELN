@@ -19,6 +19,17 @@
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
 }
 
+.attachment-dropzone-filter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.attachment-dropzone-filter div:last-child {
+  margin-left: 20px;
+}
+
 .sorting-row-style {
   padding: 5px;
   border-radius: 5px;
