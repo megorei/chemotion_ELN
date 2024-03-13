@@ -13,57 +13,73 @@ import Utils from 'src/utilities/Functions';
 import ImageModal from 'src/components/common/ImageModal';
 import ThirdPartyAppFetcher from 'src/fetchers/ThirdPartyAppFetcher';
 
-export const attachmentThumbnail = (attachment) => (
-  <div className="attachment-row-image">
-    <ImageModal
-      imageStyle={{
-        width: '45px',
-        height: '45px',
-        borderRadius: '5px',
-        backgroundColor: '#FFF',
-        objectFit: 'contain',
-        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-      }}
-      alt="thumbnail"
-      previewObject={{
-        src: attachment.preview,
-      }}
-      popObject
-      disableClick
-    />
-    <div className="large-preview-modal">
+export const attachmentThumbnail = (attachment) => {
+  let previewImage = '/images/wild_card/not_available.svg';
+  if (attachment.preview !== undefined && attachment.preview !== '') {
+    previewImage = attachment.preview;
+  } else if (attachment.thumbnail) {
+    previewImage = `data:image/png;base64,${attachment.thumbnail}`;
+  }
+  return (
+    <div className="attachment-row-image">
       <ImageModal
         imageStyle={{
-          width: '400px',
-          height: '400px',
+          width: '45px',
+          height: '45px',
           borderRadius: '5px',
           backgroundColor: '#FFF',
           objectFit: 'contain',
           boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
           transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
         }}
-        hasPop
-        showPopImage
         alt="thumbnail"
         previewObject={{
-          src: attachment.preview,
+          src: previewImage,
         }}
         popObject={
-        attachment.filename && attachment.filename.toLowerCase().match(/\.(png|jpg|bmp|tif|svg|jpeg|tiff)$/)
-          ? {
-            fetchNeeded: true,
-            src: `/api/v1/attachments/${attachment.id}/annotated_image`,
-          }
-          : {
-            src: attachment.preview,
-          }
+          attachment.filename && attachment.filename.toLowerCase().match(/\.(png|jpg|bmp|tif|svg|jpeg|tiff)$/)
+            ? {
+              fetchNeeded: true,
+              src: `/api/v1/attachments/${attachment.id}/annotated_image`,
+            }
+            : {
+              src: attachment.preview,
+            }
         }
         disableClick
       />
+      <div className="large-preview-modal">
+        <ImageModal
+          imageStyle={{
+            width: '400px',
+            height: '400px',
+            borderRadius: '5px',
+            backgroundColor: '#FFF',
+            objectFit: 'contain',
+            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+            transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+          }}
+          hasPop
+          showPopImage
+          alt="thumbnail"
+          previewObject={{
+            src: previewImage,
+          }}
+          popObject={
+            attachment.filename && attachment.filename.toLowerCase().match(/\.(png|jpg|bmp|tif|svg|jpeg|tiff)$/)
+              ? {
+                src: `/api/v1/attachments/${attachment.id}/annotated_image`,
+              }
+              : {
+                src: previewImage,
+              }
+          }
+          disableClick
+        />
+      </div>
     </div>
-  </div>
-);
+  );
+}
 
 const isImageFile = (fileName) => {
   const acceptedImageTypes = ['png', 'jpg', 'bmp', 'tif', 'svg', 'jpeg', 'tiff'];
