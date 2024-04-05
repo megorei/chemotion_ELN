@@ -205,6 +205,8 @@ export const importButton = (
   hideImportConfirmFunction,
   confirmAttachmentImportFunction
 ) => {
+  if (showImportConfirm.length === 0) { return null }
+
   const show = showImportConfirm[attachment.id];
   const extension = attachment.filename.split('.').pop();
 
