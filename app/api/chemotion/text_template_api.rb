@@ -11,7 +11,7 @@ module Chemotion
       get :by_type do
         template =
           if params[:type].in?(def_els)
-            current_user.send("#{params[:type]}_text_template")
+            current_user.send(:"#{params[:type]}_text_template")
           else
             ElementTextTemplate.find_by(user_id: current_user.id, name: params[:type])
           end
@@ -26,7 +26,7 @@ module Chemotion
       put :update do
         template =
           if params[:type].in?(def_els)
-            current_user.send("#{params[:type]}_text_template")
+            current_user.send(:"#{params[:type]}_text_template")
           else
             ElementTextTemplate.find_or_initialize_by(user_id: current_user.id, name: params[:type])
           end
