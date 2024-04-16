@@ -19,13 +19,12 @@ export default function SpectraEditorButton({
             Spectra Editor
             {spcInfos.length > 0 ? '' : ': Reprocess'}
           </Tooltip>
-)}
+        )}
       >
         {spcInfos.length > 0 ? (
           <ButtonGroup className="button-right">
             <SplitButton
               id="spectra-editor-split-button"
-              pullRight
               bsStyle="info"
               bsSize="xsmall"
               title={<i className="fa fa-area-chart" />}
@@ -47,22 +46,22 @@ export default function SpectraEditorButton({
                 Reprocess
               </MenuItem>
               {
-            hasEditedJcamp
-              ? (
-                <MenuItem
-                  id="regenerate-edited-spectra"
-                  key="regenerate-edited-spectra"
-                  onSelect={(_, event) => {
-                    event.stopPropagation();
-                    confirmRegenerateEdited(event);
-                  }}
-                >
-                  <i className="fa fa-refresh" />
-                  {' '}
-                  Regenerate .edit.jdx files
-                </MenuItem>
-              ) : <span />
-          }
+                hasEditedJcamp
+                  ? (
+                    <MenuItem
+                      id="regenerate-edited-spectra"
+                      key="regenerate-edited-spectra"
+                      onSelect={(_, event) => {
+                        event.stopPropagation();
+                        confirmRegenerateEdited(event);
+                      }}
+                    >
+                      <i className="fa fa-refresh" />
+                      {' '}
+                      Regenerate .edit.jdx files
+                    </MenuItem>
+                  ) : <span />
+              }
             </SplitButton>
           </ButtonGroup>
         ) : (
@@ -80,27 +79,26 @@ export default function SpectraEditorButton({
       </OverlayTrigger>
 
       {
-          hasNMRium ? (
-            <OverlayTrigger
-              placement="top"
-              delayShow={500}
-              overlay={<Tooltip id="spectra_nmrium_wrapper">Process with NMRium</Tooltip>}
-            >
-              <ButtonGroup className="button-right">
-                <Button
-                  id="spectra-editor-split-button"
-                  pullRight
-                  bsStyle="info"
-                  bsSize="xsmall"
-                  onToggle={(_, event) => { if (event) { event.stopPropagation(); } }}
-                  onClick={toggleNMRDisplayerModal}
-                  disabled={!hasJcamp && !(spcInfos.length > 0)}
-                >
-                  <i className="fa fa-bar-chart" />
-                </Button>
-              </ButtonGroup>
-            </OverlayTrigger>
-          ) : null
+        hasNMRium ? (
+          <OverlayTrigger
+            placement="top"
+            delayShow={500}
+            overlay={<Tooltip id="spectra_nmrium_wrapper">Process with NMRium</Tooltip>}
+          >
+            <ButtonGroup className="button-right">
+              <Button
+                id="spectra-editor-split-button"
+                bsStyle="info"
+                bsSize="xsmall"
+                onToggle={(_, event) => { if (event) { event.stopPropagation(); } }}
+                onClick={toggleNMRDisplayerModal}
+                disabled={!hasJcamp && !(spcInfos.length > 0)}
+              >
+                <i className="fa fa-bar-chart" />
+              </Button>
+            </ButtonGroup>
+          </OverlayTrigger>
+        ) : null
       }
     </span>
   );
