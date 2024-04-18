@@ -100,8 +100,8 @@ function getWindowStyleOffsets(state) {
 
 const allDayAccessor = (event) => {
   if ((event.start && event.start.getHours() === 0 && event.start.getMinutes() === 0)
-  && (event.end && event.end.getHours() === 0 && event.end.getMinutes() === 0) &&
-  moment(event.start).format() !== moment(event.end).format()) {
+    && (event.end && event.end.getHours() === 0 && event.end.getMinutes() === 0) &&
+    moment(event.start).format() !== moment(event.end).format()) {
     return true;
   }
   return false;
@@ -210,6 +210,8 @@ function getEventableIcon(type) {
     icon = 'icon-research_plan';
   } else if (type === 'Screen') {
     icon = 'icon-screen';
+  } else if (type === 'DeviceDescription') {
+    icon = 'icon-device_description';
   }
 
   return icon;
@@ -748,7 +750,7 @@ export default class Calendar extends React.Component {
       <div
         role="button"
         tabIndex="-1"
-        onKeyUp={() => { }}
+        onKeyUp={() => {}}
         onClick={this.onClickBackground}
         className="calendarModalBackground"
         style={{
@@ -777,8 +779,8 @@ export default class Calendar extends React.Component {
           <div
             role="button"
             tabIndex="0"
-            onKeyUp={() => { }}
-            onKeyDown={() => { }}
+            onKeyUp={() => {}}
+            onKeyDown={() => {}}
             style={windowStyleArgs}
             className="calendarModal"
             onClick={(ev) => {
@@ -788,21 +790,21 @@ export default class Calendar extends React.Component {
           >
             <div className="calendarHeader handle">
               <header>
-                { eventableType ? (
+                {eventableType ? (
                   <span>
                     <i className={getEventableIcon(eventableType)} />
                     {headerDescription()}
                   </span>
-                ) : 'Calendar' }
+                ) : 'Calendar'}
               </header>
               <div className="calendarHeaderActions">
-                { eventableType ? (
+                {eventableType ? (
                   <OverlayTrigger placement="bottom" overlay={<Tooltip id="showMyEntries">Show my entries</Tooltip>}>
                     <Button
                       bsSize="small"
                       type="button"
                       bsStyle={showOwnEntries ? 'success' : 'default'}
-                      onKeyUp={() => { }}
+                      onKeyUp={() => {}}
                       onMouseEnter={this.disableDrag}
                       onMouseLeave={this.enableDrag}
                       onClick={(e) => {
@@ -834,7 +836,7 @@ export default class Calendar extends React.Component {
                     </Button>
                   </OverlayTrigger>
                 )}
-                { smallScreen ? null : (
+                {smallScreen ? null : (
                   <OverlayTrigger placement="bottom" overlay={<Tooltip id="fullscreenCalendar">FullScreen</Tooltip>}>
                     <Button
                       bsSize="small"
@@ -853,7 +855,7 @@ export default class Calendar extends React.Component {
                     </Button>
                   </OverlayTrigger>
                 )}
-                { smallScreen ? null : (
+                {smallScreen ? null : (
                   <OverlayTrigger placement="bottom" overlay={<Tooltip id="calendarBackgroundClickDescription">Click in background without closing Calendar</Tooltip>}>
                     <Button
                       bsSize="small"
@@ -867,7 +869,7 @@ export default class Calendar extends React.Component {
                         e.preventDefault();
                       }}
                     >
-                      { backgroundClickToClose ? <i className="fa fa-unlock" /> : <i className="fa fa-lock" /> }
+                      {backgroundClickToClose ? <i className="fa fa-unlock" /> : <i className="fa fa-lock" />}
                       &nbsp;
                     </Button>
                   </OverlayTrigger>
@@ -896,7 +898,7 @@ export default class Calendar extends React.Component {
                 selectable
                 resizable
                 onRangeChange={this.onRangeChange}
-                onView={() => { }} // prevent warning message in browser
+                onView={() => {}} // prevent warning message in browser
                 onSelectEvent={this.selectEntry}
                 onSelectSlot={this.selectSlotEvent}
                 onEventDrop={onHandleTimeUpdate}
@@ -907,7 +909,7 @@ export default class Calendar extends React.Component {
                 showMultiDayTimes={false}
                 formats={formats}
                 allDayAccessor={allDayAccessor}
-                // enableAutoScroll={true}
+              // enableAutoScroll={true}
               />
 
               <CalendarEntryEditor
