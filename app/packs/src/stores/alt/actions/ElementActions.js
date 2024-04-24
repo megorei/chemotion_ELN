@@ -666,8 +666,8 @@ class ElementActions {
         .then((result) => {
           dispatch({ research_plan: result, colId: colId });
         }).catch((errorMessage) => {
-        console.log(errorMessage);
-      });
+          console.log(errorMessage);
+        });
     };
   }
 
@@ -953,6 +953,10 @@ class ElementActions {
           console.log(errorMessage);
         });
     };
+  }
+
+  copyDeviceDescriptionFromClipboard(collection_id) {
+    return collection_id;
   }
 
   // -- DataCite/Radar metadata --
