@@ -259,6 +259,7 @@ class ElementStore {
       handleSplitAsSubsamples: ElementActions.splitAsSubsamples,
       handleSplitElements: ElementActions.splitElements,
       handleSplitAsSubwellplates: ElementActions.splitAsSubwellplates,
+      handleSplitAsSubDeviceDescription: ElementActions.splitAsSubDeviceDescription,
       // formerly from DetailStore
       handleSelect: DetailActions.select,
       handleClose: DetailActions.close,
@@ -975,6 +976,12 @@ class ElementStore {
     if (clipboardDeviceDescriptions && clipboardDeviceDescriptions.length > 0) {
       this.changeCurrentElement(DeviceDescription.copyFromDeviceDescriptionAndCollectionId(clipboardDeviceDescriptions[0], collection_id));
     }
+  }
+
+  handleSplitAsSubDeviceDescription(ui_state) {
+    ElementActions.fetchDeviceDescriptionsByCollectionId(
+      ui_state.currentCollectionId, {}, ui_state.isSync
+    );
   }
 
   // -- Reactions --

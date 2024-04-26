@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_04_24_120634) do
+ActiveRecord::Schema.define(version: 2024_04_24_181556) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -470,6 +470,8 @@ ActiveRecord::Schema.define(version: 2024_04_24_120634) do
     t.datetime "deleted_at"
     t.integer "created_by"
     t.jsonb "ontologies"
+    t.string "ancestry"
+    t.index ["ancestry"], name: "index_device_descriptions_on_ancestry"
     t.index ["device_id"], name: "index_device_descriptions_on_device_id"
   end
 
