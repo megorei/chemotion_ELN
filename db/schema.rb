@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_04_24_120634) do
+ActiveRecord::Schema.define(version: 2024_05_31_122129) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -192,6 +192,7 @@ ActiveRecord::Schema.define(version: 2024_04_24_120634) do
     t.integer "researchplan_detail_level", default: 10
     t.integer "element_detail_level", default: 10
     t.jsonb "tabs_segment", default: {}
+    t.integer "devicedescription_detail_level", default: 10
     t.integer "celllinesample_detail_level", default: 10
     t.bigint "inventory_id"
     t.index ["ancestry"], name: "index_collections_on_ancestry"
@@ -204,6 +205,15 @@ ActiveRecord::Schema.define(version: 2024_04_24_120634) do
     t.integer "collection_id"
     t.integer "cellline_sample_id"
     t.datetime "deleted_at"
+  end
+
+  create_table "collections_device_descriptions", force: :cascade do |t|
+    t.integer "collection_id"
+    t.integer "device_description_id"
+    t.datetime "deleted_at"
+    t.index ["collection_id"], name: "index_collections_device_descriptions_on_collection_id"
+    t.index ["deleted_at"], name: "index_collections_device_descriptions_on_deleted_at"
+    t.index ["device_description_id", "collection_id"], name: "index_on_device_description_and_collection", unique: true
   end
 
   create_table "collections_elements", id: :serial, force: :cascade do |t|
@@ -418,6 +428,64 @@ ActiveRecord::Schema.define(version: 2024_04_24_120634) do
     t.datetime "updated_at"
     t.string "cron"
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
+  end
+
+  create_table "device_descriptions", force: :cascade do |t|
+    t.integer "device_id"
+    t.string "name"
+    t.string "short_label"
+    t.string "vendor_id"
+    t.string "vendor_url"
+    t.string "serial_number"
+    t.string "version_doi"
+    t.string "version_doi_url"
+    t.string "device_type"
+    t.string "device_type_detail"
+    t.string "operation_mode"
+    t.datetime "version_installation_start_date"
+    t.datetime "version_installation_end_date"
+    t.text "description"
+    t.jsonb "operators"
+    t.string "university_campus"
+    t.string "institute"
+    t.string "building"
+    t.string "room"
+    t.string "infrastructure_assignment"
+    t.string "access_options"
+    t.string "access_comments"
+    t.string "size"
+    t.string "weight"
+    t.string "application_name"
+    t.string "application_version"
+    t.text "description_for_methods_part"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "vendor_device_name"
+    t.string "vendor_device_id"
+    t.string "vendor_company_name"
+    t.string "general_tags", default: [], array: true
+    t.text "policies_and_user_information"
+    t.string "version_number"
+    t.text "version_characterization"
+    t.datetime "deleted_at"
+    t.integer "created_by"
+    t.jsonb "ontologies"
+    t.string "ancestry"
+    t.string "version_identifier_type"
+    t.boolean "helpers_uploaded", default: false
+    t.jsonb "setup_descriptions"
+    t.string "maintenance_contract_available"
+    t.string "maintenance_scheduling"
+    t.jsonb "contact_for_maintenance"
+    t.jsonb "planned_maintenance"
+    t.jsonb "consumables_needed_for_maintenance"
+    t.jsonb "unexpected_maintenance"
+    t.text "measures_after_full_shut_down"
+    t.text "measures_after_short_shut_down"
+    t.text "measures_to_plan_offline_period"
+    t.text "restart_after_planned_offline_period"
+    t.index ["ancestry"], name: "index_device_descriptions_on_ancestry"
+    t.index ["device_id"], name: "index_device_descriptions_on_device_id"
   end
 
   create_table "device_metadata", id: :serial, force: :cascade do |t|
@@ -1303,6 +1371,7 @@ ActiveRecord::Schema.define(version: 2024_04_24_120634) do
     t.datetime "updated_at"
     t.integer "element_detail_level", default: 10
     t.integer "celllinesample_detail_level", default: 10
+    t.integer "devicedescription_detail_level", default: 10
     t.index ["collection_id"], name: "index_sync_collections_users_on_collection_id"
     t.index ["shared_by_id", "user_id", "fake_ancestry"], name: "index_sync_collections_users_on_shared_by_id"
     t.index ["user_id", "fake_ancestry"], name: "index_sync_collections_users_on_user_id_and_fake_ancestry"
@@ -1593,25 +1662,25 @@ ActiveRecord::Schema.define(version: 2024_04_24_120634) do
         a_userids int4[];
         u int4;
       begin
-        select channel_type into i_channel_type
-        from channels where id = in_channel_id;
+      	select channel_type into i_channel_type
+      	from channels where id = in_channel_id;
 
         case i_channel_type
-        when 9 then
-          insert into notifications (message_id, user_id, created_at,updated_at)
-          (select in_message_id, id, now(),now() from users where deleted_at is null and type='Person');
-        when 5,8 then
-          if (in_user_ids is not null) then
-          a_userids = in_user_ids;
-          end if;
-          FOREACH u IN ARRAY a_userids
-          loop
-            insert into notifications (message_id, user_id, created_at,updated_at)
-            (select distinct in_message_id, id, now(),now() from users where type='Person' and id in (select group_user_ids(u))
-             and not exists (select id from notifications where message_id = in_message_id and user_id = users.id));
-          end loop;
-        end case;
-        return in_message_id;
+      	when 9 then
+      	  insert into notifications (message_id, user_id, created_at,updated_at)
+      	  (select in_message_id, id, now(),now() from users where deleted_at is null and type='Person');
+      	when 5,8 then
+      	  if (in_user_ids is not null) then
+      	  a_userids = in_user_ids;
+      	  end if;
+      	  FOREACH u IN ARRAY a_userids
+      	  loop
+      		  insert into notifications (message_id, user_id, created_at,updated_at)
+      		  (select distinct in_message_id, id, now(),now() from users where type='Person' and id in (select group_user_ids(u))
+      		   and not exists (select id from notifications where message_id = in_message_id and user_id = users.id));
+       	  end loop;
+      	end case;
+      	return in_message_id;
       end;$function$
   SQL
   create_function :labels_by_user_sample, sql_definition: <<-'SQL'
@@ -1635,31 +1704,31 @@ ActiveRecord::Schema.define(version: 2024_04_24_120634) do
        LANGUAGE plpgsql
       AS $function$
       begin
-        if in_user_ids is null then
+      	if in_user_ids is null then
           update users u set matrix = (
-            select coalesce(sum(2^mx.id),0) from (
-              select distinct m1.* from matrices m1, users u1
-              left join users_groups ug1 on ug1.user_id = u1.id
-                where u.id = u1.id and ((m1.enabled = true) or ((u1.id = any(m1.include_ids)) or (u1.id = ug1.user_id and ug1.group_id = any(m1.include_ids))))
-              except
-              select distinct m2.* from matrices m2, users u2
-              left join users_groups ug2 on ug2.user_id = u2.id
-                where u.id = u2.id and ((u2.id = any(m2.exclude_ids)) or (u2.id = ug2.user_id and ug2.group_id = any(m2.exclude_ids)))
-            ) mx
+      	    select coalesce(sum(2^mx.id),0) from (
+      		    select distinct m1.* from matrices m1, users u1
+      				left join users_groups ug1 on ug1.user_id = u1.id
+      		      where u.id = u1.id and ((m1.enabled = true) or ((u1.id = any(m1.include_ids)) or (u1.id = ug1.user_id and ug1.group_id = any(m1.include_ids))))
+      	      except
+      		    select distinct m2.* from matrices m2, users u2
+      				left join users_groups ug2 on ug2.user_id = u2.id
+      		      where u.id = u2.id and ((u2.id = any(m2.exclude_ids)) or (u2.id = ug2.user_id and ug2.group_id = any(m2.exclude_ids)))
+      	    ) mx
           );
-        else
-            update users u set matrix = (
-              select coalesce(sum(2^mx.id),0) from (
-               select distinct m1.* from matrices m1, users u1
-               left join users_groups ug1 on ug1.user_id = u1.id
-                 where u.id = u1.id and ((m1.enabled = true) or ((u1.id = any(m1.include_ids)) or (u1.id = ug1.user_id and ug1.group_id = any(m1.include_ids))))
-               except
-               select distinct m2.* from matrices m2, users u2
-               left join users_groups ug2 on ug2.user_id = u2.id
-                 where u.id = u2.id and ((u2.id = any(m2.exclude_ids)) or (u2.id = ug2.user_id and ug2.group_id = any(m2.exclude_ids)))
-              ) mx
-            ) where ((in_user_ids) @> array[u.id]) or (u.id in (select ug3.user_id from users_groups ug3 where (in_user_ids) @> array[ug3.group_id]));
-        end if;
+      	else
+      		  update users u set matrix = (
+      		  	select coalesce(sum(2^mx.id),0) from (
+      			   select distinct m1.* from matrices m1, users u1
+      				 left join users_groups ug1 on ug1.user_id = u1.id
+      			     where u.id = u1.id and ((m1.enabled = true) or ((u1.id = any(m1.include_ids)) or (u1.id = ug1.user_id and ug1.group_id = any(m1.include_ids))))
+      			   except
+      			   select distinct m2.* from matrices m2, users u2
+      				 left join users_groups ug2 on ug2.user_id = u2.id
+      			     where u.id = u2.id and ((u2.id = any(m2.exclude_ids)) or (u2.id = ug2.user_id and ug2.group_id = any(m2.exclude_ids)))
+      			  ) mx
+      		  ) where ((in_user_ids) @> array[u.id]) or (u.id in (select ug3.user_id from users_groups ug3 where (in_user_ids) @> array[ug3.group_id]));
+      	end if;
         return true;
       end
       $function$
@@ -1670,19 +1739,19 @@ ActiveRecord::Schema.define(version: 2024_04_24_120634) do
        LANGUAGE plpgsql
       AS $function$
       begin
-        if (TG_OP='INSERT') then
+      	if (TG_OP='INSERT') then
           PERFORM generate_users_matrix(null);
-        end if;
+      	end if;
 
-        if (TG_OP='UPDATE') then
-          if new.enabled <> old.enabled or new.deleted_at <> new.deleted_at then
+      	if (TG_OP='UPDATE') then
+      	  if new.enabled <> old.enabled or new.deleted_at <> new.deleted_at then
             PERFORM generate_users_matrix(null);
-          elsif new.include_ids <> old.include_ids then
+      	  elsif new.include_ids <> old.include_ids then
             PERFORM generate_users_matrix(new.include_ids || old.include_ids);
           elsif new.exclude_ids <> old.exclude_ids then
             PERFORM generate_users_matrix(new.exclude_ids || old.exclude_ids);
-          end if;
-        end if;
+      	  end if;
+      	end if;
         return new;
       end
       $function$
@@ -1705,7 +1774,7 @@ ActiveRecord::Schema.define(version: 2024_04_24_120634) do
        LANGUAGE plpgsql
       AS $function$
       begin
-        update segment_klasses set identifier = gen_random_uuid() where identifier is null;
+      	update segment_klasses set identifier = gen_random_uuid() where identifier is null;
         return new;
       end
       $function$

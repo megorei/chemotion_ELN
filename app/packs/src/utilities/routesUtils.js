@@ -34,7 +34,8 @@ const collectionShow = (e) => {
       ElementActions.fetchBasedOnSearchSelectionAndCollection({
         selection: currentSearchSelection,
         collectionId: collection.id,
-        isSync: !!collection.is_sync_to_me });
+        isSync: !!collection.is_sync_to_me
+      });
     } else {
       if (currentSearchByID) {
         UIActions.clearSearchById();
@@ -43,11 +44,12 @@ const collectionShow = (e) => {
     }
 
     // if (!e.params['sampleID'] && !e.params['reactionID'] &&
-        // !e.params['wellplateID'] && !e.params['screenID']) {
+    // !e.params['wellplateID'] && !e.params['screenID']) {
     UIActions.uncheckAllElements({ type: 'sample', range: 'all' });
     UIActions.uncheckAllElements({ type: 'reaction', range: 'all' });
     UIActions.uncheckAllElements({ type: 'wellplate', range: 'all' });
     UIActions.uncheckAllElements({ type: 'screen', range: 'all' });
+    UIActions.uncheckAllElements({ type: 'device_description', range: 'all' });
     elementNames(false).forEach((klass) => { UIActions.uncheckAllElements({ type: klass, range: 'all' }); });
     // }
   });
@@ -79,7 +81,8 @@ const scollectionShow = (e) => {
       ElementActions.fetchBasedOnSearchSelectionAndCollection({
         selection: currentSearchSelection,
         collectionId: collection.id,
-        isSync: !!collection.is_sync_to_me });
+        isSync: !!collection.is_sync_to_me
+      });
     } else {
       UIActions.selectSyncCollection(collection);
       if (currentSearchByID) {
@@ -92,6 +95,7 @@ const scollectionShow = (e) => {
     UIActions.uncheckAllElements({ type: 'reaction', range: 'all' });
     UIActions.uncheckAllElements({ type: 'wellplate', range: 'all' });
     UIActions.uncheckAllElements({ type: 'screen', range: 'all' });
+    UIActions.uncheckAllElements({ type: 'device_description', range: 'all' });
     elementNames(false).forEach((klass) => { UIActions.uncheckAllElements({ type: klass, range: 'all' }); });
 
     // }
@@ -124,13 +128,13 @@ const sampleShowOrNew = (e) => {
 };
 
 const cellLineShowOrNew = (e) => { 
-  if(e.params.new_cellLine||(e.params.new_cellLine===undefined&&e.params.cell_lineID==="new")){
-     ElementActions.generateEmptyCellLine(e.params.collectionID,e.params.cell_line_template);
-  }else{
-    if(e.params.cellLineID){
-     e.params.cellLineId=e.params.cellLineID
+  if (e.params.new_cellLine || (e.params.new_cellLine === undefined && e.params.cell_lineID === "new")) {
+    ElementActions.generateEmptyCellLine(e.params.collectionID, e.params.cell_line_template);
+  } else {
+    if (e.params.cellLineID) {
+      e.params.cellLineId = e.params.cellLineID
     }
-     ElementActions.tryFetchCellLineElById.defer(e.params.cellLineId);
+    ElementActions.tryFetchCellLineElById.defer(e.params.cellLineId);
   }
 }
 
@@ -242,12 +246,28 @@ const metadataShowOrNew = (e) => {
   }
 };
 
+const deviceDescriptionShowOrNew = (e) => {
+  const { device_descriptionID, collectionID } = e.params;
+  const { selecteds, activeKey } = ElementStore.getState();
+  const index = selecteds.findIndex(el => el.type === 'device_description' && el.id === device_descriptionID);
+
+  if (device_descriptionID === 'new' || device_descriptionID === undefined) {
+    ElementActions.generateEmptyDeviceDescription(collectionID);
+  } else if (device_descriptionID === 'copy') {
+    ElementActions.copyDeviceDescriptionFromClipboard.defer(collectionID);
+  } else if (index < 0) {
+    ElementActions.fetchDeviceDescriptionById(device_descriptionID);
+  } else if (index !== activeKey) {
+    DetailActions.select(index);
+  }
+}
+
 const genericElShowOrNew = (e, type) => {
   const { collectionID } = e.params;
   let itype = '';
   if (typeof type === 'undefined' || typeof type === 'object' || type == null || type == '') {
     const keystr = e.params && Object.keys(e.params).filter(k => k != 'collectionID' && k.includes('ID'));
-    itype = keystr && keystr[0] && keystr[0].slice(0,-2);
+    itype = keystr && keystr[0] && keystr[0].slice(0, -2);
   } else {
     itype = type;
   }
@@ -265,7 +285,7 @@ const genericElShowOrNew = (e, type) => {
 
 const elementShowOrNew = (e) => {
   const type = e.type;
-  switch(type) {
+  switch (type) {
     case 'sample':
       sampleShowOrNew(e);
       break;
@@ -286,6 +306,9 @@ const elementShowOrNew = (e) => {
       break;
     case 'cell_line':
       cellLineShowOrNew(e);
+      break;
+    case 'device_description':
+      deviceDescriptionShowOrNew(e);
       break;
     default:
       if (e && e.klassType == 'GenericEl') {
@@ -314,6 +337,7 @@ export {
   deviceShowDeviceManagement,
   researchPlanShowOrNew,
   metadataShowOrNew,
+  deviceDescriptionShowOrNew,
   elementShowOrNew,
   predictionShowFwdRxn,
   genericElShowOrNew,

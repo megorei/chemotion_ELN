@@ -1,18 +1,20 @@
 # frozen_string_literal: true
+
 module Chemotion
   class TextTemplateAPI < Grape::API
     resource :text_templates do
-      DEF_ELS ||= %w[research_plan screen wellplate reaction sample reaction_description].freeze
+      def_els = %w[research_plan screen wellplate reaction sample reaction_description device_description].freeze
 
       params do
         requires :type, type: String, desc: 'element type'
       end
       get :by_type do
-        template = if params[:type].in?(DEF_ELS)
-          current_user.send(params[:type] + '_text_template')
-        else
-          ElementTextTemplate.find_by(user_id: current_user.id, name: params[:type])
-        end
+        template =
+          if params[:type].in?(def_els)
+            current_user.send(:"#{params[:type]}_text_template")
+          else
+            ElementTextTemplate.find_by(user_id: current_user.id, name: params[:type])
+          end
 
         { "#{params[:type]}": template&.data || {} }
       end
@@ -22,11 +24,12 @@ module Chemotion
         requires :data, type: Hash, desc: 'Text template details'
       end
       put :update do
-        template = if params[:type].in?(DEF_ELS)
-          current_user.send(params[:type] + '_text_template')
-        else
-          ElementTextTemplate.find_or_initialize_by(user_id: current_user.id, name: params[:type])
-        end
+        template =
+          if params[:type].in?(def_els)
+            current_user.send(:"#{params[:type]}_text_template")
+          else
+            ElementTextTemplate.find_or_initialize_by(user_id: current_user.id, name: params[:type])
+          end
         template.data = params['data']
         template.save!
 

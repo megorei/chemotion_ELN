@@ -75,6 +75,12 @@ const routes = {
     },
     '/:cellLineID': 'showOrNew'
   },
+  '/device_description': {
+    target: {
+      showOrNew: routesUtils.deviceDescriptionShowOrNew
+    },
+    '/:device_descriptionID': 'showOrNew'
+  },
   '/devicesAnalysis': {
     target: {
       create: routesUtils.devicesAnalysisCreate,
@@ -119,7 +125,7 @@ elementNames(false).forEach((klass) => {
 });
 
 
-export default function() {
+export default function () {
   Aviator.root = '/mydb';
   Aviator.pushStateEnabled = true;
   Aviator.setRoutes(routes);

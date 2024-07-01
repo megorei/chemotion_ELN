@@ -19,6 +19,8 @@ class CodePdf < Prawn::Document
 
       text = if type == 'sample' || type == 'reaction'
                "#{type.capitalize}: #{element.short_label}\n#{element.name}"
+             elsif type == 'device_description'
+               "DeviceDescription:\n#{element.id}\n#{element.vendor_device_name}"
              else
                "#{type.capitalize} ID: #{element.id}\n#{element.name}"
              end

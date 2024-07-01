@@ -195,6 +195,9 @@ module Chemotion
             optional :cell_line, type: Hash do
               use :ui_state_params
             end
+            optional :device_description, type: Hash do
+              use :ui_state_params
+            end
           end
           requires :collection_attributes, type: Hash do
             requires :permission_level, type: Integer
@@ -223,6 +226,9 @@ module Chemotion
           cell_lines = CelllineSample.by_collection_id(@cid)
                                      .by_ui_state(params[:elements_filter][:cell_line])
                                      .for_user_n_groups(user_ids)
+          device_descriptions = DeviceDescription.by_collection_id(@cid)
+                                                 .by_ui_state(params[:elements_filter][:device_description])
+                                                 .for_user_n_groups(user_ids)
           elements = {}
           Labimotion::ElementKlass.find_each do |klass|
             elements[klass.name] = Labimotion::Element.by_collection_id(@cid).by_ui_state(params[:elements_filter][klass.name]).for_user_n_groups(user_ids)
@@ -239,6 +245,7 @@ module Chemotion
           share_screens = ElementsPolicy.new(current_user, screens).share?
           share_research_plans = ElementsPolicy.new(current_user, research_plans).share?
           share_cell_lines = ElementsPolicy.new(current_user, cell_lines).share?
+          share_device_descriptions = ElementsPolicy.new(current_user, device_descriptions).share?
           share_elements = !(elements&.length > 0)
           elements.each do |k, v|
             share_elements = ElementsPolicy.new(current_user, v).share?
@@ -251,6 +258,7 @@ module Chemotion
                             share_screens &&
                             share_research_plans &&
                             share_cell_lines &&
+                            share_device_descriptions &&
                             share_elements
           error!('401 Unauthorized', 401) if (!sharing_allowed || is_top_secret)
 
@@ -260,6 +268,7 @@ module Chemotion
           @screen_ids = screens.pluck(:id)
           @research_plan_ids = research_plans.pluck(:id)
           @cell_line_ids = cell_lines.pluck(:id)
+          @device_description_ids = device_descriptions.pluck(:id)
           @element_ids = elements&.transform_values { |v| v && v.pluck(:id) }
         end
 
@@ -282,6 +291,7 @@ module Chemotion
             screen_ids: @screen_ids,
             research_plan_ids: @research_plan_ids,
             cell_line_ids: @cell_line_ids,
+            device_description_ids: @device_description_ids,
             element_ids: @element_ids,
             collection_attributes: params[:collection_attributes].merge(shared_by_id: current_user.id)
           ).execute!

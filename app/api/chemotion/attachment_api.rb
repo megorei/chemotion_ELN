@@ -51,7 +51,6 @@ module Chemotion
       error!(message, 404)
     end
 
-
     resource :export_ds do
       before do
         @container = Container.find_by(id: params[:container_id])
@@ -61,7 +60,7 @@ module Chemotion
                     ElementPermissionProxy.new(current_user, element, user_ids).read_dataset?
         error!('401 Unauthorized', 401) unless can_dwnld
       end
-      desc "Download the dataset attachment file"
+      desc 'Download the dataset attachment file'
       get 'dataset/:container_id' do
         env['api.format'] = :binary
         export = Labimotion::ExportDataset.new
@@ -83,6 +82,7 @@ module Chemotion
 
         @attachment = Attachment.find_by(identifier: params[:identifier]) if @attachment.nil? && params[:identifier]
 
+        # rubocop:disable Performance/StringInclude
         case request.env['REQUEST_METHOD']
         when /delete/i
           error!('401 Unauthorized', 401) unless writable?(@attachment)
@@ -102,6 +102,13 @@ module Chemotion
               can_dwnld = can_read &&
                           ElementPermissionProxy.new(current_user, element, user_ids).read_dataset?
             end
+          elsif /device_description_analyses/.match?(request.url)
+            @device_description = DeviceDescription.find(params[:device_description_id])
+            if (element = @device_description)
+              can_read = ElementPolicy.new(current_user, element).read?
+              can_dwnld = can_read &&
+                          ElementPermissionProxy.new(current_user, element, user_ids).read_dataset?
+            end
           elsif @attachment
             can_dwnld = @attachment.container_id.nil? && @attachment.created_for == current_user.id
             if !can_dwnld && (element = @attachment.container&.root&.containable)
@@ -112,6 +119,7 @@ module Chemotion
           end
           error!('401 Unauthorized', 401) unless can_dwnld
         end
+        # rubocop:enable Performance/StringInclude
       end
 
       desc 'Bulk Delete Attachments'
@@ -352,17 +360,40 @@ module Chemotion
                 end
               end&.flatten&.reduce(:+) || 0
         if tts > 300_000_000
-          DownloadAnalysesJob.perform_later(@sample.id, current_user.id, false)
+          DownloadAnalysesJob.perform_later(@sample.id, current_user.id, false, 'sample')
           nil
         else
           env['api.format'] = :binary
           content_type('application/zip, application/octet-stream')
           filename = CGI.escape("#{@sample.short_label}-analytical-files.zip")
           header('Content-Disposition', "attachment; filename=\"#{filename}\"")
-          zip = DownloadAnalysesJob.perform_now(@sample.id, current_user.id, true)
+          zip = DownloadAnalysesJob.perform_now(@sample.id, current_user.id, true, 'sample')
           zip.rewind
           zip.read
 
+        end
+      end
+
+      desc 'Download the zip attachment file by device_description_id'
+      get 'device_description_analyses/:device_description_id' do
+        # rubocop:disable Performance/Sum
+        tts = @device_description.analyses&.map do |a|
+                a.children&.map do |d|
+                  d.attachments&.map(&:filesize)
+                end
+              end&.flatten&.reduce(:+) || 0
+        # rubocop:enable Performance/Sum
+        if tts > 300_000_000
+          DownloadAnalysesJob.perform_later(@device_description.id, current_user.id, false, 'device_description')
+          nil
+        else
+          env['api.format'] = :binary
+          content_type('application/zip, application/octet-stream')
+          filename = CGI.escape("#{@device_description.short_label}-analytical-files.zip")
+          header('Content-Disposition', "attachment; filename=\"#{filename}\"")
+          zip = DownloadAnalysesJob.perform_now(@device_description.id, current_user.id, true, 'device_description')
+          zip.rewind
+          zip.read
         end
       end
 

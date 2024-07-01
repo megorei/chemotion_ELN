@@ -39,7 +39,6 @@ const PrintCodeButton = ({
       <ButtonGroup className="button-right">
         <SplitButton
           id={`print-code-split-button-${ident || 0}`}
-          pullRight
           bsStyle="default"
           disabled={element.isNew}
           bsSize="xsmall"

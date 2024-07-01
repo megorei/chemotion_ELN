@@ -141,10 +141,11 @@ class API < Grape::API
 
   TARGET = Rails.env.production? ? 'https://www.chemotion-repository.net/' : 'http://localhost:3000/'
 
-  ELEMENTS = %w[research_plan screen wellplate reaction sample cell_line].freeze
+  ELEMENTS = %w[research_plan screen wellplate reaction sample cell_line device_description].freeze
 
   TEXT_TEMPLATE = %w[SampleTextTemplate ReactionTextTemplate WellplateTextTemplate ScreenTextTemplate
-                     ResearchPlanTextTemplate ReactionDescriptionTextTemplate ElementTextTemplate].freeze
+                     ResearchPlanTextTemplate ReactionDescriptionTextTemplate ElementTextTemplate
+                     DeviceDescriptionTextTemplate].freeze
 
   mount Chemotion::LiteratureAPI
   mount Chemotion::ContainerAPI
@@ -204,6 +205,7 @@ class API < Grape::API
   mount Chemotion::InventoryAPI
   mount Chemotion::AdminDeviceAPI
   mount Chemotion::AdminDeviceMetadataAPI
+  mount Chemotion::DeviceDescriptionAPI
 
   if Rails.env.development?
     add_swagger_documentation(info: {
