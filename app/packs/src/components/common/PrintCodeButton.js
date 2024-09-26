@@ -4,7 +4,7 @@ import { Tooltip, OverlayTrigger, MenuItem, DropdownButton, ButtonGroup } from '
 import PrintCodeModal from 'src/components/common/PrintCodeModal';
 
 // Component that allows users to print a PDF.
-export default function PrintCodeButton({element, analyses}) {
+export default function PrintCodeButton({ element, analyses }) {
   // State for the modal and preview
   const [showModal, setShowModal] = useState(false);
   const [selectedConfig, setSelectedConfig] = useState('');

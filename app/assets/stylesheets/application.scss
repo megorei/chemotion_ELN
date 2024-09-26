@@ -59,6 +59,7 @@
  *= require elements_table.scss
  *= require export-collections.scss
  *= require format-container.scss
+ *= require form_fields.scss
  *= require generic_element.scss
  *= require inventory-label-settings.scss
  *= require ketcher.scss
@@ -271,6 +272,14 @@ $font-icons-research_plan: "\f0f6";
 .icon-cell_line:before {
   font-family: FontAwesome;
   content: "\f0a3";
+}
+
+.icon-device_description {
+  font-style: inherit;
+}
+.icon-device_description:before {
+  font-family: FontAwesome;
+  content: "\f1b2";
 }
 
 .exportModal {

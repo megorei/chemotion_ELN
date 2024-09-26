@@ -13,6 +13,7 @@ import React, { Component } from 'react';
 import ReactionDetails from 'src/apps/mydb/elements/details/reactions/ReactionDetails';
 import ReportContainer from 'src/apps/mydb/elements/details/reports/ReportContainer';
 import ResearchPlanDetails from 'src/apps/mydb/elements/details/researchPlans/ResearchPlanDetails';
+import DeviceDescriptionDetails from 'src/apps/mydb/elements/details/deviceDescriptions/DeviceDescriptionDetails';
 import SampleDetails from 'src/apps/mydb/elements/details/samples/SampleDetails';
 import ScreenDetails from 'src/apps/mydb/elements/details/screens/ScreenDetails';
 import StickyDiv from 'react-stickydiv';
@@ -213,6 +214,12 @@ export default class ElementDetails extends Component {
             toggleFullScreen={this.toggleFullScreen}
           />
         );
+      case 'device_description':
+        return (
+          <DeviceDescriptionDetails
+            toggleFullScreen={this.toggleFullScreen}
+          />
+        );
       case 'metadata':
         return <MetadataContainer metadata={el} />;
       case 'report':
@@ -228,7 +235,7 @@ export default class ElementDetails extends Component {
       case 'literature_map':
         return <LiteratureDetails literatureMap={el} />;
       case 'cell_line':
-        return <CellLineDetails cellLineItem={el}  toggleFullScreen={this.toggleFullScreen}/>;
+        return <CellLineDetails cellLineItem={el} toggleFullScreen={this.toggleFullScreen} />;
       default:
         return (
           <div style={{ textAlign: 'center' }}>
@@ -276,6 +283,7 @@ export default class ElementDetails extends Component {
     const selectedElements = selecteds.map((el, i) => {
       if (!el) return (<span />);
       const key = `${el.type}-${el.id}`;
+
       return (
         <Tab
           key={key}

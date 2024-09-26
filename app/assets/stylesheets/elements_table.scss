@@ -139,7 +139,64 @@ th.drag {
 }
 
 .sample-entries > tbody > tr > td {
-  border-top: 0
+  border-top: 0;
+}
+
+table > tbody > tr > td.grouped-list-header {
+  position: relative;
+  padding: 13px 8px;
+  font-weight: bold;
+  font-size: 16px;
+  background-color: #F5F5F5;
+  cursor: pointer;
+}
+
+.grouped-list-header-name {
+  float: left;
+}
+
+.grouped-list-header-toggle-icon {
+  position: absolute;
+  right: 21px;
+  top: 14px;
+}
+
+.grouped-list-header-toggle-icon span {
+  fontSize: 15px;
+  color: #337ab7;
+  lineHeight: 10px;
+}
+
+.list-drag-handle {
+  vertical-align: middle;
+  text-align: center;
+}
+
+.grouped-list-item td:first-child {
+  width: 30px;
+  vertical-align: middle;
+}
+
+.grouped-list-item td:nth-child(2) {
+  cursor: pointer;
+  vertical-align: middle;
+  width: unset;
+}
+
+.grouped-list-item.selected {
+  color: #000;
+  background: #ddd;
+  border: 4px solid #337ab7;
+}
+
+.grouped-list-item-title-and-icons {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.grouped-list-item-title-and-icons span {
+  height: 20px;
 }
 
 @media only screen and (max-width: 1500px) {

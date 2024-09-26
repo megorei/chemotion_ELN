@@ -20,6 +20,7 @@ import ContainerFetcher from 'src/fetchers/ContainerFetcher';
 import GenericElsFetcher from 'src/fetchers/GenericElsFetcher';
 import PrivateNoteFetcher from 'src/fetchers/PrivateNoteFetcher'
 import MetadataFetcher from 'src/fetchers/MetadataFetcher';
+import DeviceDescriptionFetcher from 'src/fetchers/DeviceDescriptionFetcher';
 
 import GenericEl from 'src/models/GenericEl';
 import Sample from 'src/models/Sample';
@@ -28,6 +29,7 @@ import Wellplate from 'src/models/Wellplate';
 import CellLine from 'src/models/cellLine/CellLine';
 import Screen from 'src/models/Screen';
 import ResearchPlan from 'src/models/ResearchPlan';
+import DeviceDescription from 'src/models/DeviceDescription';
 import Report from 'src/models/Report';
 import Format from 'src/models/Format';
 import Graph from 'src/models/Graph';
@@ -332,7 +334,6 @@ class ElementActions {
     };
   }
 
-
   fetchResearchPlansByCollectionId(id, queryParams = {}, collectionIsSync = false) {
     return (dispatch) => {
       ResearchPlansFetcher.fetchByCollectionId(id, queryParams, collectionIsSync)
@@ -346,6 +347,17 @@ class ElementActions {
   fetchCellLinesByCollectionId(id, queryParams = {}, collectionIsSync = false) {
     return (dispatch) => {
       CellLinesFetcher.fetchByCollectionId(id, queryParams, collectionIsSync)
+        .then((result) => {
+          dispatch(result);
+        }).catch((errorMessage) => {
+          console.log(errorMessage);
+        });
+    };
+  }
+
+  fetchDeviceDescriptionsByCollectionId(id, queryParams = {}, collectionIsSync = false) {
+    return (dispatch) => {
+      DeviceDescriptionFetcher.fetchByCollectionId(id, queryParams, collectionIsSync)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
@@ -462,10 +474,10 @@ class ElementActions {
     };
   }
 
-  createCellLine(params){
+  createCellLine(params) {
     return (dispatch) => {
       const { currentUser } = UserStore.getState();
-      CellLinesFetcher.create(params,currentUser)
+      CellLinesFetcher.create(params, currentUser)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
@@ -474,12 +486,12 @@ class ElementActions {
     };
   }
 
-  generateEmptyCellLine(collectionId,template){
+  generateEmptyCellLine(collectionId, template) {
     const { currentUser } = UserStore.getState();
-    if (!currentUser) {return }
+    if (!currentUser) { return }
 
-    const cellLineSample= CellLine.buildEmpty(collectionId,`${currentUser.initials}-C${currentUser.cell_lines_count}`);
-    if(template){
+    const cellLineSample = CellLine.buildEmpty(collectionId, `${currentUser.initials}-C${currentUser.cell_lines_count}`);
+    if (template) {
       cellLineSample.copyMaterialFrom(template);
     }
     return cellLineSample;
@@ -654,8 +666,8 @@ class ElementActions {
         .then((result) => {
           dispatch({ research_plan: result, colId: colId });
         }).catch((errorMessage) => {
-        console.log(errorMessage);
-      });
+          console.log(errorMessage);
+        });
     };
   }
 
@@ -845,15 +857,15 @@ class ElementActions {
     };
   }
 
-  updateCellLine(params){
-      return (dispatch) => {
-        CellLinesFetcher.update(params)
-          .then((result) => {
-            dispatch(result);
-          }).catch((errorMessage) => {
-            console.log(errorMessage);
-          });
-      };
+  updateCellLine(params) {
+    return (dispatch) => {
+      CellLinesFetcher.update(params)
+        .then((result) => {
+          dispatch(result);
+        }).catch((errorMessage) => {
+          console.log(errorMessage);
+        });
+    };
   }
 
   updateResearchPlan(params) {
@@ -901,6 +913,60 @@ class ElementActions {
         .then((result) => { dispatch(result); })
         .then(() => { afterComplete(); })
         .catch((errorMessage) => { console.log(errorMessage); });
+    };
+  }
+
+  // -- DeviceDescriptions --
+
+  fetchDeviceDescriptionById(id) {
+    return (dispatch) => {
+      DeviceDescriptionFetcher.fetchById(id)
+        .then((result) => {
+          dispatch(result);
+        }).catch((errorMessage) => {
+          console.log(errorMessage);
+        });
+    };
+  }
+
+  updateDeviceDescription(params) {
+    return (dispatch) => {
+      DeviceDescriptionFetcher.updateDeviceDescription(params)
+        .then((result) => {
+          dispatch(result);
+        }).catch((errorMessage) => {
+          console.log(errorMessage);
+        });
+    };
+  }
+
+  generateEmptyDeviceDescription(collection_id) {
+    return DeviceDescription.buildEmpty(collection_id);
+  }
+
+  createDeviceDescription(params) {
+    return (dispatch) => {
+      DeviceDescriptionFetcher.createDeviceDescription(params)
+        .then((result) => {
+          dispatch(result);
+        }).catch((errorMessage) => {
+          console.log(errorMessage);
+        });
+    };
+  }
+
+  copyDeviceDescriptionFromClipboard(collection_id) {
+    return collection_id;
+  }
+
+  splitAsSubDeviceDescription(ui_state) {
+    return (dispatch) => {
+      DeviceDescriptionFetcher.splitAsSubDeviceDescription(ui_state)
+        .then((result) => {
+          dispatch(ui_state.ui_state);
+        }).catch((errorMessage) => {
+          console.log(errorMessage);
+        });
     };
   }
 

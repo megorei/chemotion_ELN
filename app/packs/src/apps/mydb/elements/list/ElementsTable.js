@@ -24,6 +24,8 @@ import Select from 'react-select';
 import PropTypes from 'prop-types';
 import CellLineGroup from 'src/models/cellLine/CellLineGroup';
 import CellLineContainer from 'src/apps/mydb/elements/list/cellLine/CellLineContainer';
+import DeviceDescriptionList from 'src/apps/mydb/elements/list/deviceDescriptions/DeviceDescriptionList';
+import DeviceDescriptionListHeader from 'src/apps/mydb/elements/list/deviceDescriptions/DeviceDescriptionListHeader';
 
 export default class ElementsTable extends React.Component {
   constructor(props) {
@@ -575,6 +577,9 @@ export default class ElementsTable extends React.Component {
     } else if (type === 'reaction') {
       typeSpecificHeader = this.renderReactionsHeader();
       searchLabel = <SearchUserLabels userLabel={userLabel} fnCb={this.setUserLabel} />;
+    } else if (type === 'device_description') {
+      typeSpecificHeader = <DeviceDescriptionListHeader />;
+      searchLabel = <SearchUserLabels userLabel={userLabel} fnCb={this.setUserLabel} />;
     } else if (genericEl) {
       typeSpecificHeader = this.renderGenericElementsHeader();
       searchLabel = <SearchUserLabels userLabel={userLabel} fnCb={this.setUserLabel} />;
@@ -681,16 +686,21 @@ export default class ElementsTable extends React.Component {
           type={type}
         />
       );
-    } else if (type === 'cell_line'){
+    } else if (type === 'cell_line') {
       elementsTableEntries = (
-        <CellLineContainer
-        cellLineGroups={CellLineGroup.buildFromElements(elements)}
-      />
+        <CellLineContainer 
+          cellLineGroups={CellLineGroup.buildFromElements(elements)}
+        />
       );
-    }
-
-
-    else {
+    } else if (type === 'device_description') {
+      elementsTableEntries = (
+        <DeviceDescriptionList 
+          elements={elements}
+          currentElement={currentElement}
+          ui={ui}
+        />
+      );
+    } else {
       elementsTableEntries = (
         <ElementsTableEntries
           elements={elements}
