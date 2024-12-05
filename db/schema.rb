@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_09_17_085816) do
+ActiveRecord::Schema.define(version: 2024_12_04_180300) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -218,6 +218,18 @@ ActiveRecord::Schema.define(version: 2024_09_17_085816) do
     t.index ["deleted_at"], name: "index_collections_elements_on_deleted_at"
     t.index ["element_id", "collection_id"], name: "index_collections_elements_on_element_id_and_collection_id", unique: true
     t.index ["element_id"], name: "index_collections_elements_on_element_id"
+  end
+
+  create_table "collections_macromolecule_samples", force: :cascade do |t|
+    t.bigint "collection_id"
+    t.bigint "macromolecule_sample_id"
+    t.datetime "deleted_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["collection_id"], name: "index_collection_macromolecule_samples_collection"
+    t.index ["deleted_at"], name: "index_collections_macromolecule_samples_on_deleted_at"
+    t.index ["macromolecule_sample_id", "collection_id"], name: "index_collection_macromolecule_samples_unique_joins", unique: true
+    t.index ["macromolecule_sample_id"], name: "index_collection_macromolecule_samples_sample"
   end
 
   create_table "collections_reactions", id: :serial, force: :cascade do |t|
@@ -791,6 +803,29 @@ ActiveRecord::Schema.define(version: 2024_09_17_085816) do
     t.string "doi"
     t.string "isbn"
     t.index ["deleted_at"], name: "index_literatures_on_deleted_at"
+  end
+
+  create_table "macromolecule_samples", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "deleted_at"
+    t.string "external_label"
+    t.string "short_label", null: false
+    t.bigint "macromolecule_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["deleted_at"], name: "index_macromolecule_samples_on_deleted_at"
+    t.index ["macromolecule_id"], name: "index_macromolecule_samples_on_macromolecule_id"
+  end
+
+  create_table "macromolecules", force: :cascade do |t|
+    t.string "name", null: false
+    t.jsonb "uniprot_source", null: false
+    t.string "uniprot_ids", null: false, array: true
+    t.datetime "deleted_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["deleted_at"], name: "index_macromolecules_on_deleted_at"
+    t.index ["uniprot_ids"], name: "index_macromolecules_on_uniprot_ids"
   end
 
   create_table "matrices", id: :serial, force: :cascade do |t|
@@ -1539,7 +1574,10 @@ ActiveRecord::Schema.define(version: 2024_09_17_085816) do
 
   add_foreign_key "collections", "inventories"
   add_foreign_key "layer_tracks", "layers", column: "identifier", primary_key: "identifier"
+  add_foreign_key "collections_macromolecule_samples", "collections"
+  add_foreign_key "collections_macromolecule_samples", "macromolecule_samples"
   add_foreign_key "literals", "literatures"
+  add_foreign_key "macromolecule_samples", "macromolecules"
   add_foreign_key "report_templates", "attachments"
   add_foreign_key "sample_tasks", "samples"
   add_foreign_key "sample_tasks", "users", column: "creator_id"
