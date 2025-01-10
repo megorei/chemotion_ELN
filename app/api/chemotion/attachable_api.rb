@@ -48,7 +48,7 @@ module Chemotion
             begin
               a.save!
               attach_ary.push(a.id)
-              if a.attachable_type.in?(%w[ResearchPlan Wellplate DeviceDescription Labimotion::Element])
+              if a.attachable_type.in?(%w[ResearchPlan Wellplate DeviceDescription Macromolecule Labimotion::Element])
                 rp_attach_ary.push(a.id)
               end
             rescue StandardError

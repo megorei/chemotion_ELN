@@ -109,6 +109,13 @@ module Chemotion
               can_dwnld = can_read &&
                           ElementPermissionProxy.new(current_user, element, user_ids).read_dataset?
             end
+          elsif /macromolecule_analyses/.match?(request.url)
+            @macromolecule = Macromolecule.find(params[:macromolecule_id])
+            if (element = @macromolecule)
+              can_read = ElementPolicy.new(current_user, element).read?
+              can_dwnld = can_read &&
+                          ElementPermissionProxy.new(current_user, element, user_ids).read_dataset?
+            end
           elsif @attachment
 
             can_dwnld = @attachment.container_id.nil? && @attachment.created_for == current_user.id

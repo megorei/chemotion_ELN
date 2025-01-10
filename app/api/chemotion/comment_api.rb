@@ -102,6 +102,8 @@ module Chemotion
                          Comment.research_plan_sections.values +
                          Comment.device_description_sections.values +
                          Comment.header_sections.values
+                         Comment.header_sections.values +
+                         Comment.macromolecule_sections.values
       end
 
       post do
