@@ -81,6 +81,12 @@ const routes = {
     },
     '/:device_descriptionID': 'showOrNew'
   },
+  '/macromolecule': {
+    target: {
+      showOrNew: routesUtils.macromoleculeShowOrNew
+    },
+    '/:macromoleculeID': 'showOrNew'
+  },
   '/devicesAnalysis': {
     target: {
       create: routesUtils.devicesAnalysisCreate,

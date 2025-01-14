@@ -116,6 +116,22 @@ export default class SplitElementButton extends React.Component {
     ElementActions.splitAsSubDeviceDescription(params);
   }
 
+  splitSelectionAsSubMacromolecule() {
+    const uiState = UIStore.getState()
+    let params = {
+      ui_state: {
+        macromolecule: {
+          all: uiState.macromolecule.checkedAll,
+          included_ids: uiState.macromolecule.checkedIds,
+          excluded_ids: uiState.macromolecule.uncheckedIds,
+        },
+        currentCollectionId: uiState.currentCollection.id,
+        isSync: uiState.isSync,
+      }
+    }
+    ElementActions.splitAsSubMacromolecule(params);
+  }
+
   render() {
     const { layout, genericEls, showGenericEls, selectedElements } = this.state;
 
@@ -166,6 +182,12 @@ export default class SplitElementButton extends React.Component {
           disabled={this.noSelected('device_description') || this.isAllCollection()}
         >
           Split Device Description
+        </Dropdown.Item>
+        <Dropdown.Item
+          onClick={() => this.splitSelectionAsSubMacromolecule()}
+          disabled={this.noSelected('macromolecule') || this.isAllCollection()}
+        >
+          Split Macromolecule
         </Dropdown.Item>
         {sortedGenericEls.map((el) => (
           <Dropdown.Item

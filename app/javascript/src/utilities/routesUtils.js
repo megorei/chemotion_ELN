@@ -50,6 +50,7 @@ const collectionShow = (e) => {
     UIActions.uncheckAllElements({ type: 'wellplate', range: 'all' });
     UIActions.uncheckAllElements({ type: 'screen', range: 'all' });
     UIActions.uncheckAllElements({ type: 'device_description', range: 'all' });
+    UIActions.uncheckAllElements({ type: 'macromolecule', range: 'all' });
     elementNames(false).then((klassArray) => {
       klassArray.forEach((klass) => {
         UIActions.uncheckAllElements({ type: klass, range: 'all' });
@@ -100,6 +101,7 @@ const scollectionShow = (e) => {
     UIActions.uncheckAllElements({ type: 'wellplate', range: 'all' });
     UIActions.uncheckAllElements({ type: 'screen', range: 'all' });
     UIActions.uncheckAllElements({ type: 'device_description', range: 'all' });
+    UIActions.uncheckAllElements({ type: 'macromolecule', range: 'all' });
     elementNames(false).then((klassArray) => {
       klassArray.forEach((klass) => {
         UIActions.uncheckAllElements({ type: klass, range: 'all' });
@@ -270,6 +272,22 @@ const deviceDescriptionShowOrNew = (e) => {
   }
 }
 
+const macromoleculeShowOrNew = (e) => {
+  const { macromoleculeID, collectionID } = e.params;
+  const { selecteds, activeKey } = ElementStore.getState();
+  const index = selecteds.findIndex(el => el.type === 'macromolecule' && el.id === macromoleculeID);
+
+  if (macromoleculeID === 'new' || macromoleculeID === undefined) {
+    ElementActions.generateEmptyMacromolecule(collectionID);
+  } else if (macromoleculeID === 'copy') {
+    ElementActions.copyMacromoleculeFromClipboard.defer(collectionID);
+  } else if (index < 0) {
+    ElementActions.fetchMacromoleculeById(macromoleculeID);
+  } else if (index !== activeKey) {
+    DetailActions.select(index);
+  }
+}
+
 const genericElShowOrNew = (e, type) => {
   const { collectionID } = e.params;
   let itype = '';
@@ -318,6 +336,9 @@ const elementShowOrNew = (e) => {
     case 'device_description':
       deviceDescriptionShowOrNew(e);
       break;
+    case 'macromolecule':
+      macromoleculeShowOrNew(e);
+      break;
     default:
       if (e && e.klassType == 'GenericEl') {
         genericElShowOrNew(e, type);
@@ -349,5 +370,6 @@ export {
   elementShowOrNew,
   predictionShowFwdRxn,
   genericElShowOrNew,
-  cellLineShowOrNew
+  cellLineShowOrNew,
+  macromoleculeShowOrNew,
 };
