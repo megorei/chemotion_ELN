@@ -130,6 +130,8 @@ const Calendar = () => {
         return 'icon-screen';
       case 'DeviceDescription':
         return 'icon-device_description';
+      case 'Macromolecule':
+        return 'icon-macromolecule';
     }
   }
 

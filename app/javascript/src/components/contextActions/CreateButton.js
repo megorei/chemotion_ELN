@@ -20,7 +20,8 @@ const elementList = () => {
     { name: 'screen', label: 'Screen' },
     { name: 'research_plan', label: 'Research Plan' },
     { name: 'cell_line', label: 'Cell Line' },
-    { name: 'device_description', label: 'Device Description' }
+    { name: 'device_description', label: 'Device Description' },
+    { name: 'macromolecule', label: 'Macromolecule' },
   ];
   let genericEls = [];
   const currentUser = (UserStore.getState() && UserStore.getState().currentUser) || {};
@@ -168,6 +169,27 @@ export default class CreateButton extends React.Component {
     ClipboardActions.fetchDeviceDescriptionsByUIState(params, 'copy_device_description');
   }
 
+  getMacromoleculeFilter() {
+    let uiState = UIStore.getState();
+    return this.filterParamsFromUIStateByElementType(uiState, "macromolecule");
+  }
+
+  isCopyMacromoleculeDisabled() {
+    let macromoleculeFilter = this.getMacromoleculeFilter();
+    return !macromoleculeFilter.all && macromoleculeFilter.included_ids.size == 0;
+  }
+
+  copyMacromolecule() {
+    let macromoleculeFilter = this.getMacromoleculeFilter();
+    // Set limit to 1 because we are only interested in one macromolecule
+    let params = {
+      ui_state: macromoleculeFilter,
+      limit: 1,
+    }
+
+    ClipboardActions.fetchMacromoleculesByUIState(params, 'copy_macromolecule');
+  }
+
   createWellplateFromSamples() {
     let uiState = UIStore.getState();
     let sampleFilter = this.filterParamsFromUIStateByElementType(uiState, "sample");
@@ -286,7 +308,9 @@ export default class CreateButton extends React.Component {
   createBtn(type) {
     let iconClass = `icon-${type}`;
     const genericEls = UserStore.getState().genericEls || [];
-    const constEls = ['sample', 'reaction', 'screen', 'wellplate', 'research_plan', 'cell_line', 'device_description'];
+    const constEls = [
+      'sample', 'reaction', 'screen', 'wellplate', 'research_plan', 'cell_line', 'device_description', 'macromolecule',
+    ];
     if (!constEls.includes(type) && typeof genericEls !== 'undefined' && genericEls !== null && genericEls.length > 0) {
       const genericEl = (genericEls && genericEls.find(el => el.name == type)) || {};
       iconClass = `${genericEl.icon_name}`;
@@ -357,6 +381,9 @@ export default class CreateButton extends React.Component {
         </Dropdown.Item>
         <Dropdown.Item onClick={() => this.copyDeviceDescription()} disabled={this.isCopyDeviceDescriptionDisabled()}>
           Copy Device Description
+        </Dropdown.Item>
+        <Dropdown.Item onClick={() => this.copyMacromolecule()} disabled={this.isCopyMacromoleculeDisabled()}>
+          Copy Macromolecule
         </Dropdown.Item>
       </SplitButton>
     );
