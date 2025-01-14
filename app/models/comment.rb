@@ -71,6 +71,14 @@ class Comment < ApplicationRecord
     maintenance: 'device_description_maintenance',
   }, _prefix: true
 
+  enum macromolecule_section: {
+    properties: 'macromolecule_properties',
+    analyses: 'macromolecule_analyses',
+    attachments: 'macromolecule_attachments',
+    references: 'macromolecule_references',
+    metadata: 'macromolecule_metadata',
+  }, _prefix: true
+
   enum header_section: {
     sample: 'sample_header',
     reaction: 'reaction_header',
