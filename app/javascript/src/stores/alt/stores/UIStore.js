@@ -68,6 +68,15 @@ class UIStore {
         activeTab: 0,
         activeAnalysis: 0,
       },
+      macromolecule: {
+        checkedAll: false,
+        checkedIds: List(),
+        uncheckedIds: List(),
+        currentId: null,
+        page: 1,
+        activeTab: 0,
+        activeAnalysis: 0,
+      },
       showPreviews: true,
       showAdvancedSearch: false,
       filterCreatedAt: true,
@@ -258,6 +267,7 @@ class UIStore {
     this.handleUncheckAllElements({ type: 'research_plan', range: 'all' });
     this.handleUncheckAllElements({ type: 'cell_line', range: 'all' });
     this.handleUncheckAllElements({ type: 'device_description', range: 'all' });
+    this.handleUncheckAllElements({ type: 'macromolecule', range: 'all' });
     this.state.klasses?.forEach((klass) => { this.handleUncheckAllElements({ type: klass, range: 'all' }); });
   }
 
@@ -300,6 +310,7 @@ class UIStore {
     this.state.wellplate.currentId = null;
     this.state.research_plan.currentId = null;
     this.state.device_description.currentId = null;
+    this.state.macromolecule.currentId = null;
   }
 
   handleSelectElement(element) {
@@ -380,9 +391,20 @@ class UIStore {
               Object.assign(params, { page: state.device_description.page }),
             );
           }
+          if (!isSync && layout.macromolecule && layout.macromolecule > 0) {
+            ElementActions.fetchMacromoleculesByCollectionId(
+              collection.id,
+              Object.assign(params, { page: state.macromolecule.page }),
+            );
+          }
+
+          const elements = [
+            'sample', 'reaction', 'screen', 'wellplate', 'research_plan',
+            'cell_line', 'device_description', 'macromolecule',
+          ];
 
           Object.keys(layout)
-            .filter(l => !['sample', 'reaction', 'screen', 'wellplate', 'research_plan', 'cell_line', 'device_description'].includes(l))
+            .filter(l => !elements.includes(l))
             .forEach((key) => {
               if (typeof layout[key] !== 'undefined' && layout[key] > 0) {
                 const page = state[key] ? state[key].page : 1;

@@ -21,6 +21,7 @@ import GenericElsFetcher from 'src/fetchers/GenericElsFetcher';
 import PrivateNoteFetcher from 'src/fetchers/PrivateNoteFetcher'
 import MetadataFetcher from 'src/fetchers/MetadataFetcher';
 import DeviceDescriptionFetcher from 'src/fetchers/DeviceDescriptionFetcher';
+import MacromoleculesFetcher from 'src/fetchers/MacromoleculesFetcher';
 
 import GenericEl from 'src/models/GenericEl';
 import Sample from 'src/models/Sample';
@@ -36,6 +37,7 @@ import Graph from 'src/models/Graph';
 import ComputeTask from 'src/models/ComputeTask';
 import LiteratureMap from 'src/models/LiteratureMap';
 import Prediction from 'src/models/Prediction';
+import Macromolecule from 'src/models/Macromolecule';
 import ReactionSvgFetcher from 'src/fetchers/ReactionSvgFetcher';
 import Metadata from 'src/models/Metadata';
 import UserStore from 'src/stores/alt/stores/UserStore';
@@ -339,6 +341,7 @@ class ElementActions {
         });
     };
   }
+
   fetchCellLinesByCollectionId(id, queryParams = {}, collectionIsSync = false) {
     return (dispatch) => {
       CellLinesFetcher.fetchByCollectionId(id, queryParams, collectionIsSync)
@@ -353,6 +356,17 @@ class ElementActions {
   fetchDeviceDescriptionsByCollectionId(id, queryParams = {}, collectionIsSync = false) {
     return (dispatch) => {
       DeviceDescriptionFetcher.fetchByCollectionId(id, queryParams, collectionIsSync)
+        .then((result) => {
+          dispatch(result);
+        }).catch((errorMessage) => {
+          console.log(errorMessage);
+        });
+    };
+  }
+
+  fetchMacromoleculesByCollectionId(id, queryParams = {}, collectionIsSync = false) {
+    return (dispatch) => {
+      MacromoleculesFetcher.fetchByCollectionId(id, queryParams, collectionIsSync)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
@@ -492,9 +506,9 @@ class ElementActions {
     return cellLineSample;
   }
 
-  copyCellLineFromId(id,collectionId ) {
+  copyCellLineFromId(id, collectionId) {
     return (dispatch) => {
-      CellLinesFetcher.copyCellLine(id,collectionId)
+      CellLinesFetcher.copyCellLine(id, collectionId)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
@@ -703,19 +717,19 @@ class ElementActions {
     };
   }
 
-    splitAsSubCellLines(ui_state) {
-      return (dispatch) => {
-        const ids = ui_state["cell_line"].checkedIds.toArray();
-        const collection_id = ui_state.currentCollection.id;
+  splitAsSubCellLines(ui_state) {
+    return (dispatch) => {
+      const ids = ui_state["cell_line"].checkedIds.toArray();
+      const collection_id = ui_state.currentCollection.id;
         
-        CellLinesFetcher.splitAsSubCellLines(ids,collection_id)
-          .then((result) => {
-            dispatch(ui_state);
-          }).catch((errorMessage) => {
-            console.log(errorMessage);
-          });
-      };
-    }
+      CellLinesFetcher.splitAsSubCellLines(ids, collection_id)
+        .then((result) => {
+          dispatch(ui_state);
+        }).catch((errorMessage) => {
+          console.log(errorMessage);
+        });
+    };
+  }
 
   bulkCreateWellplatesFromSamples(params) {
     let { collection_id, samples, wellplateCount } = params;
@@ -987,6 +1001,60 @@ class ElementActions {
   splitAsSubDeviceDescription(ui_state) {
     return (dispatch) => {
       DeviceDescriptionFetcher.splitAsSubDeviceDescription(ui_state)
+        .then((result) => {
+          dispatch(ui_state.ui_state);
+        }).catch((errorMessage) => {
+          console.log(errorMessage);
+        });
+    };
+  }
+
+  // -- Macromolecules --
+
+  fetchMacromoleculeById(id) {
+    return (dispatch) => {
+      MacromoleculesFetcher.fetchById(id)
+        .then((result) => {
+          dispatch(result);
+        }).catch((errorMessage) => {
+          console.log(errorMessage);
+        });
+    };
+  }
+
+  updateMacromolecule(params) {
+    return (dispatch) => {
+      MacromoleculesFetcher.updateMacromolecule(params)
+        .then((result) => {
+          dispatch(result);
+        }).catch((errorMessage) => {
+          console.log(errorMessage);
+        });
+    };
+  }
+
+  generateEmptyMacromolecule(collection_id) {
+    return Macromolecule.buildEmpty(collection_id);
+  }
+
+  createMacromolecule(params) {
+    return (dispatch) => {
+      MacromoleculesFetcher.createMacromolecule(params)
+        .then((result) => {
+          dispatch(result);
+        }).catch((errorMessage) => {
+          console.log(errorMessage);
+        });
+    };
+  }
+
+  copyMacromoleculeFromClipboard(collection_id) {
+    return collection_id;
+  }
+
+  splitAsSubMacromolecule(ui_state) {
+    return (dispatch) => {
+      MacromoleculesFetcher.splitAsSubMacromolecule(ui_state)
         .then((result) => {
           dispatch(ui_state.ui_state);
         }).catch((errorMessage) => {
