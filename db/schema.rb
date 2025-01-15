@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_12_04_180300) do
+ActiveRecord::Schema.define(version: 2025_01_15_134640) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -194,6 +194,7 @@ ActiveRecord::Schema.define(version: 2024_12_04_180300) do
     t.jsonb "tabs_segment", default: {}
     t.integer "celllinesample_detail_level", default: 10
     t.bigint "inventory_id"
+    t.integer "macromoleculesample_detail_level", default: 10
     t.index ["ancestry"], name: "index_collections_on_ancestry"
     t.index ["deleted_at"], name: "index_collections_on_deleted_at"
     t.index ["inventory_id"], name: "index_collections_on_inventory_id"
@@ -1380,6 +1381,7 @@ ActiveRecord::Schema.define(version: 2024_12_04_180300) do
     t.datetime "updated_at"
     t.integer "element_detail_level", default: 10
     t.integer "celllinesample_detail_level", default: 10
+    t.integer "macromoleculesample_detail_level", default: 10
     t.index ["collection_id"], name: "index_sync_collections_users_on_collection_id"
     t.index ["shared_by_id", "user_id", "fake_ancestry"], name: "index_sync_collections_users_on_shared_by_id"
     t.index ["user_id", "fake_ancestry"], name: "index_sync_collections_users_on_user_id_and_fake_ancestry"
