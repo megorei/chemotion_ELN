@@ -19,6 +19,7 @@ import ResearchPlan from 'src/models/ResearchPlan';
 import Wellplate from 'src/models/Wellplate';
 import Screen from 'src/models/Screen';
 import DeviceDescription from 'src/models/DeviceDescription';
+import Macromolecule from 'src/models/Macromolecule';
 
 import Device from 'src/models/Device';
 import Container from 'src/models/Container';
@@ -110,6 +111,13 @@ class ElementStore {
         pages: null,
         perPage: null
       },
+      macromolecules: {
+        elements: [],
+        totalElements: 0,
+        page: null,
+        pages: null,
+        perPage: null
+      },
     };
 
     this.state = {
@@ -165,6 +173,7 @@ class ElementStore {
       handlefetchResearchPlansByCollectionId: ElementActions.fetchResearchPlansByCollectionId,
       handlefetchCellLinesByCollectionId: ElementActions.fetchCellLinesByCollectionId,
       handlefetchDeviceDescriptionsByCollectionId: ElementActions.fetchDeviceDescriptionsByCollectionId,
+      handlefetchMacromoleculesByCollectionId: ElementActions.fetchMacromoleculesByCollectionId,
 
       handleFetchSampleById: ElementActions.fetchSampleById,
       handleCreateSample: ElementActions.createSample,
@@ -223,6 +232,9 @@ class ElementStore {
       handlefetchDeviceDescriptionById: ElementActions.fetchDeviceDescriptionById,
       handleCreateDeviceDescription: ElementActions.createDeviceDescription,
       handleCopyDeviceDescriptionFromClipboard: ElementActions.copyDeviceDescriptionFromClipboard,
+      handlefetchMacromoleculeById: ElementActions.fetchMacromoleculeById,
+      handleCreateMacromolecule: ElementActions.createMacromolecule,
+      handleCopyMacromoleculeFromClipboard: ElementActions.copyMacromoleculeFromClipboard,
 
       handleCreatePrivateNote: ElementActions.createPrivateNote,
       handleUpdatePrivateNote: ElementActions.updatePrivateNote,
@@ -242,6 +254,7 @@ class ElementStore {
           ElementActions.generateEmptyReaction,
           ElementActions.generateEmptyCellLine,
           ElementActions.generateEmptyDeviceDescription,
+          ElementActions.generateEmptyMacromolecule,
           ElementActions.showReportContainer,
           ElementActions.showFormatContainer,
           ElementActions.showComputedPropsGraph,
@@ -261,6 +274,7 @@ class ElementStore {
       handleSplitAsSubwellplates: ElementActions.splitAsSubwellplates,
       handleSplitAsSubCellLines: ElementActions.splitAsSubCellLines,
       handleSplitAsSubDeviceDescription: ElementActions.splitAsSubDeviceDescription,
+      handleSplitAsSubMacromolecule: ElementActions.splitAsSubMacromolecule,
       // formerly from DetailStore
       handleSelect: DetailActions.select,
       handleClose: DetailActions.close,
@@ -282,6 +296,7 @@ class ElementStore {
         ElementActions.updateResearchPlan,
         ElementActions.updateCellLine,
         ElementActions.updateDeviceDescription,
+        ElementActions.updateMacromolecule,
         ElementActions.updateGenericEl,
       ],
       handleUpdateEmbeddedResearchPlan: ElementActions.updateEmbeddedResearchPlan,
@@ -553,7 +568,10 @@ class ElementStore {
   handleDeleteElements(options) {
     this.waitFor(UIStore.dispatchToken);
     const ui_state = UIStore.getState();
-    const { sample, reaction, wellplate, screen, research_plan, currentCollection, cell_line, device_description } = ui_state;
+    const {
+      sample, reaction, wellplate, screen, research_plan,
+      currentCollection, cell_line, device_description, macromolecule
+    } = ui_state;
     const selecteds = this.state.selecteds.map(s => ({ id: s.id, type: s.type }));
     const params = {
       options,
@@ -565,7 +583,8 @@ class ElementStore {
       currentCollection,
       selecteds,
       cell_line,
-      device_description
+      device_description,
+      macromolecule,
     };
 
     const currentUser = (UserStore.getState() && UserStore.getState().currentUser) || {};
@@ -619,8 +638,8 @@ class ElementStore {
         if (layout.screen && layout.screen > 0) { this.handleRefreshElements('screen'); }
         if (layout.cell_line && layout.cell_line > 0) { this.handleRefreshElements('cell_line'); }
         if (layout.device_description && layout.device_description > 0) { this.handleRefreshElements('device_description'); }
+        if (layout.macromolecule && layout.macromolecule > 0) { this.handleRefreshElements('macromolecule'); }
         if (!isSync && layout.research_plan && layout.research_plan > 0) { this.handleRefreshElements('research_plan'); }
-
 
         const { currentUser, genericEls } = UserStore.getState();
         if (MatrixCheck(currentUser.matrix, 'genericElement')) {
@@ -673,12 +692,17 @@ class ElementStore {
   handlefetchResearchPlansByCollectionId(result) {
     this.state.elements.research_plans = result;
   }
+
   handlefetchCellLinesByCollectionId(result) {
     this.state.elements.cell_lines = result;
   }
 
   handlefetchDeviceDescriptionsByCollectionId(result) {
     this.state.elements.device_descriptions = result;
+  }
+
+  handlefetchMacromoleculesByCollectionId(result) {
+    this.state.elements.macromolecules = result;
   }
 
   // -- Samples --
@@ -896,6 +920,7 @@ class ElementStore {
     this.changeCurrentElement(Wellplate.buildFromSamplesAndCollectionId(clipboardSamples, collection_id));
     //this.state.currentElement = Wellplate.buildFromSamplesAndCollectionId(clipboardSamples, collection_id);
   }
+
   // -- Screens --
 
   handleAddResearchPlanToScreen(screen) {
@@ -974,6 +999,32 @@ class ElementStore {
 
   handleSplitAsSubDeviceDescription(ui_state) {
     ElementActions.fetchDeviceDescriptionsByCollectionId(
+      ui_state.currentCollectionId, {}, ui_state.isSync
+    );
+  }
+
+  // -- Macromolecules --
+
+  handlefetchMacromoleculeById(result) {
+    this.changeCurrentElement(result);
+  }
+
+  handleCreateMacromolecule(macromolecule) {
+    this.handleRefreshElements('macromolecule');
+    this.navigateToNewElement(macromolecule);
+  }
+
+  handleCopyMacromoleculeFromClipboard(collection_id) {
+    const clipboardMacromolecules = ClipboardStore.getState().macromolecules;
+    if (clipboardMacromolecules && clipboardMacromolecules.length > 0) {
+      this.changeCurrentElement(
+        Macromolecule.copyFromMacromoleculeAndCollectionId(clipboardMacromolecules[0], collection_id)
+      );
+    }
+  }
+
+  handleSplitAsSubMacromolecule(ui_state) {
+    ElementActions.fetchMacromoleculesByCollectionId(
       ui_state.currentCollectionId, {}, ui_state.isSync
     );
   }
@@ -1151,7 +1202,8 @@ class ElementStore {
         'fetchScreensByCollectionId',
         'fetchResearchPlansByCollectionId',
         'fetchCellLinesByCollectionId',
-        'fetchDeviceDescriptionsByCollectionId'
+        'fetchDeviceDescriptionsByCollectionId',
+        'fetchDeviceMacromoleculesByCollectionId',
       ];
       if (allowedActions.includes(fn)) {
         ElementActions[fn](uiState.currentCollection.id, params, uiState.isSync, moleculeSort);
@@ -1403,6 +1455,10 @@ class ElementStore {
       case 'device_description':
         this.changeCurrentElement(updatedElement);
         this.handleRefreshElements('device_description');
+        break;
+      case 'macromolecule':
+        this.changeCurrentElement(updatedElement);
+        this.handleRefreshElements('macromolecule');
         break;
       case 'genericEl':
         this.handleRefreshElements('genericEl');

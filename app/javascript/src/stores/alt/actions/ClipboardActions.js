@@ -3,7 +3,8 @@ import SamplesFetcher from 'src/fetchers/SamplesFetcher';
 import WellplatesFetcher from 'src/fetchers/WellplatesFetcher';
 import DeviceDescriptionFetcher from 'src/fetchers/DeviceDescriptionFetcher';
 import DeviceDescription from 'src/models/DeviceDescription';
-
+import MacromoleculesFetcher from 'src/fetchers/MacromoleculesFetcher';
+import Macromolecule from 'src/models/Macromolecule';
 
 class ClipboardActions {
   fetchSamplesByUIStateAndLimit(params, action) {
@@ -39,6 +40,17 @@ class ClipboardActions {
     };
   }
 
+  fetchMacromoleculesByUIState(params, action) {
+    return (dispatch) => {
+      MacromoleculesFetcher.fetchMacromoleculesByUIState(params)
+        .then((result) => {
+          dispatch({ macromolecules: result, collection_id: params.ui_state.collection_id, action: action });
+        }).catch((errorMessage) => {
+          console.log(errorMessage);
+        });
+    };
+  }
+
   fetchElementAndBuildCopy(sample, collection_id, action) {
     sample.collection_id = collection_id;
     return (
@@ -51,6 +63,14 @@ class ClipboardActions {
     newDeviceDescription.collection_id = collection_id;
     return (
       { device_descriptions: [newDeviceDescription], collection_id: collection_id, action: action }
+    )
+  }
+
+  fetchMacromoleculesAndBuildCopy(macromolecule, collection_id, action) {
+    const newMacromolecule = new Macromolecule(macromolecule);
+    newMacromolecule.collection_id = collection_id;
+    return (
+      { macromolecules: [newMacromolecule], collection_id: collection_id, action: action }
     )
   }
 }
