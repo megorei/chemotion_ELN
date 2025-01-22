@@ -103,7 +103,7 @@ module Chemotion
                          Comment.device_description_sections.values +
                          Comment.header_sections.values
                          Comment.header_sections.values +
-                         Comment.macromolecule_sections.values
+                         Comment.sequence_based_macromolecule_sections.values
       end
 
       post do
