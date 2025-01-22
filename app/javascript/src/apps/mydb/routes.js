@@ -81,11 +81,11 @@ const routes = {
     },
     '/:device_descriptionID': 'showOrNew'
   },
-  '/macromolecule': {
+  '/sequence_based_macromolecule': {
     target: {
-      showOrNew: routesUtils.macromoleculeShowOrNew
+      showOrNew: routesUtils.sequenceBasedMacromoleculeShowOrNew
     },
-    '/:macromoleculeID': 'showOrNew'
+    '/:sequenceBasedMacromoleculeID': 'showOrNew'
   },
   '/devicesAnalysis': {
     target: {

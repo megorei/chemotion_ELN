@@ -34,7 +34,7 @@ class TabLayoutCell extends Component {
       'sample', 'reaction', 'screen',
       'wellplate', 'research_plan',
       'cell_line', 'device_description',
-      'macromolecule',
+      'sequence_based_macromolecule',
     ];
 
     let cellIcon = `icon-${cell}`;

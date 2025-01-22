@@ -22,6 +22,7 @@ FactoryBot.define do
         wellplates: 0,
         celllines: 0,
         device_descriptions: 0,
+        sequence_based_macromolecules: 0,
       }
     end
 
@@ -37,6 +38,7 @@ FactoryBot.define do
           'research_plan' => 5,
           'cell_line' => -1000,
           'device_descriptions' => -1100,
+          'sequence_based_macromolecule' => -1200,
         }
         profile.update_columns(data: data) # rubocop:disable Rails/SkipsModelValidations
       end
