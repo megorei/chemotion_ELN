@@ -138,7 +138,9 @@ class API < Grape::API
 
   TARGET = Rails.env.production? ? 'https://www.chemotion-repository.net/' : 'http://localhost:3000/'
 
-  ELEMENTS = %w[research_plan screen wellplate reaction sample cell_line device_description macromolecule].freeze
+  ELEMENTS = %w[
+    research_plan screen wellplate reaction sample cell_line device_description sequence_based_macromolecule
+  ].freeze
 
   ELEMENT_CLASS = {
     'research_plan' => ResearchPlan,
@@ -148,7 +150,7 @@ class API < Grape::API
     'sample' => Sample,
     'cell_line' => CelllineSample,
     'device_description' => DeviceDescription,
-    'macromolecule' => MacromoleculeSample,
+    'sequence_based_macromolecule' => MacromoleculeSample,
   }.freeze
 
   mount Chemotion::LiteratureAPI
