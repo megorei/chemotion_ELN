@@ -139,7 +139,7 @@ export default class ElementsList extends React.Component {
       'sample', 'reaction', 'screen',
       'wellplate', 'research_plan',
       'cell_line', 'device_description',
-      'macromolecule',
+      'sequence_based_macromolecule',
     ].concat(genericKlasses);
 
     const newTotalCheckedElements = {};
@@ -201,7 +201,7 @@ export default class ElementsList extends React.Component {
       'research_plan',
       'cell_line',
       'device_description',
-      'macromolecule',
+      'sequence_based_macromolecule',
     ]);
     const tabItems = visible.map((value, i) => {
       let iconClass = `icon-${value}`;

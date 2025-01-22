@@ -3,8 +3,8 @@ import SamplesFetcher from 'src/fetchers/SamplesFetcher';
 import WellplatesFetcher from 'src/fetchers/WellplatesFetcher';
 import DeviceDescriptionFetcher from 'src/fetchers/DeviceDescriptionFetcher';
 import DeviceDescription from 'src/models/DeviceDescription';
-import MacromoleculesFetcher from 'src/fetchers/MacromoleculesFetcher';
-import Macromolecule from 'src/models/Macromolecule';
+import SequenceBasedMacromoleculesFetcher from 'src/fetchers/SequenceBasedMacromoleculesFetcher';
+import SequenceBasedMacromolecule from 'src/models/SequenceBasedMacromolecule';
 
 class ClipboardActions {
   fetchSamplesByUIStateAndLimit(params, action) {
@@ -40,11 +40,13 @@ class ClipboardActions {
     };
   }
 
-  fetchMacromoleculesByUIState(params, action) {
+  fetchSequenceBasedMacromoleculesByUIState(params, action) {
     return (dispatch) => {
-      MacromoleculesFetcher.fetchMacromoleculesByUIState(params)
+      SequenceBasedMacromoleculesFetcher.fetchSequenceBasedMacromoleculesByUIStateAndLimit(params)
         .then((result) => {
-          dispatch({ macromolecules: result, collection_id: params.ui_state.collection_id, action: action });
+          dispatch(
+            { sequence_based_macromolecules: result, collection_id: params.ui_state.collection_id, action: action }
+          );
         }).catch((errorMessage) => {
           console.log(errorMessage);
         });
@@ -66,11 +68,11 @@ class ClipboardActions {
     )
   }
 
-  fetchMacromoleculesAndBuildCopy(macromolecule, collection_id, action) {
-    const newMacromolecule = new Macromolecule(macromolecule);
-    newMacromolecule.collection_id = collection_id;
+  fetchSequenceBasedMacromoleculesAndBuildCopy(sequence_based_macromolecule, collection_id, action) {
+    const newSequenceBasedMacromolecule = new Macromolecule(sequence_based_macromolecule);
+    newSequenceBasedMacromolecule.collection_id = collection_id;
     return (
-      { macromolecules: [newMacromolecule], collection_id: collection_id, action: action }
+      { sequence_based_macromolecules: [newSequenceBasedMacromolecule], collection_id: collection_id, action: action }
     )
   }
 }

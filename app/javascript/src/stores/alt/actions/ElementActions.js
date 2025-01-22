@@ -21,7 +21,7 @@ import GenericElsFetcher from 'src/fetchers/GenericElsFetcher';
 import PrivateNoteFetcher from 'src/fetchers/PrivateNoteFetcher'
 import MetadataFetcher from 'src/fetchers/MetadataFetcher';
 import DeviceDescriptionFetcher from 'src/fetchers/DeviceDescriptionFetcher';
-import MacromoleculesFetcher from 'src/fetchers/MacromoleculesFetcher';
+import SequenceBasedMacromoleculesFetcher from 'src/fetchers/SequenceBasedMacromoleculesFetcher';
 
 import GenericEl from 'src/models/GenericEl';
 import Sample from 'src/models/Sample';
@@ -37,7 +37,7 @@ import Graph from 'src/models/Graph';
 import ComputeTask from 'src/models/ComputeTask';
 import LiteratureMap from 'src/models/LiteratureMap';
 import Prediction from 'src/models/Prediction';
-import Macromolecule from 'src/models/Macromolecule';
+import SequenceBasedMacromolecule from 'src/models/SequenceBasedMacromolecule';
 import ReactionSvgFetcher from 'src/fetchers/ReactionSvgFetcher';
 import Metadata from 'src/models/Metadata';
 import UserStore from 'src/stores/alt/stores/UserStore';
@@ -364,9 +364,9 @@ class ElementActions {
     };
   }
 
-  fetchMacromoleculesByCollectionId(id, queryParams = {}, collectionIsSync = false) {
+  fetchSequenceBasedMacromoleculesByCollectionId(id, queryParams = {}, collectionIsSync = false) {
     return (dispatch) => {
-      MacromoleculesFetcher.fetchByCollectionId(id, queryParams, collectionIsSync)
+      SequenceBasedMacromoleculesFetcher.fetchByCollectionId(id, queryParams, collectionIsSync)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
@@ -1009,11 +1009,11 @@ class ElementActions {
     };
   }
 
-  // -- Macromolecules --
+  // -- Sequence Based Macromolecules --
 
-  fetchMacromoleculeById(id) {
+  fetchSequenceBasedMacromoleculeById(id) {
     return (dispatch) => {
-      MacromoleculesFetcher.fetchById(id)
+      SequenceBasedMacromoleculesFetcher.fetchById(id)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
@@ -1022,9 +1022,9 @@ class ElementActions {
     };
   }
 
-  updateMacromolecule(params) {
+  updateSequenceBasedMacromolecule(params) {
     return (dispatch) => {
-      MacromoleculesFetcher.updateMacromolecule(params)
+      SequenceBasedMacromoleculesFetcher.updateSequenceBasedMacromolecule(params)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
@@ -1033,13 +1033,13 @@ class ElementActions {
     };
   }
 
-  generateEmptyMacromolecule(collection_id) {
-    return Macromolecule.buildEmpty(collection_id);
+  generateEmptySequenceBasedMacromolecule(collection_id) {
+    return SequenceBasedMacromolecule.buildEmpty(collection_id);
   }
 
-  createMacromolecule(params) {
+  createSequenceBasedMacromolecule(params) {
     return (dispatch) => {
-      MacromoleculesFetcher.createMacromolecule(params)
+      SequenceBasedMacromoleculesFetcher.createSequenceBasedMacromolecule(params)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
@@ -1048,13 +1048,13 @@ class ElementActions {
     };
   }
 
-  copyMacromoleculeFromClipboard(collection_id) {
+  copySequenceBasedMacromoleculeFromClipboard(collection_id) {
     return collection_id;
   }
 
-  splitAsSubMacromolecule(ui_state) {
+  splitAsSubSequenceBasedMacromolecule(ui_state) {
     return (dispatch) => {
-      MacromoleculesFetcher.splitAsSubMacromolecule(ui_state)
+      SequenceBasedMacromoleculesFetcher.splitAsSubSequenceBasedMacromolecule(ui_state)
         .then((result) => {
           dispatch(ui_state.ui_state);
         }).catch((errorMessage) => {

@@ -18,7 +18,7 @@ const elements = [
   { name: 'screen', label: 'Screen' },
   { name: 'research_plan', label: 'Research Plan' },
   { name: 'device_description', label: 'Device description' },
-  { name: 'macromolecule', label: 'Macromolecule' },
+  { name: 'sequence_based_macromolecule', label: 'Sequence Based Macromolecule' },
 ];
 
 export default class CollectionTabs extends React.Component {

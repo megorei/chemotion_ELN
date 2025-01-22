@@ -50,7 +50,7 @@ const collectionShow = (e) => {
     UIActions.uncheckAllElements({ type: 'wellplate', range: 'all' });
     UIActions.uncheckAllElements({ type: 'screen', range: 'all' });
     UIActions.uncheckAllElements({ type: 'device_description', range: 'all' });
-    UIActions.uncheckAllElements({ type: 'macromolecule', range: 'all' });
+    UIActions.uncheckAllElements({ type: 'sequence_based_macromolecule', range: 'all' });
     elementNames(false).then((klassArray) => {
       klassArray.forEach((klass) => {
         UIActions.uncheckAllElements({ type: klass, range: 'all' });
@@ -101,7 +101,7 @@ const scollectionShow = (e) => {
     UIActions.uncheckAllElements({ type: 'wellplate', range: 'all' });
     UIActions.uncheckAllElements({ type: 'screen', range: 'all' });
     UIActions.uncheckAllElements({ type: 'device_description', range: 'all' });
-    UIActions.uncheckAllElements({ type: 'macromolecule', range: 'all' });
+    UIActions.uncheckAllElements({ type: 'sequence_based_macromolecule', range: 'all' });
     elementNames(false).then((klassArray) => {
       klassArray.forEach((klass) => {
         UIActions.uncheckAllElements({ type: klass, range: 'all' });
@@ -272,17 +272,18 @@ const deviceDescriptionShowOrNew = (e) => {
   }
 }
 
-const macromoleculeShowOrNew = (e) => {
-  const { macromoleculeID, collectionID } = e.params;
+const sequenceBasedMacromoleculeShowOrNew = (e) => {
+  const { sequenceBasedMacromoleculeID, collectionID } = e.params;
   const { selecteds, activeKey } = ElementStore.getState();
-  const index = selecteds.findIndex(el => el.type === 'macromolecule' && el.id === macromoleculeID);
+  const index = selecteds
+    .findIndex(el => el.type === 'sequence_based_macromolecule' && el.id === sequenceBasedMacromoleculeID);
 
-  if (macromoleculeID === 'new' || macromoleculeID === undefined) {
-    ElementActions.generateEmptyMacromolecule(collectionID);
-  } else if (macromoleculeID === 'copy') {
-    ElementActions.copyMacromoleculeFromClipboard.defer(collectionID);
+  if (sequenceBasedMacromoleculeID === 'new' || sequenceBasedMacromoleculeID === undefined) {
+    ElementActions.generateEmptySequenceBasedMacromolecule(collectionID);
+  } else if (sequenceBasedMacromoleculeID === 'copy') {
+    ElementActions.copySequenceBasedMacromoleculeFromClipboard.defer(collectionID);
   } else if (index < 0) {
-    ElementActions.fetchMacromoleculeById(macromoleculeID);
+    ElementActions.fetchSequenceBasedMacromoleculeById(sequenceBasedMacromoleculeID);
   } else if (index !== activeKey) {
     DetailActions.select(index);
   }
@@ -336,8 +337,8 @@ const elementShowOrNew = (e) => {
     case 'device_description':
       deviceDescriptionShowOrNew(e);
       break;
-    case 'macromolecule':
-      macromoleculeShowOrNew(e);
+    case 'sequence_based_macromolecule':
+      sequenceBasedMacromoleculeShowOrNew(e);
       break;
     default:
       if (e && e.klassType == 'GenericEl') {
@@ -371,5 +372,5 @@ export {
   predictionShowFwdRxn,
   genericElShowOrNew,
   cellLineShowOrNew,
-  macromoleculeShowOrNew,
+  sequenceBasedMacromoleculeShowOrNew,
 };

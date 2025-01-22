@@ -116,20 +116,21 @@ export default class SplitElementButton extends React.Component {
     ElementActions.splitAsSubDeviceDescription(params);
   }
 
-  splitSelectionAsSubMacromolecule() {
+  splitSelectionAsSubSequenceBasedMacromolecule() {
     const uiState = UIStore.getState()
     let params = {
       ui_state: {
-        macromolecule: {
-          all: uiState.macromolecule.checkedAll,
-          included_ids: uiState.macromolecule.checkedIds,
-          excluded_ids: uiState.macromolecule.uncheckedIds,
+        sequence_based_macromolecule: {
+          all: uiState.sequence_based_macromolecule.checkedAll,
+          included_ids: uiState.sequence_based_macromolecule.checkedIds,
+          excluded_ids: uiState.sequence_based_macromolecule.uncheckedIds,
         },
         currentCollectionId: uiState.currentCollection.id,
         isSync: uiState.isSync,
       }
     }
-    ElementActions.splitAsSubMacromolecule(params);
+
+    ElementActions.splitAsSubSequenceBasedMacromolecule(params);
   }
 
   render() {
@@ -184,10 +185,10 @@ export default class SplitElementButton extends React.Component {
           Split Device Description
         </Dropdown.Item>
         <Dropdown.Item
-          onClick={() => this.splitSelectionAsSubMacromolecule()}
-          disabled={this.noSelected('macromolecule') || this.isAllCollection()}
+          onClick={() => this.splitSelectionAsSubSequenceBasedMacromolecule()}
+          disabled={this.noSelected('sequence_based_macromolecule') || this.isAllCollection()}
         >
-          Split Macromolecule
+          Split Sequence Based Macromolecule
         </Dropdown.Item>
         {sortedGenericEls.map((el) => (
           <Dropdown.Item
