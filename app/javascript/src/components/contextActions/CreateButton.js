@@ -21,7 +21,7 @@ const elementList = () => {
     { name: 'research_plan', label: 'Research Plan' },
     { name: 'cell_line', label: 'Cell Line' },
     { name: 'device_description', label: 'Device Description' },
-    { name: 'macromolecule', label: 'Macromolecule' },
+    { name: 'sequence_based_macromolecule', label: 'Sequence Based Macromolecule' },
   ];
   let genericEls = [];
   const currentUser = (UserStore.getState() && UserStore.getState().currentUser) || {};
@@ -169,25 +169,25 @@ export default class CreateButton extends React.Component {
     ClipboardActions.fetchDeviceDescriptionsByUIState(params, 'copy_device_description');
   }
 
-  getMacromoleculeFilter() {
+  getSequenceBasedMacromoleculeFilter() {
     let uiState = UIStore.getState();
-    return this.filterParamsFromUIStateByElementType(uiState, "macromolecule");
+    return this.filterParamsFromUIStateByElementType(uiState, "sequence_based_macromolecule");
   }
 
-  isCopyMacromoleculeDisabled() {
-    let macromoleculeFilter = this.getMacromoleculeFilter();
-    return !macromoleculeFilter.all && macromoleculeFilter.included_ids.size == 0;
+  isCopySequenceBasedMacromoleculeDisabled() {
+    let sequenceBasedMacromoleculeFilter = this.getSequenceBasedMacromoleculeFilter();
+    return !sequenceBasedMacromoleculeFilter.all && sequenceBasedMacromoleculeFilter.included_ids.size == 0;
   }
 
-  copyMacromolecule() {
-    let macromoleculeFilter = this.getMacromoleculeFilter();
-    // Set limit to 1 because we are only interested in one macromolecule
+  copySequenceBasedMacromolecule() {
+    let sequenceBasedMacromoleculeFilter = this.getSequenceBasedMacromoleculeFilter();
+    // Set limit to 1 because we are only interested in one device description
     let params = {
-      ui_state: macromoleculeFilter,
+      ui_state: sequenceBasedMacromoleculeFilter,
       limit: 1,
     }
 
-    ClipboardActions.fetchMacromoleculesByUIState(params, 'copy_macromolecule');
+    ClipboardActions.fetchSequenceBasedMacromoleculesByUIState(params, 'copy_sequence_based_macromolecule');
   }
 
   createWellplateFromSamples() {
@@ -309,7 +309,8 @@ export default class CreateButton extends React.Component {
     let iconClass = `icon-${type}`;
     const genericEls = UserStore.getState().genericEls || [];
     const constEls = [
-      'sample', 'reaction', 'screen', 'wellplate', 'research_plan', 'cell_line', 'device_description', 'macromolecule',
+      'sample', 'reaction', 'screen', 'wellplate', 'research_plan',
+      'cell_line', 'device_description', 'sequence_based_macromolecule',
     ];
     if (!constEls.includes(type) && typeof genericEls !== 'undefined' && genericEls !== null && genericEls.length > 0) {
       const genericEl = (genericEls && genericEls.find(el => el.name == type)) || {};
@@ -382,8 +383,11 @@ export default class CreateButton extends React.Component {
         <Dropdown.Item onClick={() => this.copyDeviceDescription()} disabled={this.isCopyDeviceDescriptionDisabled()}>
           Copy Device Description
         </Dropdown.Item>
-        <Dropdown.Item onClick={() => this.copyMacromolecule()} disabled={this.isCopyMacromoleculeDisabled()}>
-          Copy Macromolecule
+        <Dropdown.Item
+          onClick={() => this.copySequenceBasedMacromolecule()}
+          disabled={this.isCopySequenceBasedMacromoleculeDisabled()}
+        >
+          Copy Sequence Based Macromolecule
         </Dropdown.Item>
       </SplitButton>
     );
