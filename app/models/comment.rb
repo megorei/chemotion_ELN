@@ -71,12 +71,12 @@ class Comment < ApplicationRecord
     maintenance: 'device_description_maintenance',
   }, _prefix: true
 
-  enum macromolecule_section: {
-    properties: 'macromolecule_properties',
-    analyses: 'macromolecule_analyses',
-    attachments: 'macromolecule_attachments',
-    references: 'macromolecule_references',
-    metadata: 'macromolecule_metadata',
+  enum sequence_based_macromolecule_section: {
+    properties: 'sequence_based_macromolecule_properties',
+    analyses: 'sequence_based_macromolecule_analyses',
+    attachments: 'sequence_based_macromolecule_attachments',
+    references: 'sequence_based_macromolecule_references',
+    metadata: 'sequence_based_macromolecule_metadata',
   }, _prefix: true
 
   enum header_section: {
