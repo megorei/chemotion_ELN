@@ -30,6 +30,11 @@ export const ALL_TYPES = [
   Constants.GENERIC_TYPES.DATASET,
 ];
 
+export const allElnElements = [
+  'sample', 'reaction', 'screen', 'wellplate', 'research_plan',
+  'cell_line', 'sequence_based_macromolecule',
+];
+
 export const notification = props =>
   NotificationActions.add({
     title: props.title,
@@ -93,7 +98,7 @@ export const segmentsByKlass = name => {
 
 export const elementNames = async (all = true, generics = null) => {
   const elnElements = all
-    ? ['sample', 'reaction', 'screen', 'wellplate', 'research_plan', 'cell_line', 'device_description', 'sequence_based_macromolecule']
+    ? allElnElements
     : [];
   try {
     if (generics?.length > 0) return elnElements.concat(generics?.map((el) => el.name));
