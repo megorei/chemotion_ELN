@@ -14,6 +14,8 @@ import UserStore from 'src/stores/alt/stores/UserStore';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 import ArrayUtils from 'src/utilities/ArrayUtils';
 import PropTypes from 'prop-types';
+import { allElnElements } from 'src/apps/generic/Utils';
+import { capitalizeWords } from 'src/utilities/textHelper';
 
 function getSortedHash(inputHash) {
   const resultHash = {};
@@ -135,12 +137,8 @@ export default class ElementsList extends React.Component {
       const { klasses } = UIStore.getState();
       genericKlasses = klasses;
     }
-    const elNames = [
-      'sample', 'reaction', 'screen',
-      'wellplate', 'research_plan',
-      'cell_line', 'device_description',
-      'sequence_based_macromolecule',
-    ].concat(genericKlasses);
+
+    const elNames = allElnElements.concat(genericKlasses);
 
     const newTotalCheckedElements = {};
     let needsUpdate = false;
@@ -193,21 +191,12 @@ export default class ElementsList extends React.Component {
     } = this.state;
     const { overview } = this.props;
 
-    const constEls = Immutable.Set([
-      'sample',
-      'reaction',
-      'screen',
-      'wellplate',
-      'research_plan',
-      'cell_line',
-      'device_description',
-      'sequence_based_macromolecule',
-    ]);
+    const constEls = Immutable.Set(allElnElements);
     const tabItems = visible.map((value, i) => {
       let iconClass = `icon-${value}`;
       let ttl = (
         <Tooltip>
-          {value && (value.replace('_', ' ').replace(/(^\w|\s\w)/g, (m) => m.toUpperCase()))}
+          {value && (capitalizeWords(value))}
         </Tooltip>
       );
 
@@ -255,16 +244,18 @@ export default class ElementsList extends React.Component {
 
     return (
       <>
-        {UIStore.getState().currentSearchByID && (
-          <Button
-            variant="info"
-            onClick={() => this.handleRemoveSearchResult(this.context.search)}
-            className="w-100 p-3 mb-3 text-start fs-5"
-          >
-            Remove search result
-          </Button>
-        )}
-        <div className="position-relative">
+        {
+          UIStore.getState().currentSearchByID && (
+            <Button
+              variant="info"
+              onClick={() => this.handleRemoveSearchResult(this.context.search)}
+              className="w-100 p-3 mb-3 text-start fs-5"
+            >
+              Remove search result
+            </Button>
+          )
+        }
+        < div className="position-relative" >
           <Tabs
             id="tabList"
             activeKey={currentTab}
@@ -278,7 +269,7 @@ export default class ElementsList extends React.Component {
               hidden={hidden}
             />
           </div>
-        </div>
+        </div >
       </>
     );
   }
