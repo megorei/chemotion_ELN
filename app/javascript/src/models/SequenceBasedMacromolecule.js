@@ -16,6 +16,7 @@ export default class SequenceBasedMacromolecule extends Element {
       container: Container.init(),
       attachments: [],
       segments: [],
+      post_translational_modifications: {},
     });
   }
 
