@@ -69,7 +69,7 @@ class ClipboardActions {
   }
 
   fetchSequenceBasedMacromoleculesAndBuildCopy(sequence_based_macromolecule, collection_id, action) {
-    const newSequenceBasedMacromolecule = new Macromolecule(sequence_based_macromolecule);
+    const newSequenceBasedMacromolecule = new SequenceBasedMacromolecule(sequence_based_macromolecule);
     newSequenceBasedMacromolecule.collection_id = collection_id;
     return (
       { sequence_based_macromolecules: [newSequenceBasedMacromolecule], collection_id: collection_id, action: action }

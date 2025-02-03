@@ -52,7 +52,7 @@ export default class SequenceBasedMacromoleculesFetcher {
     return Promise.resolve(this._fakeElement(sequenceBasedMacromoleculeId));
 
     // return fetch(
-    //   `/api/v1/sequence_based_macromolecules/${macromoleculeId}`,
+    //   `/api/v1/sequence_based_macromolecules/${sequenceBasedMacromoleculeId}`,
     //   { ...this._httpOptions() }
     // ).then(response => response.json())
     //   .then((json) => {
@@ -145,19 +145,37 @@ export default class SequenceBasedMacromoleculesFetcher {
 
   static _fakeElement(sequenceBasedMacromoleculeId) {
     const randomNumber = Math.floor(Math.random() * (101 - 2) + 2);
-    const id = sequenceBasedMacromoleculeId ? sequenceBasedMacromoleculeId : randomNumber;
+    const id = sequenceBasedMacromoleculeId ? sequenceBasedMacromoleculeId * 1 : randomNumber;
+    const isNew = sequenceBasedMacromoleculeId ? false : true;
 
     return new SequenceBasedMacromolecule({
       id: id,
       name: `Test ${id}`,
       type: 'sequence_based_macromolecule',
       short_label: `CU6-SBMM-${id}`,
-      isNew: true,
+      isNew: isNew,
       changed: false,
       updated: false,
       can_copy: false,
       container: Container.init(),
       attachments: [],
+      post_translational_modifications: {},
+      tag: {
+        created_at: '22.01.2025, 15:10:20 +0000',
+        taggable_data: {
+          collection_labels: [{
+            id: 25,
+            is_shared: false,
+            is_synchronized: false,
+            name: 'project CU1-champagne',
+            shared_by_id: null,
+            user_id: 9,
+          }],
+        },
+        taggable_id: 1,
+        taggable_type: 'SequenceBasedMacromolecule',
+        updated_at: '22.01.2025, 15:10:20 +0000',
+      }
     });
   }
 

@@ -85,7 +85,7 @@ const routes = {
     target: {
       showOrNew: routesUtils.sequenceBasedMacromoleculeShowOrNew
     },
-    '/:sequenceBasedMacromoleculeID': 'showOrNew'
+    '/:sequence_based_macromoleculeID': 'showOrNew'
   },
   '/devicesAnalysis': {
     target: {

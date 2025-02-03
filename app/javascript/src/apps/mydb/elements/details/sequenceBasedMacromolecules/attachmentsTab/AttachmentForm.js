@@ -1,6 +1,6 @@
 import React from 'react';
 
-const AttachmentForm = () => {
+const AttachmentForm = ({ readonly }) => {
   return (
     <div>
       Attachments
