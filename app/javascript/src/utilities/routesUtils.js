@@ -273,17 +273,18 @@ const deviceDescriptionShowOrNew = (e) => {
 }
 
 const sequenceBasedMacromoleculeShowOrNew = (e) => {
-  const { sequenceBasedMacromoleculeID, collectionID } = e.params;
+  const { sequence_based_macromoleculeID, collectionID } = e.params;
   const { selecteds, activeKey } = ElementStore.getState();
-  const index = selecteds
-    .findIndex(el => el.type === 'sequence_based_macromolecule' && el.id === sequenceBasedMacromoleculeID);
+  const index = selecteds.findIndex(el => {
+    return el.type === 'sequence_based_macromolecule' && el.id === sequence_based_macromoleculeID
+  });
 
-  if (sequenceBasedMacromoleculeID === 'new' || sequenceBasedMacromoleculeID === undefined) {
+  if (sequence_based_macromoleculeID === 'new' || sequence_based_macromoleculeID === undefined) {
     ElementActions.generateEmptySequenceBasedMacromolecule(collectionID);
-  } else if (sequenceBasedMacromoleculeID === 'copy') {
+  } else if (sequence_based_macromoleculeID === 'copy') {
     ElementActions.copySequenceBasedMacromoleculeFromClipboard.defer(collectionID);
   } else if (index < 0) {
-    ElementActions.fetchSequenceBasedMacromoleculeById(sequenceBasedMacromoleculeID);
+    ElementActions.fetchSequenceBasedMacromoleculeById(sequence_based_macromoleculeID);
   } else if (index !== activeKey) {
     DetailActions.select(index);
   }
