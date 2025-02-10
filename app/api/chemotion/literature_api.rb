@@ -62,11 +62,7 @@ module Chemotion
       desc 'Return the literature list for the given element'
       params do
         requires :element_id, type: Integer
-        requires :element_type, type: String,
-                                values: %w[
-                                  sample reaction research_plan cell_line device_description
-                                  sequence_based_macromolecule
-                                ]
+        requires :element_type, type: String, values: API::ELEMENT_CLASS.keys
       end
 
       get do
@@ -82,11 +78,7 @@ module Chemotion
       desc 'create a literature entry'
       params do
         requires :element_id, type: Integer
-        requires :element_type, type: String,
-                                values: %w[
-                                  sample reaction research_plan cell_line device_description
-                                  sequence_based_macromolecule
-                                ]
+        requires :element_type, type: String, values: API::ELEMENT_CLASS.keys
         requires :ref, type: Hash do
           optional :is_new, type: Boolean
           optional :id, types: [Integer, String]
@@ -139,11 +131,7 @@ module Chemotion
 
       params do
         requires :element_id, type: Integer
-        requires :element_type, type: String,
-                                values: %w[
-                                  sample reaction research_plan cell_line device_description
-                                  sequence_based_macromolecule
-                                ]
+        requires :element_type, type: String, values: API::ELEMENT_CLASS.keys
         requires :id, type: Integer
       end
 
