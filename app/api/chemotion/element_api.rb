@@ -83,13 +83,12 @@ module Chemotion
       desc "delete element from ui state selection."
       delete do
         deleted = { 'sample' => [] }
-        %w[sample reaction wellplate screen research_plan cell_line device_description sequence_based_macromolecule]
-          .each do |element|
-            next unless params[element]
-            next unless params[element][:checkedAll] || params[element][:checkedIds].present?
+        API::ELEMENT_CLASS.each_key do |element|
+          next unless params[element]
+          next unless params[element][:checkedAll] || params[element][:checkedIds].present?
 
-            assoziation_name = get_assoziation_name_in_collections(element)
-            deleted[element] = @collection.send(assoziation_name).by_ui_state(params[element]).destroy_all.map(&:id)
+          assoziation_name = get_assoziation_name_in_collections(element)
+          deleted[element] = @collection.send(assoziation_name).by_ui_state(params[element]).destroy_all.map(&:id)
         end
 
         # explicit inner join on reactions_samples to get soft deleted reactions_samples entries
