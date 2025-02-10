@@ -112,6 +112,10 @@ const elementField = (element, field) => {
   return fieldParts.reduce((accumulator, currentValue) => accumulator?.[currentValue], element);
 }
 
+const numberValue = (value) => {
+  return value !== '' && value !== undefined ? parseFloat(value) : value || '';
+}
+
 const changeElement = (store, field, value, element_type) => {
   if (element_type == 'device_description') {
     store.changeDeviceDescription(field, value);
@@ -224,7 +228,7 @@ const initFormHelper = (element, store) => {
             name={field}
             type="number"
             key={`${store.key_prefix}-${field}`}
-            value={value !== '' ? parseFloat(value) : ''}
+            value={numberValue(value)}
             onChange={(event) => formHelper.onChange(field, event.target.value)}
           />
         </Form.Group>
@@ -250,7 +254,7 @@ const initFormHelper = (element, store) => {
 
     inputGroupTextOrNumericInput: (field, label, text, type, info) => {
       let value = elementField(element, field);
-      value = type == 'number' && value !== '' ? parseFloat(value) : value;
+      value = type == 'number' ? numberValue(value) : value || '';
 
       return (
         <Form.Group key={`${store.key_prefix}-${label}`}>
@@ -270,13 +274,8 @@ const initFormHelper = (element, store) => {
     },
 
     unitInput: (field, label, option_type, type, info) => {
-      // "molecular_weight" => g/mol
-      // const { unitsSystem } = UserStore.getState();
-      // console.log(unitsSystem.fields);
-      // const systemOptions = unitsSystem?.fields.find((u) => { return u.field === option_type });
-      // const units = systemOptions?.units;
       let value = elementField(element, field);
-      value = type == 'number' && value !== '' ? parseFloat(value) : value;
+      value = type == 'number' ? numberValue(value) : value || '';
       const units = unitSystems[option_type];
       if (!units) { return null; }
 
