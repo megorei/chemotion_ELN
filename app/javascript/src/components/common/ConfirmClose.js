@@ -1,17 +1,29 @@
 import React, { Component, createRef } from 'react';
 import { Button, Tooltip, Overlay, OverlayTrigger, ButtonToolbar } from 'react-bootstrap';
 import PropTypes from 'prop-types';
+import { StoreContext } from 'src/stores/mobx/RootStore';
 
 import DetailActions from 'src/stores/alt/actions/DetailActions';
 
 export default class ConfirmClose extends Component {
+  static contextType = StoreContext;
+
   constructor(props) {
     super(props);
     this.state = {
       showTooltip: false,
     };
 
+    this.closeElement = this.closeElement.bind(this);
     this.onClickButton = this.onClickButton.bind(this);
+  }
+
+  closeElement(e) {
+    const { el } = this.props;
+    if (el && el.type == 'sequence_based_macromolecule') {
+      this.context.sequenceBasedMacromolecules.removeFromOpenSequenceBasedMacromolecules(el);
+    }
+    DetailActions.confirmDelete(e);
   }
 
   onClickButton(el) {
@@ -30,7 +42,7 @@ export default class ConfirmClose extends Component {
           <Button
             variant="danger"
             size="xxsm"
-            onClick={DetailActions.confirmDelete}
+            onClick={(e) => this.closeElement(e)}
           >
             Yes
           </Button>
@@ -71,7 +83,7 @@ export default class ConfirmClose extends Component {
           rootClose
           onHide={() => this.setState({ showTooltip: false })}
         >
-          { popover }
+          {popover}
         </Overlay>
       </>
     );
