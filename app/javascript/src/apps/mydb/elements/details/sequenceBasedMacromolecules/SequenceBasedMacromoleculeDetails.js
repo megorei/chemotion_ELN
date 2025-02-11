@@ -37,8 +37,6 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
   const sequenceBasedMacromoleculeStore = useContext(StoreContext).sequenceBasedMacromolecules;
   let sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
 
-  // console.log(sequenceBasedMacromolecule);
-
   const { currentCollection, isSync } = UIStore.getState();
   const { currentUser } = UserStore.getState();
 
