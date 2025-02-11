@@ -9,35 +9,19 @@ import Container from 'src/models/Container';
 const toggableContents = {
   'general': true,
   'reference': false,
-  'structure': false,
-  'post_translational': false,
-  // 'software_interfaces': true,
-  // 'manuals': true,
-  // 'publications': true,
-  // 'setup': true,
-  // 'ontology': true,
-  // 'ontology_segments': true,
-  // 'general_aspects': true,
-  // 'planned_maintenance': true,
-  // 'unexpected_maintenance': true,
-  // 'unexpected_power_shutdown': true,
-  // 'planned_offline_period': true,
+  'sequence_modifications': false,
+  'sample': false,
 };
-
-// const multiRowFields = [
-//   'operators', 'contact_for_maintenance', 'planned_maintenance',
-//   'consumables_needed_for_maintenance', 'unexpected_maintenance',
-// ];
 
 export const SequenceBasedMacromoleculesStore = types
   .model({
     key_prefix: types.optional(types.string, 'sbmm'),
+    open_sequence_based_macromolecules: types.optional(types.optional(types.array(types.frozen({})), [])),
     sequence_based_macromolecule: types.optional(types.frozen({}), {}),
     sequence_based_macromolecule_checksum: types.optional(types.string, ''),
-    sequence_based_macromolecules: types.optional(types.optional(types.array(types.frozen({})), [])),
+    // sequence_based_macromolecules: types.optional(types.optional(types.array(types.frozen({})), [])),
     active_tab_key: types.optional(types.number, 1),
     toggable_contents: types.optional(types.frozen({}), toggableContents),
-    // toggable_segments: types.optional(types.array(types.string), []),
     // analysis_mode: types.optional(types.string, 'edit'),
     // analysis_open_panel: types.optional(types.union(types.string, types.number), 'none'),
     // analysis_comment_box: types.optional(types.boolean, false),
@@ -51,17 +35,30 @@ export const SequenceBasedMacromoleculesStore = types
     // attachment_sort_by: types.optional(types.string, 'name'),
     // attachment_sort_direction: types.optional(types.string, 'asc'),
     // filtered_attachments: types.optional(types.array(types.frozen({})), []),
-    // show_ontology_modal: types.optional(types.boolean, false),
-    // ontology_mode: types.optional(types.string, 'edit'),
-    // selected_segment_id: types.optional(types.number, 0),
-    // list_grouped_by: types.optional(types.string, 'serial_number'),
-    // show_all_groups: types.optional(types.boolean, true),
-    // all_groups: types.optional(types.array(types.string), []),
-    // shown_groups: types.optional(types.array(types.string), []),
-    // select_is_open: types.optional(types.array(types.frozen({})), []),
-    // multi_row_fields: types.optional(types.array(types.string), multiRowFields),
   })
   .actions(self => ({
+    addSequenceBasedMacromoleculeToOpen(sequence_based_macromolecule) {
+      let openSequenceBasedMacromolecules = [...self.open_sequence_based_macromolecules];
+      const index = openSequenceBasedMacromolecules.findIndex(s => s.id === sequence_based_macromolecule.id);
+      if (index === -1) { 
+        self.setSequenceBasedMacromolecule(sequence_based_macromolecule, true);
+        openSequenceBasedMacromolecules.push(self.sequence_based_macromolecule);
+        self.open_sequence_based_macromolecules = openSequenceBasedMacromolecules;
+      } else {
+        self.sequence_based_macromolecule = openSequenceBasedMacromolecules[index];
+      }
+    },
+    editSequenceBasedMacromolecules(sequence_based_macromolecule) {
+      let openSequenceBasedMacromolecules = [...self.open_sequence_based_macromolecules];
+      const index = openSequenceBasedMacromolecules.findIndex(s => s.id === sequence_based_macromolecule.id);
+      openSequenceBasedMacromolecules[index] = sequence_based_macromolecule;
+      self.open_sequence_based_macromolecules = openSequenceBasedMacromolecules;
+    },
+    removeFromOpenSequenceBasedMacromolecules(sequence_based_macromolecule) {
+      const openSequenceBasedMacromolecules =
+        self.open_sequence_based_macromolecules.filter((s) => { return s.id !== sequence_based_macromolecule.id });
+      self.open_sequence_based_macromolecules = openSequenceBasedMacromolecules;
+    },
     setSequenceBasedMacromolecule(sequence_based_macromolecule, initial = false) {
       if (initial) {
         self.sequence_based_macromolecule_checksum = sequence_based_macromolecule._checksum;
@@ -74,13 +71,17 @@ export const SequenceBasedMacromoleculesStore = types
         sequenceBasedMacromolecule.changed = true;
       }
       self.sequence_based_macromolecule = sequenceBasedMacromolecule;
+
+      if (!initial) {
+        self.editSequenceBasedMacromolecules(sequenceBasedMacromolecule);
+      }
     },
-    setSequenceBasedMacromolecules(sequence_based_macromolecules) {
-      self.sequence_based_macromolecules = sequence_based_macromolecules;
-    },
-    clearSequenceBasedMacromolecule() {
-      self.sequence_based_macromolecule = {};
-    },
+    // setSequenceBasedMacromolecules(sequence_based_macromolecules) {
+    //   self.sequence_based_macromolecules = sequence_based_macromolecules;
+    // },
+    // clearSequenceBasedMacromolecule() {
+    //   self.sequence_based_macromolecule = {};
+    // },
     changeSequenceBasedMacromolecule(field, value, type) {
       let sequence_based_macromolecule = { ...self.sequence_based_macromolecule };
       const fieldParts = field.split('.');
@@ -120,15 +121,6 @@ export const SequenceBasedMacromoleculesStore = types
       contents[content] = !contents[content];
       self.toggable_contents = contents;
     },
-    // toggleSegment(segment) {
-    //   let segments = [...self.toggable_segments];
-    //   if (segments.includes(segment)) {
-    //     segments = segments.filter((s) => { return s != segment });
-    //   } else {
-    //     segments.push(segment);
-    //   }
-    //   self.toggable_segments = segments;
-    // },
     // changeAnalysisMode(mode) {
     //   self.analysis_mode = mode;
     // },
@@ -218,64 +210,8 @@ export const SequenceBasedMacromoleculesStore = types
     //     }
     //   });
     // },
-    // toggleOntologyModal() {
-    //   self.show_ontology_modal = !self.show_ontology_modal;
-    // },
-    // changeOntologyMode(mode) {
-    //   self.ontology_mode = mode;
-    // },
-    // setSelectedSegmentId(segment_id) {
-    //   self.selected_segment_id = segment_id;
-    // },
-    // setListGroupedBy(value) {
-    //   self.list_grouped_by = value;
-    // },
-    // toggleAllGroups() {
-    //   self.show_all_groups = !self.show_all_groups;
-
-    //   if (self.show_all_groups) {
-    //     self.removeAllGroupsFromShownGroups();
-    //   } else {
-    //     self.addAllGroupsToShownGroups();
-    //   }
-    // },
-    // addGroupToAllGroups(group_key) {
-    //   const index = self.all_groups.findIndex((g) => { return g == group_key });
-    //   if (index === -1) {
-    //     self.all_groups.push(group_key);
-    //   }
-    // },
-    // addAllGroupsToShownGroups() {
-    //   self.all_groups.map((group_key) => {
-    //     self.addGroupToShownGroups(group_key);
-    //   });
-    // },
-    // addGroupToShownGroups(group_key) {
-    //   self.shown_groups.push(group_key);
-    // },
-    // removeGroupFromShownGroups(group_key) {
-    //   const shownGroups = self.shown_groups.filter((g) => { return g !== group_key });
-    //   self.shown_groups = shownGroups;
-    // },
-    // removeAllGroupsFromShownGroups() {
-    //   self.shown_groups = [];
-    // },
-    // setSelectIsOpen(field, value) {
-    //   const index = self.select_is_open.findIndex((x// ) => { return x[field] !== undefined });
-    //   const newValue = { [field]: value }
-    //   if (index >= 0) {
-    //     let fieldObject = { ...self.select_is_open[index] };
-    //     fieldObject = newValue;
-    //     self.select_is_open[index] = fieldObject;
-    //   } else {
-    //     self.select_is_open.push(newValue);
-    //   }
-    // }
   }))
   .views(self => ({
-    get sequenceBasedMacromoleculesValues() { return values(self.sequence_based_macromolecules) },
+    // get sequenceBasedMacromoleculesValues() { return values(self.sequence_based_macromolecules) },
     // get filteredAttachments() { return values(self.filtered_attachments) },
-    // get shownGroups() { return values(self.shown_groups) },
-    // get selectIsOpen() { return values(self.select_is_open) },
-    // get multiRowFields() { return values(self.multi_row_fields) },
   }));
