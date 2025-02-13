@@ -60,7 +60,7 @@ const ReferenceForm = ({ ident }) => {
             <Col>{formHelper.numberInput(`${fieldPrefix}molecular_length`, 'Sequence length', '')}</Col>
             <Col>
               {formHelper.unitInput(
-                `${fieldPrefix}molecular_weight`, 'Sequence mass (Da = g/mol)', 'molecular_weight', 'number', ''
+                `${fieldPrefix}molecular_weight`, 'Sequence mass (Da = g/mol)', 'molecular_weight', ''
               )}
             </Col>
           </Row>
