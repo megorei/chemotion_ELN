@@ -83,7 +83,7 @@ export const SequenceBasedMacromoleculesStore = types
     // clearSequenceBasedMacromolecule() {
     //   self.sequence_based_macromolecule = {};
     // },
-    changeSequenceBasedMacromolecule(field, value, type) {
+    changeSequenceBasedMacromolecule(field, value) {
       let sequence_based_macromolecule = { ...self.sequence_based_macromolecule };
       const fieldParts = field.split('.');
       const lastKey = fieldParts.pop();
@@ -94,29 +94,88 @@ export const SequenceBasedMacromoleculesStore = types
 
       sequence_based_macromolecule.updated = false;
       self.setSequenceBasedMacromolecule(sequence_based_macromolecule);
-    },
-    // changeSetupSequenceBasedMacromolecules(field, value, type, sequence_based_macromolecule) {
-    //   const fieldElements = field.split('-');
-    //   const elementField = fieldElements.length > 1 ? fieldElements[0] : field;
-    //   const elementType = type !== undefined ? type : fieldElements[1];
-    //   let sequence_based_macromolecule_field = { ...sequence_based_macromolecule[elementField] };
 
-    //   if (sequence_based_macromolecule_field === null) {
-    //     sequence_based_macromolecule_field = { [elementType]: value };
-    //   } else if (fieldElements.length > 1) {
-    //     sequence_based_macromolecule_field[elementType][fieldElements[3]][fieldElements[2]] = value;
-    //   } else {
-    //     sequence_based_macromolecule_field[elementType] = value;
-    //   }
-    //   sequence_based_macromolecule[elementField] = sequence_based_macromolecule_field;
-    //   return sequence_based_macromolecule;
-    // },
+      self.calculateActivity(sequence_based_macromolecule, lastObject, lastKey, value, field);
+    },
+    calculateActivity(sequence_based_macromolecule, lastObject, lastKey, value, field) {
+      // if the volume is added, we calculate the activity and the amount based on: 
+      //   amount [mol] = Volume [L] * molarity [mol/L] 
+      //   activity [U] = Volume [L] * activity_per_liter [U/L] 
+      // if the activity is added: 
+      //   Volume [L] = Activity [U] / activity_per_liter [U/L] 
+      //   amount [mol] = Volume [L] * molarity [mol/L]   
+      // if the amount (in mol) is added: 
+      //   volume [L] = amount [mol]  / molarity [mol/L] 
+      //   activity [U] = Volume [L] * activity_per_liter [U/L] 
+      // if the amount (in g) is added: 
+      //   Activity [U] = amount [g] * Activity in U/g [mol/L]
+
+      const calculationFields = [
+        'molarity', 'stock_activity_ul', 'stock_activity_ug',
+        'volume_as_used', 'amount_as_used', 'amount_as_used_weight', 'activity',
+      ];
+      if (!calculationFields.includes(lastKey)) { return null; }
+
+      const molarity = sequence_based_macromolecule.sample.molarity || '';
+      const stockActivityUl = sequence_based_macromolecule.sample.stock_activity_ul || '';
+      const stockActivityUG = sequence_based_macromolecule.sample.stock_activity_ug || '';
+      let volumeAsUsed = sequence_based_macromolecule.sample.volume_as_used || '';
+      const amountAsUsed = sequence_based_macromolecule.sample.amount_as_used || '';
+      const amountAsUsedWeight = sequence_based_macromolecule.sample.amount_as_used_weight || '';
+      let activity = sequence_based_macromolecule.sample.activity || '';
+      // todo: change values to basic units
+      console.log(
+        'molarity', molarity, 'activity_ul', stockActivityUl, 'activity_ug', stockActivityUG,
+        'volume_as_used', volumeAsUsed, 'amount_as_used', amountAsUsed, 'amount_as_used_weight', amountAsUsedWeight,
+        'activity', activity
+      );
+
+      if (lastKey === 'volume_as_used') {
+        if (molarity !== '' && volumeAsUsed !== '') {
+          sequence_based_macromolecule.sample.amount_as_used = parseFloat((volumeAsUsed * molarity).toFixed(5));
+        }
+        if (stockActivityUl !== '' && volumeAsUsed !== '') {
+          sequence_based_macromolecule.sample.activity = parseFloat((volumeAsUsed * stockActivityUl).toFixed(5));
+        }
+      }
+      if (lastKey === 'activity') {
+        if (stockActivityUl !== '' && activity !== '') {
+          volumeAsUsed = parseFloat((activity / stockActivityUl).toFixed(5));
+          sequence_based_macromolecule.sample.volume_as_used = volumeAsUsed;
+        }
+        if (volumeAsUsed != '' && molarity !== '' && activity !== '') {
+          sequence_based_macromolecule.sample.amount_as_used = parseFloat((volumeAsUsed * molarity).toFixed(5));
+        }
+      }
+      if (lastKey === 'amount_as_used') {
+        if (molarity !== '' && amountAsUsed !== '') {
+          volumeAsUsed = parseFloat((amountAsUsed / molarity).toFixed(5));
+          sequence_based_macromolecule.sample.volume_as_used = volumeAsUsed;
+        }
+        if (stockActivityUl !== '' && amountAsUsed !== '') {
+          sequence_based_macromolecule.sample.activity = parseFloat((volumeAsUsed * stockActivityUl).toFixed(5));
+        }
+      }
+      if (lastKey === 'amount_as_used_weight') {
+        if (stockActivityUG !== '' && amountAsUsedWeight !== '') {
+          activity = parseFloat((amountAsUsedWeight * stockActivityUG).toFixed(5));
+          sequence_based_macromolecule.sample.activity = activity;
+        }
+        if (stockActivityUl !== '' && activity !== '' && amountAsUsedWeight !== '') {
+          volumeAsUsed = parseFloat((activity / stockActivityUl).toFixed(5));
+          sequence_based_macromolecule.sample.volume_as_used = volumeAsUsed;
+        }
+        if (volumeAsUsed != '' && molarity !== '' && activity !== '' && amountAsUsedWeight !== '') {
+          sequence_based_macromolecule.sample.amount_as_used = parseFloat((volumeAsUsed * molarity).toFixed(5));
+        }
+      }
+
+      //console.log(lastObject, lastKey, value, field);
+      self.setSequenceBasedMacromolecule(sequence_based_macromolecule);
+    },
     setActiveTabKey(key) {
       self.active_tab_key = key;
     },
-    // setKeyPrefix(prefix) {
-    //   self.key_prefix = `${prefix}-${self.device_description.collection_id}`;
-    // },
     toggleContent(content) {
       let contents = { ...self.toggable_contents };
       contents[content] = !contents[content];
