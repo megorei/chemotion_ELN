@@ -39,10 +39,10 @@ const unitSystems = {
     { key: "pmol", label: "pmol", nm: 1000 },
   ],
   amount_weight: [
-    { "key": "ug", "label": "µg", "nm": 1000000000 },
-    { "key": "mg", "label": "mg", "nm": 0.001 },
     { "key": "g", "label": "g", "nm": 0.001 },
     { "key": "kg", "label": "kg", "nm": 0.001 },
+    { "key": "ug", "label": "µg", "nm": 1000000000 },
+    { "key": "mg", "label": "mg", "nm": 0.001 },
   ],
   concentration: [
     { key: "ng_l", label: "ng/L", nm: 1000000 },
@@ -113,7 +113,21 @@ const elementField = (element, field) => {
 }
 
 const numberValue = (value) => {
-  return value !== '' && value !== undefined ? parseFloat(value) : value || '';
+  if (value === '' || value === undefined) { return ''; }
+
+  let cleanedValue = value;
+  let changeToFloat = typeof cleanedValue === 'number';
+
+  if (typeof value === 'string') {
+    cleanedValue = value.replace(/[^0-9.,]/g, '').replace(/,/g, '.');
+
+    const points = cleanedValue.split('.');
+    cleanedValue = points.length > 2 ? `${points[0]}.${points[1]}` : cleanedValue;
+    const lastChar = cleanedValue.charAt(cleanedValue.length - 1);
+    changeToFloat = lastChar !== '.' && lastChar !== '0';
+  }
+
+  return changeToFloat ? parseFloat(cleanedValue) : cleanedValue;
 }
 
 const changeElement = (store, field, value, element_type) => {
@@ -226,7 +240,7 @@ const initFormHelper = (element, store) => {
           {labelWithInfo(label, info)}
           <Form.Control
             name={field}
-            type="number"
+            type="text"
             key={`${store.key_prefix}-${field}`}
             value={numberValue(value)}
             onChange={(event) => formHelper.onChange(field, event.target.value)}
@@ -263,7 +277,7 @@ const initFormHelper = (element, store) => {
             <InputGroup.Text key={`${store.key_prefix}-${text}`}>{text}</InputGroup.Text>
             <Form.Control
               name={field}
-              type={type}
+              type="text"
               key={`${store.key_prefix}-${field}`}
               value={value || ''}
               onChange={(event) => formHelper.onChange(field, event.target.value)}
@@ -273,9 +287,8 @@ const initFormHelper = (element, store) => {
       );
     },
 
-    unitInput: (field, label, option_type, type, info) => {
-      let value = elementField(element, field);
-      value = type == 'number' ? numberValue(value) : value || '';
+    unitInput: (field, label, option_type, info) => {
+      const value = numberValue(elementField(element, field));
       const units = unitSystems[option_type];
       if (!units) { return null; }
 
@@ -304,10 +317,10 @@ const initFormHelper = (element, store) => {
           <InputGroup key={`${store.key_prefix}-${label}-${field}`}>
             <Form.Control
               name={field}
-              type={type}
+              type="text"
               key={`${store.key_prefix}-${field}`}
               value={value || ''}
-              onChange={(event) => formHelper.onChange(field, event.target.value)}
+              onChange={(event) => formHelper.onChange(field, event.target.value, 'number')}
               className="flex-grow-1"
             />
             {unitTextOrButton}
@@ -391,8 +404,9 @@ const initFormHelper = (element, store) => {
       );
     },
 
-    onChange: (field, value) => {
-      changeElement(store, field, value, element.type);
+    onChange: (field, value, type) => {
+      const newValue = type && type === 'number' ? numberValue(value) : value;
+      changeElement(store, field, newValue, element.type);
     },
   };
   return formHelper;
