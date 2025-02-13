@@ -35,6 +35,7 @@ export const SequenceBasedMacromoleculesStore = types
     // attachment_sort_by: types.optional(types.string, 'name'),
     // attachment_sort_direction: types.optional(types.string, 'asc'),
     // filtered_attachments: types.optional(types.array(types.frozen({})), []),
+    show_search_result: types.optional(types.boolean, false),
   })
   .actions(self => ({
     addSequenceBasedMacromoleculeToOpen(sequence_based_macromolecule) {
@@ -210,6 +211,12 @@ export const SequenceBasedMacromoleculesStore = types
     //     }
     //   });
     // },
+    openSearchResult() {
+      self.show_search_result = true;
+    },
+    closeSearchResult() {
+      self.show_search_result = false;
+    },
   }))
   .views(self => ({
     // get sequenceBasedMacromoleculesValues() { return values(self.sequence_based_macromolecules) },
