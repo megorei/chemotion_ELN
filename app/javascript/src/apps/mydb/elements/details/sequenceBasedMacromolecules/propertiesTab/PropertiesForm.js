@@ -1,14 +1,15 @@
 import React, { useContext } from 'react';
-import { Form, Row, Col, Accordion, Button } from 'react-bootstrap';
+import { Form, Row, Col, Accordion, Button, } from 'react-bootstrap';
 import { initFormHelper } from 'src/utilities/FormHelper';
 import ReferenceForm from './ReferenceForm';
+import SearchResults from './SearchResults';
 
 import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 
 const PropertiesForm = ({ readonly }) => {
   const sequenceBasedMacromoleculeStore = useContext(StoreContext).sequenceBasedMacromolecules;
-  let sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
+  const sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
   const formHelper = initFormHelper(sequenceBasedMacromolecule, sequenceBasedMacromoleculeStore);
 
   const sbmmType = [{ label: 'Protein', value: 'protein' }];
@@ -40,7 +41,15 @@ const PropertiesForm = ({ readonly }) => {
   const visibleForUnkownOrModification = sequenceBasedMacromolecule.sbmm_type === 'protein'
     && !['', undefined, 'uniprot'].includes(sequenceBasedMacromolecule.uniprot_derivation);
 
-  console.log(sequenceBasedMacromolecule);
+  const searchSequenceBasedMolecules = () => {
+    if (sequenceBasedMacromolecule.uniprot_derivation
+      && sequenceBasedMacromolecule.sbmm_search_by && sequenceBasedMacromolecule.sbmm_search_input) {
+      // todo: search at uniprot and local db
+      sequenceBasedMacromoleculeStore.openSearchResult();
+    }
+  }
+
+  //console.log(sequenceBasedMacromolecule);
 
   return (
     <Form>
@@ -89,7 +98,10 @@ const PropertiesForm = ({ readonly }) => {
               }
 
               <Col>
-                <Button className="btn btn-primary" type="submit">
+                <Button
+                  variant="primary"
+                  onClick={() => searchSequenceBasedMolecules()}
+                >
                   Search
                 </Button>
               </Col>
@@ -139,21 +151,21 @@ const PropertiesForm = ({ readonly }) => {
                 <h5 className="mb-3">Sample stocks characteristics</h5>
                 <Row className="mb-4 align-items-end">
                   <Col>
-                    {formHelper.unitInput('sample.concentration', 'Concentration', 'concentration', 'number', '')}
+                    {formHelper.unitInput('sample.concentration', 'Concentration', 'concentration', '')}
                   </Col>
                   <Col>
-                    {formHelper.unitInput('sample.molarity', 'Molarity', 'molarity', 'number', '')}
+                    {formHelper.unitInput('sample.molarity', 'Molarity', 'molarity', '')}
                   </Col>
                 </Row>
                 <Row className="mb-4 align-items-end">
                   <Col>
                     {formHelper.unitInput(
-                      'sample.stock_activity_ul', 'Activity in U/L', 'activity_ul', 'number', ''
+                      'sample.stock_activity_ul', 'Activity in U/L', 'activity_ul', ''
                     )}
                   </Col>
                   <Col>
                     {formHelper.unitInput(
-                      'sample.stock_activity_ug', 'Activity in U/g', 'activity_ug', 'number', ''
+                      'sample.stock_activity_ug', 'Activity in U/g', 'activity_ug', ''
                     )}
                   </Col>
                 </Row>
@@ -166,21 +178,26 @@ const PropertiesForm = ({ readonly }) => {
                 </Row>
                 <Row className="mb-4 align-items-end">
                   <Col>
-                    {formHelper.unitInput('sample.volume_as_used', 'Volume as used', 'volumes', 'number', '')}
+                    {formHelper.unitInput('sample.volume_as_used', 'Volume as used', 'volumes', '')}
                   </Col>
                   <Col>
-                    {formHelper.unitInput('sample.amount_as_used', 'Amount as used', 'amount_substance', 'number', '')}
+                    {formHelper.unitInput('sample.amount_as_used', 'Amount as used', 'amount_substance', '')}
                   </Col>
                   <Col>
-                    {formHelper.unitInput('sample.amount_as_used_weight', '', 'amount_weight', 'number', '')}
+                    {formHelper.unitInput('sample.amount_as_used_weight', '', 'amount_weight', '')}
                   </Col>
                   <Col>
-                    {formHelper.unitInput('sample.activity', 'Activity', 'activity', 'number', '')}
+                    {formHelper.unitInput('sample.activity', 'Activity', 'activity', '')}
                   </Col>
                 </Row>
               </Accordion.Body>
             </Accordion.Item>
           </Accordion>
+        )
+      }
+      {
+        sequenceBasedMacromoleculeStore.show_search_result && (
+          <SearchResults />
         )
       }
     </Form>
