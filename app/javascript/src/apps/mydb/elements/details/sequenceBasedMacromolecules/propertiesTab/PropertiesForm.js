@@ -41,9 +41,11 @@ const PropertiesForm = ({ readonly }) => {
   const visibleForUnkownOrModification = sequenceBasedMacromolecule.sbmm_type === 'protein'
     && !['', undefined, 'uniprot'].includes(sequenceBasedMacromolecule.uniprot_derivation);
 
+  const searchable = sequenceBasedMacromolecule.uniprot_derivation
+    && sequenceBasedMacromolecule.sbmm_search_by && sequenceBasedMacromolecule.sbmm_search_input;
+
   const searchSequenceBasedMolecules = () => {
-    if (sequenceBasedMacromolecule.uniprot_derivation
-      && sequenceBasedMacromolecule.sbmm_search_by && sequenceBasedMacromolecule.sbmm_search_input) {
+    if (searchable) {
       // todo: search at uniprot and local db
       sequenceBasedMacromoleculeStore.openSearchResult();
     }
@@ -98,12 +100,16 @@ const PropertiesForm = ({ readonly }) => {
               }
 
               <Col>
-                <Button
-                  variant="primary"
-                  onClick={() => searchSequenceBasedMolecules()}
-                >
-                  Search
-                </Button>
+                {
+                  searchable && (
+                    <Button
+                      variant="primary"
+                      onClick={() => searchSequenceBasedMolecules()}
+                    >
+                      Search
+                    </Button>
+                  )
+                }
               </Col>
             </Row>
           </Accordion.Body>
