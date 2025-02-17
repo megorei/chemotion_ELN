@@ -32,7 +32,7 @@ export const ALL_TYPES = [
 
 export const allElnElements = [
   'sample', 'reaction', 'screen', 'wellplate', 'research_plan',
-  'cell_line', 'sequence_based_macromolecule',
+  'cell_line', 'device_description', 'sequence_based_macromolecule',
 ];
 
 export const notification = props =>
