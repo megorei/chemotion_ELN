@@ -31,6 +31,18 @@ const ReferenceForm = ({ ident }) => {
   const visibleForModification = sequenceBasedMacromolecule.sbmm_type === 'protein'
     && sequenceBasedMacromolecule.uniprot_derivation === 'uniprot_modified';
 
+  const handleCIFFileUpload = (field) => {
+    console.log(field);
+  }
+
+  const handlePDBFileUpload = (field) => {
+    console.log(field);
+  }
+
+  const handleDrop = (item, field) => {
+    console.log(item);
+  }
+
   return (
     <Accordion
       className="mb-4"
@@ -43,6 +55,21 @@ const ReferenceForm = ({ ident }) => {
         </Accordion.Header>
         <Accordion.Body>
           <h5 className="mb-3">Identifiers and sequence characteristics:</h5>
+          {
+            ident === 'sequence_modifications' && (
+              <Row className="mb-4">
+                <Col>
+                  <label className="form-label">Reference</label>
+                  {
+                    formHelper.dropAreaForElement(
+                      'SEQUENCE_BASED_MACROMOLECULE', handleDrop, `${fieldPrefix}reference`,
+                      'Drop sequence based macromolecule here'
+                    )
+                  }
+                </Col>
+              </Row>
+            )
+          }
           <Row className="mb-4 align-items-end">
             {ident === 'reference' && (
               <Col>{formHelper.textInput('uniprot_number', 'UniProt number', '')}</Col>
@@ -87,10 +114,12 @@ const ReferenceForm = ({ ident }) => {
             ident === 'reference' && sequenceBasedMacromolecule.show_structure_details && (
               <Row className="mb-4 align-items-end">
                 <Col>
-                  structure_file_cif - Dropdown - Reference
+                  <label className="form-label">Structure file cif</label>
+                  {formHelper.dropzone(`${fieldPrefix}structure_file_cif`, handleCIFFileUpload)}
                 </Col>
                 <Col>
-                  structure_file_pdb - Dropdown - Reference
+                  <label className="form-label">Structure file pdb</label>
+                  {formHelper.dropzone(`${fieldPrefix}structure_file_pdb`, handlePDBFileUpload)}
                 </Col>
               </Row>
             )
@@ -100,10 +129,12 @@ const ReferenceForm = ({ ident }) => {
             && sequenceBasedMacromolecule.sequence_modifications?.show_structure_details && (
               <Row className="mb-4 align-items-end">
                 <Col>
-                  structure_file_cif - Dropdown - modification
+                  <label className="form-label">Structure file cif</label>
+                  {formHelper.dropzone(`${fieldPrefix}structure_file_cif`, handleCIFFileUpload)}
                 </Col>
                 <Col>
-                  structure_file_pdb - Dropdown - modification
+                  <label className="form-label">Structure file pdb</label>
+                  {formHelper.dropzone(`${fieldPrefix}structure_file_pdb`, handlePDBFileUpload)}
                 </Col>
               </Row>
             )
