@@ -86,7 +86,7 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
       <Tab eventKey={key} title={title} key={`${key}_${sequenceBasedMacromolecule.id}`} disabled={disabled(i)}>
         {
           !sequenceBasedMacromolecule.isNew &&
-          <CommentSection section={`sequenceBasedMacromolecule_${key}`} element={sequenceBasedMacromolecule} />
+          <CommentSection section={`sequence_based_macromolecule_${key}`} element={sequenceBasedMacromolecule} />
         }
         {React.createElement(tabContentComponents[key], {
           key: `${sequenceBasedMacromolecule.id}-${key}`,
