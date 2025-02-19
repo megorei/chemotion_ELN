@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Card, Button, Collapse, Modal, } from 'react-bootstrap';
+import { Button, Modal, } from 'react-bootstrap';
 import { AgGridReact } from 'ag-grid-react';
 import Draggable from "react-draggable";
 
@@ -25,11 +25,18 @@ const SearchResults = () => {
     });
   }
 
+  const chooseUniprotEntry = (uniprot_number) => {
+    sequenceBasedMacromoleculeStore.changeSequenceBasedMacromolecule('uniprot_number', uniprot_number);
+    sequenceBasedMacromoleculeStore.closeSearchResult();
+  }
+
   const renderChooseLink = (node) => {
     return (
       <div>
         {node.data.uniprot_number}
-        <Button variant="link">Choose</Button>
+        <Button variant="link" onClick={() => chooseUniprotEntry(node.data.uniprot_number)}>
+          Choose
+        </Button>
       </div>
     );
   }
@@ -126,7 +133,7 @@ const SearchResults = () => {
           </Modal.Header>
           <Modal.Body>
             <div className="mb-4">
-              Your search for:
+              <b>Your search for:</b>
               <br />
               {`${sequenceBasedMacromolecule.sbmm_search_by}: ${sequenceBasedMacromolecule.sbmm_search_input}`}
             </div>
@@ -135,29 +142,7 @@ const SearchResults = () => {
               <b>109 Results</b>
             </div>
 
-            <div className="mb-4">
-              {
-                dummyResult.map((result, i) => (
-                  <Card className="mb-3" key={`result-card-${i}`}>
-                    <Card.Header>
-                      <div className="d-flex justify-content-between align-items-center gap-2">
-                        <div>
-                          {
-                            `${result.uniprot_number} - ${result.name} - ${result.systematic_name} (${result.short_name})`
-                          }
-                        </div>
-                        <Button variant="primary" size="sm">Choose</Button>
-                      </div>
-                    </Card.Header>
-                    <Card.Body>
-                      {`Organism: ${result.organism} - EC: ${result.ec_number} - Strain: ${result.strain} - Tissue: ${result.tissue}`}
-                    </Card.Body>
-                  </Card>
-                ))
-              }
-            </div>
-
-            <div className="ag-theme-alpine w-100 my-5">
+            <div className="ag-theme-alpine w-100 mb-4">
               <AgGridReact
                 columnDefs={columnDefs}
                 defaultColDef={defaultColDef}
@@ -166,41 +151,6 @@ const SearchResults = () => {
                 domLayout="autoHeight"
                 autoSizeStrategy={{ type: 'fitGridWidth' }}
               />
-            </div>
-
-            <div className="mb-4 border border-gray-500">
-              {
-                dummyResult.map((result, i) => (
-                  <div className={`${i % 2 == 0 ? 'bg-white' : 'bg-light'} ${i === dummyResult.length - 1 ? 'border-bottom-0' : 'border-bottom'} p-0`}>
-                    <div className="d-flex justify-content-between align-items-center gap-2">
-                      <div className="d-flex justify-content-between align-items-center gap-2 w-100">
-                        <div
-                          className="border-0 p-2 w-100 text-start"
-                          onClick={() => sequenceBasedMacromoleculeStore.toggleContent(`search-result-collapse-${i}`)}
-                        >
-                          {
-                            `${result.uniprot_number} - ${result.name} - ${result.systematic_name} (${result.short_name})`
-                          }
-                        </div>
-                        <Button variant="primary" size="sm" className="my-2">Choose</Button>
-                      </div>
-                      <i
-                        className={`p-2 fa fa-angle-${sequenceBasedMacromoleculeStore.toggable_contents[`search-result-collapse-${i}`] ? 'up' : 'down'} fs-4`}
-                        onClick={() => sequenceBasedMacromoleculeStore.toggleContent(`search-result-collapse-${i}`)}
-                      />
-                    </div>
-
-                    <Collapse in={sequenceBasedMacromoleculeStore.toggable_contents[`search-result-collapse-${i}`]}>
-                      <div className="bg-white border-top p-2 m-0">
-                        {
-                          `Organism: ${result.organism} - EC: ${result.ec_number} - 
-                      Strain: ${result.strain} - Tissue: ${result.tissue}`
-                        }
-                      </div>
-                    </Collapse>
-                  </div>
-                ))
-              }
             </div>
           </Modal.Body>
         </Modal>

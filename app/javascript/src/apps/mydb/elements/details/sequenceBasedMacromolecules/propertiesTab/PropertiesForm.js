@@ -41,7 +41,13 @@ const PropertiesForm = ({ readonly }) => {
   const visibleForUnkownOrModification = sequenceBasedMacromolecule.sbmm_type === 'protein'
     && !['', undefined, 'uniprot'].includes(sequenceBasedMacromolecule.uniprot_derivation);
 
-  const searchable = sequenceBasedMacromolecule.uniprot_derivation
+  const showIfReferenceSelected = sequenceBasedMacromolecule.sbmm_type === 'protein'
+    && (sequenceBasedMacromolecule.uniprot_number || sequenceBasedMacromolecule.other_reference_id
+      || sequenceBasedMacromolecule.uniprot_derivation === 'uniprot_unknown');
+
+  const showIfEnzymeIsSelected = sequenceBasedMacromolecule.sample?.function_or_application === 'enzyme';
+
+  const searchable = ['uniprot', 'uniprot_modified'].includes(sequenceBasedMacromolecule.uniprot_derivation)
     && sequenceBasedMacromolecule.sbmm_search_by && sequenceBasedMacromolecule.sbmm_search_input;
 
   const searchSequenceBasedMolecules = () => {
@@ -85,33 +91,30 @@ const PropertiesForm = ({ readonly }) => {
               </Col>
             </Row>
 
-            <Row className="mb-4 align-items-end">
-              {
-                visibleForUniprotOrModification && (
-                  <>
-                    <Col>
-                      {formHelper.selectInput('sbmm_search_by', 'Search UniProt or Reference', sbmmSearchBy, '')}
-                    </Col>
-                    <Col>
-                      {formHelper.textInput('sbmm_search_input', 'Input', '')}
-                    </Col>
-                  </>
-                )
-              }
-
-              <Col>
-                {
-                  searchable && (
-                    <Button
-                      variant="primary"
-                      onClick={() => searchSequenceBasedMolecules()}
-                    >
-                      Search
-                    </Button>
-                  )
-                }
-              </Col>
-            </Row>
+            {
+              visibleForUniprotOrModification && (
+                <Row className="mb-4 align-items-end">
+                  <Col>
+                    {formHelper.selectInput('sbmm_search_by', 'Search UniProt or Reference', sbmmSearchBy, '')}
+                  </Col>
+                  <Col>
+                    {formHelper.textInput('sbmm_search_input', 'Input', '')}
+                  </Col>
+                  <Col>
+                    {
+                      searchable && (
+                        <Button
+                          variant="primary"
+                          onClick={() => searchSequenceBasedMolecules()}
+                        >
+                          Search
+                        </Button>
+                      )
+                    }
+                  </Col>
+                </Row>
+              )
+            }
           </Accordion.Body>
         </Accordion.Item>
       </Accordion>
@@ -125,7 +128,7 @@ const PropertiesForm = ({ readonly }) => {
         )
       }
       {
-        visibleForUnkownOrModification && (
+        showIfReferenceSelected && visibleForUnkownOrModification && (
           <ReferenceForm
             ident="sequence_modifications"
             key="sequence_modifications_uniprot"
@@ -134,7 +137,7 @@ const PropertiesForm = ({ readonly }) => {
       }
 
       {
-        sequenceBasedMacromolecule.sbmm_type === 'protein' && (
+        showIfReferenceSelected && (
           <Accordion
             className="mb-4"
             activeKey={sequenceBasedMacromoleculeStore.toggable_contents.sample && 'sample'}
@@ -162,18 +165,22 @@ const PropertiesForm = ({ readonly }) => {
                   <Col>
                     {formHelper.unitInput('sample.molarity', 'Molarity', 'molarity', '')}
                   </Col>
-                </Row>
-                <Row className="mb-4 align-items-end">
-                  <Col>
-                    {formHelper.unitInput(
-                      'sample.stock_activity_ul', 'Activity in U/L', 'activity_ul', ''
-                    )}
-                  </Col>
-                  <Col>
-                    {formHelper.unitInput(
-                      'sample.stock_activity_ug', 'Activity in U/g', 'activity_ug', ''
-                    )}
-                  </Col>
+                  {
+                    showIfEnzymeIsSelected && (
+                      <>
+                        <Col>
+                          {formHelper.unitInput(
+                            'sample.stock_activity_ul', 'Activity in U/L', 'activity_ul', ''
+                          )}
+                        </Col>
+                        <Col>
+                          {formHelper.unitInput(
+                            'sample.stock_activity_ug', 'Activity in U/g', 'activity_ug', ''
+                          )}
+                        </Col>
+                      </>
+                    )
+                  }
                 </Row>
 
                 <h5 className="mb-3">Sample characteristics</h5>
@@ -192,9 +199,13 @@ const PropertiesForm = ({ readonly }) => {
                   <Col>
                     {formHelper.unitInput('sample.amount_as_used_weight', '', 'amount_weight', '')}
                   </Col>
-                  <Col>
-                    {formHelper.unitInput('sample.activity', 'Activity', 'activity', '')}
-                  </Col>
+                  {
+                    showIfEnzymeIsSelected && (
+                      <Col>
+                        {formHelper.unitInput('sample.activity', 'Activity', 'activity', '')}
+                      </Col>
+                    )
+                  }
                 </Row>
               </Accordion.Body>
             </Accordion.Item>
