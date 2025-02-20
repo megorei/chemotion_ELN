@@ -5,6 +5,8 @@ require 'grape-entity'
 require 'grape-swagger'
 
 class API < Grape::API
+  include LogidzeModule
+
   format :json
   prefix :api
   version 'v1'
@@ -206,6 +208,7 @@ class API < Grape::API
   mount Chemotion::ChemicalAPI
   mount Chemotion::DeviceDescriptionAPI
   mount Chemotion::SequenceBasedMacromoleculeAPI
+  mount Chemotion::VersionAPI
 
   if Rails.env.development?
     add_swagger_documentation(info: {
