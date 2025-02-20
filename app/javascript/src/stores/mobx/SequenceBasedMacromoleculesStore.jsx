@@ -22,10 +22,9 @@ export const SequenceBasedMacromoleculesStore = types
     // sequence_based_macromolecules: types.optional(types.optional(types.array(types.frozen({})), [])),
     active_tab_key: types.optional(types.number, 1),
     toggable_contents: types.optional(types.frozen({}), toggableContents),
-    // analysis_mode: types.optional(types.string, 'edit'),
-    // analysis_open_panel: types.optional(types.union(types.string, types.number), 'none'),
-    // analysis_comment_box: types.optional(types.boolean, false),
-    // analysis_start_export: types.optional(types.boolean, false),
+    analysis_mode: types.optional(types.string, 'edit'),
+    analysis_comment_box: types.optional(types.boolean, false),
+    analysis_start_export: types.optional(types.boolean, false),
     // attachment_editor: types.optional(types.boolean, false),
     // attachment_extension: types.optional(types.frozen({}), {}),
     // attachment_image_edit_modal_shown: types.optional(types.boolean, false),
@@ -181,43 +180,42 @@ export const SequenceBasedMacromoleculesStore = types
       contents[content] = !contents[content];
       self.toggable_contents = contents;
     },
-    // changeAnalysisMode(mode) {
-    //   self.analysis_mode = mode;
-    // },
-    // changeAnalysisOpenPanel(panel) {
-    //   self.analysis_open_panel = panel;
-    // },
-    // addEmptyAnalysisContainer() {
-    //   const container = Container.buildEmpty();
-    //   container.container_type = "analysis"
-    //   let device_description = { ...self.device_description };
-    //   device_description.container.children[0].children.push(container);
-    //   self.setDeviceDescription(device_description);
-    // },
-    // changeAnalysisContainerContent(container) {
-    //   let device_description = { ...self.device_description };
-    //   const index = device_description.container.children[0].children.findIndex((c) => c.id === container.id);
-    //   device_description.container.children[0].children[index] = container;
-    //   self.setDeviceDescription(device_description);
-    // },
-    // changeAnalysisContainer(children) {
-    //   let device_description = { ...self.device_description };
-    //   device_description.container.children[0].children = children;
-    //   self.setDeviceDescription(device_description);
-    // },
-    // toggleAnalysisCommentBox() {
-    //   self.analysis_comment_box = !self.analysis_comment_box;
-    // },
-    // changeAnalysisComment(comment) {
-    //   let device_description = { ...self.device_description };
-    //   let container = { ...self.device_description.container }
-    //   container.description = comment;
-    //   device_description.container = container;
-    //   self.setDeviceDescription(device_description);
-    // },
-    // toggleAnalysisStartExport() {
-    //   self.analysis_start_export = !self.analysis_start_export;
-    // },
+    changeAnalysisMode() {
+      const mode = { edit: 'order', order: 'edit' }[self.analysis_mode];
+      self.analysis_mode = mode;
+    },
+    addEmptyAnalysisContainer() {
+      const container = Container.buildEmpty();
+      container.container_type = "analysis"
+      let sequenceBasedMacromolecule = { ...self.sequence_based_macromolecule };
+      sequenceBasedMacromolecule.container.children[0].children.push(container);
+      self.setSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+      self.analysis_mode = 'edit';
+    },
+    changeAnalysisContainerContent(container) {
+      let sequenceBasedMacromolecule = { ...self.sequence_based_macromolecule };
+      const index = sequenceBasedMacromolecule.container.children[0].children.findIndex((c) => c.id === container.id);
+      sequenceBasedMacromolecule.container.children[0].children[index] = container;
+      self.setSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+    },
+    changeAnalysisContainer(children) {
+      let sequenceBasedMacromolecule = { ...self.sequence_based_macromolecule };
+      sequenceBasedMacromolecule.container.children[0].children = children;
+      self.setSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+    },
+    toggleAnalysisCommentBox() {
+      self.analysis_comment_box = !self.analysis_comment_box;
+    },
+    changeAnalysisComment(comment) {
+      let sequenceBasedMacromolecule = { ...self.sequence_based_macromolecule };
+      let container = { ...self.sequence_based_macromolecule.container }
+      container.description = comment;
+      sequenceBasedMacromolecule.container = container;
+      self.setSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+    },
+    toggleAnalysisStartExport() {
+      self.analysis_start_export = !self.analysis_start_export;
+    },
     // setAttachmentEditor(value) {
     //   self.attachment_editor = value;
     // },
