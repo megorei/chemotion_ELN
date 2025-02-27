@@ -18,10 +18,10 @@ const PostTranslationalModificationForm = () => {
   ];
 
   const glycosylationAminoAcids = [
-    { label: 'Asn', value: 'asn' },
-    { label: 'Lys', value: 'lys' },
-    { label: 'Ser', value: 'ser' },
-    { label: 'Thr', value: 'thr' },
+    { label: 'Asn', value: 'asn', related: 'linkage', only: 'n_linked' },
+    { label: 'Lys', value: 'lys', related: 'linkage', only: 'o_linked' },
+    { label: 'Ser', value: 'ser', related: 'linkage', only: 'o_linked' },
+    { label: 'Thr', value: 'thr', related: 'linkage', only: 'o_linked' },
   ]
 
   const hydroxylationAminoAcids = [

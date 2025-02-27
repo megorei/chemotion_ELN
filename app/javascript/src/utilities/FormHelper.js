@@ -10,74 +10,10 @@ import Dropzone from 'react-dropzone';
 import moment from 'moment';
 import { v4 as uuid } from 'uuid';
 
+import { unitSystems } from 'src/components/staticDropdownOptions/units';
 import { elementShowOrNew } from 'src/utilities/routesUtils';
 import UIStore from 'src/stores/alt/stores/UIStore';
 import UserStore from 'src/stores/alt/stores/UserStore';
-
-const unitSystems = {
-  activity: [
-    { key: "u", label: "U", nm: 0.05 },
-    { key: "mu", label: "mU", nm: 1000 },
-    { key: "kat", label: "kat", nm: 0.00000000002 },
-    { key: "mkat", label: "mkat", nm: 1000 },
-    { key: "µkat", label: "µkat", nm: 1000 },
-    { key: "nkat", label: "nkat", nm: 1000 },
-  ],
-  activity_x: [
-    { key: "u", label: "U", nm: 1.67e-8 },
-    { key: "mu", label: "mU", nm: 1.67e-11 },
-    { key: "kat", label: "kat", nm: 1 },
-    { key: "mkat", label: "mkat", nm: 1e-3 },
-    { key: "µkat", label: "µkat", nm: 1e-6 },
-    { key: "nkat", label: "nkat", nm: 1e-9 },
-  ],
-  amount_substance: [
-    { key: "mol", label: "mol", nm: 0.000000000001 },
-    { key: "mmol", label: "mmol", nm: 1000 },
-    { key: "umol", label: "µmol", nm: 1000 },
-    { key: "nmol", label: "nmol", nm: 1000 },
-    { key: "pmol", label: "pmol", nm: 1000 },
-  ],
-  amount_weight: [
-    { "key": "g", "label": "g", "nm": 0.001 },
-    { "key": "kg", "label": "kg", "nm": 0.001 },
-    { "key": "ug", "label": "µg", "nm": 1000000000 },
-    { "key": "mg", "label": "mg", "nm": 0.001 },
-  ],
-  concentration: [
-    { key: "ng_l", label: "ng/L", nm: 1000000 },
-    { key: "mg_l", label: "mg/L", nm: 0.001 },
-    { key: "g_l", label: "g/L", nm: 0.001 },
-  ],
-  activity_ul: [
-    { key: "u_l", label: "U/L", nm: 100 },
-    { key: "u_ml", label: "U/mL", nm: 0.01 },
-  ],
-  activity_ug: [
-    { key: "u_g", label: "U/g", nm: 1000 },
-    { key: "u_mg", label: "U/mg", nm: 0.001 },
-  ],
-  // mass_molecule: [
-  //   { key: "dalton", label: "D", nm: 0.001 },
-  //   { key: "kilo_dalton", label: "kD", nm: 1000 },
-  // ],
-  molarity: [
-    { key: "mol_l", label: "mol/L", nm: 0.000000000001 },
-    { key: "mmol_l", label: "mmol/L", nm: 1000 },
-    { key: "umol_l", label: "µmol/L", nm: 1000 },
-    { key: "nmol_l", label: "nmol/L", nm: 1000 },
-    { key: "pmol_l", label: "pmol/L", nm: 1000 },
-  ],
-  molecular_weight: [
-    { key: 'g_mol', label: 'g/mol' },
-  ],
-  volumes: [
-    { key: "l", label: "l", nm: 0.000000001 },
-    { key: "ml", label: "ml", nm: 1000 },
-    { key: "ul", label: "µl", nm: 1000 },
-    { key: "nl", label: "nl", nm: 1000 },
-  ],
-};
 
 const inputByType = (object, field, index, formHelper) => {
   const fullFieldName = `${field}.${index}.${object.value}`
@@ -112,6 +48,22 @@ const elementField = (element, field) => {
   return fieldParts.reduce((accumulator, currentValue) => accumulator?.[currentValue], element);
 }
 
+const optionsByRelatedField = (element, field, options) => {
+  const relatedOptions = options.filter((o) => o.related !== undefined);
+  if (relatedOptions.length < 1) { return options; }
+
+  const fieldParts = field.split('.');
+  const lastKey = fieldParts.pop();
+  const lastObject = fieldParts.reduce(
+    (accumulator, currentValue) => accumulator[currentValue] ??= {}, element
+  );
+  if (lastObject[relatedOptions[0].related] !== '' || lastObject[relatedOptions[0].related] !== undefined) {
+    return relatedOptions.filter((o) => o.only === lastObject[relatedOptions[0].related]);
+  } else {
+    return options;
+  }
+}
+
 const numberValue = (value) => {
   if (value === '' || value === undefined) { return ''; }
 
@@ -131,9 +83,6 @@ const numberValue = (value) => {
 }
 
 const changeElement = (store, field, value, element_type) => {
-  if (element_type == 'device_description') {
-    store.changeDeviceDescription(field, value);
-  }
   if (element_type == 'sequence_based_macromolecule') {
     store.changeSequenceBasedMacromolecule(field, value);
   }
@@ -156,11 +105,6 @@ const deleteRow = (store, element, field, index) => {
   changeElement(store, field, fieldArray, element.type);
 }
 
-// const handleFieldChanged = (store, field, field_type, element_type) => (event) => {
-//   let value = event === null ? '' : valueByType(field_type, event);
-//   changeElement(store, field, value, element_type);
-// }
-
 const changeUnit = (store, element, units, field, value, unitField, unitValue) => {
   const activeUnitIndex = units.findIndex((f) => { return f.label === unitValue });
   const nextUnitIndex = activeUnitIndex === units.length - 1 ? 0 : activeUnitIndex + 1;
@@ -168,17 +112,7 @@ const changeUnit = (store, element, units, field, value, unitField, unitValue) =
 
   if (unitValue === newUnitValue) { return null; }
 
-  let newValue = value * units[nextUnitIndex].nm;
-  newValue = parseFloat(newValue.toFixed(5));
-
-  //const fromFactor = unitSystems['activity_x'][activeUnitIndex].nm;
-  //const toFactor = unitSystems['activity_x'][nextUnitIndex].nm;
-
-  //const convertedValue = value * (fromFactor / toFactor);
-  //console.log(fromFactor, toFactor, convertedValue);
-
   changeElement(store, unitField, newUnitValue, element.type);
-  changeElement(store, field, newValue, element.type);
 }
 
 const initFormHelper = (element, store) => {
@@ -215,6 +149,7 @@ const initFormHelper = (element, store) => {
 
     selectInput: (field, label, options, info) => {
       const elementValue = elementField(element, field);
+      const relatedOptions = optionsByRelatedField(element, field, options);
       let value = options.find((o) => { return o.value == elementValue });
       value = value === undefined ? '' : value;
 
@@ -224,7 +159,7 @@ const initFormHelper = (element, store) => {
           <Select
             name={field}
             key={`${store.key_prefix}-${field}`}
-            options={options}
+            options={relatedOptions}
             value={value}
             isClearable={true}
             onChange={(event) => formHelper.onChange(field, (event?.value || event?.label || ''))}

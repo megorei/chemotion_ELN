@@ -213,7 +213,7 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
       <Card.Header>
         {sequenceBasedMacromoleculeHeader()}
       </Card.Header>
-      <Card.Body>
+      <Card.Body style={{ minHeight: '500px' }}>
         <ElementDetailSortTab
           type="sequence_based_macromolecule"
           availableTabs={Object.keys(tabContentComponents)}

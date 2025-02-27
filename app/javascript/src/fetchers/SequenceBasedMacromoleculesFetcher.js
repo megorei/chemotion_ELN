@@ -79,7 +79,7 @@ export default class SequenceBasedMacromoleculesFetcher {
     //   `/api/v1/sequence_based_macromolecules`,
     //   {
     //     ...this._httpOptions('POST'),
-    //     body: JSON.stringify(sequenceBasedMacromolecule)
+    //     body: JSON.stringify(sequenceBasedMacromolecule.serialize())
     //   }
     // ).then(response => response.json())
     //   .then((json) => {
@@ -110,7 +110,7 @@ export default class SequenceBasedMacromoleculesFetcher {
     //   `/api/v1/sequence_based_macromolecules/${sequenceBasedMacromolecule.id}`,
     //   {
     //     ...this._httpOptions('PUT'),
-    //     body: JSON.stringify(sequenceBasedMacromolecule)
+    //     body: JSON.stringify(sequenceBasedMacromolecule.serialize())
     //   }
     // ).then((response) => response.json())
     //   .then((json) => {
@@ -153,6 +153,9 @@ export default class SequenceBasedMacromoleculesFetcher {
       name: `Test ${id}`,
       type: 'sequence_based_macromolecule',
       short_label: `CU6-SBMM-${id}`,
+      function_or_application: 'enzyme',
+      sbmm_type: 'protein',
+      uniprot_derivation: 'uniprot_unknown',
       isNew: isNew,
       changed: false,
       updated: false,

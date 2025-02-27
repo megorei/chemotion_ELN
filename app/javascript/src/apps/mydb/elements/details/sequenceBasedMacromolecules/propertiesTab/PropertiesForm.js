@@ -42,10 +42,10 @@ const PropertiesForm = ({ readonly }) => {
     && !['', undefined, 'uniprot'].includes(sequenceBasedMacromolecule.uniprot_derivation);
 
   const showIfReferenceSelected = sequenceBasedMacromolecule.sbmm_type === 'protein'
-    && (sequenceBasedMacromolecule.uniprot_number || sequenceBasedMacromolecule.other_reference_id
+    && (sequenceBasedMacromolecule.reference?.uniprot_number || sequenceBasedMacromolecule.reference?.other_reference_id
       || sequenceBasedMacromolecule.uniprot_derivation === 'uniprot_unknown');
 
-  const showIfEnzymeIsSelected = sequenceBasedMacromolecule.sample?.function_or_application === 'enzyme';
+  const showIfEnzymeIsSelected = sequenceBasedMacromolecule.function_or_application === 'enzyme';
 
   const searchable = ['uniprot', 'uniprot_modified'].includes(sequenceBasedMacromolecule.uniprot_derivation)
     && sequenceBasedMacromolecule.sbmm_search_by && sequenceBasedMacromolecule.sbmm_search_input;
@@ -152,7 +152,7 @@ const PropertiesForm = ({ readonly }) => {
                 <Row className="mb-4 align-items-end">
                   <Col>
                     {formHelper.selectInput(
-                      'sample.function_or_application', 'Function or application', sampleFunctionOrApplication, ''
+                      'function_or_application', 'Function or application', sampleFunctionOrApplication, ''
                     )}
                   </Col>
                 </Row>
@@ -160,22 +160,22 @@ const PropertiesForm = ({ readonly }) => {
                 <h5 className="mb-3">Sample stocks characteristics</h5>
                 <Row className="mb-4 align-items-end">
                   <Col>
-                    {formHelper.unitInput('sample.concentration', 'Concentration', 'concentration', '')}
+                    {formHelper.unitInput('concentration', 'Concentration', 'concentration', '')}
                   </Col>
                   <Col>
-                    {formHelper.unitInput('sample.molarity', 'Molarity', 'molarity', '')}
+                    {formHelper.unitInput('molarity', 'Molarity', 'molarity', '')}
                   </Col>
                   {
                     showIfEnzymeIsSelected && (
                       <>
                         <Col>
                           {formHelper.unitInput(
-                            'sample.stock_activity_ul', 'Activity in U/L', 'activity_ul', ''
+                            'stock_activity_ul', 'Activity in U/L', 'activity_u_l', ''
                           )}
                         </Col>
                         <Col>
                           {formHelper.unitInput(
-                            'sample.stock_activity_ug', 'Activity in U/g', 'activity_ug', ''
+                            'stock_activity_ug', 'Activity in U/g', 'activity_u_g', ''
                           )}
                         </Col>
                       </>
@@ -186,23 +186,23 @@ const PropertiesForm = ({ readonly }) => {
                 <h5 className="mb-3">Sample characteristics</h5>
                 <Row className="mb-4 align-items-end">
                   <Col>
-                    {formHelper.textInput('sample.short_label', 'Short label', '')}
+                    {formHelper.textInput('short_label', 'Short label', '')}
                   </Col>
                 </Row>
                 <Row className="mb-4 align-items-end">
                   <Col>
-                    {formHelper.unitInput('sample.volume_as_used', 'Volume as used', 'volumes', '')}
+                    {formHelper.unitInput('volume_as_used', 'Volume as used', 'volumes', '')}
                   </Col>
                   <Col>
-                    {formHelper.unitInput('sample.amount_as_used', 'Amount as used', 'amount_substance', '')}
+                    {formHelper.unitInput('amount_as_used', 'Amount as used', 'amount_substance', '')}
                   </Col>
                   <Col>
-                    {formHelper.unitInput('sample.amount_as_used_weight', '', 'amount_weight', '')}
+                    {formHelper.unitInput('amount_as_used_weight', '', 'amount_weight', '')}
                   </Col>
                   {
                     showIfEnzymeIsSelected && (
                       <Col>
-                        {formHelper.unitInput('sample.activity', 'Activity', 'activity', '')}
+                        {formHelper.unitInput('activity', 'Activity', 'activity', '')}
                       </Col>
                     )
                   }
