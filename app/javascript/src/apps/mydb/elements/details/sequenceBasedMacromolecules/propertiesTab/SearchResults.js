@@ -26,7 +26,7 @@ const SearchResults = () => {
   }
 
   const chooseUniprotEntry = (uniprot_number) => {
-    sequenceBasedMacromoleculeStore.changeSequenceBasedMacromolecule('uniprot_number', uniprot_number);
+    sequenceBasedMacromoleculeStore.changeSequenceBasedMacromolecule('reference.uniprot_number', uniprot_number);
     sequenceBasedMacromoleculeStore.closeSearchResult();
   }
 

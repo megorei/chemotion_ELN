@@ -10,7 +10,7 @@ const ReferenceForm = ({ ident }) => {
   const sequenceBasedMacromoleculeStore = useContext(StoreContext).sequenceBasedMacromolecules;
   let sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
   const formHelper = initFormHelper(sequenceBasedMacromolecule, sequenceBasedMacromoleculeStore);
-  const fieldPrefix = ident === 'sequence_modifications' ? 'sequence_modifications.' : '';
+  const fieldPrefix = ident === 'sequence_modifications' ? 'sequence_modifications.' : 'reference.';
 
   const heterologousExpression = [
     { label: 'Yes', value: 'yes' },
@@ -32,7 +32,7 @@ const ReferenceForm = ({ ident }) => {
     && sequenceBasedMacromolecule.uniprot_derivation === 'uniprot_modified';
 
   const showIfReferenceSelected = sequenceBasedMacromolecule.sbmm_type === 'protein'
-    && (sequenceBasedMacromolecule.uniprot_number || sequenceBasedMacromolecule.other_reference_id
+    && (sequenceBasedMacromolecule.reference?.uniprot_number || sequenceBasedMacromolecule.reference?.other_reference_id
       || ident === 'sequence_modifications');
 
   const handleCIFFileUpload = (field) => {
@@ -79,7 +79,7 @@ const ReferenceForm = ({ ident }) => {
               <>
                 <Row className="mb-4 align-items-end">
                   {ident === 'reference' && (
-                    <Col>{formHelper.textInput('uniprot_number', 'UniProt number', '')}</Col>
+                    <Col>{formHelper.textInput(`${fieldPrefix}uniprot_number`, 'UniProt number', '')}</Col>
                   )
                   }
                   <Col>{formHelper.textInput(`${fieldPrefix}other_reference_id`, 'Other reference ID', '')}</Col>
@@ -118,7 +118,7 @@ const ReferenceForm = ({ ident }) => {
                   </Col>
                 </Row>
                 {
-                  ident === 'reference' && sequenceBasedMacromolecule.show_structure_details && (
+                  ident === 'reference' && sequenceBasedMacromolecule.reference.show_structure_details && (
                     <Row className="mb-4 align-items-end">
                       <Col>
                         <label className="form-label">Structure file cif</label>
