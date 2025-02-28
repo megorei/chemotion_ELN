@@ -128,10 +128,12 @@ export const SequenceBasedMacromoleculesStore = types
     toggleAnalysisCommentBox() {
       self.analysis_comment_box = !self.analysis_comment_box;
     },
-    changeAnalysisComment(comment) {
+    changeAnalysisComment(e) {
+      if (!e && !e?.target) { return null; }
+
       let sequenceBasedMacromolecule = { ...self.sequence_based_macromolecule };
       let container = { ...self.sequence_based_macromolecule.container }
-      container.description = comment;
+      container.description = e.target.value;
       sequenceBasedMacromolecule.container = container;
       self.setSequenceBasedMacromolecule(sequenceBasedMacromolecule);
     },
