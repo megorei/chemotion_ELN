@@ -11,6 +11,7 @@ import ViewSpectra from 'src/apps/mydb/elements/details/ViewSpectra';
 import NMRiumDisplayer from 'src/components/nmriumWrapper/NMRiumDisplayer';
 import ButtonGroupToggleButton from 'src/components/common/ButtonGroupToggleButton';
 import AccordionHeaderWithButtons from 'src/components/common/AccordionHeaderWithButtons';
+import { CommentButton, CommentBox } from 'src/components/common/AnalysisCommentBoxComponent';
 
 import TextTemplateActions from 'src/stores/alt/actions/TextTemplateActions';
 import { observer } from 'mobx-react';
@@ -76,49 +77,6 @@ const AnalysesContainer = ({ readonly }) => {
     );
   }
 
-  const commentButton = () => {
-    if (containers.length < 1) { return null; }
-
-    const disableMode = sequenceBasedMacromoleculeStore.analysis_mode === 'order' ? true : false;
-
-    return (
-      <OverlayTrigger
-        placement="top"
-        overlay={(
-          <Tooltip id="analysisCommentBox">
-            general remarks that relate to all analytical data
-          </Tooltip>
-        )}
-      >
-        <Button
-          size="xsm"
-          variant="primary"
-          onClick={() => { sequenceBasedMacromoleculeStore.toggleAnalysisCommentBox() }}
-          disabled={disableMode}
-        >
-          Add comment
-        </Button>
-      </OverlayTrigger>
-    );
-  }
-
-  const commentBox = () => {
-    if (containers.length < 1) { return null; }
-    if (!sequenceBasedMacromoleculeStore.analysis_comment_box) { return null; }
-
-    return (
-      <Form.Group>
-        <Form.Control
-          as="textarea"
-          style={{ height: '80px' }}
-          value={sequenceBasedMacromolecule.container.description}
-          onChange={(e) => sequenceBasedMacromoleculeStore.changeAnalysisComment(e.target.value)}
-          className="my-3"
-        />
-      </Form.Group>
-    );
-  }
-
   const analysisContainer = () => {
     let items = [];
 
@@ -169,11 +127,18 @@ const AnalysesContainer = ({ readonly }) => {
             <div className="d-flex justify-content-between align-items-center mb-3">
               {modeButton()}
               <ButtonToolbar className="gap-2">
-                {commentButton()}
+                <CommentButton
+                  toggleCommentBox={sequenceBasedMacromoleculeStore.toggleAnalysisCommentBox}
+                  size="xsm"
+                />
                 {addButton()}
               </ButtonToolbar>
             </div>
-            {commentBox()}
+            <CommentBox
+              isVisible={sequenceBasedMacromoleculeStore.analysis_comment_box}
+              value={sequenceBasedMacromolecule.container.description}
+              handleCommentTextChange={sequenceBasedMacromoleculeStore.changeAnalysisComment}
+            />
             {sequenceBasedMacromoleculeStore.analysis_mode === 'edit' ? (
               <Accordion className="border rounded overflow-hidden">
                 {analysisContainer()}
