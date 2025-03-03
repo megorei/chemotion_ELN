@@ -25,15 +25,15 @@ export const SequenceBasedMacromoleculesStore = types
     analysis_mode: types.optional(types.string, 'edit'),
     analysis_comment_box: types.optional(types.boolean, false),
     analysis_start_export: types.optional(types.boolean, false),
-    // attachment_editor: types.optional(types.boolean, false),
-    // attachment_extension: types.optional(types.frozen({}), {}),
-    // attachment_image_edit_modal_shown: types.optional(types.boolean, false),
-    // attachment_selected: types.optional(types.frozen({}), {}),
-    // attachment_show_import_confirm: types.optional(types.array(types.frozen({})), []),
-    // attachment_filter_text: types.optional(types.string, ''),
-    // attachment_sort_by: types.optional(types.string, 'name'),
-    // attachment_sort_direction: types.optional(types.string, 'asc'),
-    // filtered_attachments: types.optional(types.array(types.frozen({})), []),
+    attachment_editor: types.optional(types.boolean, false),
+    attachment_extension: types.optional(types.frozen({}), {}),
+    show_attachment_image_edit_modal: types.optional(types.boolean, false),
+    attachment_selected: types.optional(types.frozen({}), {}),
+    attachment_show_import_confirm: types.optional(types.array(types.frozen({})), []),
+    attachment_filter_text: types.optional(types.string, ''),
+    attachment_sort_by: types.optional(types.string, 'name'),
+    attachment_sort_direction: types.optional(types.string, 'asc'),
+    filtered_attachments: types.optional(types.array(types.frozen({})), []),
     show_search_result: types.optional(types.boolean, false),
   })
   .actions(self => ({
@@ -140,41 +140,41 @@ export const SequenceBasedMacromoleculesStore = types
     toggleAnalysisStartExport() {
       self.analysis_start_export = !self.analysis_start_export;
     },
-    // setAttachmentEditor(value) {
-    //   self.attachment_editor = value;
-    // },
-    // setAttachmentExtension(value) {
-    //   self.attachment_extension = value;
-    // },
-    // setFilteredAttachments(attachments) {
-    //   self.filtered_attachments = attachments;
-    // },
-    // setShowImportConfirm(value) {
-    //   self.attachment_show_import_confirm = value;
-    // },
-    // toogleAttachmentModal() {
-    //   self.attachment_image_edit_modal_shown = !self.attachment_image_edit_modal_shown;
-    // },
-    // setAttachmentSelected(attachment) {
-    //   self.attachment_selected = attachment;
-    // },
-    // setAttachmentFilterText(value) {
-    //   self.attachment_filter_text = value;
-    // },
-    // setAttachmentSortBy(value) {
-    //   self.attachment_sort_by = value;
-    // },
-    // setAttachmentSortDirectory(value) {
-    //   self.attachment_sort_direction = value;
-    // },
-    // changeAttachment(index, key, value, initial = false) {
-    //   let device_description = { ...self.device_description };
-    //   let attachment = { ...device_description.attachments[index] };
-    //   attachment[key] = value;
-    //   device_description.attachments[index] = attachment;
-    //   self.setFilteredAttachments(device_description.attachments);
-    //   self.setDeviceDescription(device_description, initial);
-    // },
+    setAttachmentEditor(value) {
+      self.attachment_editor = value;
+    },
+    setAttachmentExtension(value) {
+      self.attachment_extension = value;
+    },
+    setFilteredAttachments(attachments) {
+      self.filtered_attachments = attachments;
+    },
+    setShowImportConfirm(value) {
+      self.attachment_show_import_confirm = value;
+    },
+    toogleAttachmentModal() {
+      self.show_attachment_image_edit_modal = !self.show_attachment_image_edit_modal;
+    },
+    setAttachmentSelected(attachment) {
+      self.attachment_selected = attachment;
+    },
+    setAttachmentFilterText(value) {
+      self.attachment_filter_text = value;
+    },
+    setAttachmentSortBy(value) {
+      self.attachment_sort_by = value;
+    },
+    setAttachmentSortDirectory(value) {
+      self.attachment_sort_direction = value;
+    },
+    changeAttachment(index, key, value, initial = false) {
+      let sequence_based_macromolecule = { ...self.sequence_based_macromolecule };
+      let attachment = { ...sequence_based_macromolecule.attachments[index] };
+      attachment[key] = value;
+      sequence_based_macromolecule.attachments[index] = attachment;
+      self.setFilteredAttachments(sequence_based_macromolecule.attachments);
+      self.setSequenceBasedMacromolecule(sequence_based_macromolecule, initial);
+    },
     // loadPreviewImagesOfAttachments(device_description) {
     //   if (device_description.attachments.length === 0) { return device_description }
     //   let deviceDescription = { ...device_description }
@@ -201,5 +201,5 @@ export const SequenceBasedMacromoleculesStore = types
   }))
   .views(self => ({
     // get sequenceBasedMacromoleculesValues() { return values(self.sequence_based_macromolecules) },
-    // get filteredAttachments() { return values(self.filtered_attachments) },
+    get filteredAttachments() { return values(self.filtered_attachments) },
   }));
