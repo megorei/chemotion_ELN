@@ -19,8 +19,7 @@ export const SequenceBasedMacromoleculesStore = types
     open_sequence_based_macromolecules: types.optional(types.optional(types.array(types.frozen({})), [])),
     sequence_based_macromolecule: types.optional(types.frozen({}), {}),
     sequence_based_macromolecule_checksum: types.optional(types.string, ''),
-    // sequence_based_macromolecules: types.optional(types.optional(types.array(types.frozen({})), [])),
-    active_tab_key: types.optional(types.number, 1),
+    active_tab_key: types.optional(types.string, 'properties'),
     toggable_contents: types.optional(types.frozen({}), toggableContents),
     analysis_mode: types.optional(types.string, 'edit'),
     analysis_comment_box: types.optional(types.boolean, false),
@@ -76,12 +75,6 @@ export const SequenceBasedMacromoleculesStore = types
         self.editSequenceBasedMacromolecules(sequenceBasedMacromolecule);
       }
     },
-    // setSequenceBasedMacromolecules(sequence_based_macromolecules) {
-    //   self.sequence_based_macromolecules = sequence_based_macromolecules;
-    // },
-    // clearSequenceBasedMacromolecule() {
-    //   self.sequence_based_macromolecule = {};
-    // },
     changeSequenceBasedMacromolecule(field, value) {
       let sequence_based_macromolecule = { ...self.sequence_based_macromolecule };
       const fieldParts = field.split('.');
@@ -175,23 +168,6 @@ export const SequenceBasedMacromoleculesStore = types
       self.setFilteredAttachments(sequence_based_macromolecule.attachments);
       self.setSequenceBasedMacromolecule(sequence_based_macromolecule, initial);
     },
-    // loadPreviewImagesOfAttachments(device_description) {
-    //   if (device_description.attachments.length === 0) { return device_description }
-    //   let deviceDescription = { ...device_description }
-
-    //   deviceDescription.attachments.map((attachment, index) => {
-    //     let attachment_object = { ...device_description.attachments[index] };
-    //     if (attachment.thumb) {
-    //       AttachmentFetcher.fetchThumbnail({ id: attachment.id })
-    //         .then((result) => {
-    //           let preview = result != null ? `data:image/png;base64,${result}` : '/images/wild_card/not_available.svg';
-    //           attachment_object.preview = preview;
-    //           deviceDescription.attachments[index] = attachment_object;
-    //           self.setFilteredAttachments(deviceDescription.attachments);
-    //         });
-    //     }
-    //   });
-    // },
     openSearchResult() {
       self.show_search_result = true;
     },
@@ -200,6 +176,5 @@ export const SequenceBasedMacromoleculesStore = types
     },
   }))
   .views(self => ({
-    // get sequenceBasedMacromoleculesValues() { return values(self.sequence_based_macromolecules) },
     get filteredAttachments() { return values(self.filtered_attachments) },
   }));
