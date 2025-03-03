@@ -201,6 +201,7 @@ ActiveRecord::Schema.define(version: 2025_04_22_115436) do
     t.integer "celllinesample_detail_level", default: 10
     t.bigint "inventory_id"
     t.integer "devicedescription_detail_level", default: 10
+    t.integer "sequence_based_macromolecule_sample_detail_level", default: 10
     t.index ["ancestry"], name: "index_collections_on_ancestry"
     t.index ["deleted_at"], name: "index_collections_on_deleted_at"
     t.index ["inventory_id"], name: "index_collections_on_inventory_id"
@@ -269,6 +270,18 @@ ActiveRecord::Schema.define(version: 2025_04_22_115436) do
     t.index ["collection_id"], name: "index_collections_screens_on_collection_id"
     t.index ["deleted_at"], name: "index_collections_screens_on_deleted_at"
     t.index ["screen_id", "collection_id"], name: "index_collections_screens_on_screen_id_and_collection_id", unique: true
+  end
+
+  create_table "collections_sequence_based_macromolecule_samples", force: :cascade do |t|
+    t.bigint "collection_id"
+    t.bigint "sequence_based_macromolecule_sample_id"
+    t.datetime "deleted_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["collection_id", "sequence_based_macromolecule_sample_id"], name: "index_collection_sbmm_samples_unique_joins", unique: true
+    t.index ["collection_id"], name: "index_collection_sbmm_samples_collection"
+    t.index ["deleted_at"], name: "index_collection_sbmm_samples_deleted_at"
+    t.index ["sequence_based_macromolecule_sample_id"], name: "index_collection_sbmm_samples_sample"
   end
 
   create_table "collections_vessels", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1408,6 +1421,73 @@ ActiveRecord::Schema.define(version: 2025_04_22_115436) do
     t.index ["segment_id"], name: "index_segments_revisions_on_segment_id"
   end
 
+  create_table "sequence_based_macromolecule_samples", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "deleted_at"
+    t.string "external_label"
+    t.string "short_label", null: false
+    t.string "function_or_application", null: false
+    t.float "concentration", null: false
+    t.float "molarity", null: false
+    t.float "volume_as_used", null: false
+    t.bigint "sequence_based_macromolecule_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["deleted_at"], name: "index_sequence_based_macromolecule_samples_on_deleted_at"
+    t.index ["sequence_based_macromolecule_id"], name: "idx_sbmm_sample_on_sbmm_id"
+  end
+
+  create_table "sequence_based_macromolecules", force: :cascade do |t|
+    t.string "name", null: false
+    t.jsonb "uniprot_source", null: false
+    t.bigint "parent_id"
+    t.string "sbmm_type", null: false
+    t.string "sbmm_subtype", null: false
+    t.string "uniprot_derivation", null: false
+    t.boolean "protein_sequence_modifications", default: false, null: false
+    t.boolean "post_translational_sequence_modifications", default: false, null: false
+    t.string "uniprot_ids", array: true
+    t.string "ec_numbers", array: true
+    t.string "pdb_doi"
+    t.string "systematic_name"
+    t.float "molecular_weight"
+    t.string "sequence", null: false
+    t.string "link_uniprot"
+    t.string "link_pdb"
+    t.boolean "modification_n_terminal", default: false, null: false
+    t.string "modification_n_terminal_details", default: ""
+    t.boolean "modification_c_terminal", default: false, null: false
+    t.string "modification_c_terminal_details", default: ""
+    t.boolean "modification_insertion", default: false, null: false
+    t.string "modification_insertion_details", default: ""
+    t.boolean "modification_deletion", default: false, null: false
+    t.string "modification_deletion_details", default: ""
+    t.boolean "modification_mutation", default: false, null: false
+    t.string "modification_mutation_details", default: ""
+    t.boolean "modification_other", default: false, null: false
+    t.string "modification_other_details", default: ""
+    t.string "heterologous_expression", default: "unknown", null: false
+    t.string "organism", default: ""
+    t.string "taxon_id", default: ""
+    t.string "strain", default: ""
+    t.string "tissue", default: ""
+    t.string "localisation", default: ""
+    t.string "protein_source_details_comments", default: ""
+    t.string "protein_source_details_expression_system", default: ""
+    t.jsonb "post_translational_modifications", default: "{}", null: false
+    t.jsonb "post_translational_modifications_details", default: "{}", null: false
+    t.datetime "deleted_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["deleted_at"], name: "index_sequence_based_macromolecules_on_deleted_at"
+    t.index ["ec_numbers"], name: "index_sequence_based_macromolecules_on_ec_numbers"
+    t.index ["parent_id"], name: "index_sequence_based_macromolecules_on_parent_id"
+    t.index ["pdb_doi"], name: "index_sequence_based_macromolecules_on_pdb_doi"
+    t.index ["sequence"], name: "index_sequence_based_macromolecules_on_sequence"
+    t.index ["systematic_name"], name: "index_sequence_based_macromolecules_on_systematic_name"
+    t.index ["uniprot_ids"], name: "index_sequence_based_macromolecules_on_uniprot_ids"
+  end
+
   create_table "subscriptions", id: :serial, force: :cascade do |t|
     t.integer "channel_id"
     t.integer "user_id"
@@ -1433,6 +1513,7 @@ ActiveRecord::Schema.define(version: 2025_04_22_115436) do
     t.integer "element_detail_level", default: 10
     t.integer "celllinesample_detail_level", default: 10
     t.integer "devicedescription_detail_level", default: 10
+    t.integer "sequence_based_macromolecule_sample_detail_level", default: 10
     t.index ["collection_id"], name: "index_sync_collections_users_on_collection_id"
     t.index ["shared_by_id", "user_id", "fake_ancestry"], name: "index_sync_collections_users_on_shared_by_id"
     t.index ["user_id", "fake_ancestry"], name: "index_sync_collections_users_on_user_id_and_fake_ancestry"
@@ -1500,7 +1581,7 @@ ActiveRecord::Schema.define(version: 2025_04_22_115436) do
     t.string "first_name", null: false
     t.string "last_name", null: false
     t.datetime "deleted_at"
-    t.hstore "counters", default: {"samples"=>"0", "reactions"=>"0", "wellplates"=>"0"}, null: false
+    t.hstore "counters", default: {"samples"=>"0", "celllines"=>"0", "reactions"=>"0", "wellplates"=>"0", "device_descriptions"=>"0", "sequence_based_macromolecules"=>"0"}, null: false
     t.string "name_abbreviation", limit: 12
     t.string "type", default: "Person"
     t.string "reaction_name_prefix", limit: 3, default: "R"
@@ -1630,11 +1711,14 @@ ActiveRecord::Schema.define(version: 2025_04_22_115436) do
   end
 
   add_foreign_key "collections", "inventories"
+  add_foreign_key "collections_sequence_based_macromolecule_samples", "collections"
+  add_foreign_key "collections_sequence_based_macromolecule_samples", "sequence_based_macromolecule_samples"
   add_foreign_key "layer_tracks", "layers", column: "identifier", primary_key: "identifier"
   add_foreign_key "literals", "literatures"
   add_foreign_key "report_templates", "attachments"
   add_foreign_key "sample_tasks", "samples"
   add_foreign_key "sample_tasks", "users", column: "creator_id"
+  add_foreign_key "sequence_based_macromolecule_samples", "sequence_based_macromolecules"
   create_function :user_instrument, sql_definition: <<-'SQL'
       CREATE OR REPLACE FUNCTION public.user_instrument(user_id integer, sc text)
        RETURNS TABLE(instrument text)
