@@ -97,9 +97,6 @@ class ElementPermissionProxy
     when SequenceBasedMacromoleculeSample
       10
     end
-    when MacromoleculeSample
-      10
-    end
   end
 
   def user_collections_for_element
