@@ -69,11 +69,11 @@ export default class SequenceBasedMacromoleculesFetcher {
     //   .catch(errorMessage => console.log(errorMessage));
   }
 
-  static createMacromolecule(sequenceBasedMacromolecule) {
+  static createSequenceBasedMacromolecule(sequenceBasedMacromolecule) {
     const containerFiles = AttachmentFetcher.getFileListfrom(sequenceBasedMacromolecule.container);
     const newFiles = (sequenceBasedMacromolecule.attachments || []).filter((a) => a.is_new && !a.is_deleted);
 
-    return [];
+    return Promise.resolve(this._fakeElement(2));
 
     // const promise = () => fetch(
     //   `/api/v1/sequence_based_macromolecules`,
@@ -104,7 +104,7 @@ export default class SequenceBasedMacromoleculesFetcher {
     const newFiles = (sequenceBasedMacromolecule.attachments || []).filter((a) => a.is_new && !a.is_deleted);
     const delFiles = (sequenceBasedMacromolecule.attachments || []).filter((a) => !a.is_new && a.is_deleted);
 
-    return [];
+    return Promise.resolve(this._fakeElement(1));
 
     // const promise = () => fetch(
     //   `/api/v1/sequence_based_macromolecules/${sequenceBasedMacromolecule.id}`,
@@ -114,7 +114,7 @@ export default class SequenceBasedMacromoleculesFetcher {
     //   }
     // ).then((response) => response.json())
     //   .then((json) => {
-    //     const updatedMacromolecule = new SequenceBasedMacromolecule(json.sequence_based_macromolecule);
+    //     const updatedSequenceBasedMacromolecule = new SequenceBasedMacromolecule(json.sequence_based_macromolecule);
     //     updatedSequenceBasedMacromolecule.updated = true;
     //     updatedSequenceBasedMacromolecule.updateChecksum();
     //     return updatedSequenceBasedMacromolecule;

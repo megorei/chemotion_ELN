@@ -40,7 +40,6 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
   const { currentCollection, isSync } = UIStore.getState();
   const { currentUser } = UserStore.getState();
 
-  const [activeTab, setActiveTab] = useState('properties'); // state from store
   const [visibleTabs, setVisibleTabs] = useState(Immutable.List());
 
   const submitLabel = sequenceBasedMacromolecule.isNew ? 'Create' : 'Save';
@@ -75,8 +74,7 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
   }
 
   const disabled = (index) => {
-    return false;
-    // return sequenceBasedMacromolecule.id.toString().length < 30 || index === 0 ? false : true;
+    return sequenceBasedMacromolecule.isNew && index !== 0 ? true : false;
   }
 
   visibleTabs.forEach((key, i) => {
@@ -101,17 +99,17 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
   }
 
   const handleTabChange = (key) => {
-    setActiveTab(key);
+    sequenceBasedMacromoleculeStore.setActiveTabKey(key);
   }
 
   const handleSubmit = () => {
-    // LoadingActions.start();
-    // if (sequenceBasedMacromolecule.is_new) {
-    //   DetailActions.close(sequenceBasedMacromolecule, true);
-    //   ElementActions.createSequenceBasedMacromolecule(sequenceBasedMacromolecule);
-    // } else {
-    //   ElementActions.updateSequenceBasedMacromolecule(sequenceBasedMacromolecule);
-    // }
+    LoadingActions.start();
+    if (sequenceBasedMacromolecule.is_new) {
+      DetailActions.close(sequenceBasedMacromolecule, true);
+      ElementActions.createSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+    } else {
+      ElementActions.updateSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+    }
   }
 
   const sequenceBasedMacromoleculeIsValid = () => {
@@ -222,7 +220,7 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
         />
         <div className="tabs-container--with-borders">
           <Tabs
-            activeKey={activeTab}
+            activeKey={sequenceBasedMacromoleculeStore.active_tab_key}
             onSelect={key => handleTabChange(key)}
             id="sequenceBasedMacromoleculeDetailsTab"
             unmountOnExit
