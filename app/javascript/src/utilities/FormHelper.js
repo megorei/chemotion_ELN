@@ -3,17 +3,14 @@ import {
   InputGroup, OverlayTrigger, Tooltip, Button, Form, Row, Col,
 } from 'react-bootstrap';
 import { Select } from 'src/components/common/Select';
-import DatePicker from 'react-datepicker';
 import { useDrop } from 'react-dnd';
 import { DragDropItemTypes } from 'src/utilities/DndConst';
 import Dropzone from 'react-dropzone';
-import moment from 'moment';
 import { v4 as uuid } from 'uuid';
 
 import { unitSystems } from 'src/components/staticDropdownOptions/units';
 import { elementShowOrNew } from 'src/utilities/routesUtils';
 import UIStore from 'src/stores/alt/stores/UIStore';
-import UserStore from 'src/stores/alt/stores/UserStore';
 
 const inputByType = (object, field, index, formHelper) => {
   const fullFieldName = `${field}.${index}.${object.value}`
@@ -378,84 +375,6 @@ const initFormHelper = (element, store) => {
   return formHelper;
 }
 
-
-
-const ButtonOrAddOn = (units, value, column, option, subFieldId) => {
-  if (units.length > 1) {
-    return (
-      <Button key={units} variant="success"
-        dangerouslySetInnerHTML={{ __html: value }}
-        onClick={changeUnit(units, value, column, option, subFieldId)} />
-    );
-  } else {
-    return (
-      <InputGroup.Text dangerouslySetInnerHTML={{ __html: value }} />
-    );
-  }
-}
-
-const systemDefinedInput = (option, type, selectedValue, column, keyLabel) => {
-  let systemOptions = unitsSystem.fields.find((u) => { return u.field === option.option_layers });
-  let units = systemOptions.units;
-  let value = selectedValue ? selectedValue[column].unit : units[0].label;
-  let validationState = selectedValue !== undefined ? selectedValue[column].validationState : null;
-  return (
-    <Form.Group key={`${column}-${keyLabel}-${type}`}>
-      {labelWithInfo(option)}
-      <InputGroup>
-        <Form.Control
-          id={`input_${column}`}
-          type="text"
-          key={`${column}-${keyLabel}`}
-          value={selectedValue ? selectedValue[column].value : ''}
-          onChange={handleFieldChanged(option, column, type)}
-          className={validationState}
-        />
-        {ButtonOrAddOn(units, value, column, option, '')}
-      </InputGroup>
-    </Form.Group>
-  );
-}
-
-
-const allowedAnnotationFileTypes = ['png', 'jpg', 'bmp', 'tif', 'svg', 'jpeg', 'tiff'];
-
-const annotationButton = (store, attachment) => {
-  if (!attachment || !attachment.filename) { return null; }
-
-  const extension = attachment.filename.split('.').pop();
-  const isAllowedFileType = allowedAnnotationFileTypes.includes(extension);
-  const isActive = isAllowedFileType && !attachment.isNew;
-  const className = !isAllowedFileType ? 'attachment-gray-button' : '';
-  const tooltipText = isActive
-    ? 'Annotate image'
-    : 'Cannot annotate - invalid file type or the image is new';
-
-  return (
-    <OverlayTrigger
-      placement="top"
-      overlay={<Tooltip id="annotate_tooltip">{tooltipText}</Tooltip>}
-    >
-      <span>
-        <Button
-          size="xs"
-          variant="warning"
-          className={`attachment-button-size ${className}`}
-          onClick={() => {
-            if (isActive) {
-              store.toogleAttachmentModal();
-              store.setAttachmentSelected(attachment);
-            }
-          }}
-          disabled={!isActive}
-        >
-          <i className="fa fa-pencil-square-o" aria-hidden="true" />
-        </Button>
-      </span>
-    </OverlayTrigger>
-  );
-}
-
 const handleClickOnUrl = (type, id) => {
   const { currentCollection, isSync } = UIStore.getState();
   const uri = isSync
@@ -468,70 +387,5 @@ const handleClickOnUrl = (type, id) => {
 
   return null;
 }
-
-const datePickerInput = (element, store, field, label, info) => {
-  const value = elementFieldValue(element, field);
-  const selectedDate = value ? value : null;
-
-  return (
-    <Form.Group key={`${store.key_prefix}-${label}`}>
-      {labelWithInfo(label, info)}
-      <DatePicker
-        selected={selectedDate}
-        onChange={handleFieldChanged(store, field, 'date', element.type)}
-        popperPlacement="bottom-start"
-        isClearable
-        dateFormat="dd-MM-YY"
-      />
-    </Form.Group>
-  );
-}
-
-const timePickerInput = (element, store, field, label, info) => {
-  const value = elementFieldValue(element, field);
-  const selectedDate = value ? value : null;
-
-  return (
-    <Form.Group key={`${store.key_prefix}-${label}`}>
-      {labelWithInfo(label, info)}
-      <DatePicker
-        selected={selectedDate}
-        onChange={handleFieldChanged(store, field, 'time', element.type)}
-        popperPlacement="bottom-start"
-        isClearable
-        showTimeSelect
-        showTimeSelectOnly
-        timeFormat="HH:mm"
-        timeIntervals={15}
-        timeCaption="Time"
-        dateFormat="HH:mm"
-      />
-    </Form.Group>
-  );
-}
-
-const dateTimePickerInput = (element, store, field, label, info) => {
-  const selectedDate = element[field] ? new Date(element[field]) : null;
-
-  return (
-    <Form.Group key={`${store.key_prefix}-${label}`}>
-      {labelWithInfo(label, info)}
-      <DatePicker
-        isClearable
-        showTimeSelect
-        timeFormat="HH:mm"
-        timeIntervals={15}
-        timeCaption="Time"
-        dateFormat="dd/MM/yyyy HH:mm"
-        placeholderText="dd/MM/YYYY HH:mm"
-        popperPlacement="bottom-end"
-        selected={selectedDate}
-        onChange={handleFieldChanged(store, field, 'datetime', element.type)}
-      />
-    </Form.Group>
-  );
-}
-
-
 
 export { initFormHelper, }
