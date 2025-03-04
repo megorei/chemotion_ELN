@@ -93,9 +93,9 @@ class ElementPermissionProxy
       10
     when DeviceDescription
       10
-    when Macromolecule
+    when SequenceBasedMacromolecule
       10
-    when MacromoleculeSample
+    when SequenceBasedMacromoleculeSample
       10
     end
   end
