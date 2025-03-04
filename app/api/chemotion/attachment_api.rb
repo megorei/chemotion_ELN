@@ -109,7 +109,8 @@ module Chemotion
                           ElementPermissionProxy.new(current_user, element, user_ids).read_dataset?
             end
           elsif /sequence_based_macromolecule_analyses/.match?(request.url)
-            @sequence_based_macromolecule = Macromolecule.find(params[:sequence_based_macromolecule_id])
+            @sequence_based_macromolecule =
+              SequenceBasedMacromoleculeSample.find(params[:sequence_based_macromolecule_id])
             if (element = @sequence_based_macromolecule)
               can_read = ElementPolicy.new(current_user, element).read?
               can_dwnld = can_read &&
