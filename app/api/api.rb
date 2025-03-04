@@ -152,7 +152,7 @@ class API < Grape::API
     'sample' => Sample,
     'cell_line' => CelllineSample,
     'device_description' => DeviceDescription,
-    'sequence_based_macromolecule' => MacromoleculeSample,
+    'sequence_based_macromolecule' => SequenceBasedMacromoleculeSample,
   }.freeze
 
   mount Chemotion::LiteratureAPI
