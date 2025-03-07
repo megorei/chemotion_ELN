@@ -35,6 +35,27 @@ export const allElnElements = [
   'cell_line', 'device_description', 'sequence_based_macromolecule',
 ];
 
+export const allElnElmentsWithLabel = [
+  { name: 'sample', label: 'Sample' },
+  { name: 'reaction', label: 'Reaction' },
+  { name: 'wellplate', label: 'Wellplate' },
+  { name: 'screen', label: 'Screen' },
+  { name: 'research_plan', label: 'Research Plan' },
+  { name: 'cell_line', label: 'Cell Line' },
+  { name: 'device_description', label: 'Device Description' },
+  { name: 'sequence_based_macromolecule', label: 'Sequence Based Macromolecule' },
+];
+
+export const allGenericElements = () => {
+  let genericElements = [];
+  const currentUser = (UserStore.getState() && UserStore.getState().currentUser) || {};
+
+  if (MatrixCheck(currentUser.matrix, 'genericElement')) {
+    genericElements = UserStore.getState().genericEls || [];
+  }
+  return genericElements;
+}
+
 export const notification = props =>
   NotificationActions.add({
     title: props.title,

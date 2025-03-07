@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import React from 'react';
 import { Dropdown, DropdownButton, ButtonGroup } from 'react-bootstrap';
+import { allGenericElements } from 'src/apps/generic/Utils';
 import UIStore from 'src/stores/alt/stores/UIStore';
 import UserStore from 'src/stores/alt/stores/UserStore';
 import ElementActions from 'src/stores/alt/actions/ElementActions';
@@ -90,18 +91,13 @@ export default class SplitElementButton extends React.Component {
 
   render() {
     const { layout } = this.state;
-    let genericEls = [];
-    const currentUser = (UserStore.getState() && UserStore.getState().currentUser) || {};
-    if (MatrixCheck(currentUser.matrix, 'genericElement')) {
-      genericEls = UserStore.getState().genericEls || [];
-    }
     const sortedLayout = Object.entries(layout)
       .filter((o) => o[1] && o[1] > 0)
       .sort((a, b) => a[1] - b[1]);
 
     const sortedGenericEls = [];
     sortedLayout.forEach(([k]) => {
-      const el = genericEls.find((ael) => ael.name === k);
+      const el = allGenericElements().find((ael) => ael.name === k);
       if (typeof el !== 'undefined') {
         sortedGenericEls.push(el);
       }
@@ -150,8 +146,7 @@ export default class SplitElementButton extends React.Component {
             onClick={() => this.splitElements(`${el.name}`)}
             disabled={this.noSelected(el.name) || this.isAllCollection()}
           >
-            Split
-            {el.label}
+            {`Split ${el.label}`}
           </Dropdown.Item>
         ))}
       </DropdownButton>
