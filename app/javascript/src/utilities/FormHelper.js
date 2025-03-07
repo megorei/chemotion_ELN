@@ -80,7 +80,7 @@ const numberValue = (value) => {
 }
 
 const changeElement = (store, field, value, element_type) => {
-  if (element_type == 'sequence_based_macromolecule') {
+  if (element_type == 'sequence_based_macromolecule_sample') {
     store.changeSequenceBasedMacromolecule(field, value);
   }
 }
@@ -102,7 +102,7 @@ const deleteRow = (store, element, field, index) => {
   changeElement(store, field, fieldArray, element.type);
 }
 
-const changeUnit = (store, element, units, field, value, unitField, unitValue) => {
+const changeUnit = (store, element, units, unitField, unitValue) => {
   const activeUnitIndex = units.findIndex((f) => { return f.label === unitValue });
   const nextUnitIndex = activeUnitIndex === units.length - 1 ? 0 : activeUnitIndex + 1;
   const newUnitValue = units[nextUnitIndex].label;
@@ -236,7 +236,7 @@ const initFormHelper = (element, store) => {
           <Button
             key={`${units}-${field}-unit`}
             variant="success"
-            onClick={() => changeUnit(store, element, units, field, value, unitField, unitValue)}
+            onClick={() => changeUnit(store, element, units, unitField, unitValue)}
           >
             {unitValue}
           </Button>

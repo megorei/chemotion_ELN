@@ -37,7 +37,7 @@ import Graph from 'src/models/Graph';
 import ComputeTask from 'src/models/ComputeTask';
 import LiteratureMap from 'src/models/LiteratureMap';
 import Prediction from 'src/models/Prediction';
-import SequenceBasedMacromolecule from 'src/models/SequenceBasedMacromolecule';
+import SequenceBasedMacromoleculeSample from 'src/models/SequenceBasedMacromoleculeSample';
 import ReactionSvgFetcher from 'src/fetchers/ReactionSvgFetcher';
 import Metadata from 'src/models/Metadata';
 import UserStore from 'src/stores/alt/stores/UserStore';
@@ -1033,8 +1033,8 @@ class ElementActions {
     };
   }
 
-  generateEmptySequenceBasedMacromolecule(collection_id) {
-    return SequenceBasedMacromolecule.buildEmpty(collection_id);
+  generateEmptySequenceBasedMacromoleculeSample(collection_id) {
+    return SequenceBasedMacromoleculeSample.buildEmpty(collection_id);
   }
 
   createSequenceBasedMacromolecule(params) {
@@ -1052,7 +1052,7 @@ class ElementActions {
     return collection_id;
   }
 
-  splitAsSubSequenceBasedMacromolecule(ui_state) {
+  splitAsSubSequenceBasedMacromoleculeSample(ui_state) {
     return (dispatch) => {
       SequenceBasedMacromoleculesFetcher.splitAsSubSequenceBasedMacromolecule(ui_state)
         .then((result) => {
