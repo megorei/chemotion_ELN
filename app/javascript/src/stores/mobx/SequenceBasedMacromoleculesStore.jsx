@@ -3,7 +3,7 @@ import { flow, types } from 'mobx-state-tree';
 
 import SequenceBasedMacromoleculesFetcher from 'src/fetchers/SequenceBasedMacromoleculesFetcher';
 import AttachmentFetcher from 'src/fetchers/AttachmentFetcher';
-import SequenceBasedMacromolecule from 'src/models/SequenceBasedMacromolecule';
+import SequenceBasedMacromoleculeSample from 'src/models/SequenceBasedMacromoleculeSample';
 import Container from 'src/models/Container';
 
 const toggableContents = {
@@ -63,7 +63,7 @@ export const SequenceBasedMacromoleculesStore = types
         self.sequence_based_macromolecule_checksum = sequence_based_macromolecule._checksum;
       }
       sequence_based_macromolecule.changed = false;
-      const sequenceBasedMacromolecule = new SequenceBasedMacromolecule(sequence_based_macromolecule);
+      const sequenceBasedMacromolecule = new SequenceBasedMacromoleculeSample(sequence_based_macromolecule);
 
       if (sequenceBasedMacromolecule.checksum() != self.sequence_based_macromolecule_checksum
         || sequenceBasedMacromolecule.isNew) {

@@ -272,19 +272,19 @@ const deviceDescriptionShowOrNew = (e) => {
   }
 }
 
-const sequenceBasedMacromoleculeShowOrNew = (e) => {
-  const { sequence_based_macromoleculeID, collectionID } = e.params;
+const sequenceBasedMacromoleculeSampleShowOrNew = (e) => {
+  const { sequence_based_macromolecule_sampleID, collectionID } = e.params;
   const { selecteds, activeKey } = ElementStore.getState();
   const index = selecteds.findIndex(el => {
-    return el.type === 'sequence_based_macromolecule' && el.id === sequence_based_macromoleculeID
+    return el.type === 'sequence_based_macromolecule_sample' && el.id === sequence_based_macromolecule_sampleID
   });
 
-  if (sequence_based_macromoleculeID === 'new' || sequence_based_macromoleculeID === undefined) {
-    ElementActions.generateEmptySequenceBasedMacromolecule(collectionID);
-  } else if (sequence_based_macromoleculeID === 'copy') {
+  if (sequence_based_macromolecule_sampleID === 'new' || sequence_based_macromolecule_sampleID === undefined) {
+    ElementActions.generateEmptySequenceBasedMacromoleculeSample(collectionID);
+  } else if (sequence_based_macromolecule_sampleID === 'copy') {
     ElementActions.copySequenceBasedMacromoleculeFromClipboard.defer(collectionID);
   } else if (index < 0) {
-    ElementActions.fetchSequenceBasedMacromoleculeById(sequence_based_macromoleculeID);
+    ElementActions.fetchSequenceBasedMacromoleculeById(sequence_based_macromolecule_sampleID);
   } else if (index !== activeKey) {
     DetailActions.select(index);
   }
@@ -338,8 +338,8 @@ const elementShowOrNew = (e) => {
     case 'device_description':
       deviceDescriptionShowOrNew(e);
       break;
-    case 'sequence_based_macromolecule':
-      sequenceBasedMacromoleculeShowOrNew(e);
+    case 'sequence_based_macromolecule_sample':
+      sequenceBasedMacromoleculeSampleShowOrNew(e);
       break;
     default:
       if (e && e.klassType == 'GenericEl') {
@@ -373,5 +373,5 @@ export {
   predictionShowFwdRxn,
   genericElShowOrNew,
   cellLineShowOrNew,
-  sequenceBasedMacromoleculeShowOrNew,
+  sequenceBasedMacromoleculeSampleShowOrNew,
 };

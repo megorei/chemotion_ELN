@@ -4,7 +4,7 @@ import WellplatesFetcher from 'src/fetchers/WellplatesFetcher';
 import DeviceDescriptionFetcher from 'src/fetchers/DeviceDescriptionFetcher';
 import DeviceDescription from 'src/models/DeviceDescription';
 import SequenceBasedMacromoleculesFetcher from 'src/fetchers/SequenceBasedMacromoleculesFetcher';
-import SequenceBasedMacromolecule from 'src/models/SequenceBasedMacromolecule';
+import SequenceBasedMacromoleculeSample from 'src/models/SequenceBasedMacromoleculeSample';
 
 class ClipboardActions {
   fetchSamplesByUIStateAndLimit(params, action) {
@@ -69,7 +69,7 @@ class ClipboardActions {
   }
 
   fetchSequenceBasedMacromoleculesAndBuildCopy(sequence_based_macromolecule, collection_id, action) {
-    const newSequenceBasedMacromolecule = new SequenceBasedMacromolecule(sequence_based_macromolecule);
+    const newSequenceBasedMacromolecule = new SequenceBasedMacromoleculeSample(sequence_based_macromolecule);
     newSequenceBasedMacromolecule.collection_id = collection_id;
     return (
       { sequence_based_macromolecules: [newSequenceBasedMacromolecule], collection_id: collection_id, action: action }
