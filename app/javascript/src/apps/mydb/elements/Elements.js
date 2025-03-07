@@ -33,7 +33,7 @@ export default class Elements extends Component {
     }
     this.setState({ currentElement });
     
-    if (currentElement && currentElement.type == 'sequence_based_macromolecule') {
+    if (currentElement && currentElement.type == 'sequence_based_macromolecule_sample') {
       this.context.sequenceBasedMacromolecules.addSequenceBasedMacromoleculeToOpen(currentElement);
     }
   }

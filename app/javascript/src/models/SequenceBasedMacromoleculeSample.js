@@ -3,7 +3,7 @@ import Container from 'src/models/Container';
 import UserStore from 'src/stores/alt/stores/UserStore';
 import { convertUnits } from 'src/components/staticDropdownOptions/units';
 
-export default class SequenceBasedMacromolecule extends Element {
+export default class SequenceBasedMacromoleculeSample extends Element {
   constructor(args) {
     super(args);
 
@@ -362,9 +362,9 @@ export default class SequenceBasedMacromolecule extends Element {
   }
 
   static buildEmpty(collectionID) {
-    return new SequenceBasedMacromolecule({
+    return new SequenceBasedMacromoleculeSample({
       collection_id: collectionID,
-      type: 'sequence_based_macromolecule',
+      type: 'sequence_based_macromolecule_sample',
       name: 'New sequence based macromolecule',
       short_label: '',
       isNew: true,
@@ -413,7 +413,7 @@ export default class SequenceBasedMacromolecule extends Element {
   //   newSequenceBasedMacromolecule.collection_id = collection_id;
   //   if (sequence_based_macromolecule.name) { newSequenceBasedMacromolecule.name = sequence_based_macromolecule.name; }
 
-  //   return new SequenceBasedMacromolecule;
+  //   return new SequenceBasedMacromoleculeSample;
   // }
 
   title() {

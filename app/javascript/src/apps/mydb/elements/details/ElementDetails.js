@@ -200,7 +200,7 @@ export default class ElementDetails extends Component {
         return <LiteratureDetails literatureMap={el} />;
       case 'cell_line':
         return <CellLineDetails cellLineItem={el} toggleFullScreen={this.toggleFullScreen} />;
-      case 'sequence_based_macromolecule':
+      case 'sequence_based_macromolecule_sample':
         return <SequenceBasedMacromoleculeDetails toggleFullScreen={this.toggleFullScreen} />;
       default:
         return (

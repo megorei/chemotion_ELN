@@ -5,33 +5,13 @@ import {
 import Aviator from 'aviator';
 import { PermissionConst } from 'src/utilities/PermissionConst';
 import { elementShowOrNew } from 'src/utilities/routesUtils';
+import { allElnElements, allElnElmentsWithLabel, allGenericElements } from 'src/apps/generic/Utils';
 import UIStore from 'src/stores/alt/stores/UIStore';
 import UserStore from 'src/stores/alt/stores/UserStore';
 import ElementActions from 'src/stores/alt/actions/ElementActions';
 import ClipboardActions from 'src/stores/alt/actions/ClipboardActions';
 import SamplesFetcher from 'src/fetchers/SamplesFetcher';
 import MatrixCheck from 'src/components/common/MatrixCheck';
-
-const elementList = () => {
-  const elements = [
-    { name: 'sample', label: 'Sample' },
-    { name: 'reaction', label: 'Reaction' },
-    { name: 'wellplate', label: 'Wellplate' },
-    { name: 'screen', label: 'Screen' },
-    { name: 'research_plan', label: 'Research Plan' },
-    { name: 'cell_line', label: 'Cell Line' },
-    { name: 'device_description', label: 'Device Description' },
-    { name: 'sequence_based_macromolecule', label: 'Sequence Based Macromolecule' },
-  ];
-  let genericEls = [];
-  const currentUser = (UserStore.getState() && UserStore.getState().currentUser) || {};
-
-  if (MatrixCheck(currentUser.matrix, 'genericElement')) {
-    genericEls = UserStore.getState().genericEls || [];
-  }
-
-  return { elements, genericEls };
-};
 
 export default class CreateButton extends React.Component {
   constructor(props) {
@@ -308,11 +288,7 @@ export default class CreateButton extends React.Component {
   createBtn(type) {
     let iconClass = `icon-${type}`;
     const genericEls = UserStore.getState().genericEls || [];
-    const constEls = [
-      'sample', 'reaction', 'screen', 'wellplate', 'research_plan',
-      'cell_line', 'device_description', 'sequence_based_macromolecule',
-    ];
-    if (!constEls.includes(type) && typeof genericEls !== 'undefined' && genericEls !== null && genericEls.length > 0) {
+    if (!allElnElements.includes(type) && typeof genericEls !== 'undefined' && genericEls !== null && genericEls.length > 0) {
       const genericEl = (genericEls && genericEls.find(el => el.name == type)) || {};
       iconClass = `${genericEl.icon_name}`;
     }
@@ -332,14 +308,13 @@ export default class CreateButton extends React.Component {
   render() {
     const { isDisabled, layout } = this.state;
     const type = UserStore.getState().currentType;
-    const { elements, genericEls } = elementList();
     const sortedLayout = Object.entries(layout)
       .filter((o) => o[1] && o[1] > 0)
       .sort((a, b) => a[1] - b[1]);
 
     const sortedGenericEls = [];
     sortedLayout.forEach(([sl]) => {
-      const el = elements.concat(genericEls).find((ael) => ael.name === sl);
+      const el = allElnElmentsWithLabel.concat(allGenericElements()).find((ael) => ael.name === sl);
       if (typeof el !== 'undefined') {
         sortedGenericEls.push(el);
       }

@@ -19,7 +19,7 @@ import ResearchPlan from 'src/models/ResearchPlan';
 import Wellplate from 'src/models/Wellplate';
 import Screen from 'src/models/Screen';
 import DeviceDescription from 'src/models/DeviceDescription';
-import SequenceBasedMacromolecule from 'src/models/SequenceBasedMacromolecule';
+import SequenceBasedMacromoleculeSample from 'src/models/SequenceBasedMacromoleculeSample';
 
 import Device from 'src/models/Device';
 import Container from 'src/models/Container';
@@ -254,7 +254,7 @@ class ElementStore {
           ElementActions.generateEmptyReaction,
           ElementActions.generateEmptyCellLine,
           ElementActions.generateEmptyDeviceDescription,
-          ElementActions.generateEmptySequenceBasedMacromolecule,
+          ElementActions.generateEmptySequenceBasedMacromoleculeSample,
           ElementActions.showReportContainer,
           ElementActions.showFormatContainer,
           ElementActions.showComputedPropsGraph,
@@ -274,7 +274,7 @@ class ElementStore {
       handleSplitAsSubwellplates: ElementActions.splitAsSubwellplates,
       handleSplitAsSubCellLines: ElementActions.splitAsSubCellLines,
       handleSplitAsSubDeviceDescription: ElementActions.splitAsSubDeviceDescription,
-      handleSplitAsSubSequenceBasedMacromolecule: ElementActions.splitAsSubSequenceBasedMacromolecule,
+      handleSplitAsSubSequenceBasedMacromoleculeSample: ElementActions.splitAsSubSequenceBasedMacromoleculeSample,
       // formerly from DetailStore
       handleSelect: DetailActions.select,
       handleClose: DetailActions.close,
@@ -1020,13 +1020,13 @@ class ElementStore {
     const clipboardSequenceBasedMacromolecules = ClipboardStore.getState().sequence_based_macromolecules;
     if (clipboardSequenceBasedMacromolecules && clipboardSequenceBasedMacromolecules.length > 0) {
       this.changeCurrentElement(
-        SequenceBasedMacromolecule
+        SequenceBasedMacromoleculeSample
           .copyFromSequenceBasedMacromoleculeAndCollectionId(clipboardSequenceBasedMacromolecules[0], collection_id)
       );
     }
   }
 
-  handleSplitAsSubSequenceBasedMacromolecule(ui_state) {
+  handleSplitAsSubSequenceBasedMacromoleculeSample(ui_state) {
     ElementActions.fetchSequenceBasedMacromoleculesByCollectionId(
       ui_state.currentCollectionId, {}, ui_state.isSync
     );
@@ -1459,7 +1459,7 @@ class ElementStore {
         this.changeCurrentElement(updatedElement);
         this.handleRefreshElements('device_description');
         break;
-      case 'sequence_based_macromolecule':
+      case 'sequence_based_macromolecule_sample':
         this.changeCurrentElement(updatedElement);
         this.handleRefreshElements('sequence_based_macromolecule');
         break;

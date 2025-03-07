@@ -45,11 +45,11 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
   const submitLabel = sequenceBasedMacromolecule.isNew ? 'Create' : 'Save';
   let tabContents = [];
 
-  // useEffect(() => {
-  //   if (MatrixCheck(currentUser.matrix, commentActivation) && !sequenceBasedMacromolecule.isNew) {
-  //     CommentActions.fetchComments(sequenceBasedMacromolecule);
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (MatrixCheck(currentUser.matrix, commentActivation) && !sequenceBasedMacromolecule.isNew) {
+      CommentActions.fetchComments(sequenceBasedMacromolecule);
+    }
+  }, []);
 
   const tabContentComponents = {
     properties: PropertiesForm,
@@ -84,7 +84,7 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
       <Tab eventKey={key} title={title} key={`${key}_${sequenceBasedMacromolecule.id}`} disabled={disabled(i)}>
         {
           !sequenceBasedMacromolecule.isNew &&
-          <CommentSection section={`sequence_based_macromolecule_${key}`} element={sequenceBasedMacromolecule} />
+          <CommentSection section={`sequence_based_macromolecule_sample_${key}`} element={sequenceBasedMacromolecule} />
         }
         {React.createElement(tabContentComponents[key], {
           key: `${sequenceBasedMacromolecule.id}-${key}`,
@@ -166,7 +166,7 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
             <OpenCalendarButton
               isPanelHeader
               eventableId={sequenceBasedMacromolecule.id}
-              eventableType="SequenceBasedMacromolecule"
+              eventableType="SequenceBasedMacromoleculeSample"
             />}
           <OverlayTrigger
             placement="bottom"
@@ -213,7 +213,7 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
       </Card.Header>
       <Card.Body style={{ minHeight: '500px' }}>
         <ElementDetailSortTab
-          type="sequence_based_macromolecule"
+          type="sequence_based_macromolecule_sample"
           availableTabs={Object.keys(tabContentComponents)}
           tabTitles={tabTitles}
           onTabPositionChanged={onTabPositionChanged}
