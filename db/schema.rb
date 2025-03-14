@@ -284,10 +284,10 @@ ActiveRecord::Schema.define(version: 2025_15_05_141514) do
     t.datetime "deleted_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["collection_id", "sequence_based_macromolecule_sample_id"], name: "index_collection_sbmm_samples_unique_joins", unique: true
-    t.index ["collection_id"], name: "index_collection_sbmm_samples_collection"
-    t.index ["deleted_at"], name: "index_collection_sbmm_samples_deleted_at"
-    t.index ["sequence_based_macromolecule_sample_id"], name: "index_collection_sbmm_samples_sample"
+    t.index ["collection_id", "sequence_based_macromolecule_sample_id"], name: "idx_collections_sbmm_sample_unique_joins", unique: true
+    t.index ["collection_id"], name: "idx_collections_sbmm_sample_collection"
+    t.index ["deleted_at"], name: "idx_collections_sbmm_sample_deleted_at"
+    t.index ["sequence_based_macromolecule_sample_id"], name: "idx_collections_sbmm_sample_sample"
   end
 
   create_table "collections_wellplates", id: :serial, force: :cascade do |t|
@@ -1010,6 +1010,53 @@ ActiveRecord::Schema.define(version: 2025_15_05_141514) do
     t.index ["searchable_type", "searchable_id"], name: "index_pg_search_documents_on_searchable_type_and_searchable_id"
   end
 
+  create_table "post_translational_modifications", force: :cascade do |t|
+    t.boolean "phosphorylation_enabled", default: false, null: false
+    t.boolean "phosphorylation_ser_enabled", default: false, null: false
+    t.string "phosphorylation_ser_details", default: ""
+    t.boolean "phosphorylation_thr_enabled", default: false, null: false
+    t.string "phosphorylation_thr_details", default: ""
+    t.boolean "phosphorylation_tyr_enabled", default: false, null: false
+    t.string "phosphorylation_tyr_details", default: ""
+    t.boolean "glycosylation_enabled", default: false, null: false
+    t.boolean "glycosylation_n_linked_asn_enabled", default: false, null: false
+    t.string "glycosylation_n_linked_asn_details", default: ""
+    t.boolean "glycosylation_n_linked_lys_enabled", default: false, null: false
+    t.string "glycosylation_n_linked_lys_details", default: ""
+    t.boolean "glycosylation_n_linked_ser_enabled", default: false, null: false
+    t.string "glycosylation_n_linked_ser_details", default: ""
+    t.boolean "glycosylation_n_linked_thr_enabled", default: false, null: false
+    t.string "glycosylation_n_linked_thr_details", default: ""
+    t.boolean "glycosylation_o_linked_asn_enabled", default: false, null: false
+    t.string "glycosylation_o_linked_asn_details", default: ""
+    t.boolean "glycosylation_o_linked_lys_enabled", default: false, null: false
+    t.string "glycosylation_o_linked_lys_details", default: ""
+    t.boolean "glycosylation_o_linked_ser_enabled", default: false, null: false
+    t.string "glycosylation_o_linked_ser_details", default: ""
+    t.boolean "glycosylation_o_linked_thr_enabled", default: false, null: false
+    t.string "glycosylation_o_linked_thr_details", default: ""
+    t.boolean "acetylation_enabled", default: false, null: false
+    t.float "acetylation_lysin_number"
+    t.boolean "hydroxylation_enabled", default: false, null: false
+    t.boolean "hydroxylation_lys_enabled", default: false, null: false
+    t.string "hydroxylation_lys_details", default: "t"
+    t.boolean "hydroxylation_pro_enabled", default: false, null: false
+    t.string "hydroxylation_pro_details", default: "t"
+    t.boolean "methylation_enabled", default: false, null: false
+    t.boolean "methylation_arg_enabled", default: false, null: false
+    t.string "methylation_arg_details", default: ""
+    t.boolean "methylation_glu_enabled", default: false, null: false
+    t.string "methylation_glu_details", default: ""
+    t.boolean "methylation_lys_enabled", default: false, null: false
+    t.string "methylation_lys_details", default: ""
+    t.boolean "other_modifications_enabled", default: false, null: false
+    t.string "other_modifications_details", default: ""
+    t.datetime "deleted_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["deleted_at"], name: "idx_sbmm_ptm_deleted_at"
+  end
+
   create_table "predictions", id: :serial, force: :cascade do |t|
     t.string "predictable_type"
     t.integer "predictable_id"
@@ -1043,6 +1090,25 @@ ActiveRecord::Schema.define(version: 2025_15_05_141514) do
     t.boolean "show_sample_short_label", default: false
     t.index ["deleted_at"], name: "index_profiles_on_deleted_at"
     t.index ["user_id"], name: "index_profiles_on_user_id"
+  end
+
+  create_table "protein_sequence_modifications", force: :cascade do |t|
+    t.boolean "modification_n_terminal", default: false, null: false
+    t.string "modification_n_terminal_details", default: ""
+    t.boolean "modification_c_terminal", default: false, null: false
+    t.string "modification_c_terminal_details", default: ""
+    t.boolean "modification_insertion", default: false, null: false
+    t.string "modification_insertion_details", default: ""
+    t.boolean "modification_deletion", default: false, null: false
+    t.string "modification_deletion_details", default: ""
+    t.boolean "modification_mutation", default: false, null: false
+    t.string "modification_mutation_details", default: ""
+    t.boolean "modification_other", default: false, null: false
+    t.string "modification_other_details", default: ""
+    t.datetime "deleted_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["deleted_at"], name: "idx_sbmm_psm_deleted_at"
   end
 
   create_table "reactions", id: :serial, force: :cascade do |t|
@@ -1420,19 +1486,19 @@ ActiveRecord::Schema.define(version: 2025_15_05_141514) do
     t.datetime "deleted_at"
     t.string "external_label"
     t.string "short_label", null: false
-    t.string "function_or_application", null: false
-    t.float "concentration", null: false
-    t.float "molarity", null: false
-    t.float "volume_as_used", null: false
+    t.string "function_or_application"
+    t.float "concentration"
+    t.float "molarity"
+    t.float "volume_as_used"
     t.bigint "sequence_based_macromolecule_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["deleted_at"], name: "index_sequence_based_macromolecule_samples_on_deleted_at"
-    t.index ["sequence_based_macromolecule_id"], name: "idx_sbmm_sample_on_sbmm_id"
+    t.index ["deleted_at"], name: "idx_sbmm_samples_deleted_at"
+    t.index ["sequence_based_macromolecule_id"], name: "idx_sbmm_samples_sbmm"
   end
 
   create_table "sequence_based_macromolecules", force: :cascade do |t|
-    t.string "name", null: false
+    t.string "identifier", null: false
     t.jsonb "uniprot_source", null: false
     t.bigint "parent_id"
     t.string "sbmm_type", null: false
@@ -1440,7 +1506,8 @@ ActiveRecord::Schema.define(version: 2025_15_05_141514) do
     t.string "uniprot_derivation", null: false
     t.boolean "protein_sequence_modifications", default: false, null: false
     t.boolean "post_translational_sequence_modifications", default: false, null: false
-    t.string "uniprot_ids", array: true
+    t.string "primary_accession"
+    t.string "accessions", array: true
     t.string "ec_numbers", array: true
     t.string "pdb_doi"
     t.string "systematic_name"
@@ -1448,18 +1515,7 @@ ActiveRecord::Schema.define(version: 2025_15_05_141514) do
     t.string "sequence", null: false
     t.string "link_uniprot"
     t.string "link_pdb"
-    t.boolean "modification_n_terminal", default: false, null: false
-    t.string "modification_n_terminal_details", default: ""
-    t.boolean "modification_c_terminal", default: false, null: false
-    t.string "modification_c_terminal_details", default: ""
-    t.boolean "modification_insertion", default: false, null: false
-    t.string "modification_insertion_details", default: ""
-    t.boolean "modification_deletion", default: false, null: false
-    t.string "modification_deletion_details", default: ""
-    t.boolean "modification_mutation", default: false, null: false
-    t.string "modification_mutation_details", default: ""
-    t.boolean "modification_other", default: false, null: false
-    t.string "modification_other_details", default: ""
+    t.bigint "protein_sequence_modifications_id"
     t.string "heterologous_expression", default: "unknown", null: false
     t.string "organism", default: ""
     t.string "taxon_id", default: ""
@@ -1468,18 +1524,21 @@ ActiveRecord::Schema.define(version: 2025_15_05_141514) do
     t.string "localisation", default: ""
     t.string "protein_source_details_comments", default: ""
     t.string "protein_source_details_expression_system", default: ""
-    t.jsonb "post_translational_modifications", default: "{}", null: false
-    t.jsonb "post_translational_modifications_details", default: "{}", null: false
+    t.bigint "post_translational_modifications_id"
     t.datetime "deleted_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["deleted_at"], name: "index_sequence_based_macromolecules_on_deleted_at"
-    t.index ["ec_numbers"], name: "index_sequence_based_macromolecules_on_ec_numbers"
-    t.index ["parent_id"], name: "index_sequence_based_macromolecules_on_parent_id"
-    t.index ["pdb_doi"], name: "index_sequence_based_macromolecules_on_pdb_doi"
-    t.index ["sequence"], name: "index_sequence_based_macromolecules_on_sequence"
-    t.index ["systematic_name"], name: "index_sequence_based_macromolecules_on_systematic_name"
-    t.index ["uniprot_ids"], name: "index_sequence_based_macromolecules_on_uniprot_ids"
+    t.index ["accessions"], name: "idx_sbmm_accessions"
+    t.index ["deleted_at"], name: "idx_sbmm_deleted_at"
+    t.index ["ec_numbers"], name: "idx_sbmm_ec_numbers"
+    t.index ["identifier"], name: "idx_sbmm_identifier", unique: true
+    t.index ["parent_id"], name: "idx_sbmm_parent"
+    t.index ["pdb_doi"], name: "idx_sbmm_pdb_doi"
+    t.index ["post_translational_modifications_id"], name: "idx_sbmm_ptm_id"
+    t.index ["primary_accession"], name: "idx_sbmm_primary_accession"
+    t.index ["protein_sequence_modifications_id"], name: "idx_sbmm_psm_id"
+    t.index ["sequence"], name: "idx_sbmm_sequence"
+    t.index ["systematic_name"], name: "idx_sbmm_systematic_name"
   end
 
   create_table "subscriptions", id: :serial, force: :cascade do |t|
