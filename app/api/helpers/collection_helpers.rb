@@ -40,7 +40,7 @@ module CollectionHelpers
       :researchplan_detail_level, :element_detail_level,
       :celllinesample_detail_level,
       :devicedescription_detail_level,
-      :sequence_based_macromolecule_sample_detail_level,
+      :sequencebasedmacromoleculesample_detail_level,
     )&.symbolize_keys
     {
       permission_level: 0,
