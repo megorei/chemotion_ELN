@@ -7,11 +7,11 @@ const unitSystems = {
     { value: 'µkat', label: 'µkat' },
     { value: 'nkat', label: 'nkat' },
   ],
-  activity_u_l: [
+  activity_per_volume: [
     { value: 'u_l', label: 'U/L' },
     { value: 'u_ml', label: 'U/mL' },
   ],
-  activity_u_g: [
+  activity_per_mass: [
     { value: 'u_g', label: 'U/g' },
     { value: 'u_mg', label: 'U/mg' },
   ],
@@ -22,7 +22,7 @@ const unitSystems = {
     { value: 'nmol', label: 'nmol' },
     { value: 'pmol', label: 'pmol' },
   ],
-  amount_weight: [
+  amount_mass: [
     { value: 'g', label: 'g' },
     { value: 'kg', label: 'kg' },
     { value: 'ug', label: 'µg' }, 
