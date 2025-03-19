@@ -160,22 +160,22 @@ const PropertiesForm = ({ readonly }) => {
                 <h5 className="mb-3">Sample stocks characteristics</h5>
                 <Row className="mb-4 align-items-end">
                   <Col>
-                    {formHelper.unitInput('concentration', 'Concentration', 'concentration', '')}
+                    {formHelper.unitInput('concentration_value', 'Concentration', 'concentration', '')}
                   </Col>
                   <Col>
-                    {formHelper.unitInput('molarity', 'Molarity', 'molarity', '')}
+                    {formHelper.unitInput('molarity_value', 'Molarity', 'molarity', '')}
                   </Col>
                   {
                     showIfEnzymeIsSelected && (
                       <>
                         <Col>
                           {formHelper.unitInput(
-                            'stock_activity_ul', 'Activity in U/L', 'activity_u_l', ''
+                            'activity_per_volume_value', 'Activity in U/L', 'activity_per_volume', ''
                           )}
                         </Col>
                         <Col>
                           {formHelper.unitInput(
-                            'stock_activity_ug', 'Activity in U/g', 'activity_u_g', ''
+                            'activity_per_mass_value', 'Activity in U/g', 'activity_per_mass', ''
                           )}
                         </Col>
                       </>
@@ -191,18 +191,18 @@ const PropertiesForm = ({ readonly }) => {
                 </Row>
                 <Row className="mb-4 align-items-end">
                   <Col>
-                    {formHelper.unitInput('volume_as_used', 'Volume as used', 'volumes', '')}
+                    {formHelper.unitInput('volume_as_used_value', 'Volume as used', 'volumes', '')}
                   </Col>
                   <Col>
-                    {formHelper.unitInput('amount_as_used', 'Amount as used', 'amount_substance', '')}
+                    {formHelper.unitInput('amount_as_used_mol_value', 'Amount as used', 'amount_substance', '')}
                   </Col>
                   <Col>
-                    {formHelper.unitInput('amount_as_used_weight', '', 'amount_weight', '')}
+                    {formHelper.unitInput('amount_as_used_mass_value', '', 'amount_mass', '')}
                   </Col>
                   {
                     showIfEnzymeIsSelected && (
                       <Col>
-                        {formHelper.unitInput('activity', 'Activity', 'activity', '')}
+                        {formHelper.unitInput('activity_value', 'Activity', 'activity', '')}
                       </Col>
                     )
                   }
