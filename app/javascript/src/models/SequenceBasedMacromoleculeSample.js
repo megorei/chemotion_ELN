@@ -9,12 +9,12 @@ export default class SequenceBasedMacromoleculeSample extends Element {
 
     this.default_units = {
       activity: 'U',
-      amount_as_used: 'mol',
-      amount_as_used_weight: 'g',
+      amount_as_used_mol: 'mol',
+      amount_as_used_mass: 'g',
       concentration: 'ng/L',
       molarity: 'mol/L',
-      stock_activity_ul: 'U/L',
-      stock_activity_ug: 'U/g',
+      activity_per_volume: 'U/L',
+      activity_per_mass: 'U/g',
       volume_as_used: 'l',
     };
   }
@@ -34,114 +34,114 @@ export default class SequenceBasedMacromoleculeSample extends Element {
 
     if (!this.function_or_application || this.function_or_application !== 'enzyme') { return null; }
 
-    if (type === 'volume_as_used' && this.base_volume_as_used > 0) {
+    if (type === 'volume_as_used' && this.base_volume_as_used_value > 0) {
       this.calculateAmountAsUsed();
       this.calculateActivity();
     }
 
-    if (type === 'activity' && this._base_activity > 0) {
+    if (type === 'activity' && this._base_activity_value > 0) {
       this.calculateVolumeByActivity();
       this.calculateAmountAsUsed();
     }
 
-    if (type === 'amount_as_used' && this.base_amount_as_used > 0) {
+    if (type === 'amount_as_used_mol' && this.base_amount_as_used_mol_value > 0) {
       this.calculateVolumeByAmount();
       this.calculateActivity();
     }
 
-    if (type === 'amount_as_used_weight' && this.base_amount_as_used_weight > 0) {
-      this.calculateActivityByWeight();
+    if (type === 'amount_as_used_mass' && this.base_amount_as_used_mass_value > 0) {
+      this.calculateActivityByMass();
     }
 
-    if (type === 'molarity' && this.base_molarity > 0) {
+    if (type === 'molarity' && this.base_molarity_value > 0) {
       this.calculateAmountAsUsed();
     }
 
-    if (type === 'stock_activity_ul' && this.base_stock_activity_ul > 0) {
+    if (type === 'activity_per_volume' && this.base_activity_per_volume_value > 0) {
       this.calculateActivity();
     }
 
-    if (type === 'stock_activity_ug' && this.base_stock_activity_ug > 0) {
-      this.calculateActivityByWeight();
+    if (type === 'activity_per_mass' && this.base_activity_per_mass_value > 0) {
+      this.calculateActivityByMass();
     }
   }
 
   calculateActivity() {
-    if (this.base_stock_activity_ul === 0 || this.base_volume_as_used === 0) { return null; }
+    if (this.base_activity_per_volume_value === 0 || this.base_volume_as_used_value === 0) { return null; }
 
-    this._activity = convertUnits(
-      parseFloat((this.base_volume_as_used * this.base_stock_activity_ul).toFixed(8)),
+    this._activity_value = convertUnits(
+      parseFloat((this.base_volume_as_used_value * this.base_activity_per_volume_value).toFixed(8)),
       this.default_units.activity,
       this.activity_unit
     );
-    this._base_activity =
-      convertUnits(this._activity, this.activity_unit, this.default_units.activity);
+    this._base_activity_value =
+      convertUnits(this._activity_value, this.activity_unit, this.default_units.activity);
   }
 
-  calculateActivityByWeight() {
-    if (this.base_stock_activity_ug === 0 || this.base_amount_as_used_weight === 0) { return null; }
+  calculateActivityByMass() {
+    if (this.base_activity_per_mass_value === 0 || this.base_amount_as_used_mass_value === 0) { return null; }
 
-    this._activity = convertUnits(
-      parseFloat((this.base_amount_as_used_weight * this.base_stock_activity_ug).toFixed(8)),
+    this._activity_value = convertUnits(
+      parseFloat((this.base_amount_as_used_mass_value * this.base_activity_per_mass_value).toFixed(8)),
       this.default_units.activity,
       this.activity_unit
     );
-    this._base_activity =
-      convertUnits(this._activity, this.activity_unit, this.default_units.activity);
+    this._base_activity_value =
+      convertUnits(this._activity_value, this.activity_unit, this.default_units.activity);
   }
 
   calculateAmountAsUsed() {
-    if (this.base_volume_as_used === 0 || this.base_molarity === 0) { return null; }
+    if (this.base_volume_as_used_value === 0 || this.base_molarity_value === 0) { return null; }
 
-    this._amount_as_used = convertUnits(
-      parseFloat((this.base_volume_as_used * this.base_molarity).toFixed(8)),
-      this.default_units.amount_as_used,
-      this.amount_as_used_unit
+    this._amount_as_used_mol_value = convertUnits(
+      parseFloat((this.base_volume_as_used_value * this.base_molarity_value).toFixed(8)),
+      this.default_units.amount_as_used_mol,
+      this.amount_as_used_mol_unit
     );
-    this._base_amount_as_used =
-      convertUnits(this._amount_as_used, this.amount_as_used_unit, this.default_units.amount_as_used);
+    this._base_amount_as_used_mol_value =
+      convertUnits(this._amount_as_used_mol_value, this.amount_as_used_mol_unit, this.default_units.amount_as_used_mol);
   }
 
   calculateVolumeByActivity() {
-    if (this.base_stock_activity_ul === 0 || this.base_activity === 0) { return null; }
+    if (this.base_activity_per_volume_value === 0 || this.base_activity_value === 0) { return null; }
 
-    this._volume_as_used = convertUnits(
-      parseFloat((this.base_activity / this.base_stock_activity_ul).toFixed(8)),
+    this._volume_as_used_value = convertUnits(
+      parseFloat((this.base_activity_value / this.base_activity_per_volume_value).toFixed(8)),
       this.default_units.volume_as_used,
       this.volume_as_used_unit
     );
-    this._base_volume_as_used =
-      convertUnits(this._volume_as_used, this.volume_as_used_unit, this.default_units.volume_as_used);
+    this._base_volume_as_used_value =
+      convertUnits(this._volume_as_used_value, this.volume_as_used_unit, this.default_units.volume_as_used);
   }
 
   calculateVolumeByAmount() {
-    if (this.base_molarity === 0 || this.base_amount_as_used === 0) { return null; }
+    if (this.base_molarity_value === 0 || this.base_amount_as_used_mol_value === 0) { return null; }
 
-    this._volume_as_used = convertUnits(
-      parseFloat((this.base_amount_as_used / this.base_molarity).toFixed(8)),
+    this._volume_as_used_value = convertUnits(
+      parseFloat((this.base_amount_as_used_mol_value / this.base_molarity_value).toFixed(8)),
       this.default_units.volume_as_used,
       this.volume_as_used_unit
     );
-    this._base_volume_as_used =
-      convertUnits(this._volume_as_used, this.volume_as_used_unit, this.default_units.volume_as_used);
+    this._base_volume_as_used_value =
+      convertUnits(this._volume_as_used_value, this.volume_as_used_unit, this.default_units.volume_as_used);
   }
 
-  get activity() {
-    return this._activity;
+  get activity_value() {
+    return this._activity_value;
   }
 
-  set activity(value) {
-    this._activity = value;
-    this._base_activity = convertUnits(this.activity, this._activity_unit, this.default_units.activity);
+  set activity_value(value) {
+    this._activity_value = value;
+    this._base_activity_value = convertUnits(this.activity_value, this._activity_unit, this.default_units.activity);
     this.calculateValues('activity');
   }
 
-  get base_activity() {
-    return this._base_activity || 0;
+  get base_activity_value() {
+    return this._base_activity_value || 0;
   }
 
-  set base_activity(value) {
-    this._base_activity = value;
+  set base_activity_value(value) {
+    this._base_activity_value = value;
   }
 
   get activity_unit() {
@@ -149,80 +149,80 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   }
 
   set activity_unit(value) {
-    this._activity = convertUnits(this.activity, this.activity_unit, value);
+    this._activity_value = convertUnits(this.activity_value, this.activity_unit, value);
     this._activity_unit = value;
   }
 
-  get amount_as_used() {
-    return this._amount_as_used;
+  get amount_as_used_mol_value() {
+    return this._amount_as_used_mol_value;
   }
 
-  set amount_as_used(value) {
-    this._amount_as_used = value;
-    this._base_amount_as_used =
-      convertUnits(this.amount_as_used, this.amount_as_used_unit, this.default_units.amount_as_used);
+  set amount_as_used_mol_value(value) {
+    this._amount_as_used_mol_value = value;
+    this._base_amount_as_used_mol_value =
+      convertUnits(this.amount_as_used_mol_value, this.amount_as_used_mol_unit, this.default_units.amount_as_used_mol);
 
-    this._amount_as_used_weight = '';
-    this._base_amount_as_used_weight = 0;
+    this._amount_as_used_mass_value = '';
+    this._base_amount_as_used_mass_value = 0;
 
-    this.calculateValues('amount_as_used');
+    this.calculateValues('amount_as_used_mol');
   }
 
-  get base_amount_as_used() {
-    return this._base_amount_as_used || 0;
+  get base_amount_as_used_mol_value() {
+    return this._base_amount_as_used_mol_value || 0;
   }
 
-  set base_amount_as_used(value) {
-    this._base_amount_as_used = value;
+  set base_amount_as_used_mol_value(value) {
+    this._base_amount_as_used_mol_value = value;
   }
 
-  get amount_as_used_unit() {
-    return this._amount_as_used_unit || this.default_units.amount_as_used;
+  get amount_as_used_mol_unit() {
+    return this._amount_as_used_mol_unit || this.default_units.amount_as_used_mol;
   }
 
-  set amount_as_used_unit(value) {
-    this._amount_as_used = convertUnits(this.amount_as_used, this.amount_as_used_unit, value);
-    this._amount_as_used_unit = value;
+  set amount_as_used_mol_unit(value) {
+    this._amount_as_used_mol_value = convertUnits(this.amount_as_used_mol_value, this.amount_as_used_mol_unit, value);
+    this._amount_as_used_mol_unit = value;
   }
 
-  get amount_as_used_weight() {
-    return this._amount_as_used_weight;
+  get amount_as_used_mass_value() {
+    return this._amount_as_used_mass_value;
   }
 
-  set amount_as_used_weight(value) {
-    this._amount_as_used_weight = value;
-    this._base_amount_as_used_weight =
-      convertUnits(this.amount_as_used_weight, this.amount_as_used_weight_unit, this.default_units.amount_as_used_weight);
+  set amount_as_used_mass_value(value) {
+    this._amount_as_used_mass_value = value;
+    this._base_amount_as_used_mass_value =
+      convertUnits(this.amount_as_used_mass_value, this.amount_as_used_mass_unit, this.default_units.amount_as_used_mass);
 
-    this._amount_as_used = '';
-    this._base_amount_as_used = 0;
+    this._amount_as_used_mol_value = '';
+    this._base_amount_as_used_mol_value = 0;
 
-    this.calculateValues('amount_as_used_weight');
+    this.calculateValues('amount_as_used_mass');
   }
 
-  get base_amount_as_used_weight() {
-    return this._base_amount_as_used_weight || 0;
+  get base_amount_as_used_mass_value() {
+    return this._base_amount_as_used_mass_value || 0;
   }
 
-  set base_amount_as_used_weight(value) {
-    this._base_amount_as_used_weight = value;
+  set base_amount_as_used_mass_value(value) {
+    this._base_amount_as_used_mass_value = value;
   }
 
-  get amount_as_used_weight_unit() {
-    return this._amount_as_used_weight_unit || this.default_units.amount_as_used_weight;
+  get amount_as_used_mass_unit() {
+    return this._amount_as_used_mass_unit || this.default_units.amount_as_used_mass;
   }
 
-  set amount_as_used_weight_unit(value) {
-    this._amount_as_used_weight = convertUnits(this.amount_as_used_weight, this.amount_as_used_weight_unit, value);
-    this._amount_as_used_weight_unit = value;
+  set amount_as_used_mass_unit(value) {
+    this._amount_as_used_mass_value = convertUnits(this.amount_as_used_mass_value, this.amount_as_used_mass_unit, value);
+    this._amount_as_used_mass_unit = value;
   }
 
-  get concentration() {
-    return this._concentration;
+  get concentration_value() {
+    return this._concentration_value;
   }
 
-  set concentration(value) {
-    this._concentration = value;
+  set concentration_value(value) {
+    this._concentration_value = value;
   }
 
   get concentration_unit() {
@@ -230,7 +230,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   }
 
   set concentration_unit(value) {
-    this._concentration = convertUnits(this.concentration, this.concentration_unit, value);
+    this._concentration_value = convertUnits(this.concentration_value, this.concentration_unit, value);
     this._concentration_unit = value;
   }
 
@@ -242,22 +242,22 @@ export default class SequenceBasedMacromoleculeSample extends Element {
     this._function_or_application = value;
   }
 
-  get molarity() {
-    return this._molarity;
+  get molarity_value() {
+    return this._molarity_value;
   }
 
-  set molarity(value) {
-    this._molarity = value;
-    this._base_molarity = convertUnits(this.molarity, this.molarity_unit, this.default_units.molarity);
+  set molarity_value(value) {
+    this._molarity_value = value;
+    this._base_molarity_value = convertUnits(this.molarity_value, this.molarity_unit, this.default_units.molarity);
     this.calculateValues('molarity');
   }
 
-  get base_molarity() {
-    return this._base_molarity || 0;
+  get base_molarity_value() {
+    return this._base_molarity_value || 0;
   }
 
-  set base_molarity(value) {
-    this._base_molarity = value;
+  set base_molarity_value(value) {
+    this._base_molarity_value = value;
   }
 
   get molarity_unit() {
@@ -265,91 +265,91 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   }
 
   set molarity_unit(value) {
-    this._molarity = convertUnits(this.molarity, this.molarity_unit, value);
+    this._molarity_value = convertUnits(this.molarity_value, this.molarity_unit, value);
     this._molarity_unit = value;
   }
 
-  get stock_activity_ul() {
-    return this._stock_activity_ul;
+  get activity_per_volume_value() {
+    return this._activity_per_volume_value;
   }
 
-  set stock_activity_ul(value) {
-    this._stock_activity_ul = value;
-    this._base_stock_activity_ul =
-      convertUnits(this.stock_activity_ul, this.stock_activity_ul_unit, this.default_units.stock_activity_ul);
+  set activity_per_volume_value(value) {
+    this._activity_per_volume_value = value;
+    this._base_activity_per_volume_value =
+      convertUnits(this.activity_per_volume_value, this.activity_per_volume_unit, this.default_units.activity_per_volume);
     
-    this._stock_activity_ug = '';
-    this._base_stock_activity_ug = 0;
+    this._activity_per_mass_value = '';
+    this._base_activity_per_mass_value = 0;
     
-    this.calculateValues('stock_activity_ul');
+    this.calculateValues('activity_per_volume');
   }
 
-  get base_stock_activity_ul() {
-    return this._base_stock_activity_ul || 0;
+  get base_activity_per_volume_value() {
+    return this._base_activity_per_volume_value || 0;
   }
 
-  set base_stock_activity_ul(value) {
-    this._base_stock_activity_ul = value;
+  set base_activity_per_volume_value(value) {
+    this._base_activity_per_volume_value = value;
   }
 
-  get stock_activity_ul_unit() {
-    return this._stock_activity_ul_unit || this.default_units.stock_activity_ul;
+  get activity_per_volume_unit() {
+    return this._activity_per_volume_unit || this.default_units.activity_per_volume;
   }
 
-  set stock_activity_ul_unit(value) {
-    this._stock_activity_ul = convertUnits(this.stock_activity_ul, this.stock_activity_ul_unit, value);
-    this._stock_activity_ul_unit = value;
+  set activity_per_volume_unit(value) {
+    this._activity_per_volume_value = convertUnits(this.activity_per_volume_value, this.activity_per_volume_unit, value);
+    this._activity_per_volume_unit = value;
   }
 
-  get stock_activity_ug() {
-    return this._stock_activity_ug;
+  get activity_per_mass_value() {
+    return this._activity_per_mass_value;
   }
 
-  set stock_activity_ug(value) {
-    this._stock_activity_ug = value;
-    this._base_stock_activity_ug =
-      convertUnits(this.stock_activity_ug, this.stock_activity_ug_unit, this.default_units.stock_activity_ug);
+  set activity_per_mass_value(value) {
+    this._activity_per_mass_value = value;
+    this._base_activity_per_mass_value =
+      convertUnits(this.activity_per_mass_value, this.activity_per_mass_unit, this.default_units.activity_per_mass);
     
-    this._stock_activity_ul = '';
-    this._base_stock_activity_ul = 0;
+    this._activity_per_volume_value = '';
+    this._base_activity_per_volume_value = 0;
 
-    this.calculateValues('stock_activity_ug');
+    this.calculateValues('activity_per_mass');
   }
 
-  get base_stock_activity_ug() {
-    return this._base_stock_activity_ug || 0;
+  get base_activity_per_mass_value() {
+    return this._base_activity_per_mass_value || 0;
   }
 
-  set base_stock_activity_ug(value) {
-    this._base_stock_activity_ug = value;
+  set base_activity_per_mass_value(value) {
+    this._base_sactivity_per_mass_value = value;
   }
 
-  get stock_activity_ug_unit() {
-    return this._stock_activity_ug_unit || this.default_units.stock_activity_ug;
+  get activity_per_mass_unit() {
+    return this._activity_per_mass_unit || this.default_units.activity_per_mass;
   }
 
-  set stock_activity_ug_unit(value) {
-    this._stock_activity_ug = convertUnits(this.stock_activity_ug, this.stock_activity_ug_unit, value);
-    this._stock_activity_ug_unit = value;
+  set activity_per_mass_unit(value) {
+    this._activity_per_mass_value = convertUnits(this.activity_per_mass_value, this.activity_per_mass_unit, value);
+    this._activity_per_mass_unit = value;
   }
 
-  get volume_as_used() {
-    return this._volume_as_used;
+  get volume_as_used_value() {
+    return this._volume_as_used_value;
   }
 
-  set volume_as_used(value) {
-    this._volume_as_used = value;
-    this._base_volume_as_used =
-      convertUnits(this.volume_as_used, this.volume_as_used_unit, this.default_units.volume_as_used);
+  set volume_as_used_value(value) {
+    this._volume_as_used_value = value;
+    this._base_volume_as_used_value =
+      convertUnits(this.volume_as_used_value, this.volume_as_used_unit, this.default_units.volume_as_used);
     this.calculateValues('volume_as_used');
   }
 
-  get base_volume_as_used() {
-    return this._base_volume_as_used || 0;
+  get base_volume_as_used_value() {
+    return this._base_volume_as_used_value || 0;
   }
 
-  set base_volume_as_used(value) {
-    this._base_volume_as_used = value;
+  set base_volume_as_used_value(value) {
+    this._base_volume_as_used_value = value;
   }
 
   get volume_as_used_unit() {
@@ -357,7 +357,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   }
 
   set volume_as_used_unit(value) {
-    this._volume_as_used = convertUnits(this.volume_as_used, this.volume_as_used_unit, value);
+    this._volume_as_used_value = convertUnits(this.volume_as_used_value, this.volume_as_used_unit, value);
     this._volume_as_used_unit = value;
   }
 
@@ -381,22 +381,22 @@ export default class SequenceBasedMacromoleculeSample extends Element {
 
   serialize() {
     const serialized = super.serialize({
-      activity: this.activity,
+      activity_value: this.activity_value,
       activity_unit: this.activity_unit,
-      amount_as_used: this.amount_as_used,
-      amount_as_used_unit: this.amount_as_used_unit,
-      amount_as_used_weight: this.amount_as_used_weight,
-      amount_as_used_weight_unit: this.amount_as_used_weight_unit,
-      concentration: this.concentration,
+      amount_as_used_mol_value: this.amount_as_used_mol_value,
+      amount_as_used_mol_unit: this.amount_as_used_mol_unit,
+      amount_as_used_mass_value: this.amount_as_used_mass_value,
+      amount_as_used_mass_unit: this.amount_as_used_mass_unit,
+      concentration_value: this.concentration_value,
       concentration_unit: this.concentration_unit,
       function_or_application: this.function_or_application,
-      molarity: this.molarity,
+      molarity_value: this.molarity_value,
       molarity_unit: this.molarity_unit,
-      stock_activity_ug: this.stock_activity_ug,
-      stock_activity_ug_unit: this.stock_activity_ug_unit,
-      stock_activity_ul: this.stock_activity_ul,
-      stock_activity_ul_unit: this.stock_activity_ul_unit,
-      volume_as_used: this.volume_as_used,
+      activity_per_mass_value: this.activity_per_mass_value,
+      activity_per_mass_unit: this.activity_per_mass_unit,
+      activity_per_volume_value: this.activity_per_volume_value,
+      activity_per_volume_unit: this.activity_per_volume_unit,
+      volume_as_used_value: this.volume_as_used_value,
       volume_as_used_unit: this.volume_as_used_unit,
     });
     return serialized;

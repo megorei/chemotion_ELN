@@ -224,7 +224,7 @@ const initFormHelper = (element, store) => {
       const units = unitSystems[option_type];
       if (!units) { return null; }
 
-      const unitField = `${field}_unit`;
+      const unitField = `${field.replace('_value', '')}_unit`;
       const unitValue = elementField(element, unitField) || units[0].label;
 
       let unitTextOrButton = (
