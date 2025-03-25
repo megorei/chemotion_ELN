@@ -1,16 +1,28 @@
 import React, { useContext } from 'react';
 import { Row, Col, Accordion, } from 'react-bootstrap';
 import { initFormHelper } from 'src/utilities/FormHelper';
-import PostTranslationalModificationForm from './PostTranslationalModificationForm';
+import SequenceAndPostTranslationalModificationForm from './SequenceAndPostTranslationalModificationForm';
 
 import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 
-const ReferenceForm = ({ ident }) => {
+const ReferenceAndModificationForm = ({ ident }) => {
   const sequenceBasedMacromoleculeStore = useContext(StoreContext).sequenceBasedMacromolecules;
   let sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
   const formHelper = initFormHelper(sequenceBasedMacromolecule, sequenceBasedMacromoleculeStore);
-  const fieldPrefix = ident === 'sequence_modifications' ? 'sequence_modifications.' : 'reference.';
+
+  const isProtein = sequenceBasedMacromolecule.sequence_based_macromolecule.sbmm_type === 'protein';
+  const uniprotDerivationValue = sequenceBasedMacromolecule.sequence_based_macromolecule.uniprot_derivation;
+
+  let fieldPrefix = 'sequence_based_macromolecule';
+  if (ident === 'reference') {
+    fieldPrefix = sequenceBasedMacromolecule.sequence_based_macromolecule.parent ? `${fieldPrefix}.parent` : fieldPrefix;
+  }
+
+  const visibleForModification = isProtein && uniprotDerivationValue === 'uniprot_modified';
+
+  const showIfReferenceSelected = isProtein && (sequenceBasedMacromolecule[fieldPrefix]?.identifier
+    || sequenceBasedMacromolecule[fieldPrefix]?.other_reference_id || ident === 'sequence_modifications');
 
   const heterologousExpression = [
     { label: 'Yes', value: 'yes' },
@@ -21,19 +33,12 @@ const ReferenceForm = ({ ident }) => {
   const referenceAccordionHeader = () => {
     if (ident === 'sequence_modifications') {
       return " Properties of the modified sequence or own protein";
-    } else if (sequenceBasedMacromolecule.uniprot_derivation === 'uniprot') {
+    } else if (uniprotDerivationValue === 'uniprot') {
       return "Protein Identifiers and structural characteristics";
-    } else if (sequenceBasedMacromolecule.uniprot_derivation === 'uniprot_modified') {
+    } else if (uniprotDerivationValue === 'uniprot_modified') {
       return "Protein Identifiers and structural characteristics of reference entries"
     }
   }
-
-  const visibleForModification = sequenceBasedMacromolecule.sbmm_type === 'protein'
-    && sequenceBasedMacromolecule.uniprot_derivation === 'uniprot_modified';
-
-  const showIfReferenceSelected = sequenceBasedMacromolecule.sbmm_type === 'protein'
-    && (sequenceBasedMacromolecule.reference?.uniprot_number || sequenceBasedMacromolecule.reference?.other_reference_id
-      || ident === 'sequence_modifications');
 
   const handleCIFFileUpload = (field) => {
     console.log(field);
@@ -44,7 +49,7 @@ const ReferenceForm = ({ ident }) => {
   }
 
   const handleDrop = (item, field) => {
-    console.log(item);
+    console.log(item, field);
   }
 
   return (
@@ -66,7 +71,7 @@ const ReferenceForm = ({ ident }) => {
                   <label className="form-label">Reference</label>
                   {
                     formHelper.dropAreaForElement(
-                      'SEQUENCE_BASED_MACROMOLECULE', handleDrop, `${fieldPrefix}reference`,
+                      'SEQUENCE_BASED_MACROMOLECULE', handleDrop, `${fieldPrefix}.reference`,
                       'Drop sequence based macromolecule here'
                     )
                   }
@@ -79,69 +84,69 @@ const ReferenceForm = ({ ident }) => {
               <>
                 <Row className="mb-4 align-items-end">
                   {ident === 'reference' && (
-                    <Col>{formHelper.textInput(`${fieldPrefix}uniprot_number`, 'UniProt number', '')}</Col>
+                    <Col>{formHelper.textInput(`${fieldPrefix}.primary_accession`, 'UniProt number', '')}</Col>
                   )
                   }
-                  <Col>{formHelper.textInput(`${fieldPrefix}other_reference_id`, 'Other reference ID', '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.other_reference_id`, 'Other reference ID', '')}</Col>
                   {
                     ident === 'sequence_modifications' && (
-                      <Col>{formHelper.textInput(`${fieldPrefix}own_id`, 'Own ID', '')}</Col>
+                      <Col>{formHelper.textInput(`${fieldPrefix}.own_id`, 'Own ID', '')}</Col>
                     )
                   }
-                  <Col>{formHelper.textInput(`${fieldPrefix}short_name`, 'Short name', '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.short_name`, 'Short name', '')}</Col>
                 </Row>
                 <Row className="mb-4 align-items-end">
-                  <Col>{formHelper.numberInput(`${fieldPrefix}molecular_length`, 'Sequence length', '')}</Col>
+                  <Col>{formHelper.numberInput(`${fieldPrefix}.molecular_length`, 'Sequence length', '')}</Col>
                   <Col>
                     {formHelper.unitInput(
-                      `${fieldPrefix}molecular_weight`, 'Sequence mass (Da = g/mol)', 'molecular_weight', ''
+                      `${fieldPrefix}.molecular_weight`, 'Sequence mass (Da = g/mol)', 'molecular_weight', ''
                     )}
                   </Col>
                 </Row>
                 <Row className="mb-4 align-items-end">
-                  <Col>{formHelper.textInput(`${fieldPrefix}systematic_name`, 'Full name', '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.systematic_name`, 'Full name', '')}</Col>
                 </Row>
                 <Row className="mb-4 align-items-end">
                   {
                     visibleForModification && (
-                      <Col>{formHelper.textInput(`${fieldPrefix}pdb_doi`, 'Pdb DOI', '')}</Col>
+                      <Col>{formHelper.textInput(`${fieldPrefix}.pdb_doi`, 'Pdb DOI', '')}</Col>
                     )
                   }
-                  <Col>{formHelper.textInput(`${fieldPrefix}ec_number`, 'EC number', '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.ec_numbers`, 'EC number', '')}</Col>
                   <Col className="mb-2">
-                    {formHelper.checkboxInput(`${fieldPrefix}show_structure_details`, 'Show details about structural files')}
+                    {formHelper.checkboxInput(`${fieldPrefix}.show_structure_details`, 'Show details about structural files')}
                   </Col>
                 </Row>
                 <Row className="mb-4">
                   <Col>
-                    {formHelper.textareaInput(`${fieldPrefix}sequence`, 'Sequence of the structure', 2, '')}
+                    {formHelper.textareaInput(`${fieldPrefix}.sequence`, 'Sequence of the structure', 2, '')}
                   </Col>
                 </Row>
                 {
-                  ident === 'reference' && sequenceBasedMacromolecule.reference.show_structure_details && (
+                  ident === 'reference' && sequenceBasedMacromolecule[fieldPrefix]?.show_structure_details && (
                     <Row className="mb-4 align-items-end">
                       <Col>
                         <label className="form-label">Structure file cif</label>
-                        {formHelper.dropzone(`${fieldPrefix}structure_file_cif`, handleCIFFileUpload)}
+                        {formHelper.dropzone(`${fieldPrefix}.structure_file_cif`, handleCIFFileUpload)}
                       </Col>
                       <Col>
                         <label className="form-label">Structure file pdb</label>
-                        {formHelper.dropzone(`${fieldPrefix}structure_file_pdb`, handlePDBFileUpload)}
+                        {formHelper.dropzone(`${fieldPrefix}.structure_file_pdb`, handlePDBFileUpload)}
                       </Col>
                     </Row>
                   )
                 }
                 {
                   ident === 'sequence_modifications'
-                  && sequenceBasedMacromolecule.sequence_modifications?.show_structure_details && (
+                  && sequenceBasedMacromolecule[fieldPrefix]?.show_structure_details && (
                     <Row className="mb-4 align-items-end">
                       <Col>
                         <label className="form-label">Structure file cif</label>
-                        {formHelper.dropzone(`${fieldPrefix}structure_file_cif`, handleCIFFileUpload)}
+                        {formHelper.dropzone(`${fieldPrefix}.structure_file_cif`, handleCIFFileUpload)}
                       </Col>
                       <Col>
                         <label className="form-label">Structure file pdb</label>
-                        {formHelper.dropzone(`${fieldPrefix}structure_file_pdb`, handlePDBFileUpload)}
+                        {formHelper.dropzone(`${fieldPrefix}.structure_file_pdb`, handlePDBFileUpload)}
                       </Col>
                     </Row>
                   )
@@ -149,8 +154,8 @@ const ReferenceForm = ({ ident }) => {
                 {
                   ident === 'reference' && (
                     <Row className="mb-4 align-items-end">
-                      <Col>{formHelper.textInput(`${fieldPrefix}link_uniprot`, 'Link UniProt', '')}</Col>
-                      <Col>{formHelper.textInput(`${fieldPrefix}link_pdb`, 'Link pdb', '')}</Col>
+                      <Col>{formHelper.textInput(`${fieldPrefix}.link_uniprot`, 'Link UniProt', '')}</Col>
+                      <Col>{formHelper.textInput(`${fieldPrefix}.link_pdb`, 'Link pdb', '')}</Col>
                     </Row>
                   )
                 }
@@ -159,16 +164,16 @@ const ReferenceForm = ({ ident }) => {
                 <Row className="mb-4 align-items-end">
                   <Col>
                     {formHelper.selectInput(
-                      `${fieldPrefix}heterologous_expression`, 'Heterologous expression', heterologousExpression, ''
+                      `${fieldPrefix}.heterologous_expression`, 'Heterologous expression', heterologousExpression, ''
                     )}
                   </Col>
-                  <Col>{formHelper.textInput(`${fieldPrefix}organism`, 'Organism', '')}</Col>
-                  <Col>{formHelper.textInput(`${fieldPrefix}taxon_id`, 'Taxon ID', '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.organism`, 'Organism', '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.taxon_id`, 'Taxon ID', '')}</Col>
                 </Row>
                 <Row className="mb-4 align-items-end">
-                  <Col>{formHelper.textInput(`${fieldPrefix}strain`, 'Strain', '')}</Col>
-                  <Col>{formHelper.textInput(`${fieldPrefix}tissue`, 'Tissue', '')}</Col>
-                  <Col>{formHelper.textInput(`${fieldPrefix}localisation`, 'Localisation', '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.strain`, 'Strain', '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.tissue`, 'Tissue', '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.localisation`, 'Localisation', '')}</Col>
                 </Row>
               </>
             )
@@ -176,7 +181,7 @@ const ReferenceForm = ({ ident }) => {
           
           {
             ident === 'sequence_modifications' && (
-              <PostTranslationalModificationForm key="post-translational-modification" />
+              <SequenceAndPostTranslationalModificationForm key="sequence-and-post-translational-modification" />
             )
           }
         </Accordion.Body>
@@ -185,4 +190,4 @@ const ReferenceForm = ({ ident }) => {
   );
 }
 
-export default observer(ReferenceForm);
+export default observer(ReferenceAndModificationForm);
