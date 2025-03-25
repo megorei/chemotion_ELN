@@ -21,7 +21,7 @@ import GenericElsFetcher from 'src/fetchers/GenericElsFetcher';
 import PrivateNoteFetcher from 'src/fetchers/PrivateNoteFetcher'
 import MetadataFetcher from 'src/fetchers/MetadataFetcher';
 import DeviceDescriptionFetcher from 'src/fetchers/DeviceDescriptionFetcher';
-import SequenceBasedMacromoleculesFetcher from 'src/fetchers/SequenceBasedMacromoleculesFetcher';
+import SequenceBasedMacromoleculeSamplesFetcher from 'src/fetchers/SequenceBasedMacromoleculeSamplesFetcher';
 
 import GenericEl from 'src/models/GenericEl';
 import Sample from 'src/models/Sample';
@@ -366,7 +366,7 @@ class ElementActions {
 
   fetchSequenceBasedMacromoleculesByCollectionId(id, queryParams = {}, collectionIsSync = false) {
     return (dispatch) => {
-      SequenceBasedMacromoleculesFetcher.fetchByCollectionId(id, queryParams, collectionIsSync)
+      SequenceBasedMacromoleculeSamplesFetcher.fetchByCollectionId(id, queryParams, collectionIsSync)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
@@ -1013,7 +1013,7 @@ class ElementActions {
 
   fetchSequenceBasedMacromoleculeById(id) {
     return (dispatch) => {
-      SequenceBasedMacromoleculesFetcher.fetchById(id)
+      SequenceBasedMacromoleculeSamplesFetcher.fetchById(id)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
@@ -1024,7 +1024,7 @@ class ElementActions {
 
   updateSequenceBasedMacromolecule(params) {
     return (dispatch) => {
-      SequenceBasedMacromoleculesFetcher.updateSequenceBasedMacromolecule(params)
+      SequenceBasedMacromoleculeSamplesFetcher.updateSequenceBasedMacromolecule(params)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
@@ -1039,7 +1039,7 @@ class ElementActions {
 
   createSequenceBasedMacromolecule(params) {
     return (dispatch) => {
-      SequenceBasedMacromoleculesFetcher.createSequenceBasedMacromolecule(params)
+      SequenceBasedMacromoleculeSamplesFetcher.createSequenceBasedMacromolecule(params)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
@@ -1054,7 +1054,7 @@ class ElementActions {
 
   splitAsSubSequenceBasedMacromoleculeSample(ui_state) {
     return (dispatch) => {
-      SequenceBasedMacromoleculesFetcher.splitAsSubSequenceBasedMacromolecule(ui_state)
+      SequenceBasedMacromoleculeSamplesFetcher.splitAsSubSequenceBasedMacromolecule(ui_state)
         .then((result) => {
           dispatch(ui_state.ui_state);
         }).catch((errorMessage) => {

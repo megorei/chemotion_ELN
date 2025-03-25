@@ -1,7 +1,7 @@
 import { keys, values } from 'mobx';
 import { flow, types } from 'mobx-state-tree';
 
-import SequenceBasedMacromoleculesFetcher from 'src/fetchers/SequenceBasedMacromoleculesFetcher';
+import SequenceBasedMacromoleculeSamplesFetcher from 'src/fetchers/SequenceBasedMacromoleculeSamplesFetcher';
 import AttachmentFetcher from 'src/fetchers/AttachmentFetcher';
 import SequenceBasedMacromoleculeSample from 'src/models/SequenceBasedMacromoleculeSample';
 import Container from 'src/models/Container';
@@ -12,6 +12,13 @@ const toggableContents = {
   'sequence_modifications': false,
   'sample': false,
 };
+
+const modificationToggleButtons = {
+  phosphorylation: [],
+  glycosylation: [],
+  hydroxylation: [],
+  methylation: [],
+}
 
 export const SequenceBasedMacromoleculesStore = types
   .model({
@@ -36,6 +43,14 @@ export const SequenceBasedMacromoleculesStore = types
     show_search_result: types.optional(types.boolean, false),
   })
   .actions(self => ({
+    getLastObjectAndKeyByField(field, sequence_based_macromolecule) {
+      const fieldParts = field.split('.');
+      const lastKey = fieldParts.pop();
+      const lastObject = fieldParts.reduce(
+        (accumulator, currentValue) => accumulator[currentValue] ??= {}, sequence_based_macromolecule
+      );
+      return { lastObject, lastKey };
+    },
     addSequenceBasedMacromoleculeToOpen(sequence_based_macromolecule) {
       let openSequenceBasedMacromolecules = [...self.open_sequence_based_macromolecules];
       const index = openSequenceBasedMacromolecules.findIndex(s => s.id === sequence_based_macromolecule.id);
@@ -62,6 +77,9 @@ export const SequenceBasedMacromoleculesStore = types
       if (initial) {
         self.sequence_based_macromolecule_checksum = sequence_based_macromolecule._checksum;
       }
+      if (sequence_based_macromolecule.modification_toggle_buttons === undefined) {
+        sequence_based_macromolecule.modification_toggle_buttons = modificationToggleButtons;
+      }
       sequence_based_macromolecule.changed = false;
       const sequenceBasedMacromolecule = new SequenceBasedMacromoleculeSample(sequence_based_macromolecule);
 
@@ -77,11 +95,7 @@ export const SequenceBasedMacromoleculesStore = types
     },
     changeSequenceBasedMacromolecule(field, value) {
       let sequence_based_macromolecule = { ...self.sequence_based_macromolecule };
-      const fieldParts = field.split('.');
-      const lastKey = fieldParts.pop();
-      const lastObject = fieldParts.reduce(
-        (accumulator, currentValue) => accumulator[currentValue] ??= {}, sequence_based_macromolecule
-      );
+      const { lastObject, lastKey } = self.getLastObjectAndKeyByField(field, sequence_based_macromolecule);
       lastObject[lastKey] = value;
 
       sequence_based_macromolecule.updated = false;
@@ -174,6 +188,37 @@ export const SequenceBasedMacromoleculesStore = types
     closeSearchResult() {
       self.show_search_result = false;
     },
+    initModificationToggleButtons(fieldPrefix, field, group) {
+      if (self.sequence_based_macromolecule.modification_toggle_buttons[field].length < 1) {
+        const { lastObject, lastKey } = self.getLastObjectAndKeyByField(fieldPrefix, self.sequence_based_macromolecule);
+        let buttons = [];
+        group.options.map((option) => {
+          if (lastObject[lastKey][option.field]) {
+            buttons.push(option.field);
+          }
+        });
+        self.setModificationToggleButtons(fieldPrefix, field, buttons);
+      }
+      return self.sequence_based_macromolecule.modification_toggle_buttons[field];
+    },
+    setModificationToggleButtons(fieldPrefix, field, values) {
+      let sequence_based_macromolecule = { ...self.sequence_based_macromolecule };
+      let buttons = { ...sequence_based_macromolecule.modification_toggle_buttons };
+      const { lastObject, lastKey } = self.getLastObjectAndKeyByField(fieldPrefix, sequence_based_macromolecule);
+
+      if (buttons.length >= 1) {
+        buttons[field].map((key) => {
+          lastObject[lastKey][key] = false;
+        });
+      }
+      values.map((key) => {
+        lastObject[lastKey][key] = true;
+      });
+
+      buttons[field] = values;
+      sequence_based_macromolecule.modification_toggle_buttons = buttons;
+      self.setSequenceBasedMacromolecule(sequence_based_macromolecule);
+    }
   }))
   .views(self => ({
     get filteredAttachments() { return values(self.filtered_attachments) },

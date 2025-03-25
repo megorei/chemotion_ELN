@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Form, Row, Col, Accordion, Button, } from 'react-bootstrap';
 import { initFormHelper } from 'src/utilities/FormHelper';
-import ReferenceForm from './ReferenceForm';
+import ReferenceAndModificationForm from './ReferenceAndModificationForm';
 import SearchResults from './SearchResults';
 
 import { observer } from 'mobx-react';
@@ -23,9 +23,9 @@ const PropertiesForm = ({ readonly }) => {
     { label: 'Used modified protein', value: 'uniprot_modified' },
   ];
   const sbmmSearchBy = [
-    { label: 'UniProt ID', value: 'uniprot_id' },
-    { label: 'Name', value: 'uniprot_name' },
-    { label: 'EC-Number', value: 'uniprot_ec_number' },
+    { label: 'UniProt ID', value: 'accession' },
+    { label: 'Name', value: 'systematic_name' },
+    { label: 'EC-Number', value: 'ec' },
   ];
   const sampleFunctionOrApplication = [
     { label: 'Enzyme', value: 'enzyme' },
@@ -35,20 +35,25 @@ const PropertiesForm = ({ readonly }) => {
     { label: 'Energy source', value: 'energy_source' },
   ];
 
-  const visibleForUniprotOrModification = sequenceBasedMacromolecule.sbmm_type === 'protein'
-    && !['', undefined, 'uniprot_unknown'].includes(sequenceBasedMacromolecule.uniprot_derivation);
+  const isProtein = sequenceBasedMacromolecule.sequence_based_macromolecule?.sbmm_type === 'protein';
+  const uniprotDerivationValue = sequenceBasedMacromolecule.sequence_based_macromolecule?.uniprot_derivation;
+  const parent = sequenceBasedMacromolecule.sequence_based_macromolecule?.parent
+    ? sequenceBasedMacromolecule.sequence_based_macromolecule.parent
+    : sequenceBasedMacromolecule.sequence_based_macromolecule;
 
-  const visibleForUnkownOrModification = sequenceBasedMacromolecule.sbmm_type === 'protein'
-    && !['', undefined, 'uniprot'].includes(sequenceBasedMacromolecule.uniprot_derivation);
+  const visibleForUniprotOrModification =
+    isProtein && !['', undefined, 'uniprot_unknown'].includes(uniprotDerivationValue);
 
-  const showIfReferenceSelected = sequenceBasedMacromolecule.sbmm_type === 'protein'
-    && (sequenceBasedMacromolecule.reference?.uniprot_number || sequenceBasedMacromolecule.reference?.other_reference_id
-      || sequenceBasedMacromolecule.uniprot_derivation === 'uniprot_unknown');
+  const visibleForUnkownOrModification = isProtein && !['', undefined, 'uniprot'].includes(uniprotDerivationValue);
+
+  const showIfReferenceSelected =
+    isProtein && (parent?.identifier || parent?.other_reference_id || uniprotDerivationValue === 'uniprot_unknown');
 
   const showIfEnzymeIsSelected = sequenceBasedMacromolecule.function_or_application === 'enzyme';
 
-  const searchable = ['uniprot', 'uniprot_modified'].includes(sequenceBasedMacromolecule.uniprot_derivation)
-    && sequenceBasedMacromolecule.sbmm_search_by && sequenceBasedMacromolecule.sbmm_search_input;
+  const searchable = ['uniprot', 'uniprot_modified'].includes(uniprotDerivationValue)
+    && sequenceBasedMacromolecule.sequence_based_macromolecule.search_field
+    && sequenceBasedMacromolecule.sequence_based_macromolecule.search_term;
 
   const searchSequenceBasedMolecules = () => {
     if (searchable) {
@@ -57,7 +62,7 @@ const PropertiesForm = ({ readonly }) => {
     }
   }
 
-  //console.log(sequenceBasedMacromolecule);
+  console.log(sequenceBasedMacromolecule);
 
   return (
     <Form>
@@ -79,14 +84,19 @@ const PropertiesForm = ({ readonly }) => {
           <Accordion.Body>
             <Row className="mb-4 align-items-end">
               <Col>
-                {formHelper.selectInput('sbmm_type', 'Type', sbmmType, '')}
+                {formHelper.selectInput('sequence_based_macromolecule.sbmm_type', 'Type', sbmmType, '')}
               </Col>
               <Col>
-                {formHelper.selectInput('sbmm_subtype', 'Subtype of protein', sbmmSubType, '')}
+                {
+                  formHelper.selectInput(
+                    'sequence_based_macromolecule.sbmm_subtype', 'Subtype of protein', sbmmSubType, ''
+                  )
+                }
               </Col>
               <Col>
                 {formHelper.selectInput(
-                  'uniprot_derivation', 'Existence in UniProt or reference', uniprotDerivation, ''
+                  'sequence_based_macromolecule.uniprot_derivation', 'Existence in UniProt or reference',
+                  uniprotDerivation, ''
                 )}
               </Col>
             </Row>
@@ -95,10 +105,14 @@ const PropertiesForm = ({ readonly }) => {
               visibleForUniprotOrModification && (
                 <Row className="mb-4 align-items-end">
                   <Col>
-                    {formHelper.selectInput('sbmm_search_by', 'Search UniProt or Reference', sbmmSearchBy, '')}
+                    {
+                      formHelper.selectInput(
+                        'sequence_based_macromolecule.search_field', 'Search UniProt or Reference', sbmmSearchBy, ''
+                      )
+                    }
                   </Col>
                   <Col>
-                    {formHelper.textInput('sbmm_search_input', 'Input', '')}
+                    {formHelper.textInput('sequence_based_macromolecule.search_term', 'Search term', '')}
                   </Col>
                   <Col>
                     {
@@ -121,7 +135,7 @@ const PropertiesForm = ({ readonly }) => {
 
       {
         visibleForUniprotOrModification && (
-          <ReferenceForm
+          <ReferenceAndModificationForm
             ident="reference"
             key="reference_uniprot"
           />
@@ -129,7 +143,7 @@ const PropertiesForm = ({ readonly }) => {
       }
       {
         showIfReferenceSelected && visibleForUnkownOrModification && (
-          <ReferenceForm
+          <ReferenceAndModificationForm
             ident="sequence_modifications"
             key="sequence_modifications_uniprot"
           />
