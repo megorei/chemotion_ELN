@@ -48,7 +48,7 @@ const unitSystems = {
     { value: 'g_mol', label: 'g/mol' },
   ],
   volumes: [
-    { value: 'l', label: 'l' },
+    { value: 'L', label: 'L' },
     { value: 'ml', label: 'ml' },
     { value: 'ul', label: 'µl' },
     { value: 'nl', label: 'nl' },
@@ -61,7 +61,7 @@ const conversionFactors = {
   'µg': { factor: 1e-6 },
   'mg': { factor: 1e-3 },
 
-  'l': { factor: 1 },
+  'L': { factor: 1 },
   'ml': { factor: 1e-3 },
   'µl': { factor: 1e-6 },
   'nl': { factor: 1e-9 },
@@ -96,6 +96,17 @@ const conversionFactors = {
   'U/mg': { factor: 1e3 },
 };
 
+const default_units = {
+  activity: 'U',
+  amount_as_used_mol: 'mol',
+  amount_as_used_mass: 'g',
+  concentration: 'ng/L',
+  molarity: 'mol/L',
+  activity_per_volume: 'U/L',
+  activity_per_mass: 'U/g',
+  volume_as_used: 'L',
+};
+
 const convertUnits = (value, from, to) => {
   if (!from || !to || from === to) { return value; }
 
@@ -104,4 +115,4 @@ const convertUnits = (value, from, to) => {
   return parseFloat((value * factor).toFixed(8));
 }
 
-export { unitSystems, convertUnits, conversionFactors }
+export { unitSystems, convertUnits, conversionFactors, default_units }

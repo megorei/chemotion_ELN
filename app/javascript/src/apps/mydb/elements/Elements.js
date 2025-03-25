@@ -31,11 +31,12 @@ export default class Elements extends Component {
     if (currentElement && currentElement.type == 'device_description') {
       this.context.deviceDescriptions.addDeviceDescriptionToOpen(currentElement);
     }
-    this.setState({ currentElement });
     
     if (currentElement && currentElement.type == 'sequence_based_macromolecule_sample') {
       this.context.sequenceBasedMacromolecules.addSequenceBasedMacromoleculeToOpen(currentElement);
     }
+
+    this.setState({ currentElement });
   }
 
   render() {

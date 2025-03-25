@@ -46,7 +46,7 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
   let tabContents = [];
 
   useEffect(() => {
-    if (MatrixCheck(currentUser.matrix, commentActivation) && !sequenceBasedMacromolecule.isNew) {
+    if (sequenceBasedMacromolecule?.id && MatrixCheck(currentUser.matrix, commentActivation) && !sequenceBasedMacromolecule.isNew) {
       CommentActions.fetchComments(sequenceBasedMacromolecule);
     }
   }, []);

@@ -1,23 +1,12 @@
 import Element from 'src/models/Element';
 import Container from 'src/models/Container';
 import UserStore from 'src/stores/alt/stores/UserStore';
-import { convertUnits } from 'src/components/staticDropdownOptions/units';
+import { convertUnits, default_units } from 'src/components/staticDropdownOptions/units';
 
 export default class SequenceBasedMacromoleculeSample extends Element {
-  constructor(args) {
-    super(args);
-
-    this.default_units = {
-      activity: 'U',
-      amount_as_used_mol: 'mol',
-      amount_as_used_mass: 'g',
-      concentration: 'ng/L',
-      molarity: 'mol/L',
-      activity_per_volume: 'U/L',
-      activity_per_mass: 'U/g',
-      volume_as_used: 'l',
-    };
-  }
+  // constructor(args) {
+  //   super(args);
+  // }
 
   calculateValues(type) {
     // if the volume is added, we calculate the activity and the amount based on: 
@@ -71,11 +60,11 @@ export default class SequenceBasedMacromoleculeSample extends Element {
 
     this._activity_value = convertUnits(
       parseFloat((this.base_volume_as_used_value * this.base_activity_per_volume_value).toFixed(8)),
-      this.default_units.activity,
+      default_units.activity,
       this.activity_unit
     );
     this._base_activity_value =
-      convertUnits(this._activity_value, this.activity_unit, this.default_units.activity);
+      convertUnits(this._activity_value, this.activity_unit, default_units.activity);
   }
 
   calculateActivityByMass() {
@@ -83,11 +72,11 @@ export default class SequenceBasedMacromoleculeSample extends Element {
 
     this._activity_value = convertUnits(
       parseFloat((this.base_amount_as_used_mass_value * this.base_activity_per_mass_value).toFixed(8)),
-      this.default_units.activity,
+      default_units.activity,
       this.activity_unit
     );
     this._base_activity_value =
-      convertUnits(this._activity_value, this.activity_unit, this.default_units.activity);
+      convertUnits(this._activity_value, this.activity_unit, default_units.activity);
   }
 
   calculateAmountAsUsed() {
@@ -95,11 +84,11 @@ export default class SequenceBasedMacromoleculeSample extends Element {
 
     this._amount_as_used_mol_value = convertUnits(
       parseFloat((this.base_volume_as_used_value * this.base_molarity_value).toFixed(8)),
-      this.default_units.amount_as_used_mol,
+      default_units.amount_as_used_mol,
       this.amount_as_used_mol_unit
     );
     this._base_amount_as_used_mol_value =
-      convertUnits(this._amount_as_used_mol_value, this.amount_as_used_mol_unit, this.default_units.amount_as_used_mol);
+      convertUnits(this._amount_as_used_mol_value, this.amount_as_used_mol_unit, default_units.amount_as_used_mol);
   }
 
   calculateVolumeByActivity() {
@@ -107,11 +96,11 @@ export default class SequenceBasedMacromoleculeSample extends Element {
 
     this._volume_as_used_value = convertUnits(
       parseFloat((this.base_activity_value / this.base_activity_per_volume_value).toFixed(8)),
-      this.default_units.volume_as_used,
+      default_units.volume_as_used,
       this.volume_as_used_unit
     );
     this._base_volume_as_used_value =
-      convertUnits(this._volume_as_used_value, this.volume_as_used_unit, this.default_units.volume_as_used);
+      convertUnits(this._volume_as_used_value, this.volume_as_used_unit, default_units.volume_as_used);
   }
 
   calculateVolumeByAmount() {
@@ -119,11 +108,11 @@ export default class SequenceBasedMacromoleculeSample extends Element {
 
     this._volume_as_used_value = convertUnits(
       parseFloat((this.base_amount_as_used_mol_value / this.base_molarity_value).toFixed(8)),
-      this.default_units.volume_as_used,
+      default_units.volume_as_used,
       this.volume_as_used_unit
     );
     this._base_volume_as_used_value =
-      convertUnits(this._volume_as_used_value, this.volume_as_used_unit, this.default_units.volume_as_used);
+      convertUnits(this._volume_as_used_value, this.volume_as_used_unit, default_units.volume_as_used);
   }
 
   get activity_value() {
@@ -132,7 +121,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
 
   set activity_value(value) {
     this._activity_value = value;
-    this._base_activity_value = convertUnits(this.activity_value, this._activity_unit, this.default_units.activity);
+    this._base_activity_value = convertUnits(this.activity_value, this.activity_unit, default_units.activity);
     this.calculateValues('activity');
   }
 
@@ -145,7 +134,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   }
 
   get activity_unit() {
-    return this._activity_unit || this.default_units.activity;
+    return this._activity_unit || default_units.activity;
   }
 
   set activity_unit(value) {
@@ -160,7 +149,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   set amount_as_used_mol_value(value) {
     this._amount_as_used_mol_value = value;
     this._base_amount_as_used_mol_value =
-      convertUnits(this.amount_as_used_mol_value, this.amount_as_used_mol_unit, this.default_units.amount_as_used_mol);
+      convertUnits(this.amount_as_used_mol_value, this.amount_as_used_mol_unit, default_units.amount_as_used_mol);
 
     this._amount_as_used_mass_value = '';
     this._base_amount_as_used_mass_value = 0;
@@ -177,7 +166,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   }
 
   get amount_as_used_mol_unit() {
-    return this._amount_as_used_mol_unit || this.default_units.amount_as_used_mol;
+    return this._amount_as_used_mol_unit || default_units.amount_as_used_mol;
   }
 
   set amount_as_used_mol_unit(value) {
@@ -192,7 +181,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   set amount_as_used_mass_value(value) {
     this._amount_as_used_mass_value = value;
     this._base_amount_as_used_mass_value =
-      convertUnits(this.amount_as_used_mass_value, this.amount_as_used_mass_unit, this.default_units.amount_as_used_mass);
+      convertUnits(this.amount_as_used_mass_value, this.amount_as_used_mass_unit, default_units.amount_as_used_mass);
 
     this._amount_as_used_mol_value = '';
     this._base_amount_as_used_mol_value = 0;
@@ -209,7 +198,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   }
 
   get amount_as_used_mass_unit() {
-    return this._amount_as_used_mass_unit || this.default_units.amount_as_used_mass;
+    return this._amount_as_used_mass_unit || default_units.amount_as_used_mass;
   }
 
   set amount_as_used_mass_unit(value) {
@@ -226,7 +215,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   }
 
   get concentration_unit() {
-    return this._concentration_unit || this.default_units.concentration;
+    return this._concentration_unit || default_units.concentration;
   }
 
   set concentration_unit(value) {
@@ -248,7 +237,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
 
   set molarity_value(value) {
     this._molarity_value = value;
-    this._base_molarity_value = convertUnits(this.molarity_value, this.molarity_unit, this.default_units.molarity);
+    this._base_molarity_value = convertUnits(this.molarity_value, this.molarity_unit, default_units.molarity);
     this.calculateValues('molarity');
   }
 
@@ -261,7 +250,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   }
 
   get molarity_unit() {
-    return this._molarity_unit || this.default_units.molarity;
+    return this._molarity_unit || default_units.molarity;
   }
 
   set molarity_unit(value) {
@@ -276,7 +265,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   set activity_per_volume_value(value) {
     this._activity_per_volume_value = value;
     this._base_activity_per_volume_value =
-      convertUnits(this.activity_per_volume_value, this.activity_per_volume_unit, this.default_units.activity_per_volume);
+      convertUnits(this.activity_per_volume_value, this.activity_per_volume_unit, default_units.activity_per_volume);
     
     this._activity_per_mass_value = '';
     this._base_activity_per_mass_value = 0;
@@ -293,7 +282,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   }
 
   get activity_per_volume_unit() {
-    return this._activity_per_volume_unit || this.default_units.activity_per_volume;
+    return this._activity_per_volume_unit || default_units.activity_per_volume;
   }
 
   set activity_per_volume_unit(value) {
@@ -308,7 +297,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   set activity_per_mass_value(value) {
     this._activity_per_mass_value = value;
     this._base_activity_per_mass_value =
-      convertUnits(this.activity_per_mass_value, this.activity_per_mass_unit, this.default_units.activity_per_mass);
+      convertUnits(this.activity_per_mass_value, this.activity_per_mass_unit, default_units.activity_per_mass);
     
     this._activity_per_volume_value = '';
     this._base_activity_per_volume_value = 0;
@@ -325,7 +314,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   }
 
   get activity_per_mass_unit() {
-    return this._activity_per_mass_unit || this.default_units.activity_per_mass;
+    return this._activity_per_mass_unit || default_units.activity_per_mass;
   }
 
   set activity_per_mass_unit(value) {
@@ -340,7 +329,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   set volume_as_used_value(value) {
     this._volume_as_used_value = value;
     this._base_volume_as_used_value =
-      convertUnits(this.volume_as_used_value, this.volume_as_used_unit, this.default_units.volume_as_used);
+      convertUnits(this.volume_as_used_value, this.volume_as_used_unit, default_units.volume_as_used);
     this.calculateValues('volume_as_used');
   }
 
@@ -353,7 +342,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   }
 
   get volume_as_used_unit() {
-    return this._volume_as_used_unit || this.default_units.volume_as_used;
+    return this._volume_as_used_unit || default_units.volume_as_used;
   }
 
   set volume_as_used_unit(value) {
@@ -367,20 +356,117 @@ export default class SequenceBasedMacromoleculeSample extends Element {
       type: 'sequence_based_macromolecule_sample',
       name: 'New sequence based macromolecule',
       short_label: '',
+      external_label: '',
+      activity_per_mass_unit: 'U/g',
+      activity_per_mass_value: '',
+      activity_per_volume_unit: 'U/L',
+      activity_per_volume_value: '',
+      activity_unit: 'U',
+      activity_value: '',
+      amount_as_used_mass_unit: 'g',
+      amount_as_used_mass_value: '',
+      amount_as_used_mol_unit: 'mol',
+      amount_as_used_mol_value: '',
+      concentration_unit: 'ng/L',
+      concentration_value: '',
+      function_or_application: '',
+      molarity_unit: 'mol/L',
+      molarity_value: '',
+      volume_as_used_unit: 'L',
+      volume_as_used_value: '',
+      
+      sequence_based_macromolecule: {
+        accessions: '',
+        ec_numbers: '',
+        identifier: '',
+        link_uniprot: '',
+        localisation: '',
+        molecular_weight: '',
+        organism: '',
+        parent: '',
+        primary_accession: '',
+        sbmm_subtype: '',
+        sbmm_type: '',
+        sequence: '',
+        strain: '',
+        systematic_name: '',
+        taxon_id: '',
+        tissue: '',
+        uniprot_derivation: '',
+        uniprot_source: '',
+
+        post_translational_modifications: {
+          acetylation_enabled: false,
+          acetylation_lysin_number: 0,
+          glycosylation_enabled: false,
+          glycosylation_n_linked_asn_details: '',
+          glycosylation_n_linked_asn_enabled: false,
+          glycosylation_n_linked_lys_details: '',
+          glycosylation_n_linked_lys_enabled: false,
+          glycosylation_n_linked_ser_details: '',
+          glycosylation_n_linked_ser_enabled: false,
+          glycosylation_n_linked_thr_details: '',
+          glycosylation_n_linked_thr_enabled: false,
+          glycosylation_o_linked_asn_details: '',
+          glycosylation_o_linked_asn_enabled: false,
+          glycosylation_o_linked_lys_details: '',
+          glycosylation_o_linked_lys_enabled: false,
+          glycosylation_o_linked_ser_details: '',
+          glycosylation_o_linked_ser_enabled: false,
+          glycosylation_o_linked_thr_details: '',
+          glycosylation_o_linked_thr_enabled: false,
+          hydroxylation_enabled: false,
+          hydroxylation_lys_details: '',
+          hydroxylation_lys_enabled: false,
+          hydroxylation_pro_details: '',
+          hydroxylation_pro_enabled: false,
+          methylation_arg_details: '',
+          methylation_arg_enabled: false,
+          methylation_enabled: false,
+          methylation_glu_details: '',
+          methylation_glu_enabled: false,
+          methylation_lys_details: '',
+          methylation_lys_enabled: false,
+          other_modifications_details: '',
+          other_modifications_enabled: false,
+          phosphorylation_enabled: false,
+          phosphorylation_ser_details: '',
+          phosphorylation_ser_enabled: false,
+          phosphorylation_thr_details: '',
+          phosphorylation_thr_enabled: false,
+          phosphorylation_tyr_details: '',
+          phosphorylation_tyr_enabled: false,
+        },
+        protein_sequence_modifications: {
+          modification_n_terminal: false,
+          modification_n_terminal_details: '',
+          modification_c_terminal: false,
+          modification_c_terminal_details: '',
+          modification_insertion: false,
+          modification_insertion_details: '',
+          modification_deletion: false,
+          modification_deletion_details: '',
+          modification_mutation: false,
+          modification_mutation_details: '',
+          modification_other: false,
+          modification_other_details: '',
+        },
+      },
+
       isNew: true,
       changed: false,
       updated: false,
       can_copy: false,
       container: Container.init(),
       attachments: [],
-      segments: [],
-      reference: {},
-      post_translational_modifications: {},
     });
   }
 
   serialize() {
-    const serialized = super.serialize({
+    const serialized = {
+      collection_id: this.collection_id,
+      name: this.name,
+      short_label: this.short_label,
       activity_value: this.activity_value,
       activity_unit: this.activity_unit,
       amount_as_used_mol_value: this.amount_as_used_mol_value,
@@ -398,7 +484,30 @@ export default class SequenceBasedMacromoleculeSample extends Element {
       activity_per_volume_unit: this.activity_per_volume_unit,
       volume_as_used_value: this.volume_as_used_value,
       volume_as_used_unit: this.volume_as_used_unit,
-    });
+      sequence_based_macromolecule_attributes: {
+        accessions: this.sequence_based_macromolecule.accessions,
+        ec_numbers: this.sequence_based_macromolecule.ec_numbers,
+        identifier: this.sequence_based_macromolecule.identifier,
+        link_uniprot: this.sequence_based_macromolecule.link_uniprot,
+        localisation: this.sequence_based_macromolecule.localisation,
+        molecular_weight: this.sequence_based_macromolecule.molecular_weight,
+        organism: this.sequence_based_macromolecule.organism,
+        parent: this.sequence_based_macromolecule.parent,
+        primary_accession: this.sequence_based_macromolecule.primary_accession,
+        sbmm_subtype: this.sequence_based_macromolecule.sbmm_subtype,
+        sbmm_type: this.sequence_based_macromolecule.sbmm_type,
+        sequence: this.sequence_based_macromolecule.sequence,
+        strain: this.sequence_based_macromolecule.strain,
+        systematic_name: this.sequence_based_macromolecule.systematic_name,
+        taxon_id: this.sequence_based_macromolecule.taxon_id,
+        tissue: this.sequence_based_macromolecule.tissue,
+        uniprot_derivation: this.sequence_based_macromolecule.uniprot_derivation,
+        uniprot_source: this.sequence_based_macromolecule.uniprot_source,
+
+        post_translational_modification_attributes: this.sequence_based_macromolecule.post_translational_modifications,
+        protein_sequence_modification_attributes: this.sequence_based_macromolecule.protein_sequence_modifications,
+      },
+    };
     return serialized;
   }
 

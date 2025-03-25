@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  InputGroup, OverlayTrigger, Tooltip, Button, Form, Row, Col,
+  InputGroup, OverlayTrigger, Tooltip, Button, Form, Row, Col, ToggleButtonGroup, ToggleButton,
 } from 'react-bootstrap';
 import { Select } from 'src/components/common/Select';
 import { useDrop } from 'react-dnd';
@@ -9,6 +9,7 @@ import Dropzone from 'react-dropzone';
 import { v4 as uuid } from 'uuid';
 
 import { unitSystems } from 'src/components/staticDropdownOptions/units';
+import { capitalizeWords } from 'src/utilities/textHelper';
 import { elementShowOrNew } from 'src/utilities/routesUtils';
 import UIStore from 'src/stores/alt/stores/UIStore';
 
@@ -45,15 +46,12 @@ const elementField = (element, field) => {
   return fieldParts.reduce((accumulator, currentValue) => accumulator?.[currentValue], element);
 }
 
-const optionsByRelatedField = (element, field, options) => {
+const optionsByRelatedField = (store, element, field, options) => {
   const relatedOptions = options.filter((o) => o.related !== undefined);
   if (relatedOptions.length < 1) { return options; }
 
-  const fieldParts = field.split('.');
-  const lastKey = fieldParts.pop();
-  const lastObject = fieldParts.reduce(
-    (accumulator, currentValue) => accumulator[currentValue] ??= {}, element
-  );
+  const { lastObject, lastKey } = store.getLastObjectAndKeyByField(field, element);
+
   if (lastObject[relatedOptions[0].related] !== '' || lastObject[relatedOptions[0].related] !== undefined) {
     return relatedOptions.filter((o) => o.only === lastObject[relatedOptions[0].related]);
   } else {
@@ -123,7 +121,7 @@ const initFormHelper = (element, store) => {
             name={field}
             type="text"
             key={`${store.key_prefix}-${field}`}
-            value={value}
+            value={value || ''}
             onChange={(event) => formHelper.onChange(field, event.target.value)}
           />
         </Form.Group>
@@ -146,7 +144,7 @@ const initFormHelper = (element, store) => {
 
     selectInput: (field, label, options, info) => {
       const elementValue = elementField(element, field);
-      const relatedOptions = optionsByRelatedField(element, field, options);
+      const relatedOptions = optionsByRelatedField(store, element, field, options);
       let value = options.find((o) => { return o.value == elementValue });
       value = value === undefined ? '' : value;
 
@@ -284,6 +282,90 @@ const initFormHelper = (element, store) => {
         >
           <i className="fa fa-trash-o" />
         </Button>
+      );
+    },
+
+    toggleButton: (fieldPrefix, field, buttonGroups) => {
+      let groups = [];
+
+      buttonGroups.map((group, i) => {
+        //const buttons = store.initModificationToggleButtons(fieldPrefix, field, group);
+        const buttons = element.modification_toggle_buttons[field];
+        console.log(buttons,);
+
+        groups.push(
+          <div key={`${field}-${group.label}-${i}-buttons`}>
+            <div key={`${field}-${group.label}-${i}-label`} className="form-label">{group.label}</div>
+            
+            <ToggleButtonGroup
+              key={`${field}-${group.label}-${i}`}
+              type="checkbox"
+              value={buttons || []}
+              onChange={(value) => store.setModificationToggleButtons(fieldPrefix, field, value)}
+              className="mb-4"
+            >
+              {
+                group.options.map((option) => (
+                  <ToggleButton
+                    size="md"
+                    variant="outline-primary"
+                    id={`btn-${option.value}`}
+                    value={option.field}
+                    key={`button-${option.field}-${i}`}
+                  >
+                    {option.label}
+                  </ToggleButton>
+                ))
+              }
+            </ToggleButtonGroup>
+          </div>
+        );
+      });
+
+      return (
+        <div className="d-flex gap-3" key={`${field}-groups`}>
+          {groups}
+        </div>
+      );
+    },
+
+    multiToggleButtonsWithDetailField: (field, fieldPrefix, fieldSuffix, buttonGroups, headline) => {
+      const buttons = formHelper.toggleButton(fieldPrefix, field, buttonGroups);
+      const modificationToggleButtons = element.modification_toggle_buttons[field];
+      const { lastObject, lastKey } = store.getLastObjectAndKeyByField(fieldPrefix, element);
+      let details = [];
+
+      modificationToggleButtons.sort().map((key, i) => {
+        if (lastObject[lastKey][key]) {
+          const ident = key.replace(/^.*?_/, '').replace(/_.*$/, '');
+
+          details.push(
+            <div className="mb-2" key={`detail-${ident}-${i}`}>
+              {
+                formHelper.inputGroupTextOrNumericInput(
+                  `${fieldPrefix}.${field}_${ident}_${fieldSuffix}`, '', capitalizeWords(ident), 'text', ''
+                )
+              }
+            </div>
+          );
+        }
+      });
+
+      return (
+        <Row>
+          <Col className="mb-4">
+            <h5 className="mb-3">{headline}</h5>
+            {buttons}
+            {
+              details.length >= 1 && (
+                <div key={`detail-fields`}>
+                  <Form.Label>Details</Form.Label>
+                  {details}
+                </div>
+              )
+            }
+          </Col>
+        </Row>
       );
     },
 

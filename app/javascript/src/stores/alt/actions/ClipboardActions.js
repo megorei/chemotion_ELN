@@ -3,7 +3,7 @@ import SamplesFetcher from 'src/fetchers/SamplesFetcher';
 import WellplatesFetcher from 'src/fetchers/WellplatesFetcher';
 import DeviceDescriptionFetcher from 'src/fetchers/DeviceDescriptionFetcher';
 import DeviceDescription from 'src/models/DeviceDescription';
-import SequenceBasedMacromoleculesFetcher from 'src/fetchers/SequenceBasedMacromoleculesFetcher';
+import SequenceBasedMacromoleculeSamplesFetcher from 'src/fetchers/SequenceBasedMacromoleculeSamplesFetcher';
 import SequenceBasedMacromoleculeSample from 'src/models/SequenceBasedMacromoleculeSample';
 
 class ClipboardActions {
@@ -42,7 +42,7 @@ class ClipboardActions {
 
   fetchSequenceBasedMacromoleculesByUIState(params, action) {
     return (dispatch) => {
-      SequenceBasedMacromoleculesFetcher.fetchSequenceBasedMacromoleculesByUIStateAndLimit(params)
+      SequenceBasedMacromoleculeSamplesFetcher.fetchSequenceBasedMacromoleculesByUIStateAndLimit(params)
         .then((result) => {
           dispatch(
             { sequence_based_macromolecules: result, collection_id: params.ui_state.collection_id, action: action }

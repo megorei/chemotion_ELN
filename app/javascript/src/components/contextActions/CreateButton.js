@@ -272,12 +272,13 @@ export default class CreateButton extends React.Component {
 
   createElementOfType(type) {
     const { currentCollection, isSync } = UIStore.getState();
+    const newType = type === 'sequence_based_macromolecule' ? 'sequence_based_macromolecule_sample' : type;
     const uri = isSync
-      ? `/scollection/${currentCollection.id}/${type}/new`
-      : `/collection/${currentCollection.id}/${type}/new`;
+      ? `/scollection/${currentCollection.id}/${newType}/new`
+      : `/collection/${currentCollection.id}/${newType}/new`;
     Aviator.navigate(uri, { silent: true });
-    const e = { type, params: { collectionID: currentCollection.id } };
-    e.params[`${type}ID`] = 'new'
+    const e = { type: newType, params: { collectionID: currentCollection.id } };
+    e.params[`${newType}ID`] = 'new'
     const genericEls = (UserStore.getState() && UserStore.getState().genericEls) || [];
     if (genericEls.find(el => el.name == type)) {
       e.klassType = 'GenericEl';
