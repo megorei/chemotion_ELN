@@ -15,18 +15,16 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
     const limit = params.limit ? limit : null;
     console.log('fetchSequenceBasedMacromoleculesByUIStateAndLimit');
 
-    return [];
-
-    // return fetch('/api/v1/sequence_based_macromolecules/ui_state/', 
-    //   {
-    //     ...this._httpOptions('POST'),
-    //     body: JSON.stringify(params)
-    //   }
-    // ).then(response => response.json())
-    //   .then((json) => {
-    //     return json.sequence_based_macromolecules.map((d) => new SequenceBasedMacromoleculeSample(d))
-    //   })
-    //   .catch(errorMessage => console.log(errorMessage));
+    return fetch('/api/v1/sequence_based_macromolecule_samples/ui_state/', 
+      {
+        ...this._httpOptions('POST'),
+        body: JSON.stringify(params)
+      }
+    ).then(response => response.json())
+      .then((json) => {
+        return json.sequence_based_macromolecule_samples.map((d) => new SequenceBasedMacromoleculeSample(d))
+      })
+      .catch(errorMessage => console.log(errorMessage));
   }
 
   static splitAsSubSequenceBasedMacromolecule(params) {
@@ -42,13 +40,13 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
     //   .catch(errorMessage => console.log(errorMessage));
   }
 
-  static fetchById(sequenceBasedMacromoleculeId) {
-    //const sequence_based_macromolecule = this._fakeElement(sequenceBasedMacromoleculeId);
+  static fetchById(sequenceBasedMacromoleculeSampleId) {
+    //const sequence_based_macromolecule = this._fakeElement(sequenceBasedMacromoleculeSampleId);
     //sequence_based_macromolecule._checksum = sequence_based_macromolecule.checksum();
     //return Promise.resolve(sequence_based_macromolecule);
 
     return fetch(
-      `/api/v1/sequence_based_macromolecule_samples/${sequenceBasedMacromoleculeId}`,
+      `/api/v1/sequence_based_macromolecule_samples/${sequenceBasedMacromoleculeSampleId}`,
       { ...this._httpOptions() }
     ).then(response => response.json())
       .then((json) => {
@@ -57,7 +55,8 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
             { id: `${id}:error:SequenceBasedMacromoleculeSample ${id} is not accessible!`, is_new: true }
           );
         } else {
-          const sequence_based_macromolecule_sample = new SequenceBasedMacromoleculeSample(json.sequence_based_macromolecule_sample);
+          const sequence_based_macromolecule_sample =
+            new SequenceBasedMacromoleculeSample(json.sequence_based_macromolecule_sample);
           sequence_based_macromolecule_sample._checksum = sequence_based_macromolecule_sample.checksum();
           return sequence_based_macromolecule_sample;
         }
@@ -65,25 +64,25 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
       .catch(errorMessage => console.log(errorMessage));
   }
 
-  static createSequenceBasedMacromolecule(sequenceBasedMacromolecule) {
-    const containerFiles = AttachmentFetcher.getFileListfrom(sequenceBasedMacromolecule.container);
-    const newFiles = (sequenceBasedMacromolecule.attachments || []).filter((a) => a.is_new && !a.is_deleted);
-
-    // return Promise.resolve(this._fakeElement(2));
+  static createSequenceBasedMacromolecule(sequenceBasedMacromoleculeSample) {
+    const containerFiles = AttachmentFetcher.getFileListfrom(sequenceBasedMacromoleculeSample.container);
+    const newFiles = (sequenceBasedMacromoleculeSample.attachments || []).filter((a) => a.is_new && !a.is_deleted);
 
     const promise = () => fetch(
       `/api/v1/sequence_based_macromolecule_samples`,
       {
         ...this._httpOptions('POST'),
-        body: JSON.stringify(sequenceBasedMacromolecule.serialize())
+        body: JSON.stringify(sequenceBasedMacromoleculeSample.serialize())
       }
     ).then(response => response.json())
       .then((json) => {
         if (newFiles.length <= 0) {
-          return new SequenceBasedMacromoleculeSample(json.sequence_based_macromolecule);
+          return new SequenceBasedMacromoleculeSample(json.sequence_based_macromolecule_sample);
         }
-        return AttachmentFetcher.updateAttachables(newFiles, 'SequenceBasedMacromoleculeSample', json.sequence_based_macromolecule.id, [])()
-          .then(() => new SequenceBasedMacromoleculeSample(json.sequence_based_macromolecule));
+        return AttachmentFetcher.updateAttachables(
+          newFiles, 'SequenceBasedMacromoleculeSample', json.sequence_based_macromolecule_sample.id, []
+        )()
+          .then(() => new SequenceBasedMacromoleculeSample(json.sequence_based_macromolecule_sample));
       })
       .catch(errorMessage => console.log(errorMessage));
 
@@ -129,14 +128,12 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
     //   .then(() => promise());
   }
 
-  static deleteSequenceBasedMacromolecule(sequenceBasedMacromoleculeId) {
-    return [];
-
-    // return fetch(
-    //   `/api/v1/sequence_based_macromolecule_samples/${sequenceBasedMacromoleculeId}`,
-    //   { ...this._httpOptions('DELETE') }
-    // ).then(response => response.json())
-    //   .catch(errorMessage => console.log(errorMessage));
+  static deleteSequenceBasedMacromolecule(sequenceBasedMacromoleculeSampleId) {
+    return fetch(
+      `/api/v1/sequence_based_macromolecule_samples/${sequenceBasedMacromoleculeSampleId}`,
+      { ...this._httpOptions('DELETE') }
+    ).then(response => response.json())
+      .catch(errorMessage => console.log(errorMessage));
   }
 
   static _fakeElement(sequenceBasedMacromoleculeId) {

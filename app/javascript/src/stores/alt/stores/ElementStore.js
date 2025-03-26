@@ -1012,7 +1012,7 @@ class ElementStore {
   }
 
   handleCreateSequenceBasedMacromolecule(sequence_based_macromolecule) {
-    this.handleRefreshElements('sequence_based_macromolecule');
+    this.handleRefreshElements('sequence_based_macromolecule_sample');
     this.navigateToNewElement(sequence_based_macromolecule);
   }
 

@@ -13,14 +13,14 @@ import { capitalizeWords } from 'src/utilities/textHelper';
 import { elementShowOrNew } from 'src/utilities/routesUtils';
 import UIStore from 'src/stores/alt/stores/UIStore';
 
-const inputByType = (object, field, index, formHelper) => {
+const inputByType = (object, field, index, formHelper, disabled) => {
   const fullFieldName = `${field}.${index}.${object.value}`
   switch (object.type) {
     case 'text':
-      return formHelper.textInput(fullFieldName, '', object.info);
+      return formHelper.textInput(fullFieldName, '', disabled, object.info);
     case 'select':
-      return formHelper.selectInput(fullFieldName, '', object.options, object.info);
-  } 
+      return formHelper.selectInput(fullFieldName, '', object.options, disabled, object.info);
+  }
 }
 
 const labelWithInfo = (label, info) => {
@@ -112,7 +112,7 @@ const changeUnit = (store, element, units, unitField, unitValue) => {
 
 const initFormHelper = (element, store) => {
   const formHelper = {
-    textInput: (field, label, info) => {
+    textInput: (field, label, disabled, info) => {
       const value = elementField(element, field);
       return (
         <Form.Group key={`${store.key_prefix}-${label}-group`}>
@@ -122,13 +122,14 @@ const initFormHelper = (element, store) => {
             type="text"
             key={`${store.key_prefix}-${field}`}
             value={value || ''}
+            disabled={disabled}
             onChange={(event) => formHelper.onChange(field, event.target.value)}
           />
         </Form.Group>
       );
     },
 
-    checkboxInput: (field, label) => {
+    checkboxInput: (field, label, disabled) => {
       const value = elementField(element, field);
       return (
         <Form.Check
@@ -137,12 +138,13 @@ const initFormHelper = (element, store) => {
           key={`${store.key_prefix}-${field}`}
           label={label}
           checked={value}
+          disabled={disabled}
           onChange={(event) => formHelper.onChange(field, event.target.checked)}
         />
       );
     },
 
-    selectInput: (field, label, options, info) => {
+    selectInput: (field, label, options, disabled, info) => {
       const elementValue = elementField(element, field);
       const relatedOptions = optionsByRelatedField(store, element, field, options);
       let value = options.find((o) => { return o.value == elementValue });
@@ -157,13 +159,14 @@ const initFormHelper = (element, store) => {
             options={relatedOptions}
             value={value}
             isClearable={true}
+            isDisabled={disabled}
             onChange={(event) => formHelper.onChange(field, (event?.value || event?.label || ''))}
           />
         </Form.Group>
       );
     },
 
-    numberInput: (field, label, info) => {
+    numberInput: (field, label, disabled, info) => {
       const value = elementField(element, field);
       return (
         <Form.Group key={`${store.key_prefix}-${label}`}>
@@ -173,13 +176,14 @@ const initFormHelper = (element, store) => {
             type="text"
             key={`${store.key_prefix}-${field}`}
             value={numberValue(value)}
+            disabled={disabled}
             onChange={(event) => formHelper.onChange(field, event.target.value)}
           />
         </Form.Group>
       );
     },
 
-    textareaInput: (field, label, rows, info) => {
+    textareaInput: (field, label, rows, disabled, info) => {
       const value = elementField(element, field);
       return (
         <Form.Group key={`${store.key_prefix}-${label}`}>
@@ -190,13 +194,14 @@ const initFormHelper = (element, store) => {
             key={`${store.key_prefix}-${field}`}
             value={value || ''}
             rows={rows}
+            disabled={disabled}
             onChange={(event) => formHelper.onChange(field, event.target.value)}
           />
         </Form.Group>
       );
     },
 
-    inputGroupTextOrNumericInput: (field, label, text, type, info) => {
+    inputGroupTextOrNumericInput: (field, label, text, type, disabled, info) => {
       let value = elementField(element, field);
       value = type == 'number' ? numberValue(value) : value || '';
 
@@ -210,6 +215,7 @@ const initFormHelper = (element, store) => {
               type="text"
               key={`${store.key_prefix}-${field}`}
               value={value || ''}
+              disabled={disabled}
               onChange={(event) => formHelper.onChange(field, event.target.value)}
             />
           </InputGroup>
@@ -217,7 +223,7 @@ const initFormHelper = (element, store) => {
       );
     },
 
-    unitInput: (field, label, option_type, info) => {
+    unitInput: (field, label, option_type, disabled, info) => {
       const value = numberValue(elementField(element, field));
       const units = unitSystems[option_type];
       if (!units) { return null; }
@@ -250,6 +256,7 @@ const initFormHelper = (element, store) => {
               type="text"
               key={`${store.key_prefix}-${field}`}
               value={value || ''}
+              disabled={disabled}
               onChange={(event) => formHelper.onChange(field, event.target.value, 'number')}
               className="flex-grow-1"
             />
@@ -291,7 +298,7 @@ const initFormHelper = (element, store) => {
       buttonGroups.map((group, i) => {
         //const buttons = store.initModificationToggleButtons(fieldPrefix, field, group);
         const buttons = element.modification_toggle_buttons[field];
-        console.log(buttons,);
+        console.log(buttons);
 
         groups.push(
           <div key={`${field}-${group.label}-${i}-buttons`}>
@@ -329,7 +336,7 @@ const initFormHelper = (element, store) => {
       );
     },
 
-    multiToggleButtonsWithDetailField: (field, fieldPrefix, fieldSuffix, buttonGroups, headline) => {
+    multiToggleButtonsWithDetailField: (field, fieldPrefix, fieldSuffix, buttonGroups, headline, disabled) => {
       const buttons = formHelper.toggleButton(fieldPrefix, field, buttonGroups);
       const modificationToggleButtons = element.modification_toggle_buttons[field];
       const { lastObject, lastKey } = store.getLastObjectAndKeyByField(fieldPrefix, element);
@@ -343,7 +350,7 @@ const initFormHelper = (element, store) => {
             <div className="mb-2" key={`detail-${ident}-${i}`}>
               {
                 formHelper.inputGroupTextOrNumericInput(
-                  `${fieldPrefix}.${field}_${ident}_${fieldSuffix}`, '', capitalizeWords(ident), 'text', ''
+                  `${fieldPrefix}.${field}_${ident}_${fieldSuffix}`, '', capitalizeWords(ident), 'text', disabled, ''
                 )
               }
             </div>
@@ -369,7 +376,7 @@ const initFormHelper = (element, store) => {
       );
     },
 
-    multipleRowInput: (field, rowFields, headline) => {
+    multipleRowInput: (field, rowFields, headline, disabled) => {
       let rows = [];
       let headerCols = [];
       let colWidth = Math.round(12 / rowFields.length);
@@ -383,7 +390,7 @@ const initFormHelper = (element, store) => {
             const col = j === 0 ? colWidth - 1 : colWidth;
             fields.push(
               <Col xs={col}>
-                {inputByType(entry, field, i, formHelper)}
+                {inputByType(entry, field, i, formHelper, disabled)}
               </Col>
             );
           });

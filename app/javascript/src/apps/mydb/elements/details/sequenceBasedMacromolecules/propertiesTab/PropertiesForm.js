@@ -11,6 +11,7 @@ const PropertiesForm = ({ readonly }) => {
   const sequenceBasedMacromoleculeStore = useContext(StoreContext).sequenceBasedMacromolecules;
   const sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
   const formHelper = initFormHelper(sequenceBasedMacromolecule, sequenceBasedMacromoleculeStore);
+  const disabled = false;
 
   const sbmmType = [{ label: 'Protein', value: 'protein' }];
   const sbmmSubType = [
@@ -47,7 +48,8 @@ const PropertiesForm = ({ readonly }) => {
   const visibleForUnkownOrModification = isProtein && !['', undefined, 'uniprot'].includes(uniprotDerivationValue);
 
   const showIfReferenceSelected =
-    isProtein && (parent?.identifier || parent?.other_reference_id || uniprotDerivationValue === 'uniprot_unknown');
+    isProtein && (parent?.identifier || sequenceBasedMacromolecule.sequence_based_macromolecule?.parent_identifier
+      || parent?.other_reference_id || uniprotDerivationValue === 'uniprot_unknown');
 
   const showIfEnzymeIsSelected = sequenceBasedMacromolecule.function_or_application === 'enzyme';
 
@@ -84,12 +86,12 @@ const PropertiesForm = ({ readonly }) => {
           <Accordion.Body>
             <Row className="mb-4 align-items-end">
               <Col>
-                {formHelper.selectInput('sequence_based_macromolecule.sbmm_type', 'Type', sbmmType, '')}
+                {formHelper.selectInput('sequence_based_macromolecule.sbmm_type', 'Type', sbmmType, disabled, '')}
               </Col>
               <Col>
                 {
                   formHelper.selectInput(
-                    'sequence_based_macromolecule.sbmm_subtype', 'Subtype of protein', sbmmSubType, ''
+                    'sequence_based_macromolecule.sbmm_subtype', 'Subtype of protein', sbmmSubType, disabled, ''
                   )
                 }
               </Col>
@@ -107,12 +109,12 @@ const PropertiesForm = ({ readonly }) => {
                   <Col>
                     {
                       formHelper.selectInput(
-                        'sequence_based_macromolecule.search_field', 'Search UniProt or Reference', sbmmSearchBy, ''
+                        'sequence_based_macromolecule.search_field', 'Search UniProt or Reference', sbmmSearchBy, disabled, ''
                       )
                     }
                   </Col>
                   <Col>
-                    {formHelper.textInput('sequence_based_macromolecule.search_term', 'Search term', '')}
+                    {formHelper.textInput('sequence_based_macromolecule.search_term', 'Search term', disabled, '')}
                   </Col>
                   <Col>
                     {
@@ -166,7 +168,7 @@ const PropertiesForm = ({ readonly }) => {
                 <Row className="mb-4 align-items-end">
                   <Col>
                     {formHelper.selectInput(
-                      'function_or_application', 'Function or application', sampleFunctionOrApplication, ''
+                      'function_or_application', 'Function or application', sampleFunctionOrApplication, disabled, ''
                     )}
                   </Col>
                 </Row>
@@ -174,22 +176,22 @@ const PropertiesForm = ({ readonly }) => {
                 <h5 className="mb-3">Sample stocks characteristics</h5>
                 <Row className="mb-4 align-items-end">
                   <Col>
-                    {formHelper.unitInput('concentration_value', 'Concentration', 'concentration', '')}
+                    {formHelper.unitInput('concentration_value', 'Concentration', 'concentration', disabled, '')}
                   </Col>
                   <Col>
-                    {formHelper.unitInput('molarity_value', 'Molarity', 'molarity', '')}
+                    {formHelper.unitInput('molarity_value', 'Molarity', 'molarity', disabled, '')}
                   </Col>
                   {
                     showIfEnzymeIsSelected && (
                       <>
                         <Col>
                           {formHelper.unitInput(
-                            'activity_per_volume_value', 'Activity in U/L', 'activity_per_volume', ''
+                            'activity_per_volume_value', 'Activity in U/L', 'activity_per_volume', disabled, ''
                           )}
                         </Col>
                         <Col>
                           {formHelper.unitInput(
-                            'activity_per_mass_value', 'Activity in U/g', 'activity_per_mass', ''
+                            'activity_per_mass_value', 'Activity in U/g', 'activity_per_mass', disabled, ''
                           )}
                         </Col>
                       </>
@@ -200,23 +202,23 @@ const PropertiesForm = ({ readonly }) => {
                 <h5 className="mb-3">Sample characteristics</h5>
                 <Row className="mb-4 align-items-end">
                   <Col>
-                    {formHelper.textInput('short_label', 'Short label', '')}
+                    {formHelper.textInput('short_label', 'Short label', disabled, '')}
                   </Col>
                 </Row>
                 <Row className="mb-4 align-items-end">
                   <Col>
-                    {formHelper.unitInput('volume_as_used_value', 'Volume as used', 'volumes', '')}
+                    {formHelper.unitInput('volume_as_used_value', 'Volume as used', 'volumes', disabled, '')}
                   </Col>
                   <Col>
-                    {formHelper.unitInput('amount_as_used_mol_value', 'Amount as used', 'amount_substance', '')}
+                    {formHelper.unitInput('amount_as_used_mol_value', 'Amount as used', 'amount_substance', disabled, '')}
                   </Col>
                   <Col>
-                    {formHelper.unitInput('amount_as_used_mass_value', '', 'amount_mass', '')}
+                    {formHelper.unitInput('amount_as_used_mass_value', '', 'amount_mass', disabled, '')}
                   </Col>
                   {
                     showIfEnzymeIsSelected && (
                       <Col>
-                        {formHelper.unitInput('activity_value', 'Activity', 'activity', '')}
+                        {formHelper.unitInput('activity_value', 'Activity', 'activity', disabled, '')}
                       </Col>
                     )
                   }
