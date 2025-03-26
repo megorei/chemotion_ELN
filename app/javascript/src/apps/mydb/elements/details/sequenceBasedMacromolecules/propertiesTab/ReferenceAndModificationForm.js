@@ -13,16 +13,23 @@ const ReferenceAndModificationForm = ({ ident }) => {
 
   const isProtein = sequenceBasedMacromolecule.sequence_based_macromolecule.sbmm_type === 'protein';
   const uniprotDerivationValue = sequenceBasedMacromolecule.sequence_based_macromolecule.uniprot_derivation;
+  let parent = sequenceBasedMacromolecule.sequence_based_macromolecule;
+  let disabled = false;
 
   let fieldPrefix = 'sequence_based_macromolecule';
+  if (ident === 'reference' && sequenceBasedMacromolecule.sequence_based_macromolecule.parent) {
+    fieldPrefix = `${fieldPrefix}.parent`;
+    parent = sequenceBasedMacromolecule.sequence_based_macromolecule.parent;
+    disabled = true;
+  }
   if (ident === 'reference') {
-    fieldPrefix = sequenceBasedMacromolecule.sequence_based_macromolecule.parent ? `${fieldPrefix}.parent` : fieldPrefix;
+    disabled = true;
   }
 
   const visibleForModification = isProtein && uniprotDerivationValue === 'uniprot_modified';
 
-  const showIfReferenceSelected = isProtein && (sequenceBasedMacromolecule[fieldPrefix]?.identifier
-    || sequenceBasedMacromolecule[fieldPrefix]?.other_reference_id || ident === 'sequence_modifications');
+  const showIfReferenceSelected = isProtein && (parent?.identifier
+    || parent?.parent_identifier || parent.other_reference_id || ident === 'sequence_modifications');
 
   const heterologousExpression = [
     { label: 'Yes', value: 'yes' },
@@ -84,42 +91,46 @@ const ReferenceAndModificationForm = ({ ident }) => {
               <>
                 <Row className="mb-4 align-items-end">
                   {ident === 'reference' && (
-                    <Col>{formHelper.textInput(`${fieldPrefix}.primary_accession`, 'UniProt number', '')}</Col>
+                    <Col>{formHelper.textInput(`${fieldPrefix}.primary_accession`, 'UniProt number', disabled, '')}</Col>
                   )
                   }
-                  <Col>{formHelper.textInput(`${fieldPrefix}.other_reference_id`, 'Other reference ID', '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.other_reference_id`, 'Other reference ID', disabled, '')}</Col>
                   {
                     ident === 'sequence_modifications' && (
-                      <Col>{formHelper.textInput(`${fieldPrefix}.own_id`, 'Own ID', '')}</Col>
+                      <Col>{formHelper.textInput(`${fieldPrefix}.own_id`, 'Own ID', disabled, '')}</Col>
                     )
                   }
-                  <Col>{formHelper.textInput(`${fieldPrefix}.short_name`, 'Short name', '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.short_name`, 'Short name', disabled, '')}</Col>
                 </Row>
                 <Row className="mb-4 align-items-end">
-                  <Col>{formHelper.numberInput(`${fieldPrefix}.molecular_length`, 'Sequence length', '')}</Col>
+                  <Col>{formHelper.numberInput(`${fieldPrefix}.molecular_length`, 'Sequence length', disabled, '')}</Col>
                   <Col>
                     {formHelper.unitInput(
-                      `${fieldPrefix}.molecular_weight`, 'Sequence mass (Da = g/mol)', 'molecular_weight', ''
+                      `${fieldPrefix}.molecular_weight`, 'Sequence mass (Da = g/mol)', 'molecular_weight', disabled, ''
                     )}
                   </Col>
                 </Row>
                 <Row className="mb-4 align-items-end">
-                  <Col>{formHelper.textInput(`${fieldPrefix}.systematic_name`, 'Full name', '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.systematic_name`, 'Full name', disabled, '')}</Col>
                 </Row>
                 <Row className="mb-4 align-items-end">
                   {
                     visibleForModification && (
-                      <Col>{formHelper.textInput(`${fieldPrefix}.pdb_doi`, 'Pdb DOI', '')}</Col>
+                      <Col>{formHelper.textInput(`${fieldPrefix}.pdb_doi`, 'Pdb DOI', disabled, '')}</Col>
                     )
                   }
-                  <Col>{formHelper.textInput(`${fieldPrefix}.ec_numbers`, 'EC number', '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.ec_numbers`, 'EC number', disabled, '')}</Col>
                   <Col className="mb-2">
-                    {formHelper.checkboxInput(`${fieldPrefix}.show_structure_details`, 'Show details about structural files')}
+                    {
+                      formHelper.checkboxInput(
+                        `${fieldPrefix}.show_structure_details`, 'Show details about structural files', disabled
+                      )
+                    }
                   </Col>
                 </Row>
                 <Row className="mb-4">
                   <Col>
-                    {formHelper.textareaInput(`${fieldPrefix}.sequence`, 'Sequence of the structure', 2, '')}
+                    {formHelper.textareaInput(`${fieldPrefix}.sequence`, 'Sequence of the structure', 3, disabled, '')}
                   </Col>
                 </Row>
                 {
@@ -154,8 +165,8 @@ const ReferenceAndModificationForm = ({ ident }) => {
                 {
                   ident === 'reference' && (
                     <Row className="mb-4 align-items-end">
-                      <Col>{formHelper.textInput(`${fieldPrefix}.link_uniprot`, 'Link UniProt', '')}</Col>
-                      <Col>{formHelper.textInput(`${fieldPrefix}.link_pdb`, 'Link pdb', '')}</Col>
+                      <Col>{formHelper.textInput(`${fieldPrefix}.link_uniprot`, 'Link UniProt', disabled, '')}</Col>
+                      <Col>{formHelper.textInput(`${fieldPrefix}.link_pdb`, 'Link pdb', disabled, '')}</Col>
                     </Row>
                   )
                 }
@@ -164,16 +175,17 @@ const ReferenceAndModificationForm = ({ ident }) => {
                 <Row className="mb-4 align-items-end">
                   <Col>
                     {formHelper.selectInput(
-                      `${fieldPrefix}.heterologous_expression`, 'Heterologous expression', heterologousExpression, ''
+                      `${fieldPrefix}.heterologous_expression`, 'Heterologous expression',
+                      heterologousExpression, disabled, ''
                     )}
                   </Col>
-                  <Col>{formHelper.textInput(`${fieldPrefix}.organism`, 'Organism', '')}</Col>
-                  <Col>{formHelper.textInput(`${fieldPrefix}.taxon_id`, 'Taxon ID', '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.organism`, 'Organism', disabled, '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.taxon_id`, 'Taxon ID', disabled, '')}</Col>
                 </Row>
                 <Row className="mb-4 align-items-end">
-                  <Col>{formHelper.textInput(`${fieldPrefix}.strain`, 'Strain', '')}</Col>
-                  <Col>{formHelper.textInput(`${fieldPrefix}.tissue`, 'Tissue', '')}</Col>
-                  <Col>{formHelper.textInput(`${fieldPrefix}.localisation`, 'Localisation', '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.strain`, 'Strain', disabled, '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.tissue`, 'Tissue', disabled, '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.localisation`, 'Localisation', disabled, '')}</Col>
                 </Row>
               </>
             )

@@ -9,6 +9,7 @@ const SequenceAndPostTranslationalModificationForm = () => {
   const sequenceBasedMacromoleculeStore = useContext(StoreContext).sequenceBasedMacromolecules;
   let sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
   const formHelper = initFormHelper(sequenceBasedMacromolecule, sequenceBasedMacromoleculeStore);
+  const disabled = false;
 
   useEffect(() => {
     if (sequenceBasedMacromolecule?.id !== undefined) {
@@ -91,22 +92,22 @@ const SequenceAndPostTranslationalModificationForm = () => {
       <Row className="mb-4 align-items-end">
         <h5 className="mb-3">Sequence modifications</h5>
         <Col>
-          {formHelper.checkboxInput(`${fieldPrefixSequence}.modification_n_terminal`, 'N-terminal')}
+          {formHelper.checkboxInput(`${fieldPrefixSequence}.modification_n_terminal`, 'N-terminal', disabled)}
         </Col>
         <Col>
-          {formHelper.checkboxInput(`${fieldPrefixSequence}.modification_c_terminal`, 'C-terminal')}
+          {formHelper.checkboxInput(`${fieldPrefixSequence}.modification_c_terminal`, 'C-terminal', disabled)}
         </Col>
         <Col>
-          {formHelper.checkboxInput(`${fieldPrefixSequence}.modification_insertion`, 'Insertion')}
+          {formHelper.checkboxInput(`${fieldPrefixSequence}.modification_insertion`, 'Insertion', disabled)}
         </Col>
         <Col>
-          {formHelper.checkboxInput(`${fieldPrefixSequence}.modification_deletion`, 'Deletion')}
+          {formHelper.checkboxInput(`${fieldPrefixSequence}.modification_deletion`, 'Deletion', disabled)}
         </Col>
         <Col>
-          {formHelper.checkboxInput(`${fieldPrefixSequence}.modification_mutation`, 'Mutation')}
+          {formHelper.checkboxInput(`${fieldPrefixSequence}.modification_mutation`, 'Mutation', disabled)}
         </Col>
         <Col>
-          {formHelper.checkboxInput(`${fieldPrefixSequence}.modification_other`, 'Others')}
+          {formHelper.checkboxInput(`${fieldPrefixSequence}.modification_other`, 'Others', disabled)}
         </Col>
       </Row>
       {
@@ -118,7 +119,7 @@ const SequenceAndPostTranslationalModificationForm = () => {
                   {
                     formHelper.textInput(
                       `${fieldPrefixSequence}.modification_n_terminal_details`,
-                      'Details for N-terminal modifications', ''
+                      'Details for N-terminal modifications', disabled, ''
                     )
                   }
                 </Col>
@@ -130,7 +131,7 @@ const SequenceAndPostTranslationalModificationForm = () => {
                   {
                     formHelper.textInput(
                       `${fieldPrefixSequence}.modification_c_terminal_details`,
-                      'Details for C-terminal modifications', ''
+                      'Details for C-terminal modifications', disabled, ''
                     )
                   }
                 </Col>
@@ -147,7 +148,7 @@ const SequenceAndPostTranslationalModificationForm = () => {
                 <Col>
                   {
                     formHelper.textInput(
-                      `${fieldPrefixSequence}.modification_insertion_details`, 'Details for insertion', ''
+                      `${fieldPrefixSequence}.modification_insertion_details`, 'Details for insertion', disabled, ''
                     )
                   }
                 </Col>
@@ -158,7 +159,7 @@ const SequenceAndPostTranslationalModificationForm = () => {
                 <Col>
                   {
                     formHelper.textInput(
-                      `${fieldPrefixSequence}.modification_deletion_details`, 'Details for deletion', ''
+                      `${fieldPrefixSequence}.modification_deletion_details`, 'Details for deletion', disabled, ''
                     )
                   }
                 </Col>
@@ -175,7 +176,7 @@ const SequenceAndPostTranslationalModificationForm = () => {
                 <Col>
                   {
                     formHelper.textInput(
-                      `${fieldPrefixSequence}.modification_mutation_details`, 'Details for mutation', ''
+                      `${fieldPrefixSequence}.modification_mutation_details`, 'Details for mutation', disabled, ''
                     )
                   }
                 </Col>
@@ -186,7 +187,7 @@ const SequenceAndPostTranslationalModificationForm = () => {
                 <Col>
                   {
                     formHelper.textInput(
-                      `${fieldPrefixSequence}.modification_other_details`, 'Details for other modifications', ''
+                      `${fieldPrefixSequence}.modification_other_details`, 'Details for other modifications', disabled, ''
                     )
                   }
                 </Col>
@@ -199,27 +200,27 @@ const SequenceAndPostTranslationalModificationForm = () => {
       <Row className="mb-4 align-items-end">
         <h5 className="mb-3">Posttranslational modifications</h5>
         <Col>
-          {formHelper.textInput(`${fieldPrefixPostTransitional}.name`, 'Name of the post modification ', '')}
+          {formHelper.textInput(`${fieldPrefixPostTransitional}.name`, 'Name of the post modification ', disabled, '')}
         </Col>
       </Row>
       <Row className="mb-4 align-items-end">
         <Col>
-          {formHelper.checkboxInput(`${fieldPrefixPostTransitional}.phosphorylation_enabled`, 'Phosphorylation')}
+          {formHelper.checkboxInput(`${fieldPrefixPostTransitional}.phosphorylation_enabled`, 'Phosphorylation', disabled)}
         </Col>
         <Col>
-          {formHelper.checkboxInput(`${fieldPrefixPostTransitional}.glycosylation_enabled`, 'Glycosylation')}
+          {formHelper.checkboxInput(`${fieldPrefixPostTransitional}.glycosylation_enabled`, 'Glycosylation', disabled)}
         </Col>
         <Col>
-          {formHelper.checkboxInput(`${fieldPrefixPostTransitional}.acetylation_enabled`, 'Acetylation')}
+          {formHelper.checkboxInput(`${fieldPrefixPostTransitional}.acetylation_enabled`, 'Acetylation', disabled)}
         </Col>
         <Col>
-          {formHelper.checkboxInput(`${fieldPrefixPostTransitional}.hydroxylation_enabled`, 'Hydroxylation')}
+          {formHelper.checkboxInput(`${fieldPrefixPostTransitional}.hydroxylation_enabled`, 'Hydroxylation', disabled)}
         </Col>
         <Col>
-          {formHelper.checkboxInput(`${fieldPrefixPostTransitional}.methylation_enabled`, 'Methylation')}
+          {formHelper.checkboxInput(`${fieldPrefixPostTransitional}.methylation_enabled`, 'Methylation', disabled)}
         </Col>
         <Col>
-          {formHelper.checkboxInput(`${fieldPrefixPostTransitional}.other_modifications_enabled`, 'Others')}
+          {formHelper.checkboxInput(`${fieldPrefixPostTransitional}.other_modifications_enabled`, 'Others', disabled)}
         </Col>
       </Row>
 
@@ -227,7 +228,7 @@ const SequenceAndPostTranslationalModificationForm = () => {
         postTranslationalModifications?.phosphorylation_enabled &&
         formHelper.multiToggleButtonsWithDetailField(
           'phosphorylation', fieldPrefixPostTransitional, 'details', phosphorylationDetailButtonGroups,
-          'Details for Phosphorylation'
+          'Details for Phosphorylation', disabled
         )
       }
 
@@ -235,7 +236,7 @@ const SequenceAndPostTranslationalModificationForm = () => {
         postTranslationalModifications?.glycosylation_enabled && 
         formHelper.multipleRowInput(
           `${fieldPrefixPostTransitional}.glycosylation_details`, glycosylationDetailRowFields,
-          'Details for Glycosylation'
+          'Details for Glycosylation', disabled
         )
       }
       {
@@ -244,7 +245,7 @@ const SequenceAndPostTranslationalModificationForm = () => {
             <Col>
               <h5 className="mb-3">Details for Acetylation</h5>
               {formHelper.inputGroupTextOrNumericInput(
-                `${fieldPrefixPostTransitional}.acetylation_lysin_number`, '', 'Lysin No', 'number', ''
+                `${fieldPrefixPostTransitional}.acetylation_lysin_number`, '', 'Lysin No', 'number', disabled, ''
               )}
             </Col>
           </Row>
@@ -254,14 +255,14 @@ const SequenceAndPostTranslationalModificationForm = () => {
         postTranslationalModifications?.hydroxylation_enabled &&
         formHelper.multiToggleButtonsWithDetailField(
           'hydroxylation', fieldPrefixPostTransitional, 'details', hydroxylationDetailButtonGroups,
-          'Details for Hydroxylation'
+          'Details for Hydroxylation', disabled
         )
       }
       {
         postTranslationalModifications?.methylation_enabled &&
         formHelper.multiToggleButtonsWithDetailField(
           'methylation', fieldPrefixPostTransitional, 'details', methylationDetailButtonGroups,
-          'Details for Methylation'
+          'Details for Methylation', disabled
         )
       }
       {
@@ -270,7 +271,7 @@ const SequenceAndPostTranslationalModificationForm = () => {
             <Col>
               <h5 className="mb-3">Details for other modifications</h5>
               {formHelper.textInput(
-                `${fieldPrefixPostTransitional}.other_modifications_details`, 'Detail', ''
+                `${fieldPrefixPostTransitional}.other_modifications_details`, 'Detail', disabled, ''
               )}
             </Col>
           </Row>
