@@ -28,7 +28,7 @@ const ReferenceAndModificationForm = ({ ident }) => {
 
   const visibleForModification = isProtein && uniprotDerivationValue === 'uniprot_modified';
 
-  const showIfReferenceSelected = isProtein && (parent?.identifier
+  const showIfReferenceSelected = isProtein && (parent?.primary_accession
     || parent?.parent_identifier || parent.other_reference_id || ident === 'sequence_modifications');
 
   const heterologousExpression = [
