@@ -493,6 +493,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
         molecular_weight: this.sequence_based_macromolecule.molecular_weight,
         organism: this.sequence_based_macromolecule.organism,
         parent: this.sequence_based_macromolecule.parent,
+        parent_identifier: this.sequence_based_macromolecule.parent_identifier || '',
         primary_accession: this.sequence_based_macromolecule.primary_accession,
         sbmm_subtype: this.sequence_based_macromolecule.sbmm_subtype,
         sbmm_type: this.sequence_based_macromolecule.sbmm_type,

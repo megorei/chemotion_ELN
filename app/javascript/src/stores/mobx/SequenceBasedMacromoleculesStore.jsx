@@ -83,8 +83,7 @@ export const SequenceBasedMacromoleculesStore = types
       sequence_based_macromolecule.changed = false;
       const sequenceBasedMacromolecule = new SequenceBasedMacromoleculeSample(sequence_based_macromolecule);
 
-      if (sequenceBasedMacromolecule.checksum() != self.sequence_based_macromolecule_checksum
-        || sequenceBasedMacromolecule.isNew) {
+      if (sequenceBasedMacromolecule.checksum() !== self.sequence_based_macromolecule_checksum || sequenceBasedMacromolecule.isNew) {
         sequenceBasedMacromolecule.changed = true;
       }
       self.sequence_based_macromolecule = sequenceBasedMacromolecule;
