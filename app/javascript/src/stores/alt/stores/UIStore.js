@@ -277,6 +277,7 @@ class UIStore {
 
   handleCheckElement(element) {
     let type = element.type;
+    type = element.type === 'sequence_based_macromolecule_sample' ? 'sequence_based_macromolecule' : type;
 
     if (this.state[type].checkedAll) {
       this.state[type].uncheckedIds =
@@ -396,7 +397,7 @@ class UIStore {
             );
           }
           if (!isSync && layout.sequence_based_macromolecule && layout.sequence_based_macromolecule > 0) {
-            ElementActions.fetchSequenceBasedMacromoleculesByCollectionId(
+            ElementActions.fetchSequenceBasedMacromoleculeSamplesByCollectionId(
               collection.id,
               Object.assign(params, { page: state.sequence_based_macromolecule.page }),
             );

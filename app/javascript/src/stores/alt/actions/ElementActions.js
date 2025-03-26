@@ -364,7 +364,7 @@ class ElementActions {
     };
   }
 
-  fetchSequenceBasedMacromoleculesByCollectionId(id, queryParams = {}, collectionIsSync = false) {
+  fetchSequenceBasedMacromoleculeSamplesByCollectionId(id, queryParams = {}, collectionIsSync = false) {
     return (dispatch) => {
       SequenceBasedMacromoleculeSamplesFetcher.fetchByCollectionId(id, queryParams, collectionIsSync)
         .then((result) => {
