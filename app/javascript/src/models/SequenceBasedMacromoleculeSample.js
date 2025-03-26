@@ -378,7 +378,6 @@ export default class SequenceBasedMacromoleculeSample extends Element {
       sequence_based_macromolecule: {
         accessions: '',
         ec_numbers: '',
-        identifier: '',
         link_uniprot: '',
         localisation: '',
         molecular_weight: '',
@@ -487,7 +486,6 @@ export default class SequenceBasedMacromoleculeSample extends Element {
       sequence_based_macromolecule_attributes: {
         accessions: this.sequence_based_macromolecule.accessions,
         ec_numbers: this.sequence_based_macromolecule.ec_numbers,
-        identifier: this.sequence_based_macromolecule.identifier,
         link_uniprot: this.sequence_based_macromolecule.link_uniprot,
         localisation: this.sequence_based_macromolecule.localisation,
         molecular_weight: this.sequence_based_macromolecule.molecular_weight,
