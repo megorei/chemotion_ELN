@@ -30,11 +30,9 @@ module Chemotion
             ui_state = params[element]
 
             if ui_state && (ui_state[:checkedAll] || ui_state[:checkedIds].present?)
-              element_klass = if element == 'cell_line'
-                                CelllineSample
-                              else
-                                element.classify.constantize
-                              end
+              element = 'sequence_based_macromolecule_sample' if element == 'sequence_based_macromolecule'
+              element_klass = element == 'cell_line' ? CelllineSample : element.classify.constantize
+
               sel[element] = element_klass.by_collection_id(cid).by_ui_state(params[:sample])
                                           .for_user_n_groups(user_ids)
             end
