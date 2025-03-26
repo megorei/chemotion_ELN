@@ -26,7 +26,14 @@ const SearchResults = () => {
   }
 
   const chooseUniprotEntry = (uniprot_number) => {
-    sequenceBasedMacromoleculeStore.changeSequenceBasedMacromolecule('sequence_based_macromolecule.identifier', uniprot_number);
+    const identifier = sequenceBasedMacromolecule.sequence_based_macromolecule.uniprot_derivation === 'uniprot_modified'
+      ? 'parent_identifier'
+      : 'primary_accession';
+
+    sequenceBasedMacromoleculeStore.changeSequenceBasedMacromolecule(
+      `sequence_based_macromolecule.${identifier}`, uniprot_number
+    );
+
     sequenceBasedMacromoleculeStore.closeSearchResult();
   }
 
@@ -54,6 +61,16 @@ const SearchResults = () => {
     },
     {
       uniprot_number: 'Q9NX52',
+      name: 'RHBL2_HUMAN',
+      systematic_name: 'Rhomboid-related protein 2',
+      short_name: 'RRP2',
+      organism: 'Homo sapiens (Human)',
+      ec_number: '3.4.21.105',
+      strain: 'Wistar',
+      tissue: 'Leukemia',
+    },
+    {
+      uniprot_number: 'P12345',
       name: 'RHBL2_HUMAN',
       systematic_name: 'Rhomboid-related protein 2',
       short_name: 'RRP2',
