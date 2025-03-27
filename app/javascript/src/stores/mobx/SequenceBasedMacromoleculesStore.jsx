@@ -77,11 +77,12 @@ export const SequenceBasedMacromoleculesStore = types
       if (initial) {
         self.sequence_based_macromolecule_checksum = sequence_based_macromolecule._checksum;
       }
+      sequence_based_macromolecule.changed = false;
+      const sequenceBasedMacromolecule = new SequenceBasedMacromoleculeSample(sequence_based_macromolecule);
+      
       if (sequence_based_macromolecule.modification_toggle_buttons === undefined) {
         sequence_based_macromolecule.modification_toggle_buttons = modificationToggleButtons;
       }
-      sequence_based_macromolecule.changed = false;
-      const sequenceBasedMacromolecule = new SequenceBasedMacromoleculeSample(sequence_based_macromolecule);
 
       if (sequenceBasedMacromolecule.checksum() !== self.sequence_based_macromolecule_checksum || sequenceBasedMacromolecule.isNew) {
         sequenceBasedMacromolecule.changed = true;
