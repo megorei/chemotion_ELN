@@ -140,7 +140,11 @@ class API < Grape::API
 
   TARGET = Rails.env.production? ? 'https://www.chemotion-repository.net/' : 'http://localhost:3000/'
 
-  ELEMENTS = %w[research_plan screen wellplate reaction sample cell_line device_description].freeze
+  # TODO: unify ELEMENTS and ELEMENT_CLASS. ELEMENTS is only used to iterate over ELEMENT_CLASS, which can be simply
+  #       replaced by ELEMENT_CLASS.keys if required
+  ELEMENTS = %w[
+    research_plan screen wellplate reaction sample cell_line device_description sequence_based_macromolecule_sample
+  ].freeze
 
   ELEMENT_CLASS = {
     'research_plan' => ResearchPlan,
@@ -150,6 +154,7 @@ class API < Grape::API
     'sample' => Sample,
     'cell_line' => CelllineSample,
     'device_description' => DeviceDescription,
+    'sequence_based_macromolecule_sample' => SequenceBasedMacromoleculeSample,
   }.freeze
 
   mount Chemotion::LiteratureAPI

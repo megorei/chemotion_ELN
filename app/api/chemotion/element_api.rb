@@ -8,7 +8,6 @@ module Chemotion
     helpers ParamsHelpers
     helpers CollectionHelpers
     helpers LiteratureHelpers
-    helpers ReflectionHelpers
 
     namespace :ui_state do
       desc 'Delete elements by UI state'
@@ -39,6 +38,9 @@ module Chemotion
           use :ui_state_params
         end
         optional :device_description, type: Hash do
+          use :ui_state_params
+        end
+        optional :sequence_based_macromolecule_sample, type: Hash do
           use :ui_state_params
         end
         optional :selecteds, desc: 'Elements currently opened in detail tabs', type: Array do
@@ -80,12 +82,13 @@ module Chemotion
       desc "delete element from ui state selection."
       delete do
         deleted = { 'sample' => [] }
-        %w[sample reaction wellplate screen research_plan cell_line device_description].each do |element|
+        API::ELEMENTS.each do |element|
           next unless params[element]
           next unless params[element][:checkedAll] || params[element][:checkedIds].present?
 
-          assoziation_name = get_assoziation_name_in_collections(element)
-          deleted[element] = @collection.send(assoziation_name).by_ui_state(params[element]).destroy_all.map(&:id)
+          element_model = API::ELEMENT_CLASS[element].model_name
+          deleted[element_model.param_key] =
+            @collection.send(element_model.route_key).by_ui_state(params[element]).destroy_all.map(&:id)
         end
 
         # explicit inner join on reactions_samples to get soft deleted reactions_samples entries
