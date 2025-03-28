@@ -111,7 +111,7 @@ const ReferenceAndModificationForm = ({ ident }) => {
                   </Col>
                 </Row>
                 <Row className="mb-4 align-items-end">
-                  <Col>{formHelper.textInput(`${fieldPrefix}.systematic_name`, 'Full name', disabled, '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.full_name`, 'Full name', disabled, '')}</Col>
                 </Row>
                 <Row className="mb-4 align-items-end">
                   {
