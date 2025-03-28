@@ -1,8 +1,7 @@
 import { keys, values } from 'mobx';
 import { flow, types } from 'mobx-state-tree';
 
-import SequenceBasedMacromoleculeSamplesFetcher from 'src/fetchers/SequenceBasedMacromoleculeSamplesFetcher';
-import AttachmentFetcher from 'src/fetchers/AttachmentFetcher';
+import SequenceBasedMacromoleculesFetcher from 'src/fetchers/SequenceBasedMacromoleculesFetcher';
 import SequenceBasedMacromoleculeSample from 'src/models/SequenceBasedMacromoleculeSample';
 import Container from 'src/models/Container';
 
@@ -18,6 +17,26 @@ const modificationToggleButtons = {
   glycosylation: [],
   hydroxylation: [],
   methylation: [],
+}
+
+const emptySequenceBasedMacromolecule = {
+  accessions: '',
+  ec_numbers: '',
+  link_uniprot: '',
+  localisation: '',
+  molecular_weight: '',
+  organism: '',
+  parent: '',
+  primary_accession: '',
+  sequence: '',
+  short_name: '',
+  strain: '',
+  systematic_name: '',
+  taxon_id: '',
+  tissue: '',
+  uniprot_source: '',
+  post_translational_modification: null,
+  protein_sequence_modification: null,
 }
 
 export const SequenceBasedMacromoleculesStore = types
@@ -41,8 +60,43 @@ export const SequenceBasedMacromoleculesStore = types
     attachment_sort_direction: types.optional(types.string, 'asc'),
     filtered_attachments: types.optional(types.array(types.frozen({})), []),
     show_search_result: types.optional(types.boolean, false),
+    search_result: types.optional(types.array(types.frozen({})), []),
   })
   .actions(self => ({
+    searchForSequenceBasedMacromolecule: flow(function* searchForSequenceBasedMacromolecule(search_term, search_field) {
+      let result = yield SequenceBasedMacromoleculesFetcher.searchForSequenceBasedMacromolecule(search_term, search_field);
+      if (result?.search_results) {
+        if (result.search_results.length < 1) {
+          self.setSearchResult([{ results: 'none' }]);
+        } else {
+          self.setSearchResult(result.search_results);
+        }
+      }
+    }),
+    getSequenceBasedMacromoleculeByIdentifier: flow(function* getSequenceBasedMacromoleculeByIdentifier(primary_accession, available_sources) {
+      let sequenceBasedMacromolecule = { ...self.sequence_based_macromolecule };
+      const uniprotDerivation = sequenceBasedMacromolecule.sequence_based_macromolecule.uniprot_derivation;
+      let result = yield SequenceBasedMacromoleculesFetcher.getSequenceBasedMacromoleculeByIdentifier(primary_accession, available_sources);
+
+      if (result?.sequence_based_macromolecule) {
+        Object.entries(emptySequenceBasedMacromolecule).map(([key, value]) => {
+          sequenceBasedMacromolecule.sequence_based_macromolecule[key] = value;
+        });
+        delete sequenceBasedMacromolecule.sequence_based_macromolecule.parent_identifier;
+
+        if (uniprotDerivation === 'uniprot_modified') {
+          sequenceBasedMacromolecule.sequence_based_macromolecule.parent_identifier = primary_accession;
+          sequenceBasedMacromolecule.sequence_based_macromolecule.parent = result.sequence_based_macromolecule;
+        } else {
+          Object.entries(result.sequence_based_macromolecule).map(([key, value]) => {
+            if (!['sbmm_subtype', 'sbmm_type'].includes(key)) {
+              sequenceBasedMacromolecule.sequence_based_macromolecule[key] = value;
+            }
+          });
+        }
+        self.setSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+      }
+    }),
     getLastObjectAndKeyByField(field, sequence_based_macromolecule) {
       const fieldParts = field.split('.');
       const lastKey = fieldParts.pop();
@@ -188,6 +242,13 @@ export const SequenceBasedMacromoleculesStore = types
     closeSearchResult() {
       self.show_search_result = false;
     },
+    setSearchResult(result) {
+      self.removeSearchResult();
+      self.search_result = result;
+    },
+    removeSearchResult() {
+      self.search_result = [];
+    },
     initModificationToggleButtons(fieldPrefix, field, group) {
       if (self.sequence_based_macromolecule.modification_toggle_buttons[field].length < 1) {
         const { lastObject, lastKey } = self.getLastObjectAndKeyByField(fieldPrefix, self.sequence_based_macromolecule);
@@ -222,4 +283,5 @@ export const SequenceBasedMacromoleculesStore = types
   }))
   .views(self => ({
     get filteredAttachments() { return values(self.filtered_attachments) },
+    get searchResult() { return values(self.search_result) },
   }));

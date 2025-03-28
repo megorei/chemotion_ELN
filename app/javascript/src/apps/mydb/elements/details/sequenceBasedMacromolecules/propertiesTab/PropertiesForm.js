@@ -25,7 +25,7 @@ const PropertiesForm = ({ readonly }) => {
   ];
   const sbmmSearchBy = [
     { label: 'UniProt ID', value: 'accession' },
-    { label: 'Name', value: 'systematic_name' },
+    { label: 'Name', value: 'protein_name' },
     { label: 'EC-Number', value: 'ec' },
   ];
   const sampleFunctionOrApplication = [
@@ -60,7 +60,10 @@ const PropertiesForm = ({ readonly }) => {
 
   const searchSequenceBasedMolecules = () => {
     if (searchable) {
-      // todo: search at uniprot and local db
+      sequenceBasedMacromoleculeStore.searchForSequenceBasedMacromolecule(
+        sequenceBasedMacromolecule.sequence_based_macromolecule.search_term,
+        sequenceBasedMacromolecule.sequence_based_macromolecule.search_field
+      );
       sequenceBasedMacromoleculeStore.openSearchResult();
     }
   }

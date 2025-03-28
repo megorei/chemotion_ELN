@@ -3,6 +3,7 @@ import { Button, Modal, } from 'react-bootstrap';
 import { AgGridReact } from 'ag-grid-react';
 import Draggable from "react-draggable";
 
+import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 
 const SearchResults = () => {
@@ -11,11 +12,9 @@ const SearchResults = () => {
 
   const [deltaPosition, setDeltaPosition] = useState({ x: 0, y: 0 });
 
-  const Spinner = () => {
-    return (
-      <i className="fa fa-spinner fa-pulse fa-3x fa-fw" />
-    );
-  }
+  const spinner = (
+    <i className="fa fa-spinner fa-pulse fa-3x fa-fw" />
+  );
 
   const handleDrag = (e, ui) => {
     const { x, y } = deltaPosition;
@@ -25,77 +24,61 @@ const SearchResults = () => {
     });
   }
 
-  const chooseUniprotEntry = (uniprot_number) => {
-    const identifier = sequenceBasedMacromolecule.sequence_based_macromolecule.uniprot_derivation === 'uniprot_modified'
-      ? 'parent_identifier'
-      : 'primary_accession';
+  const searchByLabel = {
+    accession: 'UniProt ID',
+    protein_name: 'Name',
+    ec: 'EC-Number',
+  };
 
-    sequenceBasedMacromoleculeStore.changeSequenceBasedMacromolecule(
-      `sequence_based_macromolecule.${identifier}`, uniprot_number
-    );
+  const searchResult = sequenceBasedMacromoleculeStore.searchResult;
 
+  const chooseUniprotEntry = (data) => {
+    const identifier = data?.id ? data.id : data.primary_accession;
+    sequenceBasedMacromoleculeStore.getSequenceBasedMacromoleculeByIdentifier(identifier, data.available_sources);
     sequenceBasedMacromoleculeStore.closeSearchResult();
+    sequenceBasedMacromoleculeStore.removeSearchResult();
   }
 
   const renderChooseLink = (node) => {
     return (
-      <div>
-        {node.data.uniprot_number}
-        <Button variant="link" onClick={() => chooseUniprotEntry(node.data.uniprot_number)}>
+      <div className="d-flex align-items-center">
+        {node.data.primary_accession}
+        <Button
+          variant="link"
+          className="px-1 py-0"
+          onClick={() => chooseUniprotEntry(node.data)}
+        >
           Choose
         </Button>
       </div>
     );
   }
 
-  const dummyResult = [
-    {
-      uniprot_number: 'O75783',
-      name: 'RHBL1_HUMAN',
-      systematic_name: 'Rhomboid-related protein 1',
-      short_name: 'RRP',
-      organism: 'Homo sapiens (Human)',
-      ec_number: '3.4.21.105',
-      strain: 'Wistar',
-      tissue: 'Leukemia',
-    },
-    {
-      uniprot_number: 'Q9NX52',
-      name: 'RHBL2_HUMAN',
-      systematic_name: 'Rhomboid-related protein 2',
-      short_name: 'RRP2',
-      organism: 'Homo sapiens (Human)',
-      ec_number: '3.4.21.105',
-      strain: 'Wistar',
-      tissue: 'Leukemia',
-    },
-    {
-      uniprot_number: 'P12345',
-      name: 'RHBL2_HUMAN',
-      systematic_name: 'Rhomboid-related protein 2',
-      short_name: 'RRP2',
-      organism: 'Homo sapiens (Human)',
-      ec_number: '3.4.21.105',
-      strain: 'Wistar',
-      tissue: 'Leukemia',
-    },
-  ];
+  const renderOrganismWithTaxonId = (node) => {
+    return (
+      <div>
+        {node.data.organism} ({node.data.taxon_id})
+      </div>
+    );
+  }
 
   const columnDefs = [
     {
       headerName: "UniProt number",
-      field: 'uniprot_number',
+      field: 'primary_accession',
       cellRenderer: renderChooseLink,
-      minWidth: 150,
-      maxWidth: 150,
+      minWidth: 140,
+      maxWidth: 140,
     },
     {
-      headerName: "Name",
-      field: "name",
+      headerName: "Source",
+      field: "available_sources",
+      minWidth: 80,
+      maxWidth: 80,
     },
     {
       headerName: "Full name",
-      field: 'systematic_name',
+      field: 'full_name',
     },
     {
       headerName: "Short name",
@@ -104,12 +87,13 @@ const SearchResults = () => {
       maxWidth: 100,
     },
     {
-      headerName: "Organism",
+      headerName: "Organism (Taxon id)",
       field: 'organism',
+      cellRenderer: renderOrganismWithTaxonId,
     },
     {
-      headerName: "EC-number",
-      field: "ec_number",
+      headerName: "EC-numbers",
+      field: "ec_numbers",
       minWidth: 100,
       maxWidth: 100,
     },
@@ -122,7 +106,8 @@ const SearchResults = () => {
     sortable: true,
     resizable: false,
     suppressMovable: true,
-    cellClass: ["border-end", "px-2"],
+    cellClass: ["border-end", "p-2", "lh-sm"],
+    wrapText: true,
     headerClass: ["border-end", "px-2"],
   };
 
@@ -152,23 +137,32 @@ const SearchResults = () => {
             <div className="mb-4">
               <b>Your search for:</b>
               <br />
-              {`${sequenceBasedMacromolecule.sbmm_search_by}: ${sequenceBasedMacromolecule.sbmm_search_input}`}
+              {`${searchByLabel[sequenceBasedMacromolecule.sequence_based_macromolecule?.search_field]}:
+              ${sequenceBasedMacromolecule.sequence_based_macromolecule?.search_term}`}
             </div>
 
-            <div className="mb-4">
-              <b>109 Results</b>
-            </div>
+            {searchResult.length < 1 && (<div>{spinner}</div>)}
+            {searchResult.length >= 1 && searchResult[0].results && (<div><b>Your search has no results</b></div>)}
+            {
+              searchResult.length >= 1 && !searchResult[0].results && (
+                <>
+                  <div className="mb-4">
+                    <b>{searchResult.length} {searchResult.length > 1 ? 'Results' : 'Result'}</b>
+                  </div>
 
-            <div className="ag-theme-alpine w-100 mb-4">
-              <AgGridReact
-                columnDefs={columnDefs}
-                defaultColDef={defaultColDef}
-                rowData={dummyResult || []}
-                rowHeight="auto"
-                domLayout="autoHeight"
-                autoSizeStrategy={{ type: 'fitGridWidth' }}
-              />
-            </div>
+                  <div className="ag-theme-alpine w-100 mb-4">
+                    <AgGridReact
+                      columnDefs={columnDefs}
+                      defaultColDef={defaultColDef}
+                      rowData={searchResult || []}
+                      rowHeight="auto"
+                      domLayout="autoHeight"
+                      autoSizeStrategy={{ type: 'fitGridWidth' }}
+                    />
+                  </div>
+                </>
+              )
+            }
           </Modal.Body>
         </Modal>
       </div>
@@ -176,4 +170,4 @@ const SearchResults = () => {
   );
 }
 
-export default SearchResults;
+export default observer(SearchResults);

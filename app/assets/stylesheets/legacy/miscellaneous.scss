@@ -119,10 +119,10 @@ $font-icons-research_plan: "\f0f6";
   content: "\f1b2";
 }
 
-.icon-sequence_based_macromolecule {
+.icon-sequence_based_macromolecule, .icon-sequence_based_macromolecule_sample {
   font-style: inherit;
 }
-.icon-sequence_based_macromolecule:before {
+.icon-sequence_based_macromolecule:before, .icon-sequence_based_macromolecule_sample:before {
   font-family: FontAwesome;
   content: "\f0c1";
 }
