@@ -31,6 +31,8 @@ const ReferenceAndModificationForm = ({ ident }) => {
   const showIfReferenceSelected = isProtein && (parent?.primary_accession
     || parent?.parent_identifier || parent.other_reference_id || ident === 'sequence_modifications');
 
+  const sequenceLengthValue = parent?.sequence_length || parent?.sequence.length || ''
+
   const heterologousExpression = [
     { label: 'Yes', value: 'yes' },
     { label: 'No', value: 'no' },
@@ -103,7 +105,13 @@ const ReferenceAndModificationForm = ({ ident }) => {
                   <Col>{formHelper.textInput(`${fieldPrefix}.short_name`, 'Short name', disabled, '')}</Col>
                 </Row>
                 <Row className="mb-4 align-items-end">
-                  <Col>{formHelper.numberInput(`${fieldPrefix}.molecular_length`, 'Sequence length', disabled, '')}</Col>
+                  <Col>
+                    {
+                      formHelper.readonlyInput(
+                        `${fieldPrefix}.sequence_length`, 'Sequence length', sequenceLengthValue, ''
+                      )
+                    }
+                  </Col>
                   <Col>
                     {formHelper.unitInput(
                       `${fieldPrefix}.molecular_weight`, 'Sequence mass (Da = g/mol)', 'molecular_weight', disabled, ''

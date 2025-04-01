@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { initFormHelper } from 'src/utilities/FormHelper';
 
@@ -10,31 +10,6 @@ const SequenceAndPostTranslationalModificationForm = () => {
   let sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
   const formHelper = initFormHelper(sequenceBasedMacromolecule, sequenceBasedMacromoleculeStore);
   const disabled = false;
-
-  useEffect(() => {
-    if (sequenceBasedMacromolecule?.id !== undefined) {
-      // init buttons
-      // sequenceBasedMacromoleculeStore
-
-      // 'phosphorylation', fieldPrefixPostTransitional, 'details', phosphorylationDetailButtonGroups
-      // glycosylation
-      // 'hydroxylation', fieldPrefixPostTransitional, 'details', hydroxylationDetailButtonGroups
-      // 'methylation', fieldPrefixPostTransitional, 'details', methylationDetailButtonGroups,
-
-      // if (self.sequence_based_macromolecule.modification_toggle_buttons[field].length < 1) {
-      //   const { lastObject, lastKey } = self.getLastObjectAndKeyByField(fieldPrefix, self.sequence_based_macromolecule);
-      //   let buttons = [];
-      //   group.options.map((option) => {
-      //     if (lastObject[lastKey][option.field]) {
-      //       buttons.push(option.field);
-      //     }
-      //   });
-      //   self.setModificationToggleButtons(fieldPrefix, field, buttons);
-      // }
-      // return self.sequence_based_macromolecule.modification_toggle_buttons[field];
-
-    }
-  }, []);
 
   const fieldPrefixSequence = 'sequence_based_macromolecule.protein_sequence_modifications';
   const fieldPrefixPostTransitional = 'sequence_based_macromolecule.post_translational_modifications';
@@ -48,10 +23,10 @@ const SequenceAndPostTranslationalModificationForm = () => {
   ];
 
   const glycosylationAminoAcids = [
-    { label: 'Asn', related: 'linkage', only: 'n_linked', field: 'glycosylation_n_linked_asn_enabled' },
-    { label: 'Lys', related: 'linkage', only: 'o_linked', field: 'glycosylation_o_linked_lys_enabled' },
-    { label: 'Ser', related: 'linkage', only: 'o_linked', field: 'glycosylation_o_linked_ser_enabled' },
-    { label: 'Thr', related: 'linkage', only: 'o_linked', field: 'glycosylation_o_linked_thr_enabled' },
+    { label: 'N-linked Asn', related: 'linkage', only: 'n_linked', field: 'glycosylation_n_linked_asn_enabled' },
+    { label: 'O-linked Lys', related: 'linkage', only: 'o_linked', field: 'glycosylation_o_linked_lys_enabled' },
+    { label: 'O-linked Ser', related: 'linkage', only: 'o_linked', field: 'glycosylation_o_linked_ser_enabled' },
+    { label: 'O-linked Thr', related: 'linkage', only: 'o_linked', field: 'glycosylation_o_linked_thr_enabled' },
   ];
 
   const hydroxylationAminoAcids = [
@@ -74,8 +49,12 @@ const SequenceAndPostTranslationalModificationForm = () => {
     { label: 'Amino Acids', options: phosphorylationAminoAcids },
   ];
 
-  const glycosylationDetailRowFields = [
-    { label: 'Linkage', options: linkage },
+  //const glycosylationDetailRowFields = [
+  //  { label: 'Linkage', options: linkage },
+  //  { label: 'Amino Acids', options: glycosylationAminoAcids },
+  //];
+
+  const glycosylationDetailButtonGroups = [
     { label: 'Amino Acids', options: glycosylationAminoAcids },
   ];
 
@@ -231,11 +210,10 @@ const SequenceAndPostTranslationalModificationForm = () => {
           'Details for Phosphorylation', disabled
         )
       }
-
       {
-        postTranslationalModifications?.glycosylation_enabled && 
-        formHelper.multipleRowInput(
-          `${fieldPrefixPostTransitional}.glycosylation_details`, glycosylationDetailRowFields,
+        postTranslationalModifications?.glycosylation_enabled &&
+        formHelper.multiToggleButtonsWithDetailField(
+          'glycosylation', fieldPrefixPostTransitional, 'details', glycosylationDetailButtonGroups,
           'Details for Glycosylation', disabled
         )
       }
