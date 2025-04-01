@@ -151,8 +151,10 @@ export default class SequenceBasedMacromoleculeSample extends Element {
     this._base_amount_as_used_mol_value =
       convertUnits(this.amount_as_used_mol_value, this.amount_as_used_mol_unit, default_units.amount_as_used_mol);
 
-    this._amount_as_used_mass_value = '';
-    this._base_amount_as_used_mass_value = 0;
+    if (this.amount_as_used_mass_value !== undefined && value) {
+      this._amount_as_used_mass_value = '';
+      this._base_amount_as_used_mass_value = 0;
+    }
 
     this.calculateValues('amount_as_used_mol');
   }
@@ -183,8 +185,10 @@ export default class SequenceBasedMacromoleculeSample extends Element {
     this._base_amount_as_used_mass_value =
       convertUnits(this.amount_as_used_mass_value, this.amount_as_used_mass_unit, default_units.amount_as_used_mass);
 
-    this._amount_as_used_mol_value = '';
-    this._base_amount_as_used_mol_value = 0;
+    if (this.amount_as_used_mol_value !== undefined && value) {
+      this._amount_as_used_mol_value = '';
+      this._base_amount_as_used_mol_value = 0;
+    }
 
     this.calculateValues('amount_as_used_mass');
   }
@@ -267,9 +271,10 @@ export default class SequenceBasedMacromoleculeSample extends Element {
     this._base_activity_per_volume_value =
       convertUnits(this.activity_per_volume_value, this.activity_per_volume_unit, default_units.activity_per_volume);
     
-    this._activity_per_mass_value = '';
-    this._base_activity_per_mass_value = 0;
-    
+    if (this.activity_per_mass_value !== undefined && value) {
+      this._activity_per_mass_value = '';
+      this._base_activity_per_mass_value = 0;
+    }
     this.calculateValues('activity_per_volume');
   }
 
@@ -299,8 +304,10 @@ export default class SequenceBasedMacromoleculeSample extends Element {
     this._base_activity_per_mass_value =
       convertUnits(this.activity_per_mass_value, this.activity_per_mass_unit, default_units.activity_per_mass);
     
-    this._activity_per_volume_value = '';
-    this._base_activity_per_volume_value = 0;
+    if (this.activity_per_volume_value !== undefined && value) {
+      this._activity_per_volume_value = '';
+      this._base_activity_per_volume_value = 0;
+    }
 
     this.calculateValues('activity_per_mass');
   }
@@ -378,18 +385,21 @@ export default class SequenceBasedMacromoleculeSample extends Element {
       sequence_based_macromolecule: {
         accessions: '',
         ec_numbers: '',
+        full_name: '',
+        heterologous_expression: '',
         link_uniprot: '',
+        link_pdb: '',
         localisation: '',
         molecular_weight: '',
         organism: '',
         parent: '',
+        pdb_doi: '',
         primary_accession: '',
         sbmm_subtype: '',
         sbmm_type: '',
         sequence: '',
         short_name: '',
         strain: '',
-        systematic_name: '',
         taxon_id: '',
         tissue: '',
         uniprot_derivation: '',
@@ -397,7 +407,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
 
         post_translational_modifications: {
           acetylation_enabled: false,
-          acetylation_lysin_number: 0,
+          acetylation_lysin_number: '',
           glycosylation_enabled: false,
           glycosylation_n_linked_asn_details: '',
           glycosylation_n_linked_asn_enabled: false,
@@ -486,20 +496,23 @@ export default class SequenceBasedMacromoleculeSample extends Element {
       volume_as_used_unit: this.volume_as_used_unit,
       sequence_based_macromolecule_attributes: {
         accessions: this.sequence_based_macromolecule.accessions,
-        ec_numbers: this.sequence_based_macromolecule.ec_numbers,
+        ec_numbers: [this.sequence_based_macromolecule.ec_numbers],
+        full_name: this.sequence_based_macromolecule.full_name,
+        heterologous_expression: this.sequence_based_macromolecule.heterologous_expression,
         link_uniprot: this.sequence_based_macromolecule.link_uniprot,
+        link_pdb: this.sequence_based_macromolecule.link_pdb,
         localisation: this.sequence_based_macromolecule.localisation,
         molecular_weight: this.sequence_based_macromolecule.molecular_weight,
         organism: this.sequence_based_macromolecule.organism,
         parent: this.sequence_based_macromolecule.parent,
         parent_identifier: this.sequence_based_macromolecule.parent_identifier || '',
+        pdb_doi: this.sequence_based_macromolecule.pdb_doi,
         primary_accession: this.sequence_based_macromolecule.primary_accession,
         sbmm_subtype: this.sequence_based_macromolecule.sbmm_subtype,
         sbmm_type: this.sequence_based_macromolecule.sbmm_type,
         sequence: this.sequence_based_macromolecule.sequence,
         short_name: this.sequence_based_macromolecule.short_name,
         strain: this.sequence_based_macromolecule.strain,
-        systematic_name: this.sequence_based_macromolecule.systematic_name,
         taxon_id: this.sequence_based_macromolecule.taxon_id,
         tissue: this.sequence_based_macromolecule.tissue,
         uniprot_derivation: this.sequence_based_macromolecule.uniprot_derivation,

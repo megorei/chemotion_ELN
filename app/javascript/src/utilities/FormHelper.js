@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  InputGroup, OverlayTrigger, Tooltip, Button, Form, Row, Col, ToggleButtonGroup, ToggleButton,
+  InputGroup, OverlayTrigger, Tooltip, Button, Form, Row, Col, ToggleButton, ButtonGroup,
 } from 'react-bootstrap';
 import { Select } from 'src/components/common/Select';
 import { useDrop } from 'react-dnd';
@@ -61,6 +61,7 @@ const optionsByRelatedField = (store, element, field, options) => {
 
 const numberValue = (value) => {
   if (value === '' || value === undefined) { return ''; }
+
 
   let cleanedValue = value;
   let changeToFloat = typeof cleanedValue === 'number';
@@ -183,6 +184,23 @@ const initFormHelper = (element, store) => {
       );
     },
 
+    readonlyInput: (field, label, value, info) => {
+      const fieldValue = !value ? elementField(element, field) : value;
+      return (
+        <Form.Group key={`${store.key_prefix}-${label}`}>
+          {labelWithInfo(label, info)}
+          <Form.Control
+            name={field}
+            type="text"
+            key={`${store.key_prefix}-${field}`}
+            value={fieldValue}
+            disabled
+            readOnly
+          />
+        </Form.Group>
+      );
+    },
+
     textareaInput: (field, label, rows, disabled, info) => {
       const value = elementField(element, field);
       return (
@@ -292,23 +310,17 @@ const initFormHelper = (element, store) => {
       );
     },
 
-    toggleButton: (fieldPrefix, field, buttonGroups) => {
+    toggleButton: (fieldPrefix, field, fieldSuffix, buttonGroups) => {
       let groups = [];
+      const { lastObject, lastKey } = store.getLastObjectAndKeyByField(fieldPrefix, element);
 
       buttonGroups.map((group, i) => {
-        //const buttons = store.initModificationToggleButtons(fieldPrefix, field, group);
-        const buttons = element.modification_toggle_buttons[field];
-        console.log(buttons);
-
         groups.push(
           <div key={`${field}-${group.label}-${i}-buttons`}>
             <div key={`${field}-${group.label}-${i}-label`} className="form-label">{group.label}</div>
             
-            <ToggleButtonGroup
+            <ButtonGroup
               key={`${field}-${group.label}-${i}`}
-              type="checkbox"
-              value={buttons || []}
-              onChange={(value) => store.setModificationToggleButtons(fieldPrefix, field, value)}
               className="mb-4"
             >
               {
@@ -316,15 +328,18 @@ const initFormHelper = (element, store) => {
                   <ToggleButton
                     size="md"
                     variant="outline-primary"
-                    id={`btn-${option.value}`}
+                    id={`btn-check-${option.field}`}
+                    type="checkbox"
                     value={option.field}
+                    checked={lastObject[lastKey][option.field]}
+                    onChange={(e) => store.setModificationToggleButtons(fieldPrefix, option.field, fieldSuffix, e.target.checked)}
                     key={`button-${option.field}-${i}`}
                   >
                     {option.label}
                   </ToggleButton>
                 ))
               }
-            </ToggleButtonGroup>
+            </ButtonGroup>
           </div>
         );
       });
@@ -337,25 +352,25 @@ const initFormHelper = (element, store) => {
     },
 
     multiToggleButtonsWithDetailField: (field, fieldPrefix, fieldSuffix, buttonGroups, headline, disabled) => {
-      const buttons = formHelper.toggleButton(fieldPrefix, field, buttonGroups);
-      const modificationToggleButtons = element.modification_toggle_buttons[field];
+      const buttons = formHelper.toggleButton(fieldPrefix, field, fieldSuffix, buttonGroups);
       const { lastObject, lastKey } = store.getLastObjectAndKeyByField(fieldPrefix, element);
       let details = [];
 
-      modificationToggleButtons.sort().map((key, i) => {
-        if (lastObject[lastKey][key]) {
-          const ident = key.replace(/^.*?_/, '').replace(/_.*$/, '');
-
-          details.push(
-            <div className="mb-2" key={`detail-${ident}-${i}`}>
-              {
-                formHelper.inputGroupTextOrNumericInput(
-                  `${fieldPrefix}.${field}_${ident}_${fieldSuffix}`, '', capitalizeWords(ident), 'text', disabled, ''
-                )
-              }
-            </div>
-          );
-        }
+      buttonGroups.map((group, i) => {
+        group.options.map((option) => {
+          if (lastObject[lastKey][option.field]) {
+            const ident = option.field.replace(/^.*?_/, '').replace('_enabled', '');
+            details.push(
+              <div className="mb-2" key={`detail-${ident}-${i}`}>
+                {
+                  formHelper.inputGroupTextOrNumericInput(
+                    `${fieldPrefix}.${field}_${ident}_${fieldSuffix}`, '', capitalizeWords(ident), 'text', disabled, ''
+                  )
+                }
+              </div>
+            )
+          };
+        });
       });
 
       return (
