@@ -113,10 +113,10 @@ const ReferenceAndModificationForm = ({ ident }) => {
                     <Col>{formHelper.textInput(`${fieldPrefix}.primary_accession`, 'UniProt number', disabled, '')}</Col>
                   )
                   }
-                  <Col>{formHelper.textInput(`${fieldPrefix}.other_reference_id`, 'Other reference ID', disabled, '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.other_identifier`, 'Other reference ID', disabled, '')}</Col>
                   {
                     ident === 'sequence_modifications' && (
-                      <Col>{formHelper.textInput(`${fieldPrefix}.own_id`, 'Own ID', disabled, '')}</Col>
+                      <Col>{formHelper.textInput(`${fieldPrefix}.own_identifier`, 'Own ID', disabled, '')}</Col>
                     )
                   }
                   <Col>{formHelper.textInput(`${fieldPrefix}.short_name`, 'Short name', disabled, '')}</Col>

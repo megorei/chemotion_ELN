@@ -6,7 +6,7 @@ import SequenceBasedMacromoleculeSample from 'src/models/SequenceBasedMacromolec
 import Container from 'src/models/Container';
 
 const emptySequenceBasedMacromolecule = {
-  accessions: '',
+  accessions: [],
   created_at: '',
   ec_numbers: '',
   full_name: '',
@@ -17,6 +17,8 @@ const emptySequenceBasedMacromolecule = {
   localisation: '',
   molecular_weight: '',
   organism: '',
+  other_identifier: '',
+  own_identifier: '',
   pdb_doi: '',
   primary_accession: '',
   sequence: '',
@@ -115,11 +117,17 @@ export const SequenceBasedMacromoleculesStore = types
       let sbmm = sequenceBasedMacromolecule.sequence_based_macromolecule;
       const uniprotDerivation = sbmm.uniprot_derivation;
 
-      primary_accession ? (sbmm.parent_identifier = primary_accession) : (delete sbmm.parent_identifier);
+      delete sbmm.parent_identifier;
+      if (uniprotDerivation === 'uniprot_modified') {
+        if (!sbmm.parent) { sbmm.parent = {}; }
+        sbmm.parent_identifier = primary_accession || result.primary_accession;
+      }
       const sbmmOrParent = uniprotDerivation === 'uniprot_modified' ? sbmm.parent : sbmm;
 
       Object.keys(emptySequenceBasedMacromolecule).map((key) => {
-        sbmmOrParent[key] = result[key];
+        if (result[key]) {
+          sbmmOrParent[key] = result[key];
+        }
       });
       self.setSequenceBasedMacromolecule(sequenceBasedMacromolecule);
     },
