@@ -498,7 +498,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
         accessions: this.sequence_based_macromolecule.accessions,
         ec_numbers: [this.sequence_based_macromolecule.ec_numbers],
         full_name: this.sequence_based_macromolecule.full_name,
-        heterologous_expression: this.sequence_based_macromolecule.heterologous_expression,
+        heterologous_expression: this.sequence_based_macromolecule.heterologous_expression || 'unknown',
         link_uniprot: this.sequence_based_macromolecule.link_uniprot,
         link_pdb: this.sequence_based_macromolecule.link_pdb,
         localisation: this.sequence_based_macromolecule.localisation,

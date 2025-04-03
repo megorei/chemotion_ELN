@@ -103,18 +103,15 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
   }
 
   const handleSubmit = () => {
-    LoadingActions.start();
-    if (sequenceBasedMacromolecule.is_new) {
-      DetailActions.close(sequenceBasedMacromolecule, true);
-      ElementActions.createSequenceBasedMacromolecule(sequenceBasedMacromolecule);
-    } else {
-      ElementActions.updateSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+    if (sequenceBasedMacromoleculeStore.hasValidFields()) {
+      LoadingActions.start();
+      if (sequenceBasedMacromolecule.is_new) {
+        DetailActions.close(sequenceBasedMacromolecule, true);
+        ElementActions.createSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+      } else {
+        ElementActions.updateSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+      }
     }
-  }
-
-  const sequenceBasedMacromoleculeIsValid = () => {
-    // TODO: validation
-    return true;
   }
 
   // const handleExportAnalyses = () => {
@@ -131,7 +128,6 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
     //   return (
     //     <Button
     //       variant="info"
-    //       disabled={!sequenceBasedMacromoleculeIsValid()}
     //       onClick={() => handleExportAnalyses()}
     //     >
     //       Download Analysis
@@ -235,7 +231,7 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
           <Button variant="primary" onClick={() => DetailActions.close(sequenceBasedMacromolecule)}>
             Close
           </Button>
-          <Button variant="warning" disabled={!sequenceBasedMacromoleculeIsValid()} onClick={() => handleSubmit()}>
+          <Button variant="warning" onClick={() => handleSubmit()}>
             {submitLabel}
           </Button>
           {downloadAnalysisButton()}

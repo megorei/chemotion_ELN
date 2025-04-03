@@ -184,7 +184,7 @@ const ReferenceAndModificationForm = ({ ident }) => {
                   <Col>
                     {formHelper.selectInput(
                       `${fieldPrefix}.heterologous_expression`, 'Heterologous expression',
-                      heterologousExpression, disabled, ''
+                      heterologousExpression, disabled, '', ''
                     )}
                   </Col>
                   <Col>{formHelper.textInput(`${fieldPrefix}.organism`, 'Organism', disabled, '')}</Col>
