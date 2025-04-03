@@ -12,6 +12,14 @@ const PropertiesForm = ({ readonly }) => {
   const sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
   const formHelper = initFormHelper(sequenceBasedMacromolecule, sequenceBasedMacromoleculeStore);
   const disabled = false;
+  const generalAccordionIdent = `${sequenceBasedMacromolecule.id}-general`;
+  const sampleAccordionIdent = `${sequenceBasedMacromolecule.id}-sample`;
+  const primaryAccessionErrorIdent = `${sequenceBasedMacromolecule.id}-sequence_based_macromolecule.primary_accession`;
+  const parentIdentifierErrorIdent = `${sequenceBasedMacromolecule.id}-sequence_based_macromolecule.parent_identifier`;
+
+  if (!sequenceBasedMacromoleculeStore.toggable_contents.hasOwnProperty(generalAccordionIdent)) {
+    sequenceBasedMacromoleculeStore.toggleContent(generalAccordionIdent);
+  }
 
   const sbmmType = [{ label: 'Protein', value: 'protein' }];
   const sbmmSubType = [
@@ -55,11 +63,11 @@ const PropertiesForm = ({ readonly }) => {
   const showIfEnzymeIsSelected = sequenceBasedMacromolecule.function_or_application === 'enzyme';
 
   const noPrimaryAccession = uniprotDerivationValue === 'uniprot'
-    && sequenceBasedMacromoleculeStore.error_messages['sequence_based_macromolecule.primary_accession']
+    && sequenceBasedMacromoleculeStore.error_messages[primaryAccessionErrorIdent]
     && !sequenceBasedMacromolecule.sequence_based_macromolecule?.primary_accession
 
   const noParentIdentifier = uniprotDerivationValue === 'uniprot_modified'
-    && sequenceBasedMacromoleculeStore.error_messages['sequence_based_macromolecule.parent_identifier']
+    && sequenceBasedMacromoleculeStore.error_messages[parentIdentifierErrorIdent]
     && !sequenceBasedMacromolecule.sequence_based_macromolecule?.parent_identifier
 
   const searchable = ['uniprot', 'uniprot_modified'].includes(uniprotDerivationValue)
@@ -69,7 +77,7 @@ const PropertiesForm = ({ readonly }) => {
   const derivationLabelWithIcon = (
     <>
       Existence in UniProt or reference
-      <i class="text-danger ms-1 fa fa-exclamation-triangle" />
+      <i className="text-danger ms-1 fa fa-exclamation-triangle" />
     </>
   )
 
@@ -95,10 +103,10 @@ const PropertiesForm = ({ readonly }) => {
 
       <Accordion
         className="mb-4"
-        activeKey={sequenceBasedMacromoleculeStore.toggable_contents.general && 'general'}
-        onSelect={() => sequenceBasedMacromoleculeStore.toggleContent('general')}
+        activeKey={sequenceBasedMacromoleculeStore.toggable_contents[generalAccordionIdent] && generalAccordionIdent}
+        onSelect={() => sequenceBasedMacromoleculeStore.toggleContent(generalAccordionIdent)}
       >
-        <Accordion.Item eventKey="general">
+        <Accordion.Item eventKey={generalAccordionIdent}>
           <Accordion.Header>
             General description
           </Accordion.Header>
@@ -191,10 +199,10 @@ const PropertiesForm = ({ readonly }) => {
         showIfReferenceSelected && (
           <Accordion
             className="mb-4"
-            activeKey={sequenceBasedMacromoleculeStore.toggable_contents.sample && 'sample'}
-            onSelect={() => sequenceBasedMacromoleculeStore.toggleContent('sample')}
+            activeKey={sequenceBasedMacromoleculeStore.toggable_contents[sampleAccordionIdent] && sampleAccordionIdent}
+            onSelect={() => sequenceBasedMacromoleculeStore.toggleContent(sampleAccordionIdent)}
           >
-            <Accordion.Item eventKey="sample">
+            <Accordion.Item eventKey={sampleAccordionIdent}>
               <Accordion.Header>
                 Sample Characteristics
               </Accordion.Header>
