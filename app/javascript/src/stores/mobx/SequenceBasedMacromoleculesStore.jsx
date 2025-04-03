@@ -15,22 +15,34 @@ const toggableContents = {
 const emptySequenceBasedMacromolecule = {
   accessions: '',
   ec_numbers: '',
+  full_name: '',
+  heterologous_expression: '',
   link_uniprot: '',
+  link_pdb: '',
   localisation: '',
   molecular_weight: '',
   organism: '',
   parent: '',
+  pdb_doi: '',
   primary_accession: '',
   sequence: '',
   short_name: '',
   strain: '',
-  systematic_name: '',
   taxon_id: '',
   tissue: '',
   uniprot_source: '',
   post_translational_modification: null,
   protein_sequence_modification: null,
 }
+
+const validationFields = [
+  'name',
+  'sequence_based_macromolecule.sbmm_type',
+  'sequence_based_macromolecule.sbmm_subtype',
+  'sequence_based_macromolecule.uniprot_derivation',
+  'sequence_based_macromolecule.primary_accession',
+  'sequence_based_macromolecule.parent_identifier',
+]
 
 export const SequenceBasedMacromoleculesStore = types
   .model({
@@ -54,6 +66,7 @@ export const SequenceBasedMacromoleculesStore = types
     filtered_attachments: types.optional(types.array(types.frozen({})), []),
     show_search_result: types.optional(types.boolean, false),
     search_result: types.optional(types.array(types.frozen({})), []),
+    error_messages: types.optional(types.frozen({}), {}),
   })
   .actions(self => ({
     searchForSequenceBasedMacromolecule: flow(function* searchForSequenceBasedMacromolecule(search_term, search_field) {
@@ -251,6 +264,33 @@ export const SequenceBasedMacromoleculesStore = types
       }
 
       self.setSequenceBasedMacromolecule(sequence_based_macromolecule);
+    },
+    hasValidFields() {
+      let errorMessages = { ...self.error_messages };
+      const sbmm = self.sequence_based_macromolecule.sequence_based_macromolecule;
+
+      validationFields.map((key) => {
+        const hasValue =
+          key.split('.')
+            .reduce((accumulator, currentValue) => accumulator?.[currentValue], self.sequence_based_macromolecule);
+        const isPrimaryAccession =
+          key.includes('primary_accession') && sbmm.uniprot_derivation == 'uniprot' && !sbmm.primary_accession;
+        const isParentIdentifier =
+          key.includes('parent_identifier') && sbmm.uniprot_derivation == 'uniprot_modified' && !sbmm.parent_identifier;
+        const checkOnlyValue = !key.includes('primary_accession') && !key.includes('parent_identifier') && !hasValue;
+
+        if (hasValue && errorMessages[key]) {
+          delete errorMessages[key];
+        } else if (isPrimaryAccession || isParentIdentifier || checkOnlyValue) {
+          errorMessages[key] = true;
+        }
+      });
+
+      self.error_messages = errorMessages;
+      return Object.keys(self.error_messages).length < 1 ? true : false;
+    },
+    setErrorMessages(values) {
+      self.error_messages = values;
     }
   }))
   .views(self => ({

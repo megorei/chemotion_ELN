@@ -54,9 +54,24 @@ const PropertiesForm = ({ readonly }) => {
 
   const showIfEnzymeIsSelected = sequenceBasedMacromolecule.function_or_application === 'enzyme';
 
+  const noPrimaryAccession = uniprotDerivationValue === 'uniprot'
+    && sequenceBasedMacromoleculeStore.error_messages['sequence_based_macromolecule.primary_accession']
+    && !sequenceBasedMacromolecule.sequence_based_macromolecule?.primary_accession
+
+  const noParentIdentifier = uniprotDerivationValue === 'uniprot_modified'
+    && sequenceBasedMacromoleculeStore.error_messages['sequence_based_macromolecule.parent_identifier']
+    && !sequenceBasedMacromolecule.sequence_based_macromolecule?.parent_identifier
+
   const searchable = ['uniprot', 'uniprot_modified'].includes(uniprotDerivationValue)
     && sequenceBasedMacromolecule.sequence_based_macromolecule.search_field
     && sequenceBasedMacromolecule.sequence_based_macromolecule.search_term;
+
+  const derivationLabelWithIcon = (
+    <>
+      Existence in UniProt or reference
+      <i class="text-danger ms-1 fa fa-exclamation-triangle" />
+    </>
+  )
 
   const searchSequenceBasedMolecules = () => {
     if (searchable) {
@@ -90,19 +105,27 @@ const PropertiesForm = ({ readonly }) => {
           <Accordion.Body>
             <Row className="mb-4 align-items-end">
               <Col>
-                {formHelper.selectInput('sequence_based_macromolecule.sbmm_type', 'Type', sbmmType, disabled, '')}
+                {
+                  formHelper.selectInput(
+                    'sequence_based_macromolecule.sbmm_type', 'Type', sbmmType, disabled,
+                    sequenceBasedMacromoleculeStore.error_messages, ''
+                  )
+                }
               </Col>
               <Col>
                 {
                   formHelper.selectInput(
-                    'sequence_based_macromolecule.sbmm_subtype', 'Subtype of protein', sbmmSubType, disabled, ''
+                    'sequence_based_macromolecule.sbmm_subtype', 'Subtype of protein', sbmmSubType, disabled,
+                    sequenceBasedMacromoleculeStore.error_messages, ''
                   )
                 }
               </Col>
               <Col>
                 {formHelper.selectInput(
-                  'sequence_based_macromolecule.uniprot_derivation', 'Existence in UniProt or reference',
-                  uniprotDerivation, ''
+                  'sequence_based_macromolecule.uniprot_derivation',
+                  derivationLabelWithIcon,
+                  uniprotDerivation, (sequenceBasedMacromolecule.isNew ? false : true),
+                  sequenceBasedMacromoleculeStore.error_messages, 'Can only be changed during creation'
                 )}
               </Col>
             </Row>
@@ -113,7 +136,8 @@ const PropertiesForm = ({ readonly }) => {
                   <Col>
                     {
                       formHelper.selectInput(
-                        'sequence_based_macromolecule.search_field', 'Search UniProt or Reference', sbmmSearchBy, disabled, ''
+                        'sequence_based_macromolecule.search_field', 'Search UniProt or Reference', sbmmSearchBy,
+                        disabled, '', ''
                       )
                     }
                   </Col>
@@ -133,6 +157,13 @@ const PropertiesForm = ({ readonly }) => {
                     }
                   </Col>
                 </Row>
+              )
+            }
+            {
+              (noPrimaryAccession || noParentIdentifier) && (
+                <div className="text-danger">
+                  Please choose a reference
+                </div>
               )
             }
           </Accordion.Body>
@@ -172,7 +203,7 @@ const PropertiesForm = ({ readonly }) => {
                 <Row className="mb-4 align-items-end">
                   <Col>
                     {formHelper.selectInput(
-                      'function_or_application', 'Function or application', sampleFunctionOrApplication, disabled, ''
+                      'function_or_application', 'Function or application', sampleFunctionOrApplication, disabled, '', ''
                     )}
                   </Col>
                 </Row>

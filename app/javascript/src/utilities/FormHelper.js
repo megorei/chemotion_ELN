@@ -19,7 +19,7 @@ const inputByType = (object, field, index, formHelper, disabled) => {
     case 'text':
       return formHelper.textInput(fullFieldName, '', disabled, object.info);
     case 'select':
-      return formHelper.selectInput(fullFieldName, '', object.options, disabled, object.info);
+      return formHelper.selectInput(fullFieldName, '', object.options, disabled, '', object.info);
   }
 }
 
@@ -124,6 +124,7 @@ const initFormHelper = (element, store) => {
             key={`${store.key_prefix}-${field}`}
             value={value || ''}
             disabled={disabled}
+            isInvalid={!value && store.error_messages[field]}
             onChange={(event) => formHelper.onChange(field, event.target.value)}
           />
         </Form.Group>
@@ -145,7 +146,7 @@ const initFormHelper = (element, store) => {
       );
     },
 
-    selectInput: (field, label, options, disabled, info) => {
+    selectInput: (field, label, options, disabled, errors, info) => {
       const elementValue = elementField(element, field);
       const relatedOptions = optionsByRelatedField(store, element, field, options);
       let value = options.find((o) => { return o.value == elementValue });
@@ -161,6 +162,10 @@ const initFormHelper = (element, store) => {
             value={value}
             isClearable={true}
             isDisabled={disabled}
+            classNames={{
+              control: (state) =>
+                !state.hasValue && errors[field] ? 'border-danger' : '',
+            }}
             onChange={(event) => formHelper.onChange(field, (event?.value || event?.label || ''))}
           />
         </Form.Group>
@@ -178,6 +183,7 @@ const initFormHelper = (element, store) => {
             key={`${store.key_prefix}-${field}`}
             value={numberValue(value)}
             disabled={disabled}
+            isInvalid={!value && store.error_messages[field]}
             onChange={(event) => formHelper.onChange(field, event.target.value)}
           />
         </Form.Group>
@@ -213,6 +219,7 @@ const initFormHelper = (element, store) => {
             value={value || ''}
             rows={rows}
             disabled={disabled}
+            isInvalid={!value && store.error_messages[field]}
             onChange={(event) => formHelper.onChange(field, event.target.value)}
           />
         </Form.Group>
@@ -275,6 +282,7 @@ const initFormHelper = (element, store) => {
               key={`${store.key_prefix}-${field}`}
               value={value || ''}
               disabled={disabled}
+              isInvalid={!value && store.error_messages[field]}
               onChange={(event) => formHelper.onChange(field, event.target.value, 'number')}
               className="flex-grow-1"
             />
