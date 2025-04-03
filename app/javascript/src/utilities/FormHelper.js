@@ -124,7 +124,7 @@ const initFormHelper = (element, store) => {
             key={`${store.key_prefix}-${field}`}
             value={value || ''}
             disabled={disabled}
-            isInvalid={!value && store.error_messages[field]}
+            isInvalid={!value && store.error_messages[`${element.id}-${field}`]}
             onChange={(event) => formHelper.onChange(field, event.target.value)}
           />
         </Form.Group>
@@ -164,7 +164,7 @@ const initFormHelper = (element, store) => {
             isDisabled={disabled}
             classNames={{
               control: (state) =>
-                !state.hasValue && errors[field] ? 'border-danger' : '',
+                !state.hasValue && errors[`${element.id}-${field}`] ? 'border-danger' : '',
             }}
             onChange={(event) => formHelper.onChange(field, (event?.value || event?.label || ''))}
           />
@@ -183,7 +183,7 @@ const initFormHelper = (element, store) => {
             key={`${store.key_prefix}-${field}`}
             value={numberValue(value)}
             disabled={disabled}
-            isInvalid={!value && store.error_messages[field]}
+            isInvalid={!value && store.error_messages[`${element.id}-${field}`]}
             onChange={(event) => formHelper.onChange(field, event.target.value)}
           />
         </Form.Group>
@@ -219,7 +219,7 @@ const initFormHelper = (element, store) => {
             value={value || ''}
             rows={rows}
             disabled={disabled}
-            isInvalid={!value && store.error_messages[field]}
+            isInvalid={!value && store.error_messages[`${element.id}-${field}`]}
             onChange={(event) => formHelper.onChange(field, event.target.value)}
           />
         </Form.Group>
@@ -282,7 +282,7 @@ const initFormHelper = (element, store) => {
               key={`${store.key_prefix}-${field}`}
               value={value || ''}
               disabled={disabled}
-              isInvalid={!value && store.error_messages[field]}
+              isInvalid={!value && store.error_messages[`${element.id}-${field}`]}
               onChange={(event) => formHelper.onChange(field, event.target.value, 'number')}
               className="flex-grow-1"
             />
@@ -456,7 +456,7 @@ const initFormHelper = (element, store) => {
       );
     },
 
-    dropAreaForElement: (dropType, handleDrop, field, description) => {
+    dropAreaForElement: (dropType, handleDrop, description) => {
       const [{ isOver, canDrop }, drop] = useDrop({
         accept: DragDropItemTypes[dropType],
         collect: (monitor) => ({
@@ -464,7 +464,7 @@ const initFormHelper = (element, store) => {
           canDrop: monitor.canDrop(),
         }),
         drop: (item) => {
-          handleDrop(item, field);
+          handleDrop(item);
         },
       });
 
