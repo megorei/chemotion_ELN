@@ -153,7 +153,11 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
               {sequenceBasedMacromolecule.name}
             </span>
           </OverlayTrigger>
-          <ElementCollectionLabels element={sequenceBasedMacromolecule} placement="right" />
+          {
+            !sequenceBasedMacromolecule.isNew && (
+              <ElementCollectionLabels element={sequenceBasedMacromolecule} placement="right" />
+            )
+          }
           <HeaderCommentSection element={sequenceBasedMacromolecule} />
         </div>
         <div className="d-flex align-items-center gap-1">

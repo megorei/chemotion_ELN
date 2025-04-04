@@ -479,6 +479,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
       amount_as_used_mass_unit: this.amount_as_used_mass_unit,
       concentration_value: this.concentration_value,
       concentration_unit: this.concentration_unit,
+      container: this.container,
       function_or_application: this.function_or_application,
       molarity_value: this.molarity_value,
       molarity_unit: this.molarity_unit,

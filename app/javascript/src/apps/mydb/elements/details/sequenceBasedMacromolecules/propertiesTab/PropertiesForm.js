@@ -56,7 +56,7 @@ const PropertiesForm = ({ readonly }) => {
   const visibleForUnkownOrModification = isProtein && !['', undefined, 'uniprot'].includes(uniprotDerivationValue);
 
   const showIfReferenceSelected =
-    isProtein && (parent?.primary_accession
+    isProtein && (parent?.primary_accession || parent?.id
       || sequenceBasedMacromolecule.sequence_based_macromolecule?.parent_identifier
       || parent?.other_reference_id || uniprotDerivationValue === 'uniprot_unknown');
 
