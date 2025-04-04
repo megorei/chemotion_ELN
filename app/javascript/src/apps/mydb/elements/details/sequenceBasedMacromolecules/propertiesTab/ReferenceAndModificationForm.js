@@ -33,7 +33,7 @@ const ReferenceAndModificationForm = ({ ident }) => {
   const showIfReferenceSelected = isProtein && !sequenceBasedMacromoleculeStore.error_messages[referenceErrorIdent]
     && (parent?.primary_accession || parent?.id || ident === 'sequence_modifications');
 
-  const sequenceLengthValue = parent?.sequence_length || parent?.sequence.length || ''
+  const sequenceLengthValue = parent?.sequence_length || (parent && parent?.sequence && parent?.sequence.length) || ''
 
   const heterologousExpression = [
     { label: 'Yes', value: 'yes' },

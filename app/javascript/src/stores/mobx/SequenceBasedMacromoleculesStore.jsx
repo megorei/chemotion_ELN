@@ -120,7 +120,7 @@ export const SequenceBasedMacromoleculesStore = types
       delete sbmm.parent_identifier;
       if (uniprotDerivation === 'uniprot_modified') {
         if (!sbmm.parent) { sbmm.parent = {}; }
-        sbmm.parent_identifier = primary_accession || result.primary_accession;
+        sbmm.parent_identifier = primary_accession || result.primary_accession || result.id;
       }
       const sbmmOrParent = uniprotDerivation === 'uniprot_modified' ? sbmm.parent : sbmm;
 
