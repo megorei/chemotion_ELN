@@ -49,9 +49,9 @@ const unitSystems = {
   ],
   volumes: [
     { value: 'L', label: 'L' },
-    { value: 'ml', label: 'ml' },
-    { value: 'ul', label: 'µl' },
-    { value: 'nl', label: 'nl' },
+    { value: 'mL', label: 'mL' },
+    { value: 'uL', label: 'µL' },
+    { value: 'nL', label: 'nL' },
   ],
 };
 
@@ -62,9 +62,9 @@ const conversionFactors = {
   'mg': { factor: 1e-3 },
 
   'L': { factor: 1 },
-  'ml': { factor: 1e-3 },
-  'µl': { factor: 1e-6 },
-  'nl': { factor: 1e-9 },
+  'mL': { factor: 1e-3 },
+  'µL': { factor: 1e-6 },
+  'nL': { factor: 1e-9 },
 
   'ng/L': { factor: 1 },
   'mg/L': { factor: 1e3 },
