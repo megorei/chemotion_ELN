@@ -22,6 +22,7 @@ const DragDropItemTypes = {
   CELL_LINE: 'cell_line',
   DEVICE_DESCRIPTION: 'device_description',
   SEQUENCE_BASED_MACROMOLECULE: 'sequence_based_macromolecule',
+  SEQUENCE_BASED_MACROMOLECULE_SAMPLE: 'sequence_based_macromolecule_sample',
 };
 
 const dropTargetTypes = [

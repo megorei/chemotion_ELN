@@ -44,8 +44,8 @@ const SequenceBasedMacromoleculeSampleList = ({ elements, currentElement, ui }) 
     return null;
   }
 
-  const dragHandle = (element) => {
-    const sourceType = DragDropItemTypes.SEQUENCE_BASED_MACROMOLECULE;
+  const dragHandle = (element, type) => {
+    const sourceType = DragDropItemTypes[type];
     return (
       <ElementContainer
         key={element.id}
@@ -55,10 +55,10 @@ const SequenceBasedMacromoleculeSampleList = ({ elements, currentElement, ui }) 
     );
   }
 
-  const dragColumn = (element) => {
+  const dragColumn = (element, type) => {
     return (
       <div className="ms-3">
-        {dragHandle(element)}
+        {dragHandle(element, type)}
       </div>
     );
   }
@@ -73,10 +73,6 @@ const SequenceBasedMacromoleculeSampleList = ({ elements, currentElement, ui }) 
 
   const chevronOpenOrClosed = (shownGroup) => {
     return shownGroup === undefined && showAllGroups ? true : (shownGroup === undefined ? true : false);
-  }
-
-  const identifierKey = (key) => {
-    return key === "" || key === undefined ? '[empty]' : key;
   }
 
   const groupedElements = () => {
@@ -143,6 +139,7 @@ const SequenceBasedMacromoleculeSampleList = ({ elements, currentElement, ui }) 
               className="fs-5"
             />
           </OverlayTrigger>
+          {dragColumn(sbmm, 'SEQUENCE_BASED_MACROMOLECULE')}
         </div>
       </div>
     );
@@ -167,7 +164,7 @@ const SequenceBasedMacromoleculeSampleList = ({ elements, currentElement, ui }) 
         <div className="d-flex gap-1">
           <CommentIcon commentCount={element.comment_count} />
           <ElementCollectionLabels element={element} key={element.id} />
-          {dragColumn(element)}
+          {dragColumn(element, 'SEQUENCE_BASED_MACROMOLECULE_SAMPLE')}
         </div>
       </div>
     );

@@ -60,7 +60,7 @@ const ReferenceAndModificationForm = ({ ident }) => {
   }
 
   const handleDrop = (item) => {
-    const result = item.element.sequence_based_macromolecule;
+    const result = item.element;
     let errorMessages = { ...sequenceBasedMacromoleculeStore.error_messages };
     delete errorMessages[referenceErrorIdent];
 
