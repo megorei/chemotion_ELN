@@ -357,6 +357,24 @@ export default class SequenceBasedMacromoleculeSample extends Element {
     this._volume_as_used_unit = value;
   }
 
+  get accessions() {
+    const accessions = this.sequence_based_macromolecule.accessions;
+    if (accessions) {
+      return [accessions.join(',')];
+    } else {
+      return [];
+    }
+  }
+
+  get ec_numbers() {
+    const ecNumbers = this.sequence_based_macromolecule.ec_numbers;
+    if (ecNumbers) {
+      return [ecNumbers.join(',')]
+    } else {
+      return [];
+    }
+  }
+
   static buildEmpty(collectionID) {
     return new SequenceBasedMacromoleculeSample({
       collection_id: collectionID,
@@ -490,10 +508,11 @@ export default class SequenceBasedMacromoleculeSample extends Element {
       volume_as_used_value: this.volume_as_used_value,
       volume_as_used_unit: this.volume_as_used_unit,
       sequence_based_macromolecule_attributes: {
-        accessions: this.sequence_based_macromolecule.accessions,
-        ec_numbers: [this.sequence_based_macromolecule.ec_numbers],
+        accessions: this.accessions,
+        ec_numbers: this.ec_numbers,
         full_name: this.sequence_based_macromolecule.full_name,
         heterologous_expression: this.sequence_based_macromolecule.heterologous_expression || 'unknown',
+        id: this.sequence_based_macromolecule.id,
         link_uniprot: this.sequence_based_macromolecule.link_uniprot,
         link_pdb: this.sequence_based_macromolecule.link_pdb,
         localisation: this.sequence_based_macromolecule.localisation,

@@ -275,9 +275,11 @@ export const SequenceBasedMacromoleculesStore = types
           key.split('.')
             .reduce((accumulator, currentValue) => accumulator?.[currentValue], self.sequence_based_macromolecule);
         const isPrimaryAccession =
-          key.includes('primary_accession') && sbmm.uniprot_derivation == 'uniprot' && !sbmm.primary_accession;
+          self.sequence_based_macromolecule.isNew && key.includes('primary_accession')
+          && sbmm.uniprot_derivation == 'uniprot' && !sbmm.primary_accession;
         const isParentIdentifier =
-          key.includes('parent_identifier') && sbmm.uniprot_derivation == 'uniprot_modified' && !sbmm.parent_identifier;
+          self.sequence_based_macromolecule.isNew && key.includes('parent_identifier')
+          && sbmm.uniprot_derivation == 'uniprot_modified' && !sbmm.parent_identifier;
         const checkOnlyValue = !key.includes('primary_accession') && !key.includes('parent_identifier') && !hasValue;
         const ident = `${self.sequence_based_macromolecule.id}-${key}`;
 

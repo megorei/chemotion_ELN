@@ -49,11 +49,6 @@ const SequenceAndPostTranslationalModificationForm = () => {
     { label: 'Amino Acids', options: phosphorylationAminoAcids },
   ];
 
-  //const glycosylationDetailRowFields = [
-  //  { label: 'Linkage', options: linkage },
-  //  { label: 'Amino Acids', options: glycosylationAminoAcids },
-  //];
-
   const glycosylationDetailButtonGroups = [
     { label: 'Amino Acids', options: glycosylationAminoAcids },
   ];
@@ -65,6 +60,12 @@ const SequenceAndPostTranslationalModificationForm = () => {
   const methylationDetailButtonGroups = [
     { abel: 'Amino Acids', options: methylationAminoAcids },
   ];
+
+  // <Col>
+  //   {formHelper.textInput(`${fieldPrefixPostTransitional}.name`, 'Name of the post modification ', disabled, '')}
+  // </Col>
+  // </Row>
+  // <Row className="mb-4 align-items-end">
 
   return (
     <>
@@ -178,11 +179,6 @@ const SequenceAndPostTranslationalModificationForm = () => {
 
       <Row className="mb-4 align-items-end">
         <h5 className="mb-3">Posttranslational modifications</h5>
-        <Col>
-          {formHelper.textInput(`${fieldPrefixPostTransitional}.name`, 'Name of the post modification ', disabled, '')}
-        </Col>
-      </Row>
-      <Row className="mb-4 align-items-end">
         <Col>
           {formHelper.checkboxInput(`${fieldPrefixPostTransitional}.phosphorylation_enabled`, 'Phosphorylation', disabled)}
         </Col>

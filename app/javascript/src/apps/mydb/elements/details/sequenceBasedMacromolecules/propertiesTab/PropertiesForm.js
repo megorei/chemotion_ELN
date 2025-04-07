@@ -65,10 +65,12 @@ const PropertiesForm = ({ readonly }) => {
   const noPrimaryAccession = uniprotDerivationValue === 'uniprot'
     && sequenceBasedMacromoleculeStore.error_messages[primaryAccessionErrorIdent]
     && !sequenceBasedMacromolecule.sequence_based_macromolecule?.primary_accession
+    && sequenceBasedMacromolecule.isNew
 
   const noParentIdentifier = uniprotDerivationValue === 'uniprot_modified'
     && sequenceBasedMacromoleculeStore.error_messages[parentIdentifierErrorIdent]
     && !sequenceBasedMacromolecule.sequence_based_macromolecule?.parent_identifier
+    && sequenceBasedMacromolecule.isNew
 
   const searchable = ['uniprot', 'uniprot_modified'].includes(uniprotDerivationValue)
     && sequenceBasedMacromolecule.sequence_based_macromolecule.search_field
