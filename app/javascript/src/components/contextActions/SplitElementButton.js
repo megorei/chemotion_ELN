@@ -186,9 +186,9 @@ export default class SplitElementButton extends React.Component {
         </Dropdown.Item>
         <Dropdown.Item
           onClick={() => this.splitSelectionAsSubSequenceBasedMacromolecule()}
-          disabled={this.noSelected('sequence_based_macromolecule') || this.isAllCollection()}
+          disabled={this.noSelected('sequence_based_macromolecule_sample') || this.isAllCollection()}
         >
-          Split Sequence Based Macromolecule
+          Split Sequence Based Macromolecule Sample
         </Dropdown.Item>
         {sortedGenericEls.map((el) => (
           <Dropdown.Item

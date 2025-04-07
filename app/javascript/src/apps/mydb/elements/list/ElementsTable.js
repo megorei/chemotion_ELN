@@ -29,6 +29,8 @@ import ChevronIcon from 'src/components/common/ChevronIcon';
 import DeviceDescriptionList from 'src/apps/mydb/elements/list/deviceDescriptions/DeviceDescriptionList';
 import DeviceDescriptionListHeader from 'src/apps/mydb/elements/list/deviceDescriptions/DeviceDescriptionListHeader';
 import { getDisplayedMoleculeGroup, getMoleculeGroupsShown } from 'src/utilities/SampleUtils'
+import SequenceBasedMacromoleculeSampleList from 'src/apps/mydb/elements/list/sequenceBasedMacromoleculeSamples/SequenceBasedMacromoleculeSampleList';
+import SequenceBasedMacromoleculeSampleHeader from 'src/apps/mydb/elements/list/sequenceBasedMacromoleculeSamples/SequenceBasedMacromoleculeSampleHeader';
 
 export default class ElementsTable extends React.Component {
   constructor(props) {
@@ -202,8 +204,8 @@ export default class ElementsTable extends React.Component {
 
   changeCollapse = (collapseAll, childPropName, childPropValue) => {
     this.setState({
-        collapseAll: !collapseAll,
-        ...(childPropName ? { [childPropName]: childPropValue } : {})
+      collapseAll: !collapseAll,
+      ...(childPropName ? { [childPropName]: childPropValue } : {})
     });
   };
 
@@ -281,15 +283,15 @@ export default class ElementsTable extends React.Component {
   }
 
   collapseButton = () => {
-    const { collapseAll, elements, moleculeSort} = this.state;
+    const { collapseAll, elements, moleculeSort } = this.state;
 
     return (
       <ChevronIcon
         direction={collapseAll ? 'right' : 'down'}
         onClick={() => this.setState((prevState) => ({
           collapseAll: !prevState.collapseAll,
-         moleculeGroupsShown: !collapseAll ? [] : this.getMoleculeGroupsShownFromElement(elements, moleculeSort)
-         }))}
+          moleculeGroupsShown: !collapseAll ? [] : this.getMoleculeGroupsShownFromElement(elements, moleculeSort)
+        }))}
         color="primary"
         className="fs-5"
         role="button"
@@ -574,6 +576,8 @@ export default class ElementsTable extends React.Component {
       typeSpecificHeader = this.renderReactionsHeader();
     } else if (type === 'device_description') {
       typeSpecificHeader = <DeviceDescriptionListHeader elements={elements} />;
+    } else if (type === 'sequence_based_macromolecule') {
+      typeSpecificHeader = <SequenceBasedMacromoleculeSampleHeader elements={elements} />;
     } else if (genericEl) {
       typeSpecificHeader = this.renderGenericElementsHeader();
     }
@@ -660,7 +664,7 @@ export default class ElementsTable extends React.Component {
           ui={ui}
           moleculeSort={moleculeSort}
           onChangeCollapse={(collapseAll, childPropName, childPropValue) => this.changeCollapse(!collapseAll, childPropName, childPropValue)}
-          moleculeGroupsShown = {moleculeGroupsShown}
+          moleculeGroupsShown={moleculeGroupsShown}
         />
       );
     } else if ((type === 'reaction' || genericEl) && elementsGroup !== 'none') {
@@ -686,6 +690,14 @@ export default class ElementsTable extends React.Component {
     } else if (type === 'device_description') {
       elementsTableEntries = (
         <DeviceDescriptionList
+          elements={elements}
+          currentElement={currentElement}
+          ui={ui}
+        />
+      );
+    } else if (type === 'sequence_based_macromolecule') {
+      elementsTableEntries = (
+        <SequenceBasedMacromoleculeSampleList
           elements={elements}
           currentElement={currentElement}
           ui={ui}
