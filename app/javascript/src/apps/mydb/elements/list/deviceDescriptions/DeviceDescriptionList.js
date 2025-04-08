@@ -86,7 +86,7 @@ const DeviceDescriptionList = ({ elements, currentElement, ui }) => {
     elements.forEach((element) => {
       let key = identifierKey(element[groupedByValue]);
 
-      if (groupedByValue === 'ontology' && element.ontologies.length >= 1) {
+      if (groupedByValue === 'ontology' && element.ontologies && element.ontologies.length >= 1) {
         element.ontologies.map((ontology) => {
           key = ontology.data.label;
 
@@ -98,7 +98,7 @@ const DeviceDescriptionList = ({ elements, currentElement, ui }) => {
           group[key].push(element);
         });
       } else {
-        if (groupedByValue === 'ontology_combinded' && element.ontologies.length >= 1) {
+        if (groupedByValue === 'ontology_combinded' && element.ontologies && element.ontologies.length >= 1) {
           const sortedOntology = element.ontologies.map((ontology) => ontology.data.label).sort();
           key = sortedOntology.join(' - ');
         }
