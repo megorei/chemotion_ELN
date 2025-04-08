@@ -158,13 +158,16 @@ const DeviceDescriptionDetails = ({ toggleFullScreen }) => {
               {deviceDescription.name}
             </span>
           </OverlayTrigger>
-          <ElementCollectionLabels element={deviceDescription} placement="right" />
+          {!deviceDescription.isNew && (
+            <ElementCollectionLabels element={deviceDescription} placement="right" />
+          )}
           <HeaderCommentSection element={deviceDescription} />
         </div>
         <div className="d-flex align-items-center gap-1">
           <PrintCodeButton element={deviceDescription} />
-          {!deviceDescription.isNew &&
-            <OpenCalendarButton isPanelHeader eventableId={deviceDescription.id} eventableType="DeviceDescription" />}
+          {!deviceDescription.isNew && (
+            <OpenCalendarButton isPanelHeader eventableId={deviceDescription.id} eventableType="DeviceDescription" />
+          )}
           <OverlayTrigger
             placement="bottom"
             overlay={<Tooltip id="fullDeviceDescription">FullScreen</Tooltip>}

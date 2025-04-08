@@ -12,8 +12,7 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
   }
 
   static fetchSequenceBasedMacromoleculesByUIStateAndLimit(params) {
-    const limit = params.limit ? limit : null;
-    console.log('fetchSequenceBasedMacromoleculesByUIStateAndLimit');
+    const limit = params.limit ? params.limit : null;
 
     return fetch('/api/v1/sequence_based_macromolecule_samples/ui_state/', 
       {
@@ -30,7 +29,7 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
   static splitAsSubSequenceBasedMacromolecule(params) {
     return [];
 
-    // return fetch('/api/v1/sequence_based_macromolecules/sub_sequence_based_macromolecules/', 
+    // return fetch('/api/v1/sequence_based_macromolecule_samples/sub_sequence_based_macromolecule_samples/', 
     //   {
     //     ...this._httpOptions('POST'),
     //     body: JSON.stringify(params)
@@ -41,10 +40,6 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
   }
 
   static fetchById(sequenceBasedMacromoleculeSampleId) {
-    //const sequence_based_macromolecule = this._fakeElement(sequenceBasedMacromoleculeSampleId);
-    //sequence_based_macromolecule._checksum = sequence_based_macromolecule.checksum();
-    //return Promise.resolve(sequence_based_macromolecule);
-
     return fetch(
       `/api/v1/sequence_based_macromolecule_samples/${sequenceBasedMacromoleculeSampleId}`,
       { ...this._httpOptions() }
@@ -99,8 +94,6 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
     const newFiles = (sequenceBasedMacromoleculeSample.attachments || []).filter((a) => a.is_new && !a.is_deleted);
     const delFiles = (sequenceBasedMacromoleculeSample.attachments || []).filter((a) => !a.is_new && a.is_deleted);
 
-    //return Promise.resolve(this._fakeElement(1));
-
     const promise = () => fetch(
       `/api/v1/sequence_based_macromolecule_samples/${sequenceBasedMacromoleculeSample.id}`,
       {
@@ -139,45 +132,6 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
       { ...this._httpOptions('DELETE') }
     ).then(response => response.json())
       .catch(errorMessage => console.log(errorMessage));
-  }
-
-  static _fakeElement(sequenceBasedMacromoleculeId) {
-    const randomNumber = Math.floor(Math.random() * (101 - 2) + 2);
-    const id = sequenceBasedMacromoleculeId ? sequenceBasedMacromoleculeId * 1 : randomNumber;
-    const isNew = sequenceBasedMacromoleculeId ? false : true;
-
-    return new SequenceBasedMacromoleculeSample({
-      id: id,
-      name: `Test ${id}`,
-      type: 'sequence_based_macromolecule_sample',
-      short_label: `CU6-SBMM-${id}`,
-      function_or_application: 'enzyme',
-      sbmm_type: 'protein',
-      uniprot_derivation: 'uniprot_unknown',
-      isNew: isNew,
-      changed: false,
-      updated: false,
-      can_copy: false,
-      container: Container.init(),
-      attachments: [],
-      post_translational_modifications: {},
-      tag: {
-        created_at: '22.01.2025, 15:10:20 +0000',
-        taggable_data: {
-          collection_labels: [{
-            id: 25,
-            is_shared: false,
-            is_synchronized: false,
-            name: 'project CU1-champagne',
-            shared_by_id: null,
-            user_id: 9,
-          }],
-        },
-        taggable_id: 1,
-        taggable_type: 'SequenceBasedMacromoleculeSample',
-        updated_at: '22.01.2025, 15:10:20 +0000',
-      }
-    });
   }
 
   static _httpOptions(method = 'GET') {
