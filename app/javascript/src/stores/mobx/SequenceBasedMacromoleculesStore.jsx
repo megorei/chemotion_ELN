@@ -29,7 +29,7 @@ const emptySequenceBasedMacromolecule = {
   tissue: '',
   uniprot_source: '',
   updated_at: '',
-}
+};
 
 const validationFields = [
   'name',
@@ -38,7 +38,25 @@ const validationFields = [
   'sequence_based_macromolecule.uniprot_derivation',
   'sequence_based_macromolecule.primary_accession',
   'sequence_based_macromolecule.parent_identifier',
-]
+];
+
+const postModificationCheckboxWithDetailField = [
+  'phosphorylation_enabled', 'glycosylation_enabled', 'acetylation_enabled',
+  'hydroxylation_enabled', 'methylation_enabled', 'other_modifications_enabled',
+];
+
+const postModificationDetailFields = [
+  'phosphorylation_ser_details', 'phosphorylation_thr_details', 'phosphorylation_tyr_details',
+  'glycosylation_n_linked_asn_details', 'glycosylation_o_linked_lys_details', 'glycosylation_o_linked_ser_details',
+  'glycosylation_o_linked_thr_details', 'acetylation_lysin_number',
+  'hydroxylation_lys_details', 'hydroxylation_lys_details', 'hydroxylation_pro_details',
+  'methylation_arg_details', 'methylation_glu_details', 'methylation_lys_details', 'other_modifications_details',
+];
+
+const proteinModificationCheckboxWithDetailField = [
+  'modification_n_terminal', 'modification_c_terminal', 'modification_insertion',
+  'modification_deletion', 'modification_mutation', 'modification_other',
+];
 
 export const SequenceBasedMacromoleculesStore = types
   .model({
@@ -155,6 +173,19 @@ export const SequenceBasedMacromoleculesStore = types
       let sequence_based_macromolecule = { ...self.sequence_based_macromolecule };
       const { lastObject, lastKey } = self.getLastObjectAndKeyByField(field, sequence_based_macromolecule);
       lastObject[lastKey] = value;
+
+      if (postModificationCheckboxWithDetailField.includes(lastKey) && !value) {
+        const key = lastKey.replace('_enabled', '');
+        const detailFields = postModificationDetailFields.filter((f) => f.startsWith(key));
+        detailFields.map((fieldKey) => {
+          lastObject[fieldKey] = '';
+        });
+      }
+
+      if (proteinModificationCheckboxWithDetailField.includes(lastKey) && !value) {
+        const key = `${lastKey}_details`;
+        lastObject[key] = '';
+      }
 
       // sequence_based_macromolecule.updated = false;
       self.setSequenceBasedMacromolecule(sequence_based_macromolecule);

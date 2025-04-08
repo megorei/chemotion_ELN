@@ -500,4 +500,4 @@ const handleClickOnUrl = (type, id) => {
   return null;
 }
 
-export { initFormHelper, }
+export { initFormHelper }
