@@ -79,9 +79,6 @@ const SequenceBasedMacromoleculeSampleList = ({ elements, currentElement, ui }) 
     let group = {};
 
     elements.forEach((element) => {
-      // let key = element.sequence_based_macromolecule?.parent
-      //   ? element.sequence_based_macromolecule.parent.id
-      //   : element.sequence_based_macromolecule.id;
       const key = element.sequence_based_macromolecule.id;
       sbmmStore.addGroupToAllGroups(`${key}`);
  
@@ -116,12 +113,6 @@ const SequenceBasedMacromoleculeSampleList = ({ elements, currentElement, ui }) 
   const ListItemHeader = (key, group, shownGroup) => {
     const direction = chevronOpenOrClosed(shownGroup) ? 'down' : 'right';
     const sbmm = group[0].sequence_based_macromolecule;
-    const type = sbmm.uniprot_derivation;
-    let groupName = 'Unknown - '; 
-
-    groupName = type === 'uniprot'
-      ? `Uniprot - ${sbmm.primary_accession} - ${sbmm.full_name}`
-      : (type === 'uniprot_modified' ? 'Modified - ' : groupName);
 
     return (
       <div
@@ -130,8 +121,8 @@ const SequenceBasedMacromoleculeSampleList = ({ elements, currentElement, ui }) 
         key={`element-list-item-header-${key}`}
         role="button"
       >
-        <div className="fw-bold fs-5">{groupName}</div>
-        <div>
+        <div className="fw-bold fs-5">{sbmm.short_name}</div>
+        <div className="d-flex justify-content-between align-items-center">
           <OverlayTrigger placement="bottom" overlay={overlayToggle}>
             <ChevronIcon
               direction={direction}

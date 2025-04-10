@@ -22,7 +22,6 @@ const ReferenceAndModificationForm = ({ ident }) => {
   if (ident === 'reference' && sbmmSample.sequence_based_macromolecule.parent) {
     fieldPrefix = `${fieldPrefix}.parent`;
     parent = sbmmSample.sequence_based_macromolecule.parent;
-    disabled = true;
   }
   if (ident === 'reference') {
     disabled = true;

@@ -247,11 +247,6 @@ const PropertiesForm = ({ readonly }) => {
                 <h5 className="mb-3">Sample characteristics</h5>
                 <Row className="mb-4 align-items-end">
                   <Col>
-                    {formHelper.textInput('short_label', 'Short label', disabled, '')}
-                  </Col>
-                </Row>
-                <Row className="mb-4 align-items-end">
-                  <Col>
                     {formHelper.unitInput('volume_as_used_value', 'Volume as used', 'volumes', disabled, '')}
                   </Col>
                   <Col>
