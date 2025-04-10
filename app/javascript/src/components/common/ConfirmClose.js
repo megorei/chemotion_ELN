@@ -21,7 +21,7 @@ export default class ConfirmClose extends Component {
   closeElement(e) {
     const { el } = this.props;
     if (el && el.type == 'sequence_based_macromolecule_sample') {
-      this.context.sequenceBasedMacromolecules.removeFromOpenSequenceBasedMacromolecules(el);
+      this.context.sequenceBasedMacromoleculeSamples.removeFromOpenSequenceBasedMacromoleculeSamples(el);
     }
     DetailActions.confirmDelete(e);
   }

@@ -32,7 +32,7 @@ export const ALL_TYPES = [
 
 export const allElnElements = [
   'sample', 'reaction', 'screen', 'wellplate', 'research_plan',
-  'cell_line', 'device_description', 'sequence_based_macromolecule',
+  'cell_line', 'device_description', 'sequence_based_macromolecule_sample',
 ];
 
 export const allElnElmentsWithLabel = [
@@ -43,7 +43,7 @@ export const allElnElmentsWithLabel = [
   { name: 'research_plan', label: 'Research Plan' },
   { name: 'cell_line', label: 'Cell Line' },
   { name: 'device_description', label: 'Device Description' },
-  { name: 'sequence_based_macromolecule', label: 'Sequence Based Macromolecule' },
+  { name: 'sequence_based_macromolecule_sample', label: 'Sequence Based Macromolecule Sample' },
 ];
 
 export const allGenericElements = () => {

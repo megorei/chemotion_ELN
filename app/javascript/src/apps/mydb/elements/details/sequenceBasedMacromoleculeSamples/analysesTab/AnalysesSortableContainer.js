@@ -7,9 +7,9 @@ import { DragDropItemTypes } from 'src/utilities/DndConst';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 
 const AnalysesSortableContainer = ({ readonly }) => {
-  const sequenceBasedMacromoleculeStore = useContext(StoreContext).sequenceBasedMacromolecules;
-  const sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
-  const containers = sequenceBasedMacromolecule.container.children[0].children;
+  const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
+  const sbmmSample = sbmmStore.sequence_based_macromolecule_sample;
+  const containers = sbmmSample.container.children[0].children;
 
   const moveAnalyse = (idToMove, idOfPredecessor) => {
     Container.switchPositionOfChildContainer(

@@ -68,7 +68,7 @@ class UIStore {
         activeTab: 0,
         activeAnalysis: 0,
       },
-      sequence_based_macromolecule: {
+      sequence_based_macromolecule_sample: {
         checkedAll: false,
         checkedIds: List(),
         uncheckedIds: List(),
@@ -267,13 +267,12 @@ class UIStore {
     this.handleUncheckAllElements({ type: 'research_plan', range: 'all' });
     this.handleUncheckAllElements({ type: 'cell_line', range: 'all' });
     this.handleUncheckAllElements({ type: 'device_description', range: 'all' });
-    this.handleUncheckAllElements({ type: 'sequence_based_macromolecule', range: 'all' });
+    this.handleUncheckAllElements({ type: 'sequence_based_macromolecule_sample', range: 'all' });
     this.state.klasses?.forEach((klass) => { this.handleUncheckAllElements({ type: klass, range: 'all' }); });
   }
 
   handleCheckElement(element) {
     let type = element.type;
-    type = element.type === 'sequence_based_macromolecule_sample' ? 'sequence_based_macromolecule' : type;
 
     if (this.state[type].checkedAll) {
       this.state[type].uncheckedIds =
@@ -311,7 +310,7 @@ class UIStore {
     this.state.wellplate.currentId = null;
     this.state.research_plan.currentId = null;
     this.state.device_description.currentId = null;
-    this.state.sequence_based_macromolecule.currentId = null;
+    this.state.sequence_based_macromolecule_sample.currentId = null;
   }
 
   handleSelectElement(element) {
@@ -392,16 +391,16 @@ class UIStore {
               Object.assign(params, { page: state.device_description.page }),
             );
           }
-          if (!isSync && layout.sequence_based_macromolecule && layout.sequence_based_macromolecule > 0) {
+          if (!isSync && layout.sequence_based_macromolecule_sample && layout.sequence_based_macromolecule_sample > 0) {
             ElementActions.fetchSequenceBasedMacromoleculeSamplesByCollectionId(
               collection.id,
-              Object.assign(params, { page: state.sequence_based_macromolecule.page }),
+              Object.assign(params, { page: state.sequence_based_macromolecule_sample.page }),
             );
           }
 
           const elements = [
             'sample', 'reaction', 'screen', 'wellplate', 'research_plan',
-            'cell_line', 'device_description', 'sequence_based_macromolecule',
+            'cell_line', 'device_description', 'sequence_based_macromolecule_sample',
           ];
 
           Object.keys(layout)

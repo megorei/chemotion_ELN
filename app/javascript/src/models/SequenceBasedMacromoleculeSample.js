@@ -547,10 +547,10 @@ export default class SequenceBasedMacromoleculeSample extends Element {
     return `${currentUser.initials}-SBMM${currentUser.macromolecules_count + 1}`;
   }
 
-  // static copyFromSequenceBasedMacromoleculeAndCollectionId(sequence_based_macromolecule, collection_id) {
-  //   const newSequenceBasedMacromolecule = sequence_based_macromolecule.buildCopy();
-  //   newSequenceBasedMacromolecule.collection_id = collection_id;
-  //   if (sequence_based_macromolecule.name) { newSequenceBasedMacromolecule.name = sequence_based_macromolecule.name; }
+  // static copyFromSequenceBasedMacromoleculeSampleAndCollectionId(sequence_based_macromolecule_sample, collection_id) {
+  //   const newSequenceBasedMacromoleculeSample = sequence_based_macromolecule_sample.buildCopy();
+  //   newSequenceBasedMacromoleculeSample.collection_id = collection_id;
+  //   if (sequence_based_macromolecule_sample.name) { newSequenceBasedMacromoleculeSample.name = sequence_based_macromolecule_sample.name; }
 
   //   return new SequenceBasedMacromoleculeSample;
   // }
@@ -571,11 +571,11 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   }
 
   // buildCopy() {
-  //   const sequenceBasedMacromolecule = super.buildCopy();
-  //   sequenceBasedMacromolecule.short_label = SequenceBasedMacromolecule.buildNewShortLabel();
-  //   sequenceBasedMacromolecule.container = Container.init();
-  //   sequenceBasedMacromolecule.can_copy = false;
-  //   sequenceBasedMacromolecule.attachments = []
-  //   return sequenceBasedMacromolecule;
+  //   const sequenceBasedMacromoleculeSample = super.buildCopy();
+  //   sequenceBasedMacromoleculeSample.short_label = SequenceBasedMacromoleculeSample.buildNewShortLabel();
+  //   sequenceBasedMacromoleculeSample.container = Container.init();
+  //   sequenceBasedMacromoleculeSample.can_copy = false;
+  //   sequenceBasedMacromoleculeSample.attachments = []
+  //   return sequenceBasedMacromoleculeSample;
   // }
 }

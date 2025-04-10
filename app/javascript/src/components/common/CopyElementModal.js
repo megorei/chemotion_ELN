@@ -62,7 +62,7 @@ export default class CopyElementModal extends React.Component {
     } else if (element.type === 'device_description') {
       ClipboardActions.fetchDeviceDescriptionAndBuildCopy(element, selectedCol, 'copy_device_description');
     } else if (element.type === 'sequence_based_macromolecule_sample') {
-      ClipboardActions.fetchElementAndBuildCopy(element, selectedCol, 'copy_sequence_based_macromolecule');
+      ClipboardActions.fetchElementAndBuildCopy(element, selectedCol, 'copy_sequence_based_macromolecule_sample');
     } else {
       ElementActions.copyElement(element, selectedCol);
     }

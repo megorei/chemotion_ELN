@@ -33,21 +33,21 @@ import UIStore from 'src/stores/alt/stores/UIStore';
 import UserStore from 'src/stores/alt/stores/UserStore';
 import CollectionUtils from 'src/models/collection/CollectionUtils';
 
-const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
-  const sequenceBasedMacromoleculeStore = useContext(StoreContext).sequenceBasedMacromolecules;
-  let sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
+const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
+  const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
+  let sbmmSample = sbmmStore.sequence_based_macromolecule_sample;
 
   const { currentCollection, isSync } = UIStore.getState();
   const { currentUser } = UserStore.getState();
 
   const [visibleTabs, setVisibleTabs] = useState(Immutable.List());
 
-  const submitLabel = sequenceBasedMacromolecule.isNew ? 'Create' : 'Save';
+  const submitLabel = sbmmSample.isNew ? 'Create' : 'Save';
   let tabContents = [];
 
   useEffect(() => {
-    if (sequenceBasedMacromolecule?.id && MatrixCheck(currentUser.matrix, commentActivation) && !sequenceBasedMacromolecule.isNew) {
-      CommentActions.fetchComments(sequenceBasedMacromolecule);
+    if (sbmmSample?.id && MatrixCheck(currentUser.matrix, commentActivation) && !sbmmSample.isNew) {
+      CommentActions.fetchComments(sbmmSample);
     }
   }, []);
 
@@ -74,20 +74,20 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
   }
 
   const disabled = (index) => {
-    return sequenceBasedMacromolecule.isNew && index !== 0 ? true : false;
+    return sbmmSample.isNew && index !== 0 ? true : false;
   }
 
   visibleTabs.forEach((key, i) => {
     let title = tabTitles[key];
   
     tabContents.push(
-      <Tab eventKey={key} title={title} key={`${key}_${sequenceBasedMacromolecule.id}`} disabled={disabled(i)}>
+      <Tab eventKey={key} title={title} key={`${key}_${sbmmSample.id}`} disabled={disabled(i)}>
         {
-          !sequenceBasedMacromolecule.isNew &&
-          <CommentSection section={`sequence_based_macromolecule_sample_${key}`} element={sequenceBasedMacromolecule} />
+          !sbmmSample.isNew &&
+          <CommentSection section={`sequence_based_macromolecule_sample_${key}`} element={sbmmSample} />
         }
         {React.createElement(tabContentComponents[key], {
-          key: `${sequenceBasedMacromolecule.id}-${key}`,
+          key: `${sbmmSample.id}-${key}`,
           readonly: isReadOnly()
         })}
       </Tab>
@@ -99,31 +99,31 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
   }
 
   const handleTabChange = (key) => {
-    sequenceBasedMacromoleculeStore.setActiveTabKey(key);
+    sbmmStore.setActiveTabKey(key);
   }
 
   const handleSubmit = () => {
-    if (sequenceBasedMacromoleculeStore.hasValidFields()) {
+    if (sbmmStore.hasValidFields()) {
       LoadingActions.start();
-      if (sequenceBasedMacromolecule.is_new) {
-        DetailActions.close(sequenceBasedMacromolecule, true);
-        ElementActions.createSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+      if (sbmmSample.is_new) {
+        DetailActions.close(sbmmSample, true);
+        ElementActions.createSequenceBasedMacromoleculeSample(sbmmSample);
       } else {
-        ElementActions.updateSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+        ElementActions.updateSequenceBasedMacromoleculeSample(sbmmSample);
       }
     }
   }
 
   // const handleExportAnalyses = () => {
-  //   sequenceBasedMacromoleculesStore.toggleAnalysisStartExport();
-  //   AttachmentFetcher.downloadZipBySequenceBasedMacromolecule(sequenceBasedMacromolecule.id)
-  //     .then(() => { sequenceBasedMacromoleculeStore.toggleAnalysisStartExport(); })
+  //   sbmmSamplesStore.toggleAnalysisStartExport();
+  //   AttachmentFetcher.downloadZipBySequenceBasedMacromolecule(sbmmSample.id)
+  //     .then(() => { sbmmStore.toggleAnalysisStartExport(); })
   //     .catch((errorMessage) => { console.log(errorMessage); });
   // }
 
   const downloadAnalysisButton = () => {
-    //   const hasNoAnalysis = sequenceBasedMacromolecule.analyses?.length === 0 || sequenceBasedMacromolecule.analyses?.length === undefined;
-    //   if (sequenceBasedMacromolecule.isNew || hasNoAnalysis) { return null; }
+    //   const hasNoAnalysis = sbmmSample.analyses?.length === 0 || sbmmSample.analyses?.length === undefined;
+    //   if (sbmmSample.isNew || hasNoAnalysis) { return null; }
     // 
     //   return (
     //     <Button
@@ -131,13 +131,13 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
     //       onClick={() => handleExportAnalyses()}
     //     >
     //       Download Analysis
-    //       {sequenceBasedMacromoleculesStore.analysis_start_export && <i className="fa fa-spin fa-spinner ms-1" />}
+    //       {sbmmSamplesStore.analysis_start_export && <i className="fa fa-spin fa-spinner ms-1" />}
     //     </Button>
     //   );
   }
 
-  const sequenceBasedMacromoleculeHeader = () => {
-    const titleTooltip = formatTimeStampsOfElement(sequenceBasedMacromolecule || {});
+  const sbmmSampleHeader = () => {
+    const titleTooltip = formatTimeStampsOfElement(sbmmSample || {});
     const defCol = currentCollection && currentCollection.is_shared === false
       && currentCollection.is_locked === false && currentCollection.label !== 'All' ? currentCollection.id : null;
 
@@ -146,26 +146,26 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
         <div className="d-flex align-items-center gap-2">
           <OverlayTrigger
             placement="bottom"
-            overlay={<Tooltip id="sequenceBasedMacromoleculeDates">{titleTooltip}</Tooltip>}
+            overlay={<Tooltip id="sbmmSampleDates">{titleTooltip}</Tooltip>}
           >
             <span>
               <i className="icon-sequence_based_macromolecule me-1" />
-              {sequenceBasedMacromolecule.name}
+              {sbmmSample.name}
             </span>
           </OverlayTrigger>
           {
-            !sequenceBasedMacromolecule.isNew && (
-              <ElementCollectionLabels element={sequenceBasedMacromolecule} placement="right" />
+            !sbmmSample.isNew && (
+              <ElementCollectionLabels element={sbmmSample} placement="right" />
             )
           }
-          <HeaderCommentSection element={sequenceBasedMacromolecule} />
+          <HeaderCommentSection element={sbmmSample} />
         </div>
         <div className="d-flex align-items-center gap-1">
-          <PrintCodeButton element={sequenceBasedMacromolecule} />
-          {!sequenceBasedMacromolecule.isNew &&
+          <PrintCodeButton element={sbmmSample} />
+          {!sbmmSample.isNew &&
             <OpenCalendarButton
               isPanelHeader
-              eventableId={sequenceBasedMacromolecule.id}
+              eventableId={sbmmSample.id}
               eventableType="SequenceBasedMacromoleculeSample"
             />}
           <OverlayTrigger
@@ -180,13 +180,13 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
               <i className="fa fa-expand" />
             </Button>
           </OverlayTrigger>
-          {sequenceBasedMacromolecule.can_copy && !sequenceBasedMacromolecule.isNew && (
+          {sbmmSample.can_copy && !sbmmSample.isNew && (
             <CopyElementModal
-              element={sequenceBasedMacromolecule}
+              element={sbmmSample}
               defCol={defCol}
             />
           )}
-          {sequenceBasedMacromolecule.isEdited && (
+          {sbmmSample.isEdited && (
             <OverlayTrigger
               placement="bottom"
               overlay={<Tooltip id="saveSequenceBasedMacromolecule">Save sequence based macromolecule</Tooltip>}
@@ -200,16 +200,16 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
               </Button>
             </OverlayTrigger>
           )}
-          <ConfirmClose el={sequenceBasedMacromolecule} />
+          <ConfirmClose el={sbmmSample} />
         </div>
       </div>
     );
   }
 
   return (
-    <Card className={"detail-card" + (sequenceBasedMacromolecule.isPendingToSave ? " detail-card--unsaved" : "")}>
+    <Card className={"detail-card" + (sbmmSample.isPendingToSave ? " detail-card--unsaved" : "")}>
       <Card.Header>
-        {sequenceBasedMacromoleculeHeader()}
+        {sbmmSampleHeader()}
       </Card.Header>
       <Card.Body style={{ minHeight: '500px' }}>
         <ElementDetailSortTab
@@ -220,19 +220,19 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
         />
         <div className="tabs-container--with-borders">
           <Tabs
-            activeKey={sequenceBasedMacromoleculeStore.active_tab_key}
+            activeKey={sbmmStore.active_tab_key}
             onSelect={key => handleTabChange(key)}
-            id="sequenceBasedMacromoleculeDetailsTab"
+            id="sbmmSampleSampleDetailsTab"
             unmountOnExit
           >
             {tabContents}
           </Tabs>
         </div>
-        <CommentModal element={sequenceBasedMacromolecule} />
+        <CommentModal element={sbmmSample} />
       </Card.Body>
       <Card.Footer>
         <ButtonToolbar className="gap-2">
-          <Button variant="primary" onClick={() => DetailActions.close(sequenceBasedMacromolecule)}>
+          <Button variant="primary" onClick={() => DetailActions.close(sbmmSample)}>
             Close
           </Button>
           <Button variant="warning" onClick={() => handleSubmit()}>
@@ -245,4 +245,4 @@ const SequenceBasedMacromoleculeDetails = ({ toggleFullScreen }) => {
   );
 }
 
-export default observer(SequenceBasedMacromoleculeDetails);
+export default observer(SequenceBasedMacromoleculeSampleDetails);

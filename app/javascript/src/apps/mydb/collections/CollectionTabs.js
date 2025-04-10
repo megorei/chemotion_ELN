@@ -10,16 +10,7 @@ import TabLayoutContainer from 'src/apps/mydb/elements/tabLayout/TabLayoutContai
 import UserStore from 'src/stores/alt/stores/UserStore';
 import UserActions from 'src/stores/alt/actions/UserActions';
 import { filterTabLayout, getArrayFromLayout } from 'src/utilities/CollectionTabsHelper';
-
-const elements = [
-  { name: 'sample', label: 'Sample' },
-  { name: 'reaction', label: 'Reaction' },
-  { name: 'wellplate', label: 'Wellplate' },
-  { name: 'screen', label: 'Screen' },
-  { name: 'research_plan', label: 'Research Plan' },
-  { name: 'device_description', label: 'Device description' },
-  { name: 'sequence_based_macromolecule', label: 'Sequence Based Macromolecule' },
-];
+import { allElnElmentsWithLabel } from 'src/apps/generic/Utils';
 
 export default class CollectionTabs extends React.Component {
   constructor(props) {
@@ -82,7 +73,7 @@ export default class CollectionTabs extends React.Component {
     const { layouts, profileData } = this.state;
     this.setState({ currentCollection: node });
     this.handleModalOptions(this.state.showModal);
-    elements.forEach((element, index) => {
+    allElnElmentsWithLabel.forEach((element, index) => {
       let layout = {};
       if (_.isEmpty(node.tabs_segment[element.name])) {
         layout = (profileData && profileData[`layout_detail_${element.name}`]) || {};
@@ -110,9 +101,9 @@ export default class CollectionTabs extends React.Component {
   handleSave(showModal) {
     const cCol = this.state.currentCollection;
     let layoutSegments = {};
-    elements.forEach((_e, index) => {
+    allElnElmentsWithLabel.forEach((_e, index) => {
       const layout = filterTabLayout(this.tabRef[index].state);
-      layoutSegments = { ...layoutSegments, [elements[index].name]: layout };
+      layoutSegments = { ...layoutSegments, [allElnElmentsWithLabel[index].name]: layout };
     });
     const params = { layoutSegments, currentCollectionId: cCol.id };
     CollectionActions.createTabsSegment(params);
@@ -181,9 +172,9 @@ export default class CollectionTabs extends React.Component {
             {layouts.map((lay, index) => {
               const callbackRef = (node) => this.tabRef[index] = node;
               return (
-                <div key={elements[index].name}>
+                <div key={allElnElmentsWithLabel[index].name}>
                   <Col md={6}>
-                    <p className="collection-tag-element">{elements[index].label}</p>
+                    <p className="collection-tag-element">{allElnElmentsWithLabel[index].label}</p>
                   </Col>
                   <Col md={12}>
                     <TabLayoutContainer

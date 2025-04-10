@@ -175,7 +175,6 @@ export default class ElementsList extends React.Component {
     // TODO sollte in tab action handler
     const uiState = UIStore.getState();
     let type = this.state.visible.get(tab);
-    type = type === 'sequence_based_macromolecule' ? 'sequence_based_macromolecule_sample' : type;
 
     if (!uiState[type] || !uiState[type].page) { return; }
 

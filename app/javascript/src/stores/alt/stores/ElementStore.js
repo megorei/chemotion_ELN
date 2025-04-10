@@ -111,7 +111,7 @@ class ElementStore {
         pages: null,
         perPage: null
       },
-      sequence_based_macromolecules: {
+      sequence_based_macromolecule_samples: {
         elements: [],
         totalElements: 0,
         page: null,
@@ -232,9 +232,9 @@ class ElementStore {
       handlefetchDeviceDescriptionById: ElementActions.fetchDeviceDescriptionById,
       handleCreateDeviceDescription: ElementActions.createDeviceDescription,
       handleCopyDeviceDescriptionFromClipboard: ElementActions.copyDeviceDescriptionFromClipboard,
-      handlefetchSequenceBasedMacromoleculeById: ElementActions.fetchSequenceBasedMacromoleculeById,
-      handleCreateSequenceBasedMacromolecule: ElementActions.createSequenceBasedMacromolecule,
-      handleCopySequenceBasedMacromoleculeFromClipboard: ElementActions.copySequenceBasedMacromoleculeFromClipboard,
+      handlefetchSequenceBasedMacromoleculeSampleById: ElementActions.fetchSequenceBasedMacromoleculeSampleById,
+      handleCreateSequenceBasedMacromoleculeSample: ElementActions.createSequenceBasedMacromoleculeSample,
+      handleCopySequenceBasedMacromoleculeSampleFromClipboard: ElementActions.copySequenceBasedMacromoleculeSampleFromClipboard,
 
       handleCreatePrivateNote: ElementActions.createPrivateNote,
       handleUpdatePrivateNote: ElementActions.updatePrivateNote,
@@ -296,7 +296,7 @@ class ElementStore {
         ElementActions.updateResearchPlan,
         ElementActions.updateCellLine,
         ElementActions.updateDeviceDescription,
-        ElementActions.updateSequenceBasedMacromolecule,
+        ElementActions.updateSequenceBasedMacromoleculeSample,
         ElementActions.updateGenericEl,
       ],
       handleUpdateEmbeddedResearchPlan: ElementActions.updateEmbeddedResearchPlan,
@@ -570,7 +570,7 @@ class ElementStore {
     const ui_state = UIStore.getState();
     const {
       sample, reaction, wellplate, screen, research_plan,
-      currentCollection, cell_line, device_description, sequence_based_macromolecule
+      currentCollection, cell_line, device_description, sequence_based_macromolecule_sample
     } = ui_state;
     const selecteds = this.state.selecteds.map(s => ({ id: s.id, type: s.type }));
     const params = {
@@ -584,7 +584,7 @@ class ElementStore {
       selecteds,
       cell_line,
       device_description,
-      sequence_based_macromolecule,
+      sequence_based_macromolecule_sample,
     };
 
     const currentUser = (UserStore.getState() && UserStore.getState().currentUser) || {};
@@ -638,7 +638,7 @@ class ElementStore {
         if (layout.screen && layout.screen > 0) { this.handleRefreshElements('screen'); }
         if (layout.cell_line && layout.cell_line > 0) { this.handleRefreshElements('cell_line'); }
         if (layout.device_description && layout.device_description > 0) { this.handleRefreshElements('device_description'); }
-        if (layout.sequence_based_macromolecule && layout.sequence_based_macromolecule > 0) {
+        if (layout.sequence_based_macromolecule_sample && layout.sequence_based_macromolecule_sample > 0) {
           this.handleRefreshElements('sequence_based_macromolecule_sample');
         }
         if (!isSync && layout.research_plan && layout.research_plan > 0) { this.handleRefreshElements('research_plan'); }
@@ -704,7 +704,7 @@ class ElementStore {
   }
 
   handlefetchSequenceBasedMacromoleculeSamplesByCollectionId(result) {
-    this.state.elements.sequence_based_macromolecules = result;
+    this.state.elements.sequence_based_macromolecule_samples = result;
   }
 
   // -- Samples --
@@ -872,19 +872,19 @@ class ElementStore {
 
   handleImportSamplesFromFile(data) {
     if (data.sdf) {
-      this.setState({sdfUploadData: data})
+      this.setState({ sdfUploadData: data })
     } else {
       this.handleRefreshElements('sample');
     }
   }
 
   handleImportSamplesFromFileConfirm() {
-    this.setState({sdfUploadData: null})
+    this.setState({ sdfUploadData: null })
     this.handleRefreshElements('sample');
   }
 
   handleImportSamplesFromFileDecline() {
-    this.setState({sdfUploadData: null})
+    this.setState({ sdfUploadData: null })
   }
 
   // -- Wellplates --
@@ -1007,21 +1007,21 @@ class ElementStore {
 
   // -- Sequence Based Macromolecules --
 
-  handlefetchSequenceBasedMacromoleculeById(result) {
+  handlefetchSequenceBasedMacromoleculeSampleById(result) {
     this.changeCurrentElement(result);
   }
 
-  handleCreateSequenceBasedMacromolecule(sequence_based_macromolecule) {
+  handleCreateSequenceBasedMacromoleculeSample(sequence_based_macromolecule_sample) {
     this.handleRefreshElements('sequence_based_macromolecule_sample');
-    this.navigateToNewElement(sequence_based_macromolecule);
+    this.navigateToNewElement(sequence_based_macromolecule_sample);
   }
 
-  handleCopySequenceBasedMacromoleculeFromClipboard(collection_id) {
-    const clipboardSequenceBasedMacromolecules = ClipboardStore.getState().sequence_based_macromolecules;
-    if (clipboardSequenceBasedMacromolecules && clipboardSequenceBasedMacromolecules.length > 0) {
+  handleCopySequenceBasedMacromoleculeSampleFromClipboard(collection_id) {
+    const clipboardSequenceBasedMacromoleculeSamples = ClipboardStore.getState().sequence_based_macromolecule_samples;
+    if (clipboardSequenceBasedMacromoleculeSamples && clipboardSequenceBasedMacromoleculeSamples.length > 0) {
       this.changeCurrentElement(
         SequenceBasedMacromoleculeSample
-          .copyFromSequenceBasedMacromoleculeAndCollectionId(clipboardSequenceBasedMacromolecules[0], collection_id)
+          .copyFromSequenceBasedMacromoleculeSampleAndCollectionId(clipboardSequenceBasedMacromoleculeSamples[0], collection_id)
       );
     }
   }
@@ -1168,13 +1168,12 @@ class ElementStore {
     this.waitFor(UIStore.dispatchToken);
     const uiState = UIStore.getState();
     if (!uiState.currentCollection || !uiState.currentCollection.id) return;
-    const elementType = type === 'sequence_based_macromolecule_sample' ? 'sequence_based_macromolecule' : type;
-    if (typeof uiState[elementType] === 'undefined') return;
+    if (typeof uiState[type] === 'undefined') return;
 
-    const { page } = uiState[elementType];
+    const { page } = uiState[type];
     const { moleculeSort } = this.state;
-    if (this.state.elements[`${elementType}s`]) {
-      this.state.elements[`${elementType}s`].page = page;
+    if (this.state.elements[`${type}s`]) {
+      this.state.elements[`${type}s`].page = page;
     }
 
     // TODO if page changed -> fetch

@@ -576,7 +576,7 @@ export default class ElementsTable extends React.Component {
       typeSpecificHeader = this.renderReactionsHeader();
     } else if (type === 'device_description') {
       typeSpecificHeader = <DeviceDescriptionListHeader elements={elements} />;
-    } else if (type === 'sequence_based_macromolecule') {
+    } else if (type === 'sequence_based_macromolecule_sample') {
       typeSpecificHeader = <SequenceBasedMacromoleculeSampleHeader elements={elements} />;
     } else if (genericEl) {
       typeSpecificHeader = this.renderGenericElementsHeader();
@@ -695,7 +695,7 @@ export default class ElementsTable extends React.Component {
           ui={ui}
         />
       );
-    } else if (type === 'sequence_based_macromolecule') {
+    } else if (type === 'sequence_based_macromolecule_sample') {
       elementsTableEntries = (
         <SequenceBasedMacromoleculeSampleList
           elements={elements}

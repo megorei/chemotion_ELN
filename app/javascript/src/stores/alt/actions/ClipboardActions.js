@@ -40,12 +40,12 @@ class ClipboardActions {
     };
   }
 
-  fetchSequenceBasedMacromoleculesByUIState(params, action) {
+  fetchSequenceBasedMacromoleculeSamplesByUIState(params, action) {
     return (dispatch) => {
-      SequenceBasedMacromoleculeSamplesFetcher.fetchSequenceBasedMacromoleculesByUIStateAndLimit(params)
+      SequenceBasedMacromoleculeSamplesFetcher.fetchSequenceBasedMacromoleculeSamplesByUIStateAndLimit(params)
         .then((result) => {
           dispatch(
-            { sequence_based_macromolecules: result, collection_id: params.ui_state.collection_id, action: action }
+            { sequence_based_macromolecule_samples: result, collection_id: params.ui_state.collection_id, action: action }
           );
         }).catch((errorMessage) => {
           console.log(errorMessage);
@@ -68,11 +68,11 @@ class ClipboardActions {
     )
   }
 
-  fetchSequenceBasedMacromoleculesAndBuildCopy(sequence_based_macromolecule, collection_id, action) {
-    const newSequenceBasedMacromolecule = new SequenceBasedMacromoleculeSample(sequence_based_macromolecule);
-    newSequenceBasedMacromolecule.collection_id = collection_id;
+  fetchSequenceBasedMacromoleculeSamplesAndBuildCopy(sequence_based_macromolecule_sample, collection_id, action) {
+    const newSequenceBasedMacromoleculeSample = new SequenceBasedMacromoleculeSample(sequence_based_macromolecule_sample);
+    newSequenceBasedMacromoleculeSample.collection_id = collection_id;
     return (
-      { sequence_based_macromolecules: [newSequenceBasedMacromolecule], collection_id: collection_id, action: action }
+      { sequence_based_macromolecule_samples: [newSequenceBasedMacromoleculeSample], collection_id: collection_id, action: action }
     )
   }
 }

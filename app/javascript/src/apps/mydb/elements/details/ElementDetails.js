@@ -17,7 +17,7 @@ import ScreenDetails from 'src/apps/mydb/elements/details/screens/ScreenDetails'
 import UserStore from 'src/stores/alt/stores/UserStore';
 import WellplateDetails from 'src/apps/mydb/elements/details/wellplates/WellplateDetails';
 import CellLineDetails from 'src/apps/mydb/elements/details/cellLines/CellLineDetails';
-import SequenceBasedMacromoleculeDetails from 'src/apps/mydb/elements/details/sequenceBasedMacromolecules/SequenceBasedMacromoleculeDetails';
+import SequenceBasedMacromoleculeSampleDetails from 'src/apps/mydb/elements/details/sequenceBasedMacromoleculeSamples/SequenceBasedMacromoleculeSampleDetails';
 import {
   Tabs, Tab, Button, Badge
 } from 'react-bootstrap';
@@ -201,7 +201,7 @@ export default class ElementDetails extends Component {
       case 'cell_line':
         return <CellLineDetails cellLineItem={el} toggleFullScreen={this.toggleFullScreen} />;
       case 'sequence_based_macromolecule_sample':
-        return <SequenceBasedMacromoleculeDetails toggleFullScreen={this.toggleFullScreen} />;
+        return <SequenceBasedMacromoleculeSampleDetails toggleFullScreen={this.toggleFullScreen} />;
       default:
         return (
           <div style={{ textAlign: 'center' }}>

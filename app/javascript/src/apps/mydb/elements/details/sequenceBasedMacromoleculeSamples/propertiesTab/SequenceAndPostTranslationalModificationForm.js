@@ -6,15 +6,15 @@ import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 
 const SequenceAndPostTranslationalModificationForm = () => {
-  const sequenceBasedMacromoleculeStore = useContext(StoreContext).sequenceBasedMacromolecules;
-  let sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
-  const formHelper = initFormHelper(sequenceBasedMacromolecule, sequenceBasedMacromoleculeStore);
+  const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
+  let sbmmSample = sbmmStore.sequence_based_macromolecule_sample;
+  const formHelper = initFormHelper(sbmmSample, sbmmStore);
   const disabled = false;
 
   const fieldPrefixSequence = 'sequence_based_macromolecule.protein_sequence_modifications';
   const fieldPrefixPostTransitional = 'sequence_based_macromolecule.post_translational_modifications';
-  const proteinSequenceModification = sequenceBasedMacromolecule.sequence_based_macromolecule.protein_sequence_modifications;
-  const postTranslationalModifications = sequenceBasedMacromolecule.sequence_based_macromolecule.post_translational_modifications;
+  const proteinSequenceModification = sbmmSample.sequence_based_macromolecule.protein_sequence_modifications;
+  const postTranslationalModifications = sbmmSample.sequence_based_macromolecule.post_translational_modifications;
 
   const phosphorylationAminoAcids = [
     { label: 'Ser', field: 'phosphorylation_ser_enabled' },

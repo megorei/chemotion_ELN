@@ -7,21 +7,21 @@ import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 
 const ReferenceAndModificationForm = ({ ident }) => {
-  const sequenceBasedMacromoleculeStore = useContext(StoreContext).sequenceBasedMacromolecules;
-  let sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
-  const formHelper = initFormHelper(sequenceBasedMacromolecule, sequenceBasedMacromoleculeStore);
+  const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
+  let sbmmSample = sbmmStore.sequence_based_macromolecule_sample;
+  const formHelper = initFormHelper(sbmmSample, sbmmStore);
 
-  const isProtein = sequenceBasedMacromolecule.sequence_based_macromolecule.sbmm_type === 'protein';
-  const uniprotDerivationValue = sequenceBasedMacromolecule.sequence_based_macromolecule.uniprot_derivation;
-  let parent = sequenceBasedMacromolecule.sequence_based_macromolecule;
+  const isProtein = sbmmSample.sequence_based_macromolecule.sbmm_type === 'protein';
+  const uniprotDerivationValue = sbmmSample.sequence_based_macromolecule.uniprot_derivation;
+  let parent = sbmmSample.sequence_based_macromolecule;
   let disabled = false;
-  const accordionIdent = `${sequenceBasedMacromolecule.id}-${ident}`;
-  const referenceErrorIdent = `${sequenceBasedMacromolecule.id}-reference`;
+  const accordionIdent = `${sbmmSample.id}-${ident}`;
+  const referenceErrorIdent = `${sbmmSample.id}-reference`;
 
   let fieldPrefix = 'sequence_based_macromolecule';
-  if (ident === 'reference' && sequenceBasedMacromolecule.sequence_based_macromolecule.parent) {
+  if (ident === 'reference' && sbmmSample.sequence_based_macromolecule.parent) {
     fieldPrefix = `${fieldPrefix}.parent`;
-    parent = sequenceBasedMacromolecule.sequence_based_macromolecule.parent;
+    parent = sbmmSample.sequence_based_macromolecule.parent;
     disabled = true;
   }
   if (ident === 'reference') {
@@ -30,7 +30,7 @@ const ReferenceAndModificationForm = ({ ident }) => {
 
   const visibleForModification = isProtein && uniprotDerivationValue === 'uniprot_modified';
 
-  const showIfReferenceSelected = isProtein && !sequenceBasedMacromoleculeStore.error_messages[referenceErrorIdent]
+  const showIfReferenceSelected = isProtein && !sbmmStore.error_messages[referenceErrorIdent]
     && (parent?.primary_accession || parent?.id || ident === 'sequence_modifications');
 
   const sequenceLengthValue = parent?.sequence_length || (parent && parent?.sequence && parent?.sequence.length) || ''
@@ -61,22 +61,22 @@ const ReferenceAndModificationForm = ({ ident }) => {
 
   const handleDrop = (item) => {
     const result = item.element;
-    let errorMessages = { ...sequenceBasedMacromoleculeStore.error_messages };
+    let errorMessages = { ...sbmmStore.error_messages };
     delete errorMessages[referenceErrorIdent];
 
     if (uniprotDerivationValue === 'uniprot' && result.uniprot_derivation !== 'uniprot') {
       errorMessages[referenceErrorIdent] = true;
     } else {
-      sequenceBasedMacromoleculeStore.setSbmmByResult(result);
+      sbmmStore.setSbmmByResult(result);
     }
-    sequenceBasedMacromoleculeStore.setErrorMessages(errorMessages);
+    sbmmStore.setErrorMessages(errorMessages);
   }
 
   return (
     <Accordion
       className="mb-4"
-      activeKey={sequenceBasedMacromoleculeStore.toggable_contents[accordionIdent] && accordionIdent}
-      onSelect={() => sequenceBasedMacromoleculeStore.toggleContent(accordionIdent)}
+      activeKey={sbmmStore.toggable_contents[accordionIdent] && accordionIdent}
+      onSelect={() => sbmmStore.toggleContent(accordionIdent)}
     >
       <Accordion.Item eventKey={accordionIdent}>
         <Accordion.Header>
@@ -95,7 +95,7 @@ const ReferenceAndModificationForm = ({ ident }) => {
                     )
                   }
                   {
-                    sequenceBasedMacromoleculeStore.error_messages[referenceErrorIdent] && (
+                    sbmmStore.error_messages[referenceErrorIdent] && (
                       <div className="text-danger mt-2">
                         The sequence based macromolecule has not the right type. Only uniprot is allowed.
                       </div>
@@ -159,7 +159,7 @@ const ReferenceAndModificationForm = ({ ident }) => {
                   </Col>
                 </Row>
                 {
-                  ident === 'reference' && sequenceBasedMacromolecule[fieldPrefix]?.show_structure_details && (
+                  ident === 'reference' && sbmmSample[fieldPrefix]?.show_structure_details && (
                     <Row className="mb-4 align-items-end">
                       <Col>
                         <label className="form-label">Structure file cif</label>
@@ -174,7 +174,7 @@ const ReferenceAndModificationForm = ({ ident }) => {
                 }
                 {
                   ident === 'sequence_modifications'
-                  && sequenceBasedMacromolecule[fieldPrefix]?.show_structure_details && (
+                  && sbmmSample[fieldPrefix]?.show_structure_details && (
                     <Row className="mb-4 align-items-end">
                       <Col>
                         <label className="form-label">Structure file cif</label>

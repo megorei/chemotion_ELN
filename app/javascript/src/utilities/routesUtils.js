@@ -50,7 +50,7 @@ const collectionShow = (e) => {
     UIActions.uncheckAllElements({ type: 'wellplate', range: 'all' });
     UIActions.uncheckAllElements({ type: 'screen', range: 'all' });
     UIActions.uncheckAllElements({ type: 'device_description', range: 'all' });
-    UIActions.uncheckAllElements({ type: 'sequence_based_macromolecule', range: 'all' });
+    UIActions.uncheckAllElements({ type: 'sequence_based_macromolecule_sample', range: 'all' });
     elementNames(false).then((klassArray) => {
       klassArray.forEach((klass) => {
         UIActions.uncheckAllElements({ type: klass, range: 'all' });
@@ -101,7 +101,7 @@ const scollectionShow = (e) => {
     UIActions.uncheckAllElements({ type: 'wellplate', range: 'all' });
     UIActions.uncheckAllElements({ type: 'screen', range: 'all' });
     UIActions.uncheckAllElements({ type: 'device_description', range: 'all' });
-    UIActions.uncheckAllElements({ type: 'sequence_based_macromolecule', range: 'all' });
+    UIActions.uncheckAllElements({ type: 'sequence_based_macromolecule_sample', range: 'all' });
     elementNames(false).then((klassArray) => {
       klassArray.forEach((klass) => {
         UIActions.uncheckAllElements({ type: klass, range: 'all' });
@@ -282,9 +282,9 @@ const sequenceBasedMacromoleculeSampleShowOrNew = (e) => {
   if (sequence_based_macromolecule_sampleID === 'new' || sequence_based_macromolecule_sampleID === undefined) {
     ElementActions.generateEmptySequenceBasedMacromoleculeSample(collectionID);
   } else if (sequence_based_macromolecule_sampleID === 'copy') {
-    ElementActions.copySequenceBasedMacromoleculeFromClipboard.defer(collectionID);
+    ElementActions.copySequenceBasedMacromoleculeSampleFromClipboard.defer(collectionID);
   } else if (index < 0) {
-    ElementActions.fetchSequenceBasedMacromoleculeById(sequence_based_macromolecule_sampleID);
+    ElementActions.fetchSequenceBasedMacromoleculeSampleById(sequence_based_macromolecule_sampleID);
   } else if (index !== activeKey) {
     DetailActions.select(index);
   }

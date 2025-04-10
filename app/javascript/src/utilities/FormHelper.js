@@ -80,7 +80,7 @@ const numberValue = (value) => {
 
 const changeElement = (store, field, value, element_type) => {
   if (element_type == 'sequence_based_macromolecule_sample') {
-    store.changeSequenceBasedMacromolecule(field, value);
+    store.changeSequenceBasedMacromoleculeSample(field, value);
   }
 }
 

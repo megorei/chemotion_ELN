@@ -1009,9 +1009,9 @@ class ElementActions {
     };
   }
 
-  // -- Sequence Based Macromolecules --
+  // -- Sequence Based Macromolecule Samples --
 
-  fetchSequenceBasedMacromoleculeById(id) {
+  fetchSequenceBasedMacromoleculeSampleById(id) {
     return (dispatch) => {
       SequenceBasedMacromoleculeSamplesFetcher.fetchById(id)
         .then((result) => {
@@ -1022,9 +1022,9 @@ class ElementActions {
     };
   }
 
-  updateSequenceBasedMacromolecule(params) {
+  updateSequenceBasedMacromoleculeSample(params) {
     return (dispatch) => {
-      SequenceBasedMacromoleculeSamplesFetcher.updateSequenceBasedMacromolecule(params)
+      SequenceBasedMacromoleculeSamplesFetcher.updateSequenceBasedMacromoleculeSample(params)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
@@ -1037,9 +1037,9 @@ class ElementActions {
     return SequenceBasedMacromoleculeSample.buildEmpty(collection_id);
   }
 
-  createSequenceBasedMacromolecule(params) {
+  createSequenceBasedMacromoleculeSample(params) {
     return (dispatch) => {
-      SequenceBasedMacromoleculeSamplesFetcher.createSequenceBasedMacromolecule(params)
+      SequenceBasedMacromoleculeSamplesFetcher.createSequenceBasedMacromoleculeSample(params)
         .then((result) => {
           dispatch(result);
         }).catch((errorMessage) => {
@@ -1048,13 +1048,13 @@ class ElementActions {
     };
   }
 
-  copySequenceBasedMacromoleculeFromClipboard(collection_id) {
+  copySequenceBasedMacromoleculeSampleFromClipboard(collection_id) {
     return collection_id;
   }
 
   splitAsSubSequenceBasedMacromoleculeSample(ui_state) {
     return (dispatch) => {
-      SequenceBasedMacromoleculeSamplesFetcher.splitAsSubSequenceBasedMacromolecule(ui_state)
+      SequenceBasedMacromoleculeSamplesFetcher.splitAsSubSequenceBasedMacromoleculeSample(ui_state)
         .then((result) => {
           dispatch(ui_state.ui_state);
         }).catch((errorMessage) => {

@@ -7,8 +7,8 @@ import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 
 const SearchResults = () => {
-  const sequenceBasedMacromoleculeStore = useContext(StoreContext).sequenceBasedMacromolecules;
-  let sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
+  const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
+  let sbmmSample = sbmmStore.sequence_based_macromolecule_sample;
 
   const [deltaPosition, setDeltaPosition] = useState({ x: 0, y: 0 });
 
@@ -30,13 +30,13 @@ const SearchResults = () => {
     ec: 'EC-Number',
   };
 
-  const searchResult = sequenceBasedMacromoleculeStore.searchResult;
+  const searchResult = sbmmStore.searchResult;
 
   const chooseUniprotEntry = (data) => {
     const identifier = data?.id ? data.id : data.primary_accession;
-    sequenceBasedMacromoleculeStore.getSequenceBasedMacromoleculeByIdentifier(identifier, data.available_sources);
-    sequenceBasedMacromoleculeStore.closeSearchResult();
-    sequenceBasedMacromoleculeStore.removeSearchResult();
+    sbmmStore.getSequenceBasedMacromoleculeByIdentifier(identifier, data.available_sources);
+    sbmmStore.closeSearchResult();
+    sbmmStore.removeSearchResult();
   }
 
   const renderChooseLink = (node) => {
@@ -116,7 +116,7 @@ const SearchResults = () => {
       <div>
         <Modal
           show={true}
-          onHide={() => sequenceBasedMacromoleculeStore.closeSearchResult()}
+          onHide={() => sbmmStore.closeSearchResult()}
           backdrop={false}
           keyboard={false}
           className="draggable-modal-dialog-xxxl"
@@ -137,8 +137,8 @@ const SearchResults = () => {
             <div className="mb-4">
               <b>Your search for:</b>
               <br />
-              {`${searchByLabel[sequenceBasedMacromolecule.sequence_based_macromolecule?.search_field]}:
-              ${sequenceBasedMacromolecule.sequence_based_macromolecule?.search_term}`}
+              {`${searchByLabel[sbmmSample.sequence_based_macromolecule?.search_field]}:
+              ${sbmmSample.sequence_based_macromolecule?.search_term}`}
             </div>
 
             {searchResult.length < 1 && (<div>{spinner}</div>)}

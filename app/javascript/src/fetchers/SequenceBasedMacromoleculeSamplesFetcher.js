@@ -1,7 +1,6 @@
 import 'whatwg-fetch';
 import BaseFetcher from 'src/fetchers/BaseFetcher';
 import SequenceBasedMacromoleculeSample from 'src/models/SequenceBasedMacromoleculeSample';
-import Container from 'src/models/Container'; // temp for fake Element
 import AttachmentFetcher from 'src/fetchers/AttachmentFetcher';
 
 export default class SequenceBasedMacromoleculeSamplesFetcher {
@@ -11,7 +10,7 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
     );
   }
 
-  static fetchSequenceBasedMacromoleculesByUIStateAndLimit(params) {
+  static fetchSequenceBasedMacromoleculeSamplesByUIStateAndLimit(params) {
     const limit = params.limit ? params.limit : null;
 
     return fetch('/api/v1/sequence_based_macromolecule_samples/ui_state/', 
@@ -26,7 +25,7 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
       .catch(errorMessage => console.log(errorMessage));
   }
 
-  static splitAsSubSequenceBasedMacromolecule(params) {
+  static splitAsSubSequenceBasedMacromoleculeSample(params) {
     return [];
 
     // return fetch('/api/v1/sequence_based_macromolecule_samples/sub_sequence_based_macromolecule_samples/', 
@@ -59,7 +58,7 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
       .catch(errorMessage => console.log(errorMessage));
   }
 
-  static createSequenceBasedMacromolecule(sequenceBasedMacromoleculeSample) {
+  static createSequenceBasedMacromoleculeSample(sequenceBasedMacromoleculeSample) {
     const containerFiles = AttachmentFetcher.getFileListfrom(sequenceBasedMacromoleculeSample.container);
     const newFiles = (sequenceBasedMacromoleculeSample.attachments || []).filter((a) => a.is_new && !a.is_deleted);
 
@@ -89,7 +88,7 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
     return promise();
   }
 
-  static updateSequenceBasedMacromolecule(sequenceBasedMacromoleculeSample) {
+  static updateSequenceBasedMacromoleculeSample(sequenceBasedMacromoleculeSample) {
     const containerFiles = AttachmentFetcher.getFileListfrom(sequenceBasedMacromoleculeSample.container);
     const newFiles = (sequenceBasedMacromoleculeSample.attachments || []).filter((a) => a.is_new && !a.is_deleted);
     const delFiles = (sequenceBasedMacromoleculeSample.attachments || []).filter((a) => !a.is_new && a.is_deleted);
@@ -126,7 +125,7 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
       .then(() => promise());
   }
 
-  static deleteSequenceBasedMacromolecule(sequenceBasedMacromoleculeSampleId) {
+  static deleteSequenceBasedMacromoleculeSample(sequenceBasedMacromoleculeSampleId) {
     return fetch(
       `/api/v1/sequence_based_macromolecule_samples/${sequenceBasedMacromoleculeSampleId}`,
       { ...this._httpOptions('DELETE') }

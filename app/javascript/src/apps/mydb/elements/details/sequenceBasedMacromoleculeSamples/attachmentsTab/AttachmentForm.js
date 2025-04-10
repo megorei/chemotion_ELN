@@ -27,8 +27,8 @@ import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 
 const AttachmentForm = ({ readonly }) => {
-  const sequenceBasedMacromoleculeStore = useContext(StoreContext).sequenceBasedMacromolecules;
-  const sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
+  const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
+  const sbmmSample = sbmmStore.sequence_based_macromolecule_sample;
   const { thirdPartyApps } = UIStore.getState() || [];
 
   useEffect(() => {
@@ -37,20 +37,20 @@ const AttachmentForm = ({ readonly }) => {
   }, []);
 
   useEffect(() => {
-    if (sequenceBasedMacromolecule.updated) {
+    if (sbmmSample.updated) {
       createAttachmentPreviewImage();
     }
-  }, [sequenceBasedMacromolecule.attachments]);
+  }, [sbmmSample.attachments]);
 
   const editorInitial = () => {
     EditorFetcher.initial().then((result) => {
-      sequenceBasedMacromoleculeStore.setAttachmentEditor(result.installed);
-      sequenceBasedMacromoleculeStore.setAttachmentExtension(result.ext);
+      sbmmStore.setAttachmentEditor(result.installed);
+      sbmmStore.setAttachmentExtension(result.ext);
     });
   }
 
   const createAttachmentPreviewImage = () => {
-    const attachments = sequenceBasedMacromolecule.attachments.map((attachment) => {
+    const attachments = sbmmSample.attachments.map((attachment) => {
       if (attachment.preview !== undefined && attachment.preview !== '') { return attachment; }
 
       attachment.preview = attachment.thumb
@@ -58,30 +58,30 @@ const AttachmentForm = ({ readonly }) => {
         : '/images/wild_card/not_available.svg';
       return attachment;
     });
-    sequenceBasedMacromoleculeStore.setFilteredAttachments(attachments);
+    sbmmStore.setFilteredAttachments(attachments);
   }
 
   const handleSortChange = (e) => {
-    sequenceBasedMacromoleculeStore.setAttachmentSortBy(e.target.value);
+    sbmmStore.setAttachmentSortBy(e.target.value);
     filterAndSortAttachments();
   }
 
   const toggleSortDirection = () => {
-    const sortDirection = sequenceBasedMacromoleculeStore.attachment_sort_direction === 'asc' ? 'desc' : 'asc';
-    sequenceBasedMacromoleculeStore.setAttachmentSortDirectory(sortDirection);
+    const sortDirection = sbmmStore.attachment_sort_direction === 'asc' ? 'desc' : 'asc';
+    sbmmStore.setAttachmentSortDirectory(sortDirection);
     filterAndSortAttachments();
   }
 
   const handleFilterChange = (e) => {
-    sequenceBasedMacromoleculeStore.setAttachmentFilterText(e.target.value);
+    sbmmStore.setAttachmentFilterText(e.target.value);
     filterAndSortAttachments();
   }
 
   const filterAndSortAttachments = () => {
-    const filterText = sequenceBasedMacromoleculeStore.attachment_filter_text.toLowerCase();
-    const sortBy = sequenceBasedMacromoleculeStore.attachment_sort_by;
+    const filterText = sbmmStore.attachment_filter_text.toLowerCase();
+    const sortBy = sbmmStore.attachment_sort_by;
 
-    const filteredAttachments = sequenceBasedMacromolecule.attachments.filter((attachment) => {
+    const filteredAttachments = sbmmSample.attachments.filter((attachment) => {
       return attachment.filename.toLowerCase().includes(filterText)
     });
 
@@ -103,10 +103,10 @@ const AttachmentForm = ({ readonly }) => {
         default:
           break;
       }
-      return sequenceBasedMacromoleculeStore.attachment_sort_direction === 'asc' ? comparison : -comparison;
+      return sbmmStore.attachment_sort_direction === 'asc' ? comparison : -comparison;
     });
 
-    sequenceBasedMacromoleculeStore.setFilteredAttachments(filteredAttachments);
+    sbmmStore.setFilteredAttachments(filteredAttachments);
   }
 
   const handleEditAttachment = (attachment) => {
@@ -132,18 +132,18 @@ const AttachmentForm = ({ readonly }) => {
   }
 
   const onUndoDelete = (attachment) => {
-    const index = sequenceBasedMacromolecule.attachments.indexOf(attachment);
-    sequenceBasedMacromoleculeStore.changeAttachment(index, 'is_deleted', false);
+    const index = sbmmSample.attachments.indexOf(attachment);
+    sbmmStore.changeAttachment(index, 'is_deleted', false);
   }
 
   const onDelete = (attachment) => {
-    const index = sequenceBasedMacromolecule.attachments.indexOf(attachment);
-    sequenceBasedMacromoleculeStore.changeAttachment(index, 'is_deleted', true);
+    const index = sbmmSample.attachments.indexOf(attachment);
+    sbmmStore.changeAttachment(index, 'is_deleted', true);
   }
 
   const documentType = (filename) => {
     const ext = last(filename.split('.'));
-    const docType = findKey(sequenceBasedMacromoleculeStore.attachment_extension, (o) => o.includes(ext));
+    const docType = findKey(sbmmStore.attachment_extension, (o) => o.includes(ext));
 
     if (typeof docType === 'undefined' || !docType) {
       return null;
@@ -153,13 +153,13 @@ const AttachmentForm = ({ readonly }) => {
   }
 
   const showImportConfirm = (attachmentId) => {
-    sequenceBasedMacromoleculeStore.attachment_show_import_confirm[attachmentId] = true;
-    sequenceBasedMacromoleculeStore.setShowImportConfirm(sequenceBasedMacromoleculeStore.attachment_show_import_confirm);
+    sbmmStore.attachment_show_import_confirm[attachmentId] = true;
+    sbmmStore.setShowImportConfirm(sbmmStore.attachment_show_import_confirm);
   }
 
   const hideImportConfirm = (attachmentId) => {
-    sequenceBasedMacromoleculeStore.attachment_show_import_confirm[attachmentId] = false;
-    sequenceBasedMacromoleculeStore.setShowImportConfirm(sequenceBasedMacromoleculeStore.attachment_show_import_confirm);
+    sbmmStore.attachment_show_import_confirm[attachmentId] = false;
+    sbmmStore.setShowImportConfirm(sbmmStore.attachment_show_import_confirm);
   }
 
   const confirmAttachmentImport = (attachment) => {
@@ -167,26 +167,26 @@ const AttachmentForm = ({ readonly }) => {
   }
 
   const openAnnotateModal = (attachment) => {
-    sequenceBasedMacromoleculeStore.toogleAttachmentModal();
-    sequenceBasedMacromoleculeStore.setAttachmentSelected(attachment);
+    sbmmStore.toogleAttachmentModal();
+    sbmmStore.setAttachmentSelected(attachment);
   }
 
   const updateAttachments = (attachments) => {
-    sequenceBasedMacromoleculeStore.changeSequenceBasedMacromolecule('attachments', attachments);
-    sequenceBasedMacromoleculeStore.setFilteredAttachments(
-      sequenceBasedMacromoleculeStore.sequence_based_macromolecule.attachments
+    sbmmStore.changeSequenceBasedMacromoleculeSample('attachments', attachments);
+    sbmmStore.setFilteredAttachments(
+      sbmmStore.sequence_based_macromolecule_sample.attachments
     );
   }
 
   const handleAttachmentDrop = (files) => {
     const newAttachments = files.map((file) => Attachment.fromFile(file));
-    const updatedAttachments = sequenceBasedMacromolecule.attachments.concat(newAttachments);
+    const updatedAttachments = sbmmSample.attachments.concat(newAttachments);
     updateAttachments(updatedAttachments);
   }
 
   const updateEditedAttachment = (attachment) => {
     let attachments = [];
-    sequenceBasedMacromolecule.attachments.map((currentAttachment) => {
+    sbmmSample.attachments.map((currentAttachment) => {
       if (currentAttachment.id === attachment.id) {
         attachments.push(attachment);
       } else {
@@ -197,7 +197,7 @@ const AttachmentForm = ({ readonly }) => {
   }
 
   const handleEditAnnotation = (annotation) => {
-    let selectedAttachment = { ...sequenceBasedMacromoleculeStore.attachment_selected };
+    let selectedAttachment = { ...sbmmStore.attachment_selected };
     selectedAttachment.updatedAnnotation = annotation;
     updateEditedAttachment(selectedAttachment);
   }
@@ -206,7 +206,7 @@ const AttachmentForm = ({ readonly }) => {
     const updatedAt = new Date(attachment.updated_at).getTime() + 15 * 60 * 1000;
     const isEditing = attachment.aasm_state === 'oo_editing' && new Date().getTime() < updatedAt;
     const editDisable =
-      !sequenceBasedMacromoleculeStore.attachment_editor || attachment.aasm_state === 'oo_editing'
+      !sbmmStore.attachment_editor || attachment.aasm_state === 'oo_editing'
       || attachment.is_new || documentType(attachment.filename) === null;
 
     return (
@@ -215,8 +215,8 @@ const AttachmentForm = ({ readonly }) => {
         <ThirdPartyAppButton attachment={attachment} options={thirdPartyApps} />
         {editButton(
           attachment,
-          sequenceBasedMacromoleculeStore.attachment_extension,
-          sequenceBasedMacromoleculeStore.attachment_editor,
+          sbmmStore.attachment_extension,
+          sbmmStore.attachment_editor,
           isEditing,
           editDisable,
           handleEditAttachment
@@ -224,8 +224,8 @@ const AttachmentForm = ({ readonly }) => {
         {annotateButton(attachment, () => openAnnotateModal(attachment))}
         {importButton(
           attachment,
-          sequenceBasedMacromoleculeStore.attachment_show_import_confirm,
-          sequenceBasedMacromolecule.changed,
+          sbmmStore.attachment_show_import_confirm,
+          sbmmSample.changed,
           showImportConfirm,
           hideImportConfirm,
           confirmAttachmentImport
@@ -240,7 +240,7 @@ const AttachmentForm = ({ readonly }) => {
   const showList = () => {
     let attachmentList = [];
 
-    sequenceBasedMacromoleculeStore.filteredAttachments.map((attachment) => {
+    sbmmStore.filteredAttachments.map((attachment) => {
       const rowTextClass = attachment.is_deleted ? ' text-decoration-line-through' : '';
 
       attachmentList.push(
@@ -285,11 +285,11 @@ const AttachmentForm = ({ readonly }) => {
   }
 
   const showFilter = () => {
-    if (sequenceBasedMacromolecule.attachments.length === 0) { return null; }
+    if (sbmmSample.attachments.length === 0) { return null; }
 
     return (
       sortingAndFilteringUI(
-        sequenceBasedMacromoleculeStore.attachment_sort_direction,
+        sbmmStore.attachment_sort_direction,
         handleSortChange,
         toggleSortDirection,
         handleFilterChange,
@@ -299,20 +299,20 @@ const AttachmentForm = ({ readonly }) => {
   }
 
   const renderImageEditModal = () => {
-    if (!sequenceBasedMacromoleculeStore.show_attachment_image_edit_modal) { return null; }
+    if (!sbmmStore.show_attachment_image_edit_modal) { return null; }
 
     return (
       <ImageAnnotationModalSVG
-        attachment={sequenceBasedMacromoleculeStore.attachment_selected}
-        isShow={sequenceBasedMacromoleculeStore.show_attachment_image_edit_modal}
+        attachment={sbmmStore.attachment_selected}
+        isShow={sbmmStore.show_attachment_image_edit_modal}
         handleSave={
           () => {
             const newAnnotation = document.getElementById('svgEditId').contentWindow.svgEditor.svgCanvas.getSvgString();
-            sequenceBasedMacromoleculeStore.toogleAttachmentModal();
+            sbmmStore.toogleAttachmentModal();
             handleEditAnnotation(newAnnotation);
           }
         }
-        handleOnClose={() => { sequenceBasedMacromoleculeStore.toogleAttachmentModal() }}
+        handleOnClose={() => { sbmmStore.toogleAttachmentModal() }}
       />
     );
   }
@@ -327,7 +327,7 @@ const AttachmentForm = ({ readonly }) => {
         {showFilter()}
       </div>
       {
-        sequenceBasedMacromoleculeStore.filteredAttachments.length === 0
+        sbmmStore.filteredAttachments.length === 0
           ? <div className="text-center text-gray-500 fs-5">There are currently no attachments.</div>
           : showList()
       }

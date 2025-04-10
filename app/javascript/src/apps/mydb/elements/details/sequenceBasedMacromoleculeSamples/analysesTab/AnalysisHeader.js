@@ -16,38 +16,38 @@ import UIStore from 'src/stores/alt/stores/UIStore';
 import UserStore from 'src/stores/alt/stores/UserStore';
 
 const AnalysisHeader = ({ container, readonly }) => {
-  const sequenceBasedMacromoleculeStore = useContext(StoreContext).sequenceBasedMacromolecules;
-  const sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
+  const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
+  const sbmmSample = sbmmStore.sequence_based_macromolecule_sample;
 
   const handleChanged = () => {
-    let sequenceBasedMacromolecule = { ...sequenceBasedMacromolecule };
-    sequenceBasedMacromolecule.isPendingToSave = true;
-    sequenceBasedMacromoleculeStore.setSequenceBasedMacromolecue(sequenceBasedMacromolecule);
+    let sbmmSample = { ...sbmmSample };
+    sbmmSample.isPendingToSave = true;
+    sbmmStore.setSequenceBasedMacromolecueSample(sbmmSample);
   }
 
   const deleteContainer = (e) => {
     e.stopPropagation();
     if (confirm('Delete the analysis?')) {
       container.is_deleted = true;
-      sequenceBasedMacromoleculeStore.changeAnalysisContainerContent(container);
+      sbmmStore.changeAnalysisContainerContent(container);
     }
   }
 
   const undoDeleteContainer = (e) => {
     e.stopPropagation();
     container.is_deleted = false;
-    sequenceBasedMacromoleculeStore.changeAnalysisContainerContent(container);
+    sbmmStore.changeAnalysisContainerContent(container);
   }
 
   const inReport = container.extended_metadata.report;
   const toggleAddToReport = (e) => {
     e.stopPropagation();
     container.extended_metadata.report = !container.extended_metadata.report;
-    sequenceBasedMacromoleculeStore.changeAnalysisContainerContent(container);
+    sbmmStore.changeAnalysisContainerContent(container);
   };
 
   // spcInfos = [ { value, label, title, idSp, idAe, idx, ... }, ...]
-  const spcInfos = BuildSpcInfos(sequenceBasedMacromolecule, container);
+  const spcInfos = BuildSpcInfos(sbmmSample, container);
   const toggleSpectraModal = (e) => {
     e.stopPropagation();
     SpectraActions.ToggleModal();
@@ -56,7 +56,7 @@ const AnalysisHeader = ({ container, readonly }) => {
 
   //process open NMRium
   const toggleNMRDisplayerModal = (e) => {
-    const spcInfosForNMRDisplayer = BuildSpcInfosForNMRDisplayer(sequenceBasedMacromolecule, container);
+    const spcInfosForNMRDisplayer = BuildSpcInfosForNMRDisplayer(sbmmSample, container);
     e.stopPropagation();
     SpectraActions.ToggleModalNMRDisplayer();
     SpectraActions.LoadSpectraForNMRDisplayer.defer(spcInfosForNMRDisplayer); // going to fetch files base on spcInfos
@@ -83,7 +83,7 @@ const AnalysisHeader = ({ container, readonly }) => {
   }
 
   const panelButtons = () => {
-    if (sequenceBasedMacromolecule.analysis_mode == 'order') { return '' }
+    if (sbmmSample.analysis_mode == 'order') { return '' }
 
     if (container?.is_deleted) {
       return (
@@ -102,7 +102,7 @@ const AnalysisHeader = ({ container, readonly }) => {
           onClick={(e) => e.stopPropagation()}
         >
           <Form.Check
-            id={`add-sequence-based-macromolecule-${sequenceBasedMacromolecule.id}-to-report`}
+            id={`add-sequence-based-macromolecule-${sbmmSample.id}-to-report`}
             type="checkbox"
             onClick={toggleAddToReport}
             defaultChecked={inReport}
@@ -110,7 +110,7 @@ const AnalysisHeader = ({ container, readonly }) => {
             className="mx-2"
           />
           <SpectraEditorButton
-            element={sequenceBasedMacromolecule}
+            element={sbmmSample}
             hasJcamp={hasJcamp}
             spcInfos={spcInfos}
             hasChemSpectra={hasChemSpectra}
@@ -122,7 +122,7 @@ const AnalysisHeader = ({ container, readonly }) => {
             hasNMRium={hasNMRium}
           />
           <PrintCodeButton
-            element={sequenceBasedMacromolecule}
+            element={sbmmSample}
             analyses={[container]}
             ident={container.id}
           />
@@ -166,7 +166,7 @@ const AnalysisHeader = ({ container, readonly }) => {
     hasPop = false;
   }
 
-  const orderClass = sequenceBasedMacromoleculeStore.analysis_mode == 'order' ? 'order pe-2' : '';
+  const orderClass = sbmmStore.analysis_mode == 'order' ? 'order pe-2' : '';
   const deleted = container?.is_deleted || false;
 
   return (

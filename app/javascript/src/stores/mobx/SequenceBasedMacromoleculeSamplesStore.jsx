@@ -5,7 +5,7 @@ import SequenceBasedMacromoleculesFetcher from 'src/fetchers/SequenceBasedMacrom
 import SequenceBasedMacromoleculeSample from 'src/models/SequenceBasedMacromoleculeSample';
 import Container from 'src/models/Container';
 
-const emptySequenceBasedMacromolecule = {
+const emptySequenceBasedMacromoleculeSample = {
   accessions: [],
   created_at: '',
   ec_numbers: '',
@@ -38,6 +38,7 @@ const validationFields = [
   'sequence_based_macromolecule.uniprot_derivation',
   'sequence_based_macromolecule.primary_accession',
   'sequence_based_macromolecule.parent_identifier',
+  'sequence_based_macromolecule.short_name',
 ];
 
 const postModificationCheckboxWithDetailField = [
@@ -58,12 +59,12 @@ const proteinModificationCheckboxWithDetailField = [
   'modification_deletion', 'modification_mutation', 'modification_other',
 ];
 
-export const SequenceBasedMacromoleculesStore = types
+export const SequenceBasedMacromoleculeSamplesStore = types
   .model({
     key_prefix: types.optional(types.string, 'sbmm'),
-    open_sequence_based_macromolecules: types.optional(types.optional(types.array(types.frozen({})), [])),
-    sequence_based_macromolecule: types.optional(types.frozen({}), {}),
-    sequence_based_macromolecule_checksum: types.optional(types.string, ''),
+    open_sequence_based_macromolecule_samples: types.optional(types.optional(types.array(types.frozen({})), [])),
+    sequence_based_macromolecule_sample: types.optional(types.frozen({}), {}),
+    sequence_based_macromolecule_sample_checksum: types.optional(types.string, ''),
     active_tab_key: types.optional(types.string, 'properties'),
     toggable_contents: types.optional(types.frozen({}), {}),
     analysis_mode: types.optional(types.string, 'edit'),
@@ -103,39 +104,39 @@ export const SequenceBasedMacromoleculesStore = types
         self.setSbmmByResult(result.sequence_based_macromolecule, primary_accession);
       }
     }),
-    getLastObjectAndKeyByField(field, sequence_based_macromolecule) {
+    getLastObjectAndKeyByField(field, sequence_based_macromolecule_sample) {
       const fieldParts = field.split('.');
       const lastKey = fieldParts.pop();
       const lastObject = fieldParts.reduce(
-        (accumulator, currentValue) => accumulator[currentValue] ??= {}, sequence_based_macromolecule
+        (accumulator, currentValue) => accumulator[currentValue] ??= {}, sequence_based_macromolecule_sample
       );
       return { lastObject, lastKey };
     },
-    addSequenceBasedMacromoleculeToOpen(sequence_based_macromolecule) {
-      let openSequenceBasedMacromolecules = [...self.open_sequence_based_macromolecules];
-      const index = openSequenceBasedMacromolecules.findIndex(s => s.id === sequence_based_macromolecule.id);
+    addSequenceBasedMacromoleculeSampleToOpen(sequence_based_macromolecule_sample) {
+      let openSequenceBasedMacromoleculeSamples = [...self.open_sequence_based_macromolecule_samples];
+      const index = openSequenceBasedMacromoleculeSamples.findIndex(s => s.id === sequence_based_macromolecule_sample.id);
       if (index === -1) { 
-        self.setSequenceBasedMacromolecule(sequence_based_macromolecule, true);
-        openSequenceBasedMacromolecules.push(self.sequence_based_macromolecule);
-        self.open_sequence_based_macromolecules = openSequenceBasedMacromolecules;
+        self.setSequenceBasedMacromoleculeSample(sequence_based_macromolecule_sample, true);
+        openSequenceBasedMacromoleculeSamples.push(self.sequence_based_macromolecule_sample);
+        self.open_sequence_based_macromolecule_samples = openSequenceBasedMacromoleculeSamples;
       } else {
-        self.sequence_based_macromolecule = openSequenceBasedMacromolecules[index];
+        self.sequence_based_macromolecule_sample = openSequenceBasedMacromoleculeSamples[index];
       }
     },
-    editSequenceBasedMacromolecules(sequence_based_macromolecule) {
-      let openSequenceBasedMacromolecules = [...self.open_sequence_based_macromolecules];
-      const index = openSequenceBasedMacromolecules.findIndex(s => s.id === sequence_based_macromolecule.id);
-      openSequenceBasedMacromolecules[index] = sequence_based_macromolecule;
-      self.open_sequence_based_macromolecules = openSequenceBasedMacromolecules;
+    editSequenceBasedMacromoleculeSamples(sequence_based_macromolecule_sample) {
+      let openSequenceBasedMacromoleculeSamples = [...self.open_sequence_based_macromolecule_samples];
+      const index = openSequenceBasedMacromoleculeSamples.findIndex(s => s.id === sequence_based_macromolecule_sample.id);
+      openSequenceBasedMacromoleculeSamples[index] = sequence_based_macromolecule_sample;
+      self.open_sequence_based_macromolecule_samples = openSequenceBasedMacromoleculeSamples;
     },
-    removeFromOpenSequenceBasedMacromolecules(sequence_based_macromolecule) {
-      const openSequenceBasedMacromolecules =
-        self.open_sequence_based_macromolecules.filter((s) => { return s.id !== sequence_based_macromolecule.id });
-      self.open_sequence_based_macromolecules = openSequenceBasedMacromolecules;
+    removeFromOpenSequenceBasedMacromolecules(sequence_based_macromolecule_sample) {
+      const openSequenceBasedMacromoleculeSamples =
+        self.open_sequence_based_macromolecule_samples.filter((s) => { return s.id !== sequence_based_macromolecule_sample.id });
+      self.open_sequence_based_macromolecule_samples = openSequenceBasedMacromoleculeSamples;
     },
     setSbmmByResult(result, primary_accession) {
-      let sequenceBasedMacromolecule = { ...self.sequence_based_macromolecule };
-      let sbmm = sequenceBasedMacromolecule.sequence_based_macromolecule;
+      let sequenceBasedMacromoleculeSample = { ...self.sequence_based_macromolecule_sample };
+      let sbmm = sequenceBasedMacromoleculeSample.sequence_based_macromolecule;
       const uniprotDerivation = sbmm.uniprot_derivation;
 
       delete sbmm.parent_identifier;
@@ -145,33 +146,34 @@ export const SequenceBasedMacromoleculesStore = types
       }
       const sbmmOrParent = uniprotDerivation === 'uniprot_modified' ? sbmm?.parent : sbmm;
 
-      Object.keys(emptySequenceBasedMacromolecule).map((key) => {
+      Object.keys(emptySequenceBasedMacromoleculeSample).map((key) => {
         if (result[key] !== undefined) {
           sbmmOrParent[key] = result[key];
         }
       });
-      self.setSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+      self.setSequenceBasedMacromoleculeSample(sequenceBasedMacromoleculeSample);
     },
-    setSequenceBasedMacromolecule(sequence_based_macromolecule, initial = false) {
+    setSequenceBasedMacromoleculeSample(sequence_based_macromolecule_sample, initial = false) {
       if (initial) {
-        self.sequence_based_macromolecule_checksum = sequence_based_macromolecule._checksum;
+        self.sequence_based_macromolecule_sample_checksum = sequence_based_macromolecule_sample._checksum;
       }
-      sequence_based_macromolecule.changed = false;
-      const sequenceBasedMacromolecule = new SequenceBasedMacromoleculeSample(sequence_based_macromolecule);
+      sequence_based_macromolecule_sample.changed = false;
+      const sequenceBasedMacromoleculeSample = new SequenceBasedMacromoleculeSample(sequence_based_macromolecule_sample);
 
-      if (sequenceBasedMacromolecule.checksum() !== self.sequence_based_macromolecule_checksum || sequenceBasedMacromolecule.isNew) {
-        sequenceBasedMacromolecule.changed = true;
+      if (sequenceBasedMacromoleculeSample.checksum() !== self.sequence_based_macromolecule_sample_checksum
+        || sequenceBasedMacromoleculeSample.isNew) {
+        sequenceBasedMacromoleculeSample.changed = true;
       }
 
-      self.sequence_based_macromolecule = sequenceBasedMacromolecule;
+      self.sequence_based_macromolecule_sample = sequenceBasedMacromoleculeSample;
 
       if (!initial) {
-        self.editSequenceBasedMacromolecules(sequenceBasedMacromolecule);
+        self.editSequenceBasedMacromoleculeSamples(sequenceBasedMacromoleculeSample);
       }
     },
-    changeSequenceBasedMacromolecule(field, value) {
-      let sequence_based_macromolecule = { ...self.sequence_based_macromolecule };
-      const { lastObject, lastKey } = self.getLastObjectAndKeyByField(field, sequence_based_macromolecule);
+    changeSequenceBasedMacromoleculeSample(field, value) {
+      let sequenceBasedMacromoleculeSample = { ...self.sequence_based_macromolecule_sample };
+      const { lastObject, lastKey } = self.getLastObjectAndKeyByField(field, sequenceBasedMacromoleculeSample);
       lastObject[lastKey] = value;
 
       if (postModificationCheckboxWithDetailField.includes(lastKey) && !value) {
@@ -187,8 +189,8 @@ export const SequenceBasedMacromoleculesStore = types
         lastObject[key] = '';
       }
 
-      // sequence_based_macromolecule.updated = false;
-      self.setSequenceBasedMacromolecule(sequence_based_macromolecule);
+      // sequenceBasedMacromoleculeSample.updated = false;
+      self.setSequenceBasedMacromoleculeSample(sequenceBasedMacromoleculeSample);
     },
     setActiveTabKey(key) {
       self.active_tab_key = key;
@@ -205,21 +207,21 @@ export const SequenceBasedMacromoleculesStore = types
     addEmptyAnalysisContainer() {
       const container = Container.buildEmpty();
       container.container_type = "analysis"
-      let sequenceBasedMacromolecule = { ...self.sequence_based_macromolecule };
-      sequenceBasedMacromolecule.container.children[0].children.push(container);
-      self.setSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+      let sequenceBasedMacromoleculeSample = { ...self.sequence_based_macromolecule_sample };
+      sequenceBasedMacromoleculeSample.container.children[0].children.push(container);
+      self.setSequenceBasedMacromoleculeSample(sequenceBasedMacromoleculeSample);
       self.analysis_mode = 'edit';
     },
     changeAnalysisContainerContent(container) {
-      let sequenceBasedMacromolecule = { ...self.sequence_based_macromolecule };
-      const index = sequenceBasedMacromolecule.container.children[0].children.findIndex((c) => c.id === container.id);
-      sequenceBasedMacromolecule.container.children[0].children[index] = container;
-      self.setSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+      let sequenceBasedMacromoleculeSample = { ...self.sequence_based_macromolecule_sample };
+      const index = sequenceBasedMacromoleculeSample.container.children[0].children.findIndex((c) => c.id === container.id);
+      sequenceBasedMacromoleculeSample.container.children[0].children[index] = container;
+      self.setSequenceBasedMacromoleculeSample(sequenceBasedMacromoleculeSample);
     },
     changeAnalysisContainer(children) {
-      let sequenceBasedMacromolecule = { ...self.sequence_based_macromolecule };
-      sequenceBasedMacromolecule.container.children[0].children = children;
-      self.setSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+      let sequenceBasedMacromoleculeSample = { ...self.sequence_based_macromolecule_sample };
+      sequenceBasedMacromoleculeSample.container.children[0].children = children;
+      self.setSequenceBasedMacromoleculeSample(sequenceBasedMacromoleculeSample);
     },
     toggleAnalysisCommentBox() {
       self.analysis_comment_box = !self.analysis_comment_box;
@@ -227,11 +229,11 @@ export const SequenceBasedMacromoleculesStore = types
     changeAnalysisComment(e) {
       if (!e && !e?.target) { return null; }
 
-      let sequenceBasedMacromolecule = { ...self.sequence_based_macromolecule };
-      let container = { ...self.sequence_based_macromolecule.container }
+      let sequenceBasedMacromoleculeSample = { ...self.sequence_based_macromolecule_sample };
+      let container = { ...self.sequence_based_macromolecule_sample.container }
       container.description = e.target.value;
-      sequenceBasedMacromolecule.container = container;
-      self.setSequenceBasedMacromolecule(sequenceBasedMacromolecule);
+      sequenceBasedMacromoleculeSample.container = container;
+      self.setSequenceBasedMacromoleculeSample(sequenceBasedMacromoleculeSample);
     },
     toggleAnalysisStartExport() {
       self.analysis_start_export = !self.analysis_start_export;
@@ -264,12 +266,12 @@ export const SequenceBasedMacromoleculesStore = types
       self.attachment_sort_direction = value;
     },
     changeAttachment(index, key, value, initial = false) {
-      let sequence_based_macromolecule = { ...self.sequence_based_macromolecule };
-      let attachment = { ...sequence_based_macromolecule.attachments[index] };
+      let sequenceBasedMacromoleculeSample = { ...self.sequence_based_macromolecule_sample };
+      let attachment = { ...sequence_based_macromolecule_sample.attachments[index] };
       attachment[key] = value;
-      sequence_based_macromolecule.attachments[index] = attachment;
-      self.setFilteredAttachments(sequence_based_macromolecule.attachments);
-      self.setSequenceBasedMacromolecule(sequence_based_macromolecule, initial);
+      sequenceBasedMacromoleculeSample.attachments[index] = attachment;
+      self.setFilteredAttachments(sequenceBasedMacromoleculeSample.attachments);
+      self.setSequenceBasedMacromolecule(sequenceBasedMacromoleculeSample, initial);
     },
     openSearchResult() {
       self.show_search_result = true;
@@ -285,8 +287,8 @@ export const SequenceBasedMacromoleculesStore = types
       self.search_result = [];
     },
     setModificationToggleButtons(fieldPrefix, field, fieldSuffix, value) {
-      let sequence_based_macromolecule = { ...self.sequence_based_macromolecule };
-      const { lastObject, lastKey } = self.getLastObjectAndKeyByField(fieldPrefix, sequence_based_macromolecule);
+      let sequenceBasedMacromoleculeSample = { ...self.sequence_based_macromolecule_sample };
+      const { lastObject, lastKey } = self.getLastObjectAndKeyByField(fieldPrefix, sequenceBasedMacromoleculeSample);
       const detailField = field.replace('enabled', fieldSuffix);
 
       lastObject[lastKey][field] = value;
@@ -295,24 +297,24 @@ export const SequenceBasedMacromoleculesStore = types
         lastObject[lastKey][detailField] = '';
       }
 
-      self.setSequenceBasedMacromolecule(sequence_based_macromolecule);
+      self.setSequenceBasedMacromoleculeSample(sequenceBasedMacromoleculeSample);
     },
     hasValidFields() {
       let errorMessages = { ...self.error_messages };
-      const sbmm = self.sequence_based_macromolecule.sequence_based_macromolecule;
+      const sbmm = self.sequence_based_macromolecule_sample.sequence_based_macromolecule;
 
       validationFields.map((key) => {
         const hasValue =
           key.split('.')
-            .reduce((accumulator, currentValue) => accumulator?.[currentValue], self.sequence_based_macromolecule);
+            .reduce((accumulator, currentValue) => accumulator?.[currentValue], self.sequence_based_macromolecule_sample);
         const isPrimaryAccession =
-          self.sequence_based_macromolecule.isNew && key.includes('primary_accession')
+          self.sequence_based_macromolecule_sample.isNew && key.includes('primary_accession')
           && sbmm.uniprot_derivation == 'uniprot' && !sbmm.primary_accession;
         const isParentIdentifier =
-          self.sequence_based_macromolecule.isNew && key.includes('parent_identifier')
+          self.sequence_based_macromolecule_sample.isNew && key.includes('parent_identifier')
           && sbmm.uniprot_derivation == 'uniprot_modified' && !sbmm.parent_identifier;
         const checkOnlyValue = !key.includes('primary_accession') && !key.includes('parent_identifier') && !hasValue;
-        const ident = `${self.sequence_based_macromolecule.id}-${key}`;
+        const ident = `${self.sequence_based_macromolecule_sample.id}-${key}`;
 
         if (hasValue && errorMessages[ident]) {
           delete errorMessages[ident];

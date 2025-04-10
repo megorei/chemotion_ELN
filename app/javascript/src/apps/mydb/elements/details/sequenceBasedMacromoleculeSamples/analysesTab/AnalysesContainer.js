@@ -18,12 +18,12 @@ import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 
 const AnalysesContainer = ({ readonly }) => {
-  const sequenceBasedMacromoleculeStore = useContext(StoreContext).sequenceBasedMacromolecules;
-  const sequenceBasedMacromolecule = sequenceBasedMacromoleculeStore.sequence_based_macromolecule;
-  const containers = sequenceBasedMacromolecule.container.children[0].children;
+  const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
+  const sbmmSample = sbmmStore.sequence_based_macromolecule_sample;
+  const containers = sbmmSample.container.children[0].children;
 
   useEffect(() => {
-    TextTemplateActions.fetchTextTemplates('sequenceBasedMacromolecule');
+    TextTemplateActions.fetchTextTemplates('sbmmSample');
   }, []);
 
   const handleSpectraChange = () => {
@@ -40,7 +40,7 @@ const AnalysesContainer = ({ readonly }) => {
         <Button
           size="xsm"
           variant="success"
-          onClick={() => sequenceBasedMacromoleculeStore.addEmptyAnalysisContainer()}
+          onClick={() => sbmmStore.addEmptyAnalysisContainer()}
           disabled={readonly}
         >
           <i className="fa fa-plus me-1" />
@@ -57,8 +57,8 @@ const AnalysesContainer = ({ readonly }) => {
       <ButtonGroup>
         <ButtonGroupToggleButton
           size="xsm"
-          active={sequenceBasedMacromoleculeStore.analysis_mode === 'edit'}
-          onClick={() => sequenceBasedMacromoleculeStore.changeAnalysisMode()}
+          active={sbmmStore.analysis_mode === 'edit'}
+          onClick={() => sbmmStore.changeAnalysisMode()}
           disabled={isReadonly}
         >
           <i className="fa fa-edit me-1" />
@@ -66,8 +66,8 @@ const AnalysesContainer = ({ readonly }) => {
         </ButtonGroupToggleButton>
         <ButtonGroupToggleButton
           size="xsm"
-          active={sequenceBasedMacromoleculeStore.analysis_mode === 'order'}
-          onClick={() => sequenceBasedMacromoleculeStore.changeAnalysisMode()}
+          active={sbmmStore.analysis_mode === 'order'}
+          onClick={() => sbmmStore.changeAnalysisMode()}
           disabled={isReadonly}
         >
           <i className="fa fa-reorder me-1" />
@@ -89,23 +89,23 @@ const AnalysesContainer = ({ readonly }) => {
             </AccordionHeaderWithButtons>
           </Card.Header>
           {
-            !container.is_deleted && sequenceBasedMacromoleculeStore.analysis_mode === 'edit' && (
+            !container.is_deleted && sbmmStore.analysis_mode === 'edit' && (
               <Accordion.Collapse eventKey={container.id}>
                 <Card.Body>
                   <ContainerComponent
                     disabled={readonly}
                     readOnly={readonly}
-                    templateType="sequenceBasedMacromolecule"
+                    templateType="sbmmSample"
                     container={container}
-                    onChange={() => sequenceBasedMacromoleculeStore.changeAnalysisContainerContent(container)}
+                    onChange={() => sbmmStore.changeAnalysisContainerContent(container)}
                   />
                   <ViewSpectra
-                    sample={sequenceBasedMacromolecule}
+                    sample={sbmmSample}
                     handleSampleChanged={handleSpectraChange}
                     handleSubmit={handleSpectraSubmit}
                   />
                   <NMRiumDisplayer
-                    sample={sequenceBasedMacromolecule}
+                    sample={sbmmSample}
                     handleSampleChanged={handleSpectraChange}
                     handleSubmit={handleSpectraSubmit}
                   />
@@ -128,18 +128,18 @@ const AnalysesContainer = ({ readonly }) => {
               {modeButton()}
               <ButtonToolbar className="gap-2">
                 <CommentButton
-                  toggleCommentBox={sequenceBasedMacromoleculeStore.toggleAnalysisCommentBox}
+                  toggleCommentBox={sbmmStore.toggleAnalysisCommentBox}
                   size="xsm"
                 />
                 {addButton()}
               </ButtonToolbar>
             </div>
             <CommentBox
-              isVisible={sequenceBasedMacromoleculeStore.analysis_comment_box}
-              value={sequenceBasedMacromolecule.container.description}
-              handleCommentTextChange={sequenceBasedMacromoleculeStore.changeAnalysisComment}
+              isVisible={sbmmStore.analysis_comment_box}
+              value={sbmmSample.container.description}
+              handleCommentTextChange={sbmmStore.changeAnalysisComment}
             />
-            {sequenceBasedMacromoleculeStore.analysis_mode === 'edit' ? (
+            {sbmmStore.analysis_mode === 'edit' ? (
               <Accordion className="border rounded overflow-hidden">
                 {analysisContainer()}
               </Accordion>

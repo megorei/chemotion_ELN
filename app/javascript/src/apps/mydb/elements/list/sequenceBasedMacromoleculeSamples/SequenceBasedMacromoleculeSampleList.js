@@ -16,8 +16,8 @@ import { StoreContext } from 'src/stores/mobx/RootStore';
 import UIStore from 'src/stores/alt/stores/UIStore';
 
 const SequenceBasedMacromoleculeSampleList = ({ elements, currentElement, ui }) => {
-  const sequenceBasedMacromoleculeStore = useContext(StoreContext).sequenceBasedMacromolecules;
-  const showAllGroups = sequenceBasedMacromoleculeStore.show_all_groups;
+  const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
+  const showAllGroups = sbmmStore.show_all_groups;
   const overlayToggle = <Tooltip id="toggle_molecule">Toggle Group</Tooltip>;
 
   const isElementSelected = (element) => {
@@ -65,9 +65,9 @@ const SequenceBasedMacromoleculeSampleList = ({ elements, currentElement, ui }) 
 
   const toggleShownGroup = (key, shownGroup) => {
     if (shownGroup === undefined) {
-      sequenceBasedMacromoleculeStore.addGroupToShownGroups(key);
+      sbmmStore.addGroupToShownGroups(key);
     } else {
-      sequenceBasedMacromoleculeStore.removeGroupFromShownGroups(key);
+      sbmmStore.removeGroupFromShownGroups(key);
     }
   }
 
@@ -83,7 +83,7 @@ const SequenceBasedMacromoleculeSampleList = ({ elements, currentElement, ui }) 
       //   ? element.sequence_based_macromolecule.parent.id
       //   : element.sequence_based_macromolecule.id;
       const key = element.sequence_based_macromolecule.id;
-      sequenceBasedMacromoleculeStore.addGroupToAllGroups(`${key}`);
+      sbmmStore.addGroupToAllGroups(`${key}`);
  
       if (!Object.prototype.hasOwnProperty.call(group, key)) {
         group[key] = [];
@@ -98,7 +98,7 @@ const SequenceBasedMacromoleculeSampleList = ({ elements, currentElement, ui }) 
     let items = [];
 
     Object.entries(groupedElements()).forEach(([key, group]) => {
-      const shownGroup = sequenceBasedMacromoleculeStore.shownGroups.find((g) => g === key);
+      const shownGroup = sbmmStore.shownGroups.find((g) => g === key);
       items.push(
         <div key={key}>
           {ListItemHeader(key, group, shownGroup)}
