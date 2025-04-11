@@ -65,6 +65,7 @@ export const SequenceBasedMacromoleculeSamplesStore = types
     open_sequence_based_macromolecule_samples: types.optional(types.optional(types.array(types.frozen({})), [])),
     sequence_based_macromolecule_sample: types.optional(types.frozen({}), {}),
     sequence_based_macromolecule_sample_checksum: types.optional(types.string, ''),
+    updated_sequence_based_macromolecule_sample_id: types.optional(types.number, 0),
     active_tab_key: types.optional(types.string, 'properties'),
     toggable_contents: types.optional(types.frozen({}), {}),
     analysis_mode: types.optional(types.string, 'edit'),
@@ -119,9 +120,16 @@ export const SequenceBasedMacromoleculeSamplesStore = types
         self.setSequenceBasedMacromoleculeSample(sequence_based_macromolecule_sample, true);
         openSequenceBasedMacromoleculeSamples.push(self.sequence_based_macromolecule_sample);
         self.open_sequence_based_macromolecule_samples = openSequenceBasedMacromoleculeSamples;
+
+      } else if (sequence_based_macromolecule_sample.id === self.updated_sequence_based_macromolecule_sample_id) {
+        self.sequence_based_macromolecule_sample = sequence_based_macromolecule_sample;
+        openSequenceBasedMacromoleculeSamples[index] = sequence_based_macromolecule_sample;
+        self.open_sequence_based_macromolecule_samples = openSequenceBasedMacromoleculeSamples;
+
       } else {
         self.sequence_based_macromolecule_sample = openSequenceBasedMacromoleculeSamples[index];
       }
+      self.updated_sequence_based_macromolecule_sample_id = 0;
     },
     editSequenceBasedMacromoleculeSamples(sequence_based_macromolecule_sample) {
       let openSequenceBasedMacromoleculeSamples = [...self.open_sequence_based_macromolecule_samples];
@@ -191,6 +199,9 @@ export const SequenceBasedMacromoleculeSamplesStore = types
 
       // sequenceBasedMacromoleculeSample.updated = false;
       self.setSequenceBasedMacromoleculeSample(sequenceBasedMacromoleculeSample);
+    },
+    setUpdatedSequenceBasedMacromoleculeSampleId(value) {
+      self.updated_sequence_based_macromolecule_sample_id = value;
     },
     setActiveTabKey(key) {
       self.active_tab_key = key;

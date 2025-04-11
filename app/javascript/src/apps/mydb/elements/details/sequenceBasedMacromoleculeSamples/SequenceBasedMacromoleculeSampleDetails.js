@@ -110,6 +110,7 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
         ElementActions.createSequenceBasedMacromoleculeSample(sbmmSample);
       } else {
         ElementActions.updateSequenceBasedMacromoleculeSample(sbmmSample);
+        sbmmStore.setUpdatedSequenceBasedMacromoleculeSampleId(sbmmSample.id);
       }
     }
   }
