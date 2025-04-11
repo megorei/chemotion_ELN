@@ -4,9 +4,56 @@ import UserStore from 'src/stores/alt/stores/UserStore';
 import { convertUnits, default_units } from 'src/components/staticDropdownOptions/units';
 
 export default class SequenceBasedMacromoleculeSample extends Element {
-  // constructor(args) {
-  //   super(args);
-  // }
+  constructor(args) {
+    let newArgs = args;
+    if (!newArgs.is_new) {
+      if (!newArgs._concentration_value || !newArgs._concentration_unit) {
+        newArgs._concentration_value = newArgs.concentration_value;
+        newArgs._concentration_unit = newArgs.concentration_unit;
+      }
+      if (!newArgs._molarity_value || !newArgs._molarity_unit) {
+        newArgs._molarity_value = newArgs.molarity_value;
+        newArgs._molarity_unit = newArgs.molarity_unit;
+        newArgs._base_molarity_value = convertUnits(newArgs.molarity_value, newArgs.molarity_unit, default_units.molarity);
+      }
+      if (!newArgs._activity_value || !newArgs._activity_unit) {
+        newArgs._activity_value = newArgs.activity_value;
+        newArgs._activity_unit = newArgs.activity_unit;
+        newArgs._base_activity_value = convertUnits(newArgs.activity_value, newArgs.activity_unit, default_units.activity);
+      }
+      if (!newArgs._activity_per_mass_value || !newArgs._activity_per_mass_unit) {
+        newArgs._activity_per_mass_value = newArgs.activity_per_mass_value;
+        newArgs._activity_per_mass_unit = newArgs.activity_per_mass_unit;
+        newArgs._base_activity_per_mass_value =
+          convertUnits(newArgs.activity_per_mass_value, newArgs.activity_per_mass_unit, default_units.activity_per_mass);
+      }
+      if (!newArgs._activity_per_volume_value || !newArgs._activity_per_volume_unit) {
+        newArgs._activity_per_volume_value = newArgs.activity_per_volume_value;
+        newArgs._activity_per_volume_unit = newArgs.activity_per_volume_unit;
+        newArgs._base_activity_per_volume_value =
+          convertUnits(newArgs.activity_per_volume_value, newArgs.activity_per_volume_unit, default_units.activity_per_volume);
+      }
+      if (!newArgs._volume_as_used_value || !newArgs._volume_as_used_unit) {
+        newArgs._volume_as_used_value = newArgs.volume_as_used_value;
+        newArgs._volume_as_used_unit = newArgs.volume_as_used_unit;
+        newArgs._base_volume_as_used_value =
+          convertUnits(newArgs.volume_as_used_value, newArgs.volume_as_used_unit, default_units.volume_as_used);
+      }
+      if (!newArgs._amount_as_used_mass_value || !newArgs._amount_as_used_mass_unit) {
+        newArgs._amount_as_used_mass_value = newArgs.amount_as_used_mass_value;
+        newArgs._amount_as_used_mass_unit = newArgs.amount_as_used_mass_unit;
+        newArgs._base_amount_as_used_mass_value =
+          convertUnits(newArgs.amount_as_used_mass_value, newArgs.amount_as_used_mass_unit, default_units.amount_as_used_mass);
+      }
+      if (!newArgs._amount_as_used_mol_value || !newArgs._amount_as_used_mol_unit) {
+        newArgs._amount_as_used_mol_value = newArgs.amount_as_used_mol_value;
+        newArgs._amount_as_used_mol_unit = newArgs.amount_as_used_mol_unit;
+        newArgs._base_amount_as_used_mol_value =
+          convertUnits(newArgs.amount_as_used_mol_value, newArgs.amount_as_used_mol_unit, default_units.amount_as_used_mol);
+      }
+    }
+    super(newArgs);
+  }
 
   calculateValues(type) {
     // if the volume is added, we calculate the activity and the amount based on: 
@@ -80,7 +127,9 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   }
 
   calculateAmountAsUsed() {
-    if (this.base_volume_as_used_value === 0 || this.base_molarity_value === 0) { return null; }
+    if (this.base_volume_as_used_value === 0 || this.base_molarity_value === 0 || this._amount_as_used_mass_value > 0) {
+      return null;
+    }
 
     this._amount_as_used_mol_value = convertUnits(
       parseFloat((this.base_volume_as_used_value * this.base_molarity_value).toFixed(8)),
@@ -521,7 +570,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
         other_identifier: this.sequence_based_macromolecule.other_identifier,
         own_identifier: this.sequence_based_macromolecule.own_identifier,
         parent: this.sequence_based_macromolecule.parent,
-        parent_identifier: this.sequence_based_macromolecule.parent_identifier || '',
+        parent_identifier: this.sequence_based_macromolecule?.parent_identifier || this.sequence_based_macromolecule.parent?.id || '',
         pdb_doi: this.sequence_based_macromolecule.pdb_doi,
         primary_accession: this.sequence_based_macromolecule.primary_accession,
         sbmm_subtype: this.sequence_based_macromolecule.sbmm_subtype,
