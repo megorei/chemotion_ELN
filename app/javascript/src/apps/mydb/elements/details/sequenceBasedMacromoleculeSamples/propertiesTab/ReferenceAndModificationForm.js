@@ -71,6 +71,43 @@ const ReferenceAndModificationForm = ({ ident }) => {
     sbmmStore.setErrorMessages(errorMessages);
   }
 
+  // <Col className="mb-2">
+  //   {
+  //     formHelper.checkboxInput(
+  //       `${fieldPrefix}.show_structure_details`, 'Show details about structural files', disabled
+  //     )
+  //   }
+  // </Col>
+  // {
+  //   ident === 'reference' && sbmmSample[fieldPrefix]?.show_structure_details && (
+  //     <Row className="mb-4 align-items-end">
+  //       <Col>
+  //         <label className="form-label">Structure file cif</label>
+  //         {formHelper.dropzone(`${fieldPrefix}.structure_file_cif`, handleCIFFileUpload)}
+  //       </Col>
+  //       <Col>
+  //         <label className="form-label">Structure file pdb</label>
+  //         {formHelper.dropzone(`${fieldPrefix}.structure_file_pdb`, handlePDBFileUpload)}
+  //       </Col>
+  //     </Row>
+  //   )
+  // }
+  // {
+  //   ident === 'sequence_modifications'
+  //   && sbmmSample[fieldPrefix]?.show_structure_details && (
+  //     <Row className="mb-4 align-items-end">
+  //       <Col>
+  //         <label className="form-label">Structure file cif</label>
+  //         {formHelper.dropzone(`${fieldPrefix}.structure_file_cif`, handleCIFFileUpload)}
+  //       </Col>
+  //       <Col>
+  //         <label className="form-label">Structure file pdb</label>
+  //         {formHelper.dropzone(`${fieldPrefix}.structure_file_pdb`, handlePDBFileUpload)}
+  //       </Col>
+  //     </Row>
+  //   )
+  // }
+
   return (
     <Accordion
       className="mb-4"
@@ -144,48 +181,12 @@ const ReferenceAndModificationForm = ({ ident }) => {
                     )
                   }
                   <Col>{formHelper.textInput(`${fieldPrefix}.ec_numbers`, 'EC number', disabled, '')}</Col>
-                  <Col className="mb-2">
-                    {
-                      formHelper.checkboxInput(
-                        `${fieldPrefix}.show_structure_details`, 'Show details about structural files', disabled
-                      )
-                    }
-                  </Col>
                 </Row>
                 <Row className="mb-4">
                   <Col>
                     {formHelper.textareaInput(`${fieldPrefix}.sequence`, 'Sequence of the structure', 3, disabled, '')}
                   </Col>
                 </Row>
-                {
-                  ident === 'reference' && sbmmSample[fieldPrefix]?.show_structure_details && (
-                    <Row className="mb-4 align-items-end">
-                      <Col>
-                        <label className="form-label">Structure file cif</label>
-                        {formHelper.dropzone(`${fieldPrefix}.structure_file_cif`, handleCIFFileUpload)}
-                      </Col>
-                      <Col>
-                        <label className="form-label">Structure file pdb</label>
-                        {formHelper.dropzone(`${fieldPrefix}.structure_file_pdb`, handlePDBFileUpload)}
-                      </Col>
-                    </Row>
-                  )
-                }
-                {
-                  ident === 'sequence_modifications'
-                  && sbmmSample[fieldPrefix]?.show_structure_details && (
-                    <Row className="mb-4 align-items-end">
-                      <Col>
-                        <label className="form-label">Structure file cif</label>
-                        {formHelper.dropzone(`${fieldPrefix}.structure_file_cif`, handleCIFFileUpload)}
-                      </Col>
-                      <Col>
-                        <label className="form-label">Structure file pdb</label>
-                        {formHelper.dropzone(`${fieldPrefix}.structure_file_pdb`, handlePDBFileUpload)}
-                      </Col>
-                    </Row>
-                  )
-                }
                 {
                   ident === 'reference' && (
                     <Row className="mb-4 align-items-end">
