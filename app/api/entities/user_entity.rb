@@ -46,7 +46,7 @@ module Entities
       object.counters['device_descriptions'].to_i
     end
 
-    def sequence_based_macromolecules_count
+    def sequence_based_macromolecule_samples_count
       object.counters['sequence_based_macromolecule_samples'].to_i
     end
 
