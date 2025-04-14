@@ -101,9 +101,9 @@ export default class CollectionTabs extends React.Component {
   handleSave(showModal) {
     const cCol = this.state.currentCollection;
     let layoutSegments = {};
-    allElnElmentsWithLabel.forEach((_e, index) => {
+    allElnElmentsWithLabel.forEach((element_data, index) => {
       const layout = filterTabLayout(this.tabRef[index].state);
-      layoutSegments = { ...layoutSegments, [allElnElmentsWithLabel[index].name]: layout };
+      layoutSegments = { ...layoutSegments, [element_data.name]: layout };
     });
     const params = { layoutSegments, currentCollectionId: cCol.id };
     CollectionActions.createTabsSegment(params);
