@@ -15,10 +15,9 @@ import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 import UIStore from 'src/stores/alt/stores/UIStore';
 
-const DeviceDescriptionList = ({ elements, currentElement, ui }) => {
-  const deviceDescriptionsStore = useContext(StoreContext).deviceDescriptions;
-  const groupedByValue = deviceDescriptionsStore.list_grouped_by;
-  const showAllGroups = deviceDescriptionsStore.show_all_groups;
+const SequenceBasedMacromoleculeSampleList = ({ elements, currentElement, ui }) => {
+  const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
+  const showAllGroups = sbmmStore.show_all_groups;
   const overlayToggle = <Tooltip id="toggle_molecule">Toggle Group</Tooltip>;
 
   const isElementSelected = (element) => {
@@ -45,8 +44,8 @@ const DeviceDescriptionList = ({ elements, currentElement, ui }) => {
     return null;
   }
 
-  const dragHandle = (element) => {
-    const sourceType = DragDropItemTypes.DEVICE_DESCRIPTION;
+  const dragHandle = (element, type) => {
+    const sourceType = DragDropItemTypes[type];
     return (
       <ElementContainer
         key={element.id}
@@ -56,19 +55,19 @@ const DeviceDescriptionList = ({ elements, currentElement, ui }) => {
     );
   }
 
-  const dragColumn = (element) => {
+  const dragColumn = (element, type) => {
     return (
       <div className="ms-3">
-        {dragHandle(element)}
+        {dragHandle(element, type)}
       </div>
     );
   }
 
   const toggleShownGroup = (key, shownGroup) => {
     if (shownGroup === undefined) {
-      deviceDescriptionsStore.addGroupToShownGroups(key);
+      sbmmStore.addGroupToShownGroups(key);
     } else {
-      deviceDescriptionsStore.removeGroupFromShownGroups(key);
+      sbmmStore.removeGroupFromShownGroups(key);
     }
   }
 
@@ -76,44 +75,17 @@ const DeviceDescriptionList = ({ elements, currentElement, ui }) => {
     return shownGroup === undefined && showAllGroups ? true : (shownGroup === undefined ? true : false);
   }
 
-  const identifierKey = (key) => {
-    return key === "" || key === undefined ? '[empty]' : key;
-  }
-
   const groupedElements = () => {
     let group = {};
 
     elements.forEach((element) => {
-      let key = identifierKey(element[groupedByValue]);
-
-      if (groupedByValue === 'ontology' && element.ontologies && element.ontologies.length >= 1) {
-        element.ontologies.map((ontology) => {
-          key = ontology.data.label;
-
-          deviceDescriptionsStore.addGroupToAllGroups(key);
-
-          if (!Object.prototype.hasOwnProperty.call(group, key)) {
-            group[key] = [];
-          }
-          group[key].push(element);
-        });
-      } else {
-        if (groupedByValue === 'ontology_combinded' && element.ontologies && element.ontologies.length >= 1) {
-          const sortedOntology = element.ontologies.map((ontology) => ontology.data.label).sort();
-          key = sortedOntology.join(' - ');
-        }
-
-        deviceDescriptionsStore.addGroupToAllGroups(key);
-
-        if (groupedByValue == 'short_label') {
-          key = element.ancestor_ids[0] || element.id;
-        }
-
-        if (!Object.prototype.hasOwnProperty.call(group, key)) {
-          group[key] = [];
-        }
-        group[key].push(element);
+      const key = element.sequence_based_macromolecule.id;
+      sbmmStore.addGroupToAllGroups(`${key}`);
+ 
+      if (!Object.prototype.hasOwnProperty.call(group, key)) {
+        group[key] = [];
       }
+      group[key].push(element);
     });
 
     return group;
@@ -123,10 +95,10 @@ const DeviceDescriptionList = ({ elements, currentElement, ui }) => {
     let items = [];
 
     Object.entries(groupedElements()).forEach(([key, group]) => {
-      const shownGroup = deviceDescriptionsStore.shownGroups.find((g) => g === identifierKey(key));
+      const shownGroup = sbmmStore.shownGroups.find((g) => g === key);
       items.push(
-        <div key={identifierKey(key)}>
-          {ListItemHeader(identifierKey(key), group, shownGroup)}
+        <div key={key}>
+          {ListItemHeader(key, group, shownGroup)}
           <Collapse in={chevronOpenOrClosed(shownGroup)}>
             <div>
               {group.map((element) => ListItem(element))}
@@ -135,19 +107,12 @@ const DeviceDescriptionList = ({ elements, currentElement, ui }) => {
         </div>
       );
     });
-
     return items;
   }
 
   const ListItemHeader = (key, group, shownGroup) => {
     const direction = chevronOpenOrClosed(shownGroup) ? 'down' : 'right';
-    const groupKey = groupedByValue == 'short_label' ? group[0].short_label : key;
-    const groupType = group[0].device_type ? `- ${group[0].device_type}` : '';
-    const groupDeviceName = group[0].vendor_device_name ? group[0].vendor_device_name : group[0].name;
-    let groupName = groupKey;
-    if (groupKey !== '[empty]' && groupKey !== '[other]' && !groupedByValue.includes('ontology')) {
-      groupName = `${groupDeviceName} - ${groupKey} ${groupType}`;
-    }
+    const sbmm = group[0].sequence_based_macromolecule;
 
     return (
       <div
@@ -156,8 +121,8 @@ const DeviceDescriptionList = ({ elements, currentElement, ui }) => {
         key={`element-list-item-header-${key}`}
         role="button"
       >
-        <div className="fw-bold fs-5">{groupName}</div>
-        <div>
+        <div className="fw-bold fs-5">{sbmm.short_name}</div>
+        <div className="d-flex justify-content-between align-items-center">
           <OverlayTrigger placement="bottom" overlay={overlayToggle}>
             <ChevronIcon
               direction={direction}
@@ -165,6 +130,7 @@ const DeviceDescriptionList = ({ elements, currentElement, ui }) => {
               className="fs-5"
             />
           </OverlayTrigger>
+          {dragColumn(sbmm, 'SEQUENCE_BASED_MACROMOLECULE')}
         </div>
       </div>
     );
@@ -189,17 +155,17 @@ const DeviceDescriptionList = ({ elements, currentElement, ui }) => {
         <div className="d-flex gap-1">
           <CommentIcon commentCount={element.comment_count} />
           <ElementCollectionLabels element={element} key={element.id} />
-          {dragColumn(element)}
+          {dragColumn(element, 'SEQUENCE_BASED_MACROMOLECULE_SAMPLE')}
         </div>
       </div>
     );
   }
 
   return (
-    <div key="device-description-grouped-list">
+    <div key="sequence-based-macromolecule-samples-grouped-list">
       {listItems()}
     </div>
   );
 }
 
-export default observer(DeviceDescriptionList);
+export default observer(SequenceBasedMacromoleculeSampleList);

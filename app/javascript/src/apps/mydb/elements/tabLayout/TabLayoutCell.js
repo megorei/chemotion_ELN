@@ -5,6 +5,7 @@ import flow from 'lodash/flow';
 import UserStore from 'src/stores/alt/stores/UserStore';
 import { capitalizeWords } from 'src/utilities/textHelper';
 import { DragDropItemTypes } from 'src/utilities/DndConst';
+import { allElnElements } from 'src/apps/generic/Utils';
 
 const layoutSource = {
   beginDrag(props) {
@@ -30,12 +31,7 @@ class TabLayoutCell extends Component {
       isCollectionTab
     } = this.props;
 
-    const elnElements = [
-      'sample', 'reaction', 'screen',
-      'wellplate', 'research_plan',
-      'cell_line', 'device_description'
-    ];
-
+    const elnElements = allElnElements;
     let cellIcon = `icon-${cell}`;
     let cellTitle = capitalizeWords(cell);
     let cellDescription = '';

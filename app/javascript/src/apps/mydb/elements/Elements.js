@@ -31,6 +31,11 @@ export default class Elements extends Component {
     if (currentElement && currentElement.type == 'device_description') {
       this.context.deviceDescriptions.addDeviceDescriptionToOpen(currentElement);
     }
+    
+    if (currentElement && currentElement.type == 'sequence_based_macromolecule_sample') {
+      this.context.sequenceBasedMacromoleculeSamples.addSequenceBasedMacromoleculeSampleToOpen(currentElement);
+    }
+
     this.setState({ currentElement });
   }
 

@@ -50,6 +50,7 @@ const collectionShow = (e) => {
     UIActions.uncheckAllElements({ type: 'wellplate', range: 'all' });
     UIActions.uncheckAllElements({ type: 'screen', range: 'all' });
     UIActions.uncheckAllElements({ type: 'device_description', range: 'all' });
+    UIActions.uncheckAllElements({ type: 'sequence_based_macromolecule_sample', range: 'all' });
     elementNames(false).then((klassArray) => {
       klassArray.forEach((klass) => {
         UIActions.uncheckAllElements({ type: klass, range: 'all' });
@@ -100,6 +101,7 @@ const scollectionShow = (e) => {
     UIActions.uncheckAllElements({ type: 'wellplate', range: 'all' });
     UIActions.uncheckAllElements({ type: 'screen', range: 'all' });
     UIActions.uncheckAllElements({ type: 'device_description', range: 'all' });
+    UIActions.uncheckAllElements({ type: 'sequence_based_macromolecule_sample', range: 'all' });
     elementNames(false).then((klassArray) => {
       klassArray.forEach((klass) => {
         UIActions.uncheckAllElements({ type: klass, range: 'all' });
@@ -270,6 +272,24 @@ const deviceDescriptionShowOrNew = (e) => {
   }
 }
 
+const sequenceBasedMacromoleculeSampleShowOrNew = (e) => {
+  const { sequence_based_macromolecule_sampleID, collectionID } = e.params;
+  const { selecteds, activeKey } = ElementStore.getState();
+  const index = selecteds.findIndex(el => {
+    return el.type === 'sequence_based_macromolecule_sample' && el.id === sequence_based_macromolecule_sampleID
+  });
+
+  if (sequence_based_macromolecule_sampleID === 'new' || sequence_based_macromolecule_sampleID === undefined) {
+    ElementActions.generateEmptySequenceBasedMacromoleculeSample(collectionID);
+  } else if (sequence_based_macromolecule_sampleID === 'copy') {
+    ElementActions.copySequenceBasedMacromoleculeSampleFromClipboard.defer(collectionID);
+  } else if (index < 0) {
+    ElementActions.fetchSequenceBasedMacromoleculeSampleById(sequence_based_macromolecule_sampleID);
+  } else if (index !== activeKey) {
+    DetailActions.select(index);
+  }
+}
+
 const genericElShowOrNew = (e, type) => {
   const { collectionID } = e.params;
   let itype = '';
@@ -318,6 +338,9 @@ const elementShowOrNew = (e) => {
     case 'device_description':
       deviceDescriptionShowOrNew(e);
       break;
+    case 'sequence_based_macromolecule_sample':
+      sequenceBasedMacromoleculeSampleShowOrNew(e);
+      break;
     default:
       if (e && e.klassType == 'GenericEl') {
         genericElShowOrNew(e, type);
@@ -349,5 +372,6 @@ export {
   elementShowOrNew,
   predictionShowFwdRxn,
   genericElShowOrNew,
-  cellLineShowOrNew
+  cellLineShowOrNew,
+  sequenceBasedMacromoleculeSampleShowOrNew,
 };
