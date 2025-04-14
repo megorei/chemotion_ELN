@@ -37,6 +37,8 @@ class LoadingStore {
           ElementActions.importWellplateSpreadsheet,
           ElementActions.createDeviceDescription,
           ElementActions.updateDeviceDescription,
+          ElementActions.createSequenceBasedMacromoleculeSample,
+          ElementActions.updateSequenceBasedMacromoleculeSample,
           ElementActions.storeMetadata,
           InboxActions.fetchInbox,
           InboxActions.fetchInboxContainer,
