@@ -159,7 +159,9 @@ const DeviceDescriptionDetails = () => {
               {deviceDescription.name}
             </span>
           </OverlayTrigger>
-          <ElementCollectionLabels element={deviceDescription} placement="right" />
+          {!deviceDescription.isNew && (
+            <ElementCollectionLabels element={deviceDescription} placement="right" />
+          )}
           <HeaderCommentSection element={deviceDescription} />
         </div>
         <div className="d-flex align-items-center gap-1">

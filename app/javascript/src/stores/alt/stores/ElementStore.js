@@ -19,6 +19,7 @@ import ResearchPlan from 'src/models/ResearchPlan';
 import Wellplate from 'src/models/Wellplate';
 import Screen from 'src/models/Screen';
 import DeviceDescription from 'src/models/DeviceDescription';
+import SequenceBasedMacromoleculeSample from 'src/models/SequenceBasedMacromoleculeSample';
 
 import Device from 'src/models/Device';
 import Container from 'src/models/Container';
@@ -112,6 +113,13 @@ class ElementStore {
         pages: null,
         perPage: null
       },
+      sequence_based_macromolecule_samples: {
+        elements: [],
+        totalElements: 0,
+        page: null,
+        pages: null,
+        perPage: null
+      },
     };
 
     this.state = {
@@ -167,6 +175,7 @@ class ElementStore {
       handlefetchResearchPlansByCollectionId: ElementActions.fetchResearchPlansByCollectionId,
       handlefetchCellLinesByCollectionId: ElementActions.fetchCellLinesByCollectionId,
       handlefetchDeviceDescriptionsByCollectionId: ElementActions.fetchDeviceDescriptionsByCollectionId,
+      handlefetchSequenceBasedMacromoleculeSamplesByCollectionId: ElementActions.fetchSequenceBasedMacromoleculeSamplesByCollectionId,
 
       handleFetchSampleById: ElementActions.fetchSampleById,
       handleCreateSample: ElementActions.createSample,
@@ -225,6 +234,9 @@ class ElementStore {
       handlefetchDeviceDescriptionById: ElementActions.fetchDeviceDescriptionById,
       handleCreateDeviceDescription: ElementActions.createDeviceDescription,
       handleCopyDeviceDescriptionFromClipboard: ElementActions.copyDeviceDescriptionFromClipboard,
+      handlefetchSequenceBasedMacromoleculeSampleById: ElementActions.fetchSequenceBasedMacromoleculeSampleById,
+      handleCreateSequenceBasedMacromoleculeSample: ElementActions.createSequenceBasedMacromoleculeSample,
+      handleCopySequenceBasedMacromoleculeSampleFromClipboard: ElementActions.copySequenceBasedMacromoleculeSampleFromClipboard,
 
       handleCreatePrivateNote: ElementActions.createPrivateNote,
       handleUpdatePrivateNote: ElementActions.updatePrivateNote,
@@ -244,6 +256,7 @@ class ElementStore {
           ElementActions.generateEmptyReaction,
           ElementActions.generateEmptyCellLine,
           ElementActions.generateEmptyDeviceDescription,
+          ElementActions.generateEmptySequenceBasedMacromoleculeSample,
           ElementActions.showReportContainer,
           ElementActions.showFormatContainer,
           ElementActions.showComputedPropsGraph,
@@ -263,6 +276,7 @@ class ElementStore {
       handleSplitAsSubwellplates: ElementActions.splitAsSubwellplates,
       handleSplitAsSubCellLines: ElementActions.splitAsSubCellLines,
       handleSplitAsSubDeviceDescription: ElementActions.splitAsSubDeviceDescription,
+      handleSplitAsSubSequenceBasedMacromoleculeSample: ElementActions.splitAsSubSequenceBasedMacromoleculeSample,
       // formerly from DetailStore
       handleSelect: DetailActions.select,
       handleClose: DetailActions.close,
@@ -284,6 +298,7 @@ class ElementStore {
         ElementActions.updateResearchPlan,
         ElementActions.updateCellLine,
         ElementActions.updateDeviceDescription,
+        ElementActions.updateSequenceBasedMacromoleculeSample,
         ElementActions.updateGenericEl,
       ],
       handleUpdateEmbeddedResearchPlan: ElementActions.updateEmbeddedResearchPlan,
@@ -555,8 +570,11 @@ class ElementStore {
   handleDeleteElements(options) {
     this.waitFor(UIStore.dispatchToken);
     const ui_state = UIStore.getState();
-    const { sample, reaction, wellplate, screen, research_plan, currentCollection, cell_line, device_description } = ui_state;
-    const selecteds = this.state.selecteds.map((s) => ({ id: s.id, type: s.type }));
+    const {
+      sample, reaction, wellplate, screen, research_plan,
+      currentCollection, cell_line, device_description, sequence_based_macromolecule_sample
+    } = ui_state;
+    const selecteds = this.state.selecteds.map(s => ({ id: s.id, type: s.type }));
     const params = {
       options,
       sample,
@@ -567,7 +585,8 @@ class ElementStore {
       currentCollection,
       selecteds,
       cell_line,
-      device_description
+      device_description,
+      sequence_based_macromolecule_sample,
     };
 
     const currentUser = (UserStore.getState() && UserStore.getState().currentUser) || {};
@@ -621,8 +640,10 @@ class ElementStore {
         if (layout.screen && layout.screen > 0) { this.handleRefreshElements('screen'); }
         if (layout.cell_line && layout.cell_line > 0) { this.handleRefreshElements('cell_line'); }
         if (layout.device_description && layout.device_description > 0) { this.handleRefreshElements('device_description'); }
+        if (layout.sequence_based_macromolecule_sample && layout.sequence_based_macromolecule_sample > 0) {
+          this.handleRefreshElements('sequence_based_macromolecule_sample');
+        }
         if (!isSync && layout.research_plan && layout.research_plan > 0) { this.handleRefreshElements('research_plan'); }
-
 
         const { currentUser, genericEls } = UserStore.getState();
         if (MatrixCheck(currentUser.matrix, 'genericElement')) {
@@ -682,6 +703,10 @@ class ElementStore {
 
   handlefetchDeviceDescriptionsByCollectionId(result) {
     this.state.elements.device_descriptions = result;
+  }
+
+  handlefetchSequenceBasedMacromoleculeSamplesByCollectionId(result) {
+    this.state.elements.sequence_based_macromolecule_samples = result;
   }
 
   // -- Samples --
@@ -928,19 +953,19 @@ class ElementStore {
 
   handleImportSamplesFromFile(data) {
     if (data.sdf) {
-      this.setState({sdfUploadData: data})
+      this.setState({ sdfUploadData: data })
     } else {
       this.handleRefreshElements('sample');
     }
   }
 
   handleImportSamplesFromFileConfirm() {
-    this.setState({sdfUploadData: null})
+    this.setState({ sdfUploadData: null })
     this.handleRefreshElements('sample');
   }
 
   handleImportSamplesFromFileDecline() {
-    this.setState({sdfUploadData: null})
+    this.setState({ sdfUploadData: null })
   }
 
   // -- Wellplates --
@@ -978,6 +1003,7 @@ class ElementStore {
     this.changeCurrentElement(Wellplate.buildFromSamplesAndCollectionId(clipboardSamples, collectionId));
     // this.state.currentElement = Wellplate.buildFromSamplesAndCollectionId(clipboardSamples, collectionId);
   }
+
   // -- Screens --
 
   handleAddResearchPlanToScreen(screen) {
@@ -1059,6 +1085,33 @@ class ElementStore {
       uiState.currentCollectionId,
       {},
       uiState.isSync,
+    );
+  }
+
+  // -- Sequence Based Macromolecules --
+
+  handlefetchSequenceBasedMacromoleculeSampleById(result) {
+    this.changeCurrentElement(result);
+  }
+
+  handleCreateSequenceBasedMacromoleculeSample(sequence_based_macromolecule_sample) {
+    this.handleRefreshElements('sequence_based_macromolecule_sample');
+    this.navigateToNewElement(sequence_based_macromolecule_sample);
+  }
+
+  handleCopySequenceBasedMacromoleculeSampleFromClipboard(collection_id) {
+    const clipboardSequenceBasedMacromoleculeSamples = ClipboardStore.getState().sequence_based_macromolecule_samples;
+    if (clipboardSequenceBasedMacromoleculeSamples && clipboardSequenceBasedMacromoleculeSamples.length > 0) {
+      this.changeCurrentElement(
+        SequenceBasedMacromoleculeSample
+          .copyFromSequenceBasedMacromoleculeSampleAndCollectionId(clipboardSequenceBasedMacromoleculeSamples[0], collection_id)
+      );
+    }
+  }
+
+  handleSplitAsSubSequenceBasedMacromoleculeSample(ui_state) {
+    ElementActions.fetchSequenceBasedMacromoleculeSamplesByCollectionId(
+      ui_state.currentCollectionId, {}, ui_state.isSync
     );
   }
 
@@ -1233,7 +1286,8 @@ class ElementStore {
         'fetchScreensByCollectionId',
         'fetchResearchPlansByCollectionId',
         'fetchCellLinesByCollectionId',
-        'fetchDeviceDescriptionsByCollectionId'
+        'fetchDeviceDescriptionsByCollectionId',
+        'fetchSequenceBasedMacromoleculeSamplesByCollectionId'
       ];
       if (allowedActions.includes(fn)) {
         ElementActions[fn](uiState.currentCollection.id, params, uiState.isSync, moleculeSort);
@@ -1487,6 +1541,10 @@ class ElementStore {
       case 'device_description':
         this.changeCurrentElement(updatedElement);
         this.handleRefreshElements('device_description');
+        break;
+      case 'sequence_based_macromolecule_sample':
+        this.changeCurrentElement(updatedElement);
+        this.handleRefreshElements('sequence_based_macromolecule_sample');
         break;
       case 'genericEl':
         this.handleRefreshElements('genericEl');
