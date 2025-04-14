@@ -27,6 +27,8 @@ const ElementContainer = ({ connectDragSource, sourceType }) => {
     case DragDropItemTypes.RESEARCH_PLAN:
     case DragDropItemTypes.ELEMENT:
     case DragDropItemTypes.DEVICE_DESCRIPTION:
+    case DragDropItemTypes.SEQUENCE_BASED_MACROMOLECULE:
+    case DragDropItemTypes.SEQUENCE_BASED_MACROMOLECULE_SAMPLE:
       return connectDragSource(<span className="fa fa-arrows dnd-arrow-enable text-info" />);
 
     default:

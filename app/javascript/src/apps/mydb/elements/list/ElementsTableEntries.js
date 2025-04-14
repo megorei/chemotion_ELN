@@ -228,7 +228,8 @@ export default class ElementsTableEntries extends Component {
       reaction: ['research_plan'],
       wellplate: ['screen', 'research_plan'],
       generalProcedure: ['reaction'],
-      research_plan: ['screen']
+      research_plan: ['screen'],
+      sequence_based_macromolecule: ['sequence_based_macromolecule_sample'],
     };
     return type && currentElement && targets[type].includes(currentElement.type);
   }
@@ -251,6 +252,8 @@ export default class ElementsTableEntries extends Component {
     const isDropForResearchPlan = el.type === 'reaction' && this.isCurrEleDropType('reaction');
     const isDropForGP = el.type === 'reaction' && el.role === 'gp' && this.isCurrEleDropType('generalProcedure');
     const isDropForScreen = el.type === 'research_plan' && this.isCurrEleDropType('research_plan');
+    const isDropForSequenceBasedMacromolecule =
+      el.type === 'sequence_based_macromolecule_sample' && this.isCurrEleDropType('sequence_based_macromolecule');
 
     if (isDropForSample) {
       sourceType = DragDropItemTypes.SAMPLE;
@@ -262,6 +265,8 @@ export default class ElementsTableEntries extends Component {
       sourceType = DragDropItemTypes.GENERALPROCEDURE;
     } else if (isDropForScreen) {
       sourceType = DragDropItemTypes.RESEARCH_PLAN;
+    } else if (isDropForSequenceBasedMacromolecule) {
+      sourceType = DragDropItemTypes.SEQUENCE_BASED_MACROMOLECULE;
     } else {
       sourceType = DragDropItemTypes.ELEMENT;
     }
