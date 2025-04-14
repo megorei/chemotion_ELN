@@ -93,8 +93,6 @@ const PropertiesForm = ({ readonly }) => {
     }
   }
 
-  console.log(sbmmSample);
-
   return (
     <Form>
       <Row className="mb-4">
