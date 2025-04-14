@@ -4,10 +4,8 @@ import {
 } from 'react-bootstrap';
 
 import PropertiesForm from './propertiesTab/PropertiesForm';
-import DetailsForm from './detailsTab/DetailsForm';
 import AnalysesContainer from './analysesTab/AnalysesContainer';
 import AttachmentForm from './attachmentsTab/AttachmentForm';
-import MaintenanceForm from './maintenanceTab/MaintenanceForm';
 
 import ElementCollectionLabels from 'src/apps/mydb/elements/labels/ElementCollectionLabels';
 import HeaderCommentSection from 'src/components/comments/HeaderCommentSection';
@@ -35,42 +33,39 @@ import UIStore from 'src/stores/alt/stores/UIStore';
 import UserStore from 'src/stores/alt/stores/UserStore';
 import CollectionUtils from 'src/models/collection/CollectionUtils';
 
-const DeviceDescriptionDetails = () => {
-  const deviceDescriptionsStore = useContext(StoreContext).deviceDescriptions;
-  let deviceDescription = deviceDescriptionsStore.device_description;
-  deviceDescriptionsStore.setKeyPrefix('deviceDescription');
+const SequenceBasedMacromoleculeSampleDetails = () => {
+  const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
+  let sbmmSample = sbmmStore.sequence_based_macromolecule_sample;
 
   const { currentCollection, isSync } = UIStore.getState();
   const { currentUser } = UserStore.getState();
 
   const [visibleTabs, setVisibleTabs] = useState(Immutable.List());
 
-  const submitLabel = deviceDescription.isNew ? 'Create' : 'Save';
+  const submitLabel = sbmmSample.isNew ? 'Create' : 'Save';
   let tabContents = [];
 
   useEffect(() => {
-    if (MatrixCheck(currentUser.matrix, commentActivation) && !deviceDescription.isNew) {
-      CommentActions.fetchComments(deviceDescription);
+    if (sbmmSample?.id && MatrixCheck(currentUser.matrix, commentActivation) && !sbmmSample.isNew) {
+      CommentActions.fetchComments(sbmmSample);
     }
   }, []);
 
   const tabContentComponents = {
     properties: PropertiesForm,
-    detail: DetailsForm,
     analyses: AnalysesContainer,
     attachments: AttachmentForm,
-    maintenance: MaintenanceForm,
   };
 
   const tabTitles = {
     properties: 'Properties',
-    detail: 'Details',
     analyses: 'Analyses',
     attachments: 'Attachment',
-    maintenance: 'Maintenance',
   };
 
   const isReadOnly = () => {
+    if (!currentCollection) { return false; }
+
     return CollectionUtils.isReadOnly(
       currentCollection,
       currentUser.id,
@@ -79,18 +74,20 @@ const DeviceDescriptionDetails = () => {
   }
 
   const disabled = (index) => {
-    return deviceDescription.isNew && index !== 0 ? true : false;
+    return sbmmSample.isNew && index !== 0 ? true : false;
   }
 
   visibleTabs.forEach((key, i) => {
+    let title = tabTitles[key];
+  
     tabContents.push(
-      <Tab eventKey={key} title={tabTitles[key]} key={`${key}_${deviceDescription.id}`} disabled={disabled(i)}>
+      <Tab eventKey={key} title={title} key={`${key}_${sbmmSample.id}`} disabled={disabled(i)}>
         {
-          !deviceDescription.isNew &&
-          <CommentSection section={`device_description_${key}`} element={deviceDescription} />
+          !sbmmSample.isNew &&
+          <CommentSection section={`sequence_based_macromolecule_sample_${key}`} element={sbmmSample} />
         }
         {React.createElement(tabContentComponents[key], {
-          key: `${deviceDescription.id}-${key}`,
+          key: `${sbmmSample.id}-${key}`,
           readonly: isReadOnly()
         })}
       </Tab>
@@ -102,81 +99,86 @@ const DeviceDescriptionDetails = () => {
   }
 
   const handleTabChange = (key) => {
-    deviceDescriptionsStore.setActiveTabKey(key);
+    sbmmStore.setActiveTabKey(key);
   }
 
   const handleSubmit = () => {
-    LoadingActions.start();
-    if (deviceDescription.is_new) {
-      DetailActions.close(deviceDescription, true);
-      ElementActions.createDeviceDescription(deviceDescription);
-    } else {
-      ElementActions.updateDeviceDescription(deviceDescription);
+    if (sbmmStore.hasValidFields()) {
+      LoadingActions.start();
+      if (sbmmSample.is_new) {
+        DetailActions.close(sbmmSample, true);
+        ElementActions.createSequenceBasedMacromoleculeSample(sbmmSample);
+      } else {
+        ElementActions.updateSequenceBasedMacromoleculeSample(sbmmSample);
+        sbmmStore.setUpdatedSequenceBasedMacromoleculeSampleId(sbmmSample.id);
+      }
     }
-    deviceDescriptionsStore.setCurrentDeviceDescriptionIdToSave(`${deviceDescription.id}`);
   }
 
-  const deviceDescriptionIsValid = () => {
-    // TODO: validation
-    return true;
-  }
-
-  const handleExportAnalyses = () => {
-    deviceDescriptionsStore.toggleAnalysisStartExport();
-    AttachmentFetcher.downloadZipByDeviceDescription(deviceDescription.id)
-      .then(() => { deviceDescriptionsStore.toggleAnalysisStartExport(); })
-      .catch((errorMessage) => { console.log(errorMessage); });
-  }
+  // const handleExportAnalyses = () => {
+  //   sbmmSamplesStore.toggleAnalysisStartExport();
+  //   AttachmentFetcher.downloadZipBySequenceBasedMacromolecule(sbmmSample.id)
+  //     .then(() => { sbmmStore.toggleAnalysisStartExport(); })
+  //     .catch((errorMessage) => { console.log(errorMessage); });
+  // }
 
   const downloadAnalysisButton = () => {
-    const hasNoAnalysis = deviceDescription.analyses?.length === 0 || deviceDescription.analyses?.length === undefined;
-    if (deviceDescription.isNew || hasNoAnalysis) { return null; }
-
-    return (
-      <Button
-        variant="info"
-        disabled={!deviceDescriptionIsValid()}
-        onClick={() => handleExportAnalyses()}
-      >
-        Download Analysis
-        {deviceDescriptionsStore.analysis_start_export && <i className="fa fa-spin fa-spinner ms-1" />}
-      </Button>
-    );
+    //   const hasNoAnalysis = sbmmSample.analyses?.length === 0 || sbmmSample.analyses?.length === undefined;
+    //   if (sbmmSample.isNew || hasNoAnalysis) { return null; }
+    // 
+    //   return (
+    //     <Button
+    //       variant="info"
+    //       onClick={() => handleExportAnalyses()}
+    //     >
+    //       Download Analysis
+    //       {sbmmSamplesStore.analysis_start_export && <i className="fa fa-spin fa-spinner ms-1" />}
+    //     </Button>
+    //   );
   }
 
-  const deviceDescriptionHeader = () => {
-    const titleTooltip = formatTimeStampsOfElement(deviceDescription || {});
+  const sbmmSampleHeader = () => {
+    const titleTooltip = formatTimeStampsOfElement(sbmmSample || {});
     const defCol = currentCollection && currentCollection.is_shared === false
       && currentCollection.is_locked === false && currentCollection.label !== 'All' ? currentCollection.id : null;
 
     return (
       <div className="d-flex align-items-center justify-content-between">
         <div className="d-flex align-items-center gap-2">
-          <OverlayTrigger placement="bottom" overlay={<Tooltip id="deviceDescriptionDates">{titleTooltip}</Tooltip>}>
+          <OverlayTrigger
+            placement="bottom"
+            overlay={<Tooltip id="sbmmSampleDates">{titleTooltip}</Tooltip>}
+          >
             <span>
-              <i className="icon-device_description me-1" />
-              {deviceDescription.name}
+              <i className="icon-sequence_based_macromolecule me-1" />
+              {sbmmSample.name}
             </span>
           </OverlayTrigger>
-          {!deviceDescription.isNew && (
-            <ElementCollectionLabels element={deviceDescription} placement="right" />
-          )}
-          <HeaderCommentSection element={deviceDescription} />
+          {
+            !sbmmSample.isNew && (
+              <ElementCollectionLabels element={sbmmSample} placement="right" />
+            )
+          }
+          <HeaderCommentSection element={sbmmSample} />
         </div>
         <div className="d-flex align-items-center gap-1">
-          <PrintCodeButton element={deviceDescription} />
-          {!deviceDescription.isNew &&
-            <OpenCalendarButton isPanelHeader eventableId={deviceDescription.id} eventableType="DeviceDescription" />}
-          {deviceDescription.can_copy && !deviceDescription.isNew && (
+          <PrintCodeButton element={sbmmSample} />
+          {!sbmmSample.isNew &&
+            <OpenCalendarButton
+              isPanelHeader
+              eventableId={sbmmSample.id}
+              eventableType="SequenceBasedMacromoleculeSample"
+            />}
+          {sbmmSample.can_copy && !sbmmSample.isNew && (
             <CopyElementModal
-              element={deviceDescription}
+              element={sbmmSample}
               defCol={defCol}
             />
           )}
-          {deviceDescription.isEdited && (
+          {sbmmSample.isEdited && (
             <OverlayTrigger
               placement="bottom"
-              overlay={<Tooltip id="saveDeviceDescription">Save device description</Tooltip>}
+              overlay={<Tooltip id="saveSequenceBasedMacromolecule">Save sequence based macromolecule</Tooltip>}
             >
               <Button
                 variant="warning"
@@ -187,35 +189,35 @@ const DeviceDescriptionDetails = () => {
               </Button>
             </OverlayTrigger>
           )}
-          <ConfirmClose el={deviceDescription} />
+          <ConfirmClose el={sbmmSample} />
         </div>
       </div>
     );
   }
 
   return (
-    <Card className={"detail-card" + (deviceDescription.isPendingToSave ? " detail-card--unsaved" : "")}>
+    <Card className={"detail-card" + (sbmmSample.isPendingToSave ? " detail-card--unsaved" : "")}>
       <Card.Header>
-        {deviceDescriptionHeader()}
+        {sbmmSampleHeader()}
       </Card.Header>
-      <Card.Body>
+      <Card.Body style={{ minHeight: '500px' }}>
         <div className="tabs-container--with-borders">
           <ElementDetailSortTab
-            type="device_description"
+            type="sequence_based_macromolecule_sample"
             availableTabs={Object.keys(tabContentComponents)}
             tabTitles={tabTitles}
             onTabPositionChanged={onTabPositionChanged}
           />
           <Tabs
-            activeKey={deviceDescriptionsStore.active_tab_key}
+            activeKey={sbmmStore.active_tab_key}
             onSelect={key => handleTabChange(key)}
-            id="deviceDescriptionDetailsTab"
+            id="sbmmSampleSampleDetailsTab"
             unmountOnExit
           >
             {tabContents}
           </Tabs>
         </div>
-        <CommentModal element={deviceDescription} />
+        <CommentModal element={sbmmSample} />
       </Card.Body>
       <Card.Footer>
         <Button variant="primary" onClick={() => DetailActions.close(deviceDescription)}>
@@ -230,4 +232,4 @@ const DeviceDescriptionDetails = () => {
   );
 }
 
-export default observer(DeviceDescriptionDetails);
+export default observer(SequenceBasedMacromoleculeSampleDetails);

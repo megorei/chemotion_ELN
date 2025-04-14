@@ -73,6 +73,15 @@ class UIStore {
         activeTab: 0,
         activeAnalysis: 0,
       },
+      sequence_based_macromolecule_sample: {
+        checkedAll: false,
+        checkedIds: List(),
+        uncheckedIds: List(),
+        currentId: null,
+        page: 1,
+        activeTab: 0,
+        activeAnalysis: 0,
+      },
       groupCollapse: {},
       isSidebarCollapsed: false,
       showPreviews: true,
@@ -291,6 +300,7 @@ class UIStore {
     this.handleUncheckAllElements({ type: 'research_plan', range: 'all' });
     this.handleUncheckAllElements({ type: 'cell_line', range: 'all' });
     this.handleUncheckAllElements({ type: 'device_description', range: 'all' });
+    this.handleUncheckAllElements({ type: 'sequence_based_macromolecule_sample', range: 'all' });
     this.state.klasses?.forEach((klass) => { this.handleUncheckAllElements({ type: klass, range: 'all' }); });
   }
 
@@ -333,6 +343,7 @@ class UIStore {
     this.state.wellplate.currentId = null;
     this.state.research_plan.currentId = null;
     this.state.device_description.currentId = null;
+    this.state.sequence_based_macromolecule_sample.currentId = null;
   }
 
   handleSelectElement(element) {
@@ -413,9 +424,20 @@ class UIStore {
               Object.assign(params, { page: state.device_description.page }),
             );
           }
+          if (!isSync && layout.sequence_based_macromolecule_sample && layout.sequence_based_macromolecule_sample > 0) {
+            ElementActions.fetchSequenceBasedMacromoleculeSamplesByCollectionId(
+              collection.id,
+              Object.assign(params, { page: state.sequence_based_macromolecule_sample.page }),
+            );
+          }
+
+          const elements = [
+            'sample', 'reaction', 'screen', 'wellplate', 'research_plan',
+            'cell_line', 'device_description', 'sequence_based_macromolecule_sample',
+          ];
 
           Object.keys(layout)
-            .filter(l => !['sample', 'reaction', 'screen', 'wellplate', 'research_plan', 'cell_line', 'device_description'].includes(l))
+            .filter(l => !elements.includes(l))
             .forEach((key) => {
               if (typeof layout[key] !== 'undefined' && layout[key] > 0) {
                 const page = state[key] ? state[key].page : 1;
