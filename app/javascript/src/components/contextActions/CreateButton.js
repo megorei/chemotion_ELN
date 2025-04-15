@@ -320,13 +320,6 @@ export default class CreateButton extends React.Component {
       }
     });
 
-    // <Dropdown.Item
-    //   onClick={() => this.copySequenceBasedMacromoleculeSample()}
-    //   disabled={this.isCopySequenceBasedMacromoleculeSampleDisabled()}
-    // >
-    //   Copy Sequence Based Macromolecule
-    // </Dropdown.Item>
-
     return (
       <SplitButton
         id="create-split-button"
@@ -364,6 +357,12 @@ export default class CreateButton extends React.Component {
         </Dropdown.Item>
         <Dropdown.Item onClick={() => this.copyDeviceDescription()} disabled={this.isCopyDeviceDescriptionDisabled()}>
           Copy Device Description
+        </Dropdown.Item>
+        <Dropdown.Item
+          onClick={() => this.copySequenceBasedMacromoleculeSample()}
+          disabled={this.isCopySequenceBasedMacromoleculeSampleDisabled()}
+        >
+          Copy Sequence Based Macromolecule
         </Dropdown.Item>
       </SplitButton>
     );
