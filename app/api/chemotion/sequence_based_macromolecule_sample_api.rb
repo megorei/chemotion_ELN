@@ -149,10 +149,16 @@ module Chemotion
 
       desc 'Fetch a SBMM sample by id'
       get ':id' do
-        sample = SequenceBasedMacromoleculeSample.find(params[:id])
-        error!('401 Unauthorized', 401) unless ElementPolicy.new(current_user, sample).read?
+        sbmm_sample = SequenceBasedMacromoleculeSample.find(params[:id])
+        policy = ElementPolicy.new(current_user, sbmm_sample)
+        error!('401 Unauthorized', 401) unless policy.read?
 
-        present sample, with: Entities::SequenceBasedMacromoleculeSampleEntity, root: :sequence_based_macromolecule_sample
+        present(
+          sbmm_sample,
+          with: Entities::SequenceBasedMacromoleculeSampleEntity,
+          policy: policy,
+          root: :sequence_based_macromolecule_sample
+        )
       end
 
       desc 'Create SBMM sample'
@@ -172,13 +178,19 @@ module Chemotion
       route_param :id do
         before do
           @sbmm_sample = SequenceBasedMacromoleculeSample.find(params[:id])
-          error!('401 Unauthorized', 401) unless ElementPolicy.new(current_user, @sbmm_sample).update?
+          @policy = ElementPolicy.new(current_user, @sbmm_sample)
+          error!('401 Unauthorized', 401) unless @policy.update?
         end
 
         put do
           Usecases::Sbmm::Sample.new(current_user: current_user).update(@sbmm_sample, declared(params, evaluate_given: true))
 
-          present @sbmm_sample, with: Entities::SequenceBasedMacromoleculeSampleEntity, root: :sequence_based_macromolecule_sample
+          present(
+            @sbmm_sample,
+            with: Entities::SequenceBasedMacromoleculeSampleEntity,
+            policy: @policy,
+            root: :sequence_based_macromolecule_sample
+          )
         end
       end
 
