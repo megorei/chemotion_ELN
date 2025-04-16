@@ -590,6 +590,35 @@ export default class SequenceBasedMacromoleculeSample extends Element {
     return serialized;
   }
 
+  serializeForCopy() {
+    const serialized = {
+      collection_id: this.collection_id,
+      type: 'sequence_based_macromolecule_sample',
+      name: this.name,
+      short_label: this.short_label,
+      activity_value: this.activity_value,
+      activity_unit: this.activity_unit,
+      amount_as_used_mol_value: this.amount_as_used_mol_value,
+      amount_as_used_mol_unit: this.amount_as_used_mol_unit,
+      amount_as_used_mass_value: this.amount_as_used_mass_value,
+      amount_as_used_mass_unit: this.amount_as_used_mass_unit,
+      concentration_value: this.concentration_value,
+      concentration_unit: this.concentration_unit,
+      container: this.container,
+      function_or_application: this.function_or_application,
+      molarity_value: this.molarity_value,
+      molarity_unit: this.molarity_unit,
+      activity_per_mass_value: this.activity_per_mass_value,
+      activity_per_mass_unit: this.activity_per_mass_unit,
+      activity_per_volume_value: this.activity_per_volume_value,
+      activity_per_volume_unit: this.activity_per_volume_unit,
+      volume_as_used_value: this.volume_as_used_value,
+      volume_as_used_unit: this.volume_as_used_unit,
+      sequence_based_macromolecule: this.sequence_based_macromolecule,
+    };
+    return serialized;
+  }
+
   static buildNewShortLabel() {
     const { currentUser } = UserStore.getState();
     if (!currentUser) { return 'NEW SEQUENCE BASED MACROMOLECULE'; }
