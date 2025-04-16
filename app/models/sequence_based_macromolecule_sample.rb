@@ -24,7 +24,7 @@ class SequenceBasedMacromoleculeSample < ApplicationRecord
 
   scope :created_by, ->(user_id) { where(user_id: user_id) }
   scope :includes_for_list_display, -> { includes(:sequence_based_macromolecule) }
-  scope :in_sbmm_order, -> { joins(:sequence_based_macromolecule).order("sequence_based_macromolecules.systematic_name" => :asc, updated_at: :desc) }
+  scope :in_sbmm_order, -> { joins(:sequence_based_macromolecule).order(updated_at: :desc, "sequence_based_macromolecules.short_name" => :asc) }
 
   def analyses
     container&.analyses || []
