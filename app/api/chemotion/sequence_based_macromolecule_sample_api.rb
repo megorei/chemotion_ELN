@@ -238,6 +238,37 @@ module Chemotion
           present @sbmm_samples, with: Entities::SequenceBasedMacromoleculeSampleEntity, root: :sequence_based_macromolecule_samples
         end
       end
+
+      namespace :sub_sequence_based_macromolecule_samples do
+        desc 'Split SBMM Samples into Subsample'
+        params do
+          requires :ui_state, type: Hash, desc: 'Selected SBMM samples from the UI' do
+            requires :sequence_based_macromolecule_sample, type: Hash do
+              optional :all, type: Boolean, default: false
+              optional :included_ids, type: Array
+              optional :excluded_ids, type: Array
+            end
+            requires :currentCollectionId, type: Integer
+            optional :isSync, type: Boolean, default: false
+          end
+        end
+        post do
+          ui_state = params[:ui_state]
+          collection_id = ui_state[:currentCollectionId]
+          sbmm_sample_ids =
+            SequenceBasedMacromoleculeSample.for_user(current_user.id)
+                                            .for_ui_state_with_collection(
+                                              ui_state[:sequence_based_macromolecule_sample],
+                                              CollectionsSequenceBasedMacromoleculeSample,
+                                              collection_id
+                                            )
+          SequenceBasedMacromoleculeSample.where(id: sbmm_sample_ids).each do |sbmm_sample|
+            sbmm_sample.create_sub_sequence_based_macromolecule_sample(current_user, collection_id)
+          end
+
+          {} # JS layer does not use the reply
+        end
+      end
     end
   end
 end

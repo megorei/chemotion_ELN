@@ -485,4 +485,49 @@ describe Chemotion::SequenceBasedMacromoleculeSampleAPI do
       end
     end
   end
+
+  describe 'POST /api/v1/sequence_based_macromolecule_samples/sub_sequence_based_macromolecule_samples' do
+    let(:sample) do
+      create(
+        :sequence_based_macromolecule_sample,
+        sequence_based_macromolecule: build(:modified_uniprot_sbmm),
+        user: logged_in_user # from context above
+      )
+    end
+    let(:collection) { create(:collection, user_id: user.id) }
+    let(:collections_sbmm_sample) do
+      CollectionsSequenceBasedMacromoleculeSample.create!(
+        sequence_based_macromolecule_sample: sample,
+        collection: collection
+      )
+    end
+
+    before do
+      collections_sbmm_sample
+    end
+
+    context 'when creating a split of a SBMM Sample' do
+      let(:post_for_split) do
+        {
+          ui_state: {
+            sequence_based_macromolecule_sample: {
+              all: false,
+              included_ids: [sample.id],
+              excluded_ids: [],
+            },
+            currentCollectionId: collection.id,
+            isSync: false,
+          }
+        }
+      end
+      it 'creates a SBMM Sample with a sub short label' do
+        expect { 
+          post "/api/v1/sequence_based_macromolecule_samples/sub_sequence_based_macromolecule_samples", params: post_for_split, as: :json
+        }.to change(SequenceBasedMacromoleculeSample, :count).by(1)
+
+        sbmm_sample = SequenceBasedMacromoleculeSample.last
+        expect(sbmm_sample['short_label']).to eq "#{sample.short_label}-1"
+      end
+    end
+  end
 end

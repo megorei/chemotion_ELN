@@ -161,7 +161,7 @@ export default class CreateButton extends React.Component {
 
   copySequenceBasedMacromoleculeSample() {
     let sequenceBasedMacromoleculeSampleFilter = this.getSequenceBasedMacromoleculeSampleFilter();
-    // Set limit to 1 because we are only interested in one device description
+    // Set limit to 1 because we are only interested in one sbmm sample
     let params = {
       ui_state: sequenceBasedMacromoleculeSampleFilter,
       limit: 1,
