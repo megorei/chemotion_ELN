@@ -1000,9 +1000,7 @@ class ElementStore {
   }
 
   handleSplitAsSubDeviceDescription(ui_state) {
-    ElementActions.fetchDeviceDescriptionsByCollectionId(
-      ui_state.currentCollectionId, {}, ui_state.isSync
-    );
+    this.handleRefreshElements('device_description');
   }
 
   // -- Sequence Based Macromolecules --
@@ -1027,9 +1025,7 @@ class ElementStore {
   }
 
   handleSplitAsSubSequenceBasedMacromoleculeSample(ui_state) {
-    ElementActions.fetchSequenceBasedMacromoleculeSamplesByCollectionId(
-      ui_state.currentCollectionId, {}, ui_state.isSync
-    );
+    this.handleRefreshElements('sequence_based_macromolecule_sample');
   }
 
   // -- Reactions --
