@@ -15,7 +15,8 @@ class SequenceBasedMacromoleculeSample < ApplicationRecord
   has_ancestry orphan_strategy: :adopt
 
   has_many :attachments, as: :attachable, inverse_of: :attachable, dependent: :nullify
-  has_many :collections_sequence_based_macromolecule_samples, inverse_of: :sequence_based_macromolecule_sample, dependent: :destroy
+  has_many :collections_sequence_based_macromolecule_samples, inverse_of: :sequence_based_macromolecule_sample,
+                                                              dependent: :destroy
   has_many :collections, through: :collections_sequence_based_macromolecule_samples
   has_many :comments, as: :commentable, inverse_of: :commentable, dependent: :destroy
   has_many :sync_collections_users, through: :collections
@@ -25,7 +26,10 @@ class SequenceBasedMacromoleculeSample < ApplicationRecord
 
   scope :created_by, ->(user_id) { where(user_id: user_id) }
   scope :includes_for_list_display, -> { includes(:sequence_based_macromolecule) }
-  scope :in_sbmm_order, -> { joins(:sequence_based_macromolecule).order(updated_at: :desc, "sequence_based_macromolecules.short_name" => :asc) }
+  scope :in_sbmm_order, lambda {
+                          joins(:sequence_based_macromolecule)
+                            .order(updated_at: :desc, 'sequence_based_macromolecules.short_name' => :asc)
+                        }
 
   def analyses
     container&.analyses || []
@@ -35,10 +39,10 @@ class SequenceBasedMacromoleculeSample < ApplicationRecord
     return if short_label
     return unless user
 
-    prefix = "SBMMS"
+    prefix = 'SBMMS'
     abbr = user.name_abbreviation
     self.short_label = "#{abbr}-#{prefix}#{user.counters['sequence_based_macromolecule_samples'].to_i.succ}"
-    user.increment_counter 'sequence_based_macromolecule_samples'
+    user.increment_counter 'sequence_based_macromolecule_samples' # rubocop:disable Rails/SkipsModelValidations
   end
 
   def counter_for_split_short_label
