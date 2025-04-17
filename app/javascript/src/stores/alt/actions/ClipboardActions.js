@@ -60,19 +60,20 @@ class ClipboardActions {
     )
   }
 
-  fetchDeviceDescriptionAndBuildCopy(device_description, collection_id, action) {
+  fetchDeviceDescriptionAndBuildCopy(device_description, collection_id) {
     const newDeviceDescription = new DeviceDescription(device_description);
     newDeviceDescription.collection_id = collection_id;
     return (
-      { device_descriptions: [newDeviceDescription], collection_id: collection_id, action: action }
+      { device_descriptions: [newDeviceDescription], collection_id: collection_id }
     )
   }
 
-  fetchSequenceBasedMacromoleculeSamplesAndBuildCopy(sequence_based_macromolecule_sample, collection_id, action) {
-    const newSequenceBasedMacromoleculeSample = new SequenceBasedMacromoleculeSample(sequence_based_macromolecule_sample);
+  fetchSequenceBasedMacromoleculeSamplesAndBuildCopy(sequence_based_macromolecule_sample, collection_id) {
+    const newSequenceBasedMacromoleculeSample =
+      new SequenceBasedMacromoleculeSample(sequence_based_macromolecule_sample.serializeForCopy());
     newSequenceBasedMacromoleculeSample.collection_id = collection_id;
     return (
-      { sequence_based_macromolecule_samples: [newSequenceBasedMacromoleculeSample], collection_id: collection_id, action: action }
+      { sequence_based_macromolecule_samples: [newSequenceBasedMacromoleculeSample], collection_id: collection_id }
     )
   }
 }
