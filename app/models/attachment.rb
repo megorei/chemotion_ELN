@@ -152,7 +152,7 @@ class Attachment < ApplicationRecord # rubocop:disable Metrics/ClassLength
   def root_element
     case attachable_type
     when 'Sample', 'Reaction', 'ResearchPlan', 'Wellplate', 'Screen', 'CelllineSample', 'DeviceDescription',
-         'SequenceBasedMacromoleculeSample' # *Model::ELEMENTS
+         'SequenceBasedMacromolecule', 'SequenceBasedMacromoleculeSample' # *Model::ELEMENTS
       attachable
     when 'Container'
       attachable&.root_element
