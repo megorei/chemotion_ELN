@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Row, Col, Accordion, } from 'react-bootstrap';
 import { initFormHelper } from 'src/utilities/FormHelper';
 import SequenceAndPostTranslationalModificationForm from './SequenceAndPostTranslationalModificationForm';
@@ -21,7 +21,6 @@ const ReferenceAndModificationForm = ({ ident }) => {
   let parent = sbmmSample.sequence_based_macromolecule;
   let disabled = false;
   const accordionIdent = `${sbmmSample.id}-${ident}`;
-  const referenceErrorIdent = `${sbmmSample.id}-reference`;
   const structureFileErrorIdent = `${sbmmSample.id}-structure`;
 
   let fieldPrefix = 'sequence_based_macromolecule';
@@ -33,6 +32,13 @@ const ReferenceAndModificationForm = ({ ident }) => {
     disabled = true;
   }
 
+  useEffect(() => {
+    if (!sbmmStore.toggable_contents.hasOwnProperty(`${sbmmSample.id}-reference`)
+      && uniprotDerivationValue !== 'uniprot_modified') {
+      sbmmStore.toggleContent(accordionIdent);
+    }
+  }, []);
+
   const visibleForModification = isProtein && uniprotDerivationValue === 'uniprot_modified';
   const visibleForUniprot = isProtein && uniprotDerivationValue === 'uniprot';
   const showAttachments = ((visibleForModification && ident === 'sequence_modifications') || visibleForUniprot);
@@ -42,9 +48,6 @@ const ReferenceAndModificationForm = ({ ident }) => {
     || [];
   const sbmmAttachmentDropzoneCols = sbmmAttachments.length >= 1 ? 2 : 12;
   const sbmmAttachmentListCols = showAttachments ? 10 : 12;
-
-  const showIfReferenceSelected = isProtein && !sbmmStore.error_messages[referenceErrorIdent]
-    && (parent?.primary_accession || parent?.id || ident === 'sequence_modifications');
 
   const sequenceLengthValue = parent?.sequence_length || (parent && parent?.sequence && parent?.sequence.length) || ''
 
@@ -170,19 +173,6 @@ const ReferenceAndModificationForm = ({ ident }) => {
     return (<Col className={`col-${sbmmAttachmentListCols}`}>{attachmentList}</Col>);
   }
 
-  const handleDrop = (item) => {
-    const result = item.element;
-    let errorMessages = { ...sbmmStore.error_messages };
-    delete errorMessages[referenceErrorIdent];
-
-    if (uniprotDerivationValue === 'uniprot' && result.uniprot_derivation !== 'uniprot') {
-      errorMessages[referenceErrorIdent] = true;
-    } else {
-      sbmmStore.setSbmmByResult(result);
-    }
-    sbmmStore.setErrorMessages(errorMessages);
-  }
-
   return (
     <Accordion
       className="mb-4"
@@ -195,118 +185,90 @@ const ReferenceAndModificationForm = ({ ident }) => {
         </Accordion.Header>
         <Accordion.Body>
           <h5 className="mb-3">Identifiers and sequence characteristics:</h5>
+          <Row className="mb-4 align-items-end">
+            {ident === 'reference' && (
+              <Col>{formHelper.textInput(`${fieldPrefix}.primary_accession`, 'UniProt number', disabled, '')}</Col>
+            )
+            }
+            <Col>{formHelper.textInput(`${fieldPrefix}.other_identifier`, 'Other reference ID', disabled, '')}</Col>
+            {
+              ident === 'sequence_modifications' && (
+                <Col>{formHelper.textInput(`${fieldPrefix}.own_identifier`, 'Own ID', disabled, '')}</Col>
+              )
+            }
+            <Col>{formHelper.textInput(`${fieldPrefix}.short_name`, 'Short name', disabled, '')}</Col>
+          </Row>
+          <Row className="mb-4 align-items-end">
+            <Col>
+              {
+                formHelper.readonlyInput(
+                  `${fieldPrefix}.sequence_length`, 'Sequence length', sequenceLengthValue, ''
+                )
+              }
+            </Col>
+            <Col>
+              {formHelper.unitInput(
+                `${fieldPrefix}.molecular_weight`, 'Sequence mass (Da = g/mol)', 'molecular_weight', disabled, ''
+              )}
+            </Col>
+          </Row>
+          <Row className="mb-4 align-items-end">
+            <Col>{formHelper.textInput(`${fieldPrefix}.full_name`, 'Full name', disabled, '')}</Col>
+          </Row>
+          <Row className="mb-4 align-items-end">
+            {
+              visibleForModification && (
+                <Col>{formHelper.textInput(`${fieldPrefix}.pdb_doi`, 'Pdb DOI', disabled, '')}</Col>
+              )
+            }
+            <Col>{formHelper.textInput(`${fieldPrefix}.ec_numbers`, 'EC number', disabled, '')}</Col>
+          </Row>
+          <Row className="mb-4">
+            <Col>
+              {formHelper.textareaInput(`${fieldPrefix}.splitted_sequence`, 'Sequence of the structure', 3, disabled, '')}
+            </Col>
+          </Row>
           {
             ident === 'reference' && (
-              <Row className="mb-4">
-                <Col>
-                  <label className="form-label">Reference</label>
-                  {
-                    formHelper.dropAreaForElement(
-                      'SEQUENCE_BASED_MACROMOLECULE', handleDrop, 'Drop sequence based macromolecule here'
-                    )
-                  }
-                  {
-                    sbmmStore.error_messages[referenceErrorIdent] && (
-                      <div className="text-danger mt-2">
-                        The sequence based macromolecule has not the right type. Only uniprot is allowed.
-                      </div>
-                    )
-                  }
-                </Col>
+              <Row className="mb-4 align-items-end">
+                <Col>{formHelper.textInput(`${fieldPrefix}.link_pdb`, 'Link pdb', disabled, '')}</Col>
               </Row>
             )
           }
           {
-            showIfReferenceSelected && (
+            (showAttachments || sbmmAttachments.length >= 1) && (
               <>
-                <Row className="mb-4 align-items-end">
-                  {ident === 'reference' && (
-                    <Col>{formHelper.textInput(`${fieldPrefix}.primary_accession`, 'UniProt number', disabled, '')}</Col>
-                  )
-                  }
-                  <Col>{formHelper.textInput(`${fieldPrefix}.other_identifier`, 'Other reference ID', disabled, '')}</Col>
-                  {
-                    ident === 'sequence_modifications' && (
-                      <Col>{formHelper.textInput(`${fieldPrefix}.own_identifier`, 'Own ID', disabled, '')}</Col>
-                    )
-                  }
-                  <Col>{formHelper.textInput(`${fieldPrefix}.short_name`, 'Short name', disabled, '')}</Col>
-                </Row>
-                <Row className="mb-4 align-items-end">
+                <Row>
                   <Col>
-                    {
-                      formHelper.readonlyInput(
-                        `${fieldPrefix}.sequence_length`, 'Sequence length', sequenceLengthValue, ''
-                      )
-                    }
-                  </Col>
-                  <Col>
-                    {formHelper.unitInput(
-                      `${fieldPrefix}.molecular_weight`, 'Sequence mass (Da = g/mol)', 'molecular_weight', disabled, ''
-                    )}
+                    <label className="form-label">Structure files (cif / pdb)</label>
+                    {structureAttachmentError()}
                   </Col>
                 </Row>
-                <Row className="mb-4 align-items-end">
-                  <Col>{formHelper.textInput(`${fieldPrefix}.full_name`, 'Full name', disabled, '')}</Col>
-                </Row>
-                <Row className="mb-4 align-items-end">
-                  {
-                    visibleForModification && (
-                      <Col>{formHelper.textInput(`${fieldPrefix}.pdb_doi`, 'Pdb DOI', disabled, '')}</Col>
-                    )
-                  }
-                  <Col>{formHelper.textInput(`${fieldPrefix}.ec_numbers`, 'EC number', disabled, '')}</Col>
-                </Row>
-                <Row className="mb-4">
-                  <Col>
-                    {formHelper.textareaInput(`${fieldPrefix}.sequence`, 'Sequence of the structure', 3, disabled, '')}
-                  </Col>
-                </Row>
-                {
-                  ident === 'reference' && (
-                    <Row className="mb-4 align-items-end">
-                      <Col>{formHelper.textInput(`${fieldPrefix}.link_uniprot`, 'Link UniProt', disabled, '')}</Col>
-                      <Col>{formHelper.textInput(`${fieldPrefix}.link_pdb`, 'Link pdb', disabled, '')}</Col>
-                    </Row>
-                  )
-                }
-                {
-                  (showAttachments || sbmmAttachments.length >= 1) && (
-                    <>
-                      <Row>
-                        <Col>
-                          <label className="form-label">Structure files (cif / pdb)</label>
-                          {structureAttachmentError()}
-                        </Col>
-                      </Row>
-                      <Row className="mb-4 align-items-start">
-                        {dropzoneForModificationOrUniprot()}
-                        {listSBMMAttachments()}
-                      </Row>
-                    </>
-                  )
-                }
-
-                <h5 className="mb-3">Details on Protein's source:</h5>
-                <Row className="mb-4 align-items-end">
-                  <Col>
-                    {formHelper.selectInput(
-                      `${fieldPrefix}.heterologous_expression`, 'Heterologous expression',
-                      heterologousExpression, disabled, '', ''
-                    )}
-                  </Col>
-                  <Col>{formHelper.textInput(`${fieldPrefix}.organism`, 'Organism', disabled, '')}</Col>
-                  <Col>{formHelper.textInput(`${fieldPrefix}.taxon_id`, 'Taxon ID', disabled, '')}</Col>
-                </Row>
-                <Row className="mb-4 align-items-end">
-                  <Col>{formHelper.textInput(`${fieldPrefix}.strain`, 'Strain', disabled, '')}</Col>
-                  <Col>{formHelper.textInput(`${fieldPrefix}.tissue`, 'Tissue', disabled, '')}</Col>
-                  <Col>{formHelper.textInput(`${fieldPrefix}.localisation`, 'Localisation', disabled, '')}</Col>
+                <Row className="mb-4 align-items-start">
+                  {dropzoneForModificationOrUniprot()}
+                  {listSBMMAttachments()}
                 </Row>
               </>
             )
           }
-          
+
+          <h5 className="mb-3">Details on Protein's source:</h5>
+          <Row className="mb-4 align-items-end">
+            <Col>
+              {formHelper.selectInput(
+                `${fieldPrefix}.heterologous_expression`, 'Heterologous expression',
+                heterologousExpression, disabled, '', ''
+              )}
+            </Col>
+            <Col>{formHelper.textInput(`${fieldPrefix}.organism`, 'Organism', disabled, '')}</Col>
+            <Col>{formHelper.textInput(`${fieldPrefix}.taxon_id`, 'Taxon ID', disabled, '')}</Col>
+          </Row>
+          <Row className="mb-4 align-items-end">
+            <Col>{formHelper.textInput(`${fieldPrefix}.strain`, 'Strain', disabled, '')}</Col>
+            <Col>{formHelper.textInput(`${fieldPrefix}.tissue`, 'Tissue', disabled, '')}</Col>
+            <Col>{formHelper.textInput(`${fieldPrefix}.localisation`, 'Localisation', disabled, '')}</Col>
+          </Row>
+
           {
             ident === 'sequence_modifications' && (
               <SequenceAndPostTranslationalModificationForm key="sequence-and-post-translational-modification" />

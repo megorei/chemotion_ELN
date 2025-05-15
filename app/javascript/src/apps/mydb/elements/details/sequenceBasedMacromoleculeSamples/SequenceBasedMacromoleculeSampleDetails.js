@@ -46,7 +46,7 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
   let tabContents = [];
 
   useEffect(() => {
-    if (sbmmSample?.id && MatrixCheck(currentUser.matrix, commentActivation) && !sbmmSample.isNew) {
+    if (sbmmSample?.id && !sbmmSample.isNew && MatrixCheck(currentUser.matrix, commentActivation)) {
       CommentActions.fetchComments(sbmmSample);
     }
   }, []);
@@ -139,6 +139,18 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
     //   );
   }
 
+  const uniprotLogo = () => {
+    const linkUniprot =
+      sbmmSample.sequence_based_macromolecule.parent?.link_uniprot || sbmmSample.sequence_based_macromolecule?.link_uniprot;
+    if (!linkUniprot) { return null; }
+
+    return (
+      <a href={linkUniprot} className="pe-auto" target="_blank">
+        <img src="/images/wild_card/uniprot-logo.svg" className="uniprot-logo-white" />
+      </a>
+    );
+  }
+
   const sbmmSampleHeader = () => {
     const titleTooltip = formatTimeStampsOfElement(sbmmSample || {});
     const defCol = currentCollection && currentCollection.is_shared === false
@@ -162,6 +174,7 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
             )
           }
           <HeaderCommentSection element={sbmmSample} />
+          {uniprotLogo()}
         </div>
         <div className="d-flex align-items-center gap-1">
           <PrintCodeButton element={sbmmSample} />

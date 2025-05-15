@@ -23,6 +23,7 @@ const emptySequenceBasedMacromoleculeSample = {
   primary_accession: '',
   sequence: '',
   sequence_length: '',
+  splitted_sequence: '',
   short_name: '',
   strain: '',
   taxon_id: '',
@@ -34,7 +35,6 @@ const emptySequenceBasedMacromoleculeSample = {
 const validationFields = [
   'name',
   'sequence_based_macromolecule.sbmm_type',
-  'sequence_based_macromolecule.sbmm_subtype',
   'sequence_based_macromolecule.uniprot_derivation',
   'sequence_based_macromolecule.primary_accession',
   'sequence_based_macromolecule.parent_identifier',
@@ -82,6 +82,7 @@ export const SequenceBasedMacromoleculeSamplesStore = types
     filtered_attachments: types.optional(types.array(types.frozen({})), []),
     show_search_result: types.optional(types.boolean, false),
     search_result: types.optional(types.array(types.frozen({})), []),
+    show_search_options: types.optional(types.boolean, false),
     error_messages: types.optional(types.frozen({}), {}),
     show_all_groups: types.optional(types.boolean, true),
     all_groups: types.optional(types.array(types.string), []),
@@ -192,6 +193,24 @@ export const SequenceBasedMacromoleculeSamplesStore = types
       let sequenceBasedMacromoleculeSample = { ...self.sequence_based_macromolecule_sample };
       const { lastObject, lastKey } = self.getLastObjectAndKeyByField(field, sequenceBasedMacromoleculeSample);
       lastObject[lastKey] = value;
+
+      if (lastKey === 'splitted_sequence') {
+        lastObject['sequence'] = value.split(' ').join('');
+      }
+      if (lastKey === 'uniprot_derivation' && sequenceBasedMacromoleculeSample.is_new) {
+        Object.keys(sequenceBasedMacromoleculeSample.sequence_based_macromolecule).map((key) => {
+          if (['sbmm_type', 'sbmm_subtype', 'uniprot_derivation', 'search_field', 'search_term'].includes(key)) { return }
+          sequenceBasedMacromoleculeSample.sequence_based_macromolecule[key] = '';
+        });
+        self.show_search_options = true;
+        if (self.toggable_contents.hasOwnProperty(`${sequenceBasedMacromoleculeSample.id}-reference`)) {
+          let contents = { ...self.toggable_contents };
+          const value =
+            sequenceBasedMacromoleculeSample.sequence_based_macromolecule.uniprot_derivation === 'uniprot' ? true : false;
+          contents[`${sequenceBasedMacromoleculeSample.id}-reference`] = value;
+          self.toggable_contents = contents;
+        }
+      }
 
       if (postModificationCheckboxWithDetailField.includes(lastKey) && !value) {
         const key = lastKey.replace('_enabled', '');
@@ -312,6 +331,9 @@ export const SequenceBasedMacromoleculeSamplesStore = types
     },
     removeSearchResult() {
       self.search_result = [];
+    },
+    toggleSearchOptions(value) {
+      self.show_search_options = value;
     },
     setModificationToggleButtons(fieldPrefix, field, fieldSuffix, value) {
       let sequenceBasedMacromoleculeSample = { ...self.sequence_based_macromolecule_sample };
