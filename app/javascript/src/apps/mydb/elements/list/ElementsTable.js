@@ -29,7 +29,6 @@ import ChevronIcon from 'src/components/common/ChevronIcon';
 import DeviceDescriptionList from 'src/apps/mydb/elements/list/deviceDescriptions/DeviceDescriptionList';
 import DeviceDescriptionListHeader from 'src/apps/mydb/elements/list/deviceDescriptions/DeviceDescriptionListHeader';
 import SequenceBasedMacromoleculeSampleList from 'src/apps/mydb/elements/list/sequenceBasedMacromoleculeSamples/SequenceBasedMacromoleculeSampleList';
-import SequenceBasedMacromoleculeSampleHeader from 'src/apps/mydb/elements/list/sequenceBasedMacromoleculeSamples/SequenceBasedMacromoleculeSampleHeader';
 
 export default class ElementsTable extends React.Component {
   constructor(props) {
@@ -619,7 +618,7 @@ export default class ElementsTable extends React.Component {
     } else if (type === 'cell_line') {
       typeSpecificHeader = this.collapseButton();
     } else if (type === 'sequence_based_macromolecule_sample') {
-      typeSpecificHeader = <SequenceBasedMacromoleculeSampleHeader elements={elements} />;
+      typeSpecificHeader = this.collapseButton();
     } else if (genericEl) {
       typeSpecificHeader = this.renderGenericElementsHeader();
     } else if (type === 'vessel') {
@@ -733,8 +732,6 @@ export default class ElementsTable extends React.Component {
       elementsTableEntries = (
         <SequenceBasedMacromoleculeSampleList
           elements={elements}
-          currentElement={currentElement}
-          ui={ui}
         />
       );
     } else {
