@@ -86,9 +86,6 @@ export const SequenceBasedMacromoleculeSamplesStore = types
     search_result: types.optional(types.array(types.frozen({})), []),
     show_search_options: types.optional(types.boolean, false),
     error_messages: types.optional(types.frozen({}), {}),
-    show_all_groups: types.optional(types.boolean, true),
-    all_groups: types.optional(types.array(types.string), []),
-    shown_groups: types.optional(types.array(types.string), []),
   })
   .actions(self => ({
     searchForSequenceBasedMacromolecule: flow(function* searchForSequenceBasedMacromolecule(search_term, search_field) {
@@ -388,36 +385,6 @@ export const SequenceBasedMacromoleculeSamplesStore = types
     },
     setErrorMessages(values) {
       self.error_messages = values;
-    },
-    toggleAllGroups() {
-      self.show_all_groups = !self.show_all_groups;
-
-      if (self.show_all_groups) {
-        self.removeAllGroupsFromShownGroups();
-      } else {
-        self.addAllGroupsToShownGroups();
-      }
-    },
-    addGroupToAllGroups(group_key) {
-      const index = self.all_groups.findIndex((g) => { return g == group_key });
-      if (index === -1) {
-        self.all_groups.push(group_key);
-      }
-    },
-    addAllGroupsToShownGroups() {
-      self.all_groups.map((group_key) => {
-        self.addGroupToShownGroups(group_key);
-      });
-    },
-    addGroupToShownGroups(group_key) {
-      self.shown_groups.push(group_key);
-    },
-    removeGroupFromShownGroups(group_key) {
-      const shownGroups = self.shown_groups.filter((g) => { return g !== group_key });
-      self.shown_groups = shownGroups;
-    },
-    removeAllGroupsFromShownGroups() {
-      self.shown_groups = [];
     },
   }))
   .views(self => ({
