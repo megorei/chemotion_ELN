@@ -35,7 +35,7 @@ import CollectionUtils from 'src/models/collection/CollectionUtils';
 
 const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
   const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
-  let sbmmSample = sbmmStore.sequence_based_macromolecule_sample;
+  const sbmmSample = sbmmStore.sequence_based_macromolecule_sample;
 
   const { currentCollection, isSync } = UIStore.getState();
   const { currentUser } = UserStore.getState();

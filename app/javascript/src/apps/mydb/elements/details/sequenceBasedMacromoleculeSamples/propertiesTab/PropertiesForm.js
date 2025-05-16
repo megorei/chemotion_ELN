@@ -105,7 +105,7 @@ const PropertiesForm = ({ readonly }) => {
   }
 
   const handleDrop = (item) => {
-    const result = item.element;
+    const result = item.element.sequence_based_macromolecule;
     let errorMessages = { ...sbmmStore.error_messages };
     delete errorMessages[referenceErrorIdent];
 
@@ -129,7 +129,7 @@ const PropertiesForm = ({ readonly }) => {
     },
   });
 
-  const dropAreaForReference = (dropType, handleDrop, description) => {
+  const dropAreaForReference = () => {
     return (
       <>
         <label className="form-label">Reference</label>
@@ -206,14 +206,10 @@ const PropertiesForm = ({ readonly }) => {
             </Row>
 
             {
-              (sbmmSample.is_new || sbmmStore.show_search_options) && (
+              (visibleForUniprotOrModification && (sbmmSample.is_new || sbmmStore.show_search_options)) && (
                 <Row className="mb-4">
                   <Col>
-                    {!searchable && (
-                      dropAreaForReference(
-                        'SEQUENCE_BASED_MACROMOLECULE', handleDrop, 'Drop sequence based macromolecule here'
-                      )
-                    )}
+                    {!searchable && dropAreaForReference()}
                   </Col>
                   <Col>
                     {

@@ -30,6 +30,8 @@ const emptySequenceBasedMacromoleculeSample = {
   tissue: '',
   uniprot_source: '',
   updated_at: '',
+  post_translational_modifications: {},
+  protein_sequence_modifications: {},
 };
 
 const validationFields = [
@@ -165,7 +167,11 @@ export const SequenceBasedMacromoleculeSamplesStore = types
       const sbmmOrParent = uniprotDerivation === 'uniprot_modified' ? sbmm?.parent : sbmm;
 
       Object.keys(emptySequenceBasedMacromoleculeSample).map((key) => {
-        if (result[key] !== undefined) {
+        if (['post_translational_modifications', 'protein_sequence_modifications'].includes(key) && uniprotDerivation === 'uniprot_modified') {
+          sbmm[key] = {};
+          sbmmOrParent[key] = null;
+          sbmmOrParent.parent = null;
+        } else if (result[key] !== undefined) {
           sbmmOrParent[key] = result[key];
         }
       });
