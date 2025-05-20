@@ -13,7 +13,7 @@ const PropertiesForm = ({ readonly }) => {
   const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
   const sbmmSample = sbmmStore.sequence_based_macromolecule_sample;
   const formHelper = initFormHelper(sbmmSample, sbmmStore);
-  const disabled = false;
+  const disabled = readonly ? true : false;
   const generalAccordionIdent = `${sbmmSample.id}-general`;
   const sampleAccordionIdent = `${sbmmSample.id}-sample`;
 
@@ -252,6 +252,7 @@ const PropertiesForm = ({ readonly }) => {
         showReference && (
           <ReferenceAndModificationForm
             ident="reference"
+            readonly={readonly}
             key="reference_uniprot"
           />
         )
@@ -260,6 +261,7 @@ const PropertiesForm = ({ readonly }) => {
         showIfReferenceSelected && visibleForUnkownOrModification && (
           <ReferenceAndModificationForm
             ident="sequence_modifications"
+            readonly={readonly}
             key="sequence_modifications_uniprot"
           />
         )

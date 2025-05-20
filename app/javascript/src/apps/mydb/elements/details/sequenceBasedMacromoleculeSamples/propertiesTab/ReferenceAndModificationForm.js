@@ -11,7 +11,7 @@ import { formatDate } from 'src/utilities/timezoneHelper';
 import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 
-const ReferenceAndModificationForm = ({ ident }) => {
+const ReferenceAndModificationForm = ({ ident, readonly }) => {
   const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
   let sbmmSample = sbmmStore.sequence_based_macromolecule_sample;
   const formHelper = initFormHelper(sbmmSample, sbmmStore);
@@ -19,7 +19,7 @@ const ReferenceAndModificationForm = ({ ident }) => {
   const isProtein = sbmmSample.sequence_based_macromolecule.sbmm_type === 'protein';
   const uniprotDerivationValue = sbmmSample.sequence_based_macromolecule.uniprot_derivation;
   let parent = sbmmSample.sequence_based_macromolecule;
-  let disabled = false;
+  let disabled = readonly ? true : false;
   const accordionIdent = `${sbmmSample.id}-${ident}`;
 
   let fieldPrefix = 'sequence_based_macromolecule';
@@ -283,7 +283,10 @@ const ReferenceAndModificationForm = ({ ident }) => {
 
           {
             ident === 'sequence_modifications' && (
-              <SequenceAndPostTranslationalModificationForm key="sequence-and-post-translational-modification" />
+              <SequenceAndPostTranslationalModificationForm
+                readonly={readonly}
+                key="sequence-and-post-translational-modification"
+              />
             )
           }
         </Accordion.Body>
