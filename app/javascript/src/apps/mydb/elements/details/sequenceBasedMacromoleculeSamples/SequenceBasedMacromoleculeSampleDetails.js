@@ -125,26 +125,25 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
     }
   }
 
-  // const handleExportAnalyses = () => {
-  //   sbmmSamplesStore.toggleAnalysisStartExport();
-  //   AttachmentFetcher.downloadZipBySequenceBasedMacromolecule(sbmmSample.id)
-  //     .then(() => { sbmmStore.toggleAnalysisStartExport(); })
-  //     .catch((errorMessage) => { console.log(errorMessage); });
-  // }
+  const handleExportAnalyses = () => {
+    sbmmStore.toggleAnalysisStartExport();
+    AttachmentFetcher.downloadZipBySequenceBaseMacromoleculeSample(sbmmSample.id)
+      .then(() => { sbmmStore.toggleAnalysisStartExport(); })
+      .catch((errorMessage) => { console.log(errorMessage); });
+  }
 
   const downloadAnalysisButton = () => {
-    //   const hasNoAnalysis = sbmmSample.analyses?.length === 0 || sbmmSample.analyses?.length === undefined;
-    //   if (sbmmSample.isNew || hasNoAnalysis) { return null; }
-    // 
-    //   return (
-    //     <Button
-    //       variant="info"
-    //       onClick={() => handleExportAnalyses()}
-    //     >
-    //       Download Analysis
-    //       {sbmmSamplesStore.analysis_start_export && <i className="fa fa-spin fa-spinner ms-1" />}
-    //     </Button>
-    //   );
+    const hasNoAnalysis = sbmmSample.analyses?.length === 0 || sbmmSample.analyses?.length === undefined;
+    if (sbmmSample.isNew || hasNoAnalysis) { return null; }
+    return (
+      <Button
+        variant="info"
+        onClick={() => handleExportAnalyses()}
+      >
+        Download Analysis
+        {sbmmStore.analysis_start_export && <i className="fa fa-spin fa-spinner ms-1" />}
+      </Button>
+    );
   }
 
   const uniprotLogo = () => {
