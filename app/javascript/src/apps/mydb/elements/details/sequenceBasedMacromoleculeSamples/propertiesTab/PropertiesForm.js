@@ -16,9 +16,6 @@ const PropertiesForm = ({ readonly }) => {
   const disabled = false;
   const generalAccordionIdent = `${sbmmSample.id}-general`;
   const sampleAccordionIdent = `${sbmmSample.id}-sample`;
-  const primaryAccessionErrorIdent = `${sbmmSample.id}-sequence_based_macromolecule.primary_accession`;
-  const parentIdentifierErrorIdent = `${sbmmSample.id}-sequence_based_macromolecule.parent_identifier`;
-  const referenceErrorIdent = `${sbmmSample.id}-reference`;
 
   useEffect(() => {
     if (!sbmmStore.toggable_contents.hasOwnProperty(generalAccordionIdent)) {
@@ -71,17 +68,24 @@ const PropertiesForm = ({ readonly }) => {
   const showIfEnzymeIsSelected = sbmmSample.function_or_application === 'enzyme';
 
   const showReference = isProtein && !['', undefined, 'uniprot_unknown'].includes(uniprotDerivationValue)
-    && !sbmmStore.error_messages[referenceErrorIdent] && (parent?.primary_accession || parent?.id);
+    && !sbmmSample.errors?.reference && (parent?.primary_accession || parent?.id);
 
   const noPrimaryAccession = uniprotDerivationValue === 'uniprot'
-    && sbmmStore.error_messages[primaryAccessionErrorIdent]
+    && sbmmSample.errors.sequence_based_macromolecule?.primary_accession
     && !sbmmSample.sequence_based_macromolecule?.primary_accession
     && sbmmSample.isNew
 
   const noParentIdentifier = uniprotDerivationValue === 'uniprot_modified'
-    && sbmmStore.error_messages[parentIdentifierErrorIdent]
+    && sbmmSample.errors.sequence_based_macromolecule?.parent_identifier
     && !sbmmSample.sequence_based_macromolecule?.parent_identifier
     && sbmmSample.isNew
+
+  const errorInGeneralDescription = Object.keys(sbmmSample.errors).length >= 1
+    && (sbmmSample.errors.sequence_based_macromolecule?.primary_accession
+      || sbmmSample.errors.sequence_based_macromolecule?.parent_identifier
+      || sbmmSample.errors.sequence_based_macromolecule?.sbmm_subtype
+      || sbmmSample.errors.sequence_based_macromolecule?.uniprot_derivation
+      || sbmmSample.errors?.reference)
 
   const searchable = ['uniprot', 'uniprot_modified'].includes(uniprotDerivationValue)
     && sbmmSample.sequence_based_macromolecule.search_field
@@ -106,16 +110,18 @@ const PropertiesForm = ({ readonly }) => {
 
   const handleDrop = (item) => {
     const result = item.element.sequence_based_macromolecule;
-    let errorMessages = { ...sbmmStore.error_messages };
-    delete errorMessages[referenceErrorIdent];
-
+    const errorPath = ['errors', 'reference'];
+    if (sbmmSample.errors?.reference) {
+      sbmmSample = sbmmStore.removeError(sbmmSample, errorPath);
+    }
     if (uniprotDerivationValue === 'uniprot' && result.uniprot_derivation !== 'uniprot') {
-      errorMessages[referenceErrorIdent] = true;
+      sbmmSample = sbmmStore.setError(
+        sbmmSample, errorPath, 'The sequence based macromolecule has not the right type. Only uniprot is allowed.'
+      );
     } else {
       sbmmStore.setSbmmByResult(result);
-      sbmmStore.toggleSearchOptions(false);
+      // sbmmStore.toggleSearchOptions(false);
     }
-    sbmmStore.setErrorMessages(errorMessages);
   }
 
   const [{ isOver, canDrop }, drop] = useDrop({
@@ -141,9 +147,9 @@ const PropertiesForm = ({ readonly }) => {
           Drop SBMM here
         </div>
         {
-          sbmmStore.error_messages[referenceErrorIdent] && (
+          sbmmSample.errors?.reference && (
             <div className="text-danger mt-2">
-              The sequence based macromolecule has not the right type. Only uniprot is allowed.
+              {sbmmSample.errors.reference}
             </div>
           )
         }
@@ -160,7 +166,7 @@ const PropertiesForm = ({ readonly }) => {
       </Row>
 
       <Accordion
-        className="mb-4"
+        className={`mb-4 ${errorInGeneralDescription ? 'border border-danger' : ''}`}
         activeKey={sbmmStore.toggable_contents[generalAccordionIdent] && generalAccordionIdent}
         onSelect={() => sbmmStore.toggleContent(generalAccordionIdent)}
       >
@@ -173,16 +179,14 @@ const PropertiesForm = ({ readonly }) => {
               <Col>
                 {
                   formHelper.selectInput(
-                    'sequence_based_macromolecule.sbmm_type', 'Type', sbmmType, disabled,
-                    sbmmStore.error_messages, ''
+                    'sequence_based_macromolecule.sbmm_type', 'Type', sbmmType, disabled, ''
                   )
                 }
               </Col>
               <Col>
                 {
                   formHelper.selectInput(
-                    'sequence_based_macromolecule.sbmm_subtype', 'Subtype of protein', sbmmSubType, disabled,
-                    sbmmStore.error_messages, ''
+                    'sequence_based_macromolecule.sbmm_subtype', 'Subtype of protein', sbmmSubType, disabled, ''
                   )
                 }
               </Col>
@@ -190,8 +194,7 @@ const PropertiesForm = ({ readonly }) => {
                 {formHelper.selectInput(
                   'sequence_based_macromolecule.uniprot_derivation',
                   derivationLabelWithIcon,
-                  uniprotDerivation, (sbmmSample.isNew ? false : true),
-                  sbmmStore.error_messages, 'Can only be changed during creation'
+                  uniprotDerivation, (sbmmSample.isNew ? false : true), 'Can only be changed during creation'
                 )}
               </Col>
               <Col className="col-2">

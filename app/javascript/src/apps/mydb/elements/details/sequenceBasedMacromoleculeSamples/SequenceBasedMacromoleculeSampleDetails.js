@@ -51,6 +51,16 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
     }
   }, []);
 
+  useEffect(() => {
+    const items = document.getElementsByClassName('border-danger');
+    if (Object.keys(sbmmSample.errors).length >= 1 && Object.keys(items).length >= 1) {
+      document.getElementById('detail-body').scrollTo({
+        top: items[0].offsetTop,
+        behavior: 'smooth'
+      });
+    }
+  }, [Object.keys(sbmmSample.errors).length]);
+
   const tabContentComponents = {
     properties: PropertiesForm,
     analyses: AnalysesContainer,
@@ -103,8 +113,6 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
   }
 
   const handleSubmit = () => {
-    sbmmStore.clearStructureErrorMessages(sbmmSample.id);
-
     if (sbmmStore.hasValidFields()) {
       LoadingActions.start();
       if (sbmmSample.is_new) {
@@ -227,7 +235,7 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
       <Card.Header>
         {sbmmSampleHeader()}
       </Card.Header>
-      <Card.Body style={{ minHeight: '500px' }}>
+      <Card.Body id="detail-body" style={{ minHeight: '500px' }}>
         <ElementDetailSortTab
           type="sequence_based_macromolecule_sample"
           availableTabs={Object.keys(tabContentComponents)}
@@ -247,6 +255,7 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
         <CommentModal element={sbmmSample} />
       </Card.Body>
       <Card.Footer>
+        
         <ButtonToolbar className="gap-2">
           <Button variant="primary" onClick={() => DetailActions.close(sbmmSample)}>
             Close
@@ -256,6 +265,13 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
           </Button>
           {downloadAnalysisButton()}
         </ButtonToolbar>
+        {
+          Object.keys(sbmmSample.errors).length >= 1 && (
+            <div className="mt-2 text-danger">
+              {`This element cannot be ${submitLabel.toLowerCase()}d because not all fields are filled in correctly`}
+            </div>
+          )
+        }
       </Card.Footer>
     </Card>
   );

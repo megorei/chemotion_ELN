@@ -21,7 +21,6 @@ const ReferenceAndModificationForm = ({ ident }) => {
   let parent = sbmmSample.sequence_based_macromolecule;
   let disabled = false;
   const accordionIdent = `${sbmmSample.id}-${ident}`;
-  const structureFileErrorIdent = `${sbmmSample.id}-structure`;
 
   let fieldPrefix = 'sequence_based_macromolecule';
   if (ident === 'reference' && sbmmSample.sequence_based_macromolecule.parent) {
@@ -49,7 +48,19 @@ const ReferenceAndModificationForm = ({ ident }) => {
   const sbmmAttachmentDropzoneCols = sbmmAttachments.length >= 1 ? 2 : 12;
   const sbmmAttachmentListCols = showAttachments ? 10 : 12;
 
-  const sequenceLengthValue = parent?.sequence_length || (parent && parent?.sequence && parent?.sequence.length) || ''
+  const sequenceLengthValue = parent?.sequence_length || (parent && parent?.sequence && parent?.sequence.length) || '';
+
+  const errorInModification = Object.keys(sbmmSample.errors).length >= 1
+    && (sbmmSample.errors.sequence_based_macromolecule?.short_name
+      || sbmmSample.errors?.structure_file);
+
+  let accordionErrorByIdent = '';
+
+  if (uniprotDerivationValue === 'uniprot' || ident === 'reference') {
+    accordionErrorByIdent = '';
+  } else if (errorInModification) {
+    accordionErrorByIdent = 'border border-danger';
+  }
 
   const heterologousExpression = [
     { label: 'Yes', value: 'yes' },
@@ -68,9 +79,11 @@ const ReferenceAndModificationForm = ({ ident }) => {
   }
 
   const handleStructureFileUpload = (files) => {
-    let errorMessages = { ...sbmmStore.error_messages };
-    delete errorMessages[structureFileErrorIdent];
-    errorMessages[structureFileErrorIdent] = [];
+    const errorPath = ['errors', 'structure_file'];
+    if (sbmmSample.errors?.structure_file) {
+      sbmmSample = sbmmStore.removeError(sbmmSample, errorPath);
+    }
+    let errors = [];
 
     const newAttachments = [];
     files.map((file) => {
@@ -79,14 +92,14 @@ const ReferenceAndModificationForm = ({ ident }) => {
       );
 
       if (!isValid) {
-        errorMessages[structureFileErrorIdent].push(file.name);
+        errors.push(file.name);
       } else {
         newAttachments.push(Attachment.fromFile(file));
       }
     });
 
-    if (errorMessages[structureFileErrorIdent]) {
-      sbmmStore.setErrorMessages(errorMessages);
+    if (errors.length >= 1) {
+      sbmmSample = sbmmStore.setError(sbmmSample, errorPath, errors.join(', '));
     }
 
     if (newAttachments) {
@@ -106,15 +119,14 @@ const ReferenceAndModificationForm = ({ ident }) => {
   }
 
   const structureAttachmentError = () => {
-    if (!showAttachments || sbmmStore.error_messages[structureFileErrorIdent] === undefined
-      || sbmmStore.error_messages[structureFileErrorIdent].length <= 0) {
+    if (!showAttachments || !sbmmSample.errors?.structure_file) {
       return null;
     }
 
     return (
       <div className="text-danger mb-2">
         {`This file(s) `}
-        <b>"{sbmmStore.error_messages[structureFileErrorIdent].join(', ')}"</b>
+        <b>"{sbmmSample.errors?.structure_file}"</b>
         {` does not have the correct file format. Only cif and pdf files are saved.`}
       </div>
     )
@@ -175,7 +187,7 @@ const ReferenceAndModificationForm = ({ ident }) => {
 
   return (
     <Accordion
-      className="mb-4"
+      className={`mb-4 ${accordionErrorByIdent}`}
       activeKey={sbmmStore.toggable_contents[accordionIdent] && accordionIdent}
       onSelect={() => sbmmStore.toggleContent(accordionIdent)}
     >

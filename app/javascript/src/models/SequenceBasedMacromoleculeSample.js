@@ -533,6 +533,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
       can_copy: false,
       container: Container.init(),
       attachments: [],
+      errors: {},
     });
   }
 
