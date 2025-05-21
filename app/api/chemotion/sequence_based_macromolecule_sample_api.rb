@@ -162,6 +162,8 @@ module Chemotion
           policy: policy,
           root: :sequence_based_macromolecule_sample,
         )
+      rescue ActiveRecord::RecordNotFound
+        error!('404 Not Found', 404)
       end
 
       desc 'Create SBMM sample'
