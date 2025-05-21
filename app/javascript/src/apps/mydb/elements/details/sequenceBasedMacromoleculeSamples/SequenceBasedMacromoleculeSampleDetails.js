@@ -35,7 +35,7 @@ import CollectionUtils from 'src/models/collection/CollectionUtils';
 
 const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
   const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
-  let sbmmSample = sbmmStore.sequence_based_macromolecule_sample;
+  const sbmmSample = sbmmStore.sequence_based_macromolecule_sample;
 
   const { currentCollection, isSync } = UIStore.getState();
   const { currentUser } = UserStore.getState();
@@ -46,10 +46,20 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
   let tabContents = [];
 
   useEffect(() => {
-    if (sbmmSample?.id && MatrixCheck(currentUser.matrix, commentActivation) && !sbmmSample.isNew) {
+    if (sbmmSample?.id && !sbmmSample.isNew && MatrixCheck(currentUser.matrix, commentActivation)) {
       CommentActions.fetchComments(sbmmSample);
     }
   }, []);
+
+  useEffect(() => {
+    const items = document.getElementsByClassName('border-danger');
+    if (Object.keys(sbmmSample.errors).length >= 1 && Object.keys(items).length >= 1) {
+      document.getElementById('detail-body').scrollTo({
+        top: items[0].offsetTop,
+        behavior: 'smooth'
+      });
+    }
+  }, [Object.keys(sbmmSample.errors).length]);
 
   const tabContentComponents = {
     properties: PropertiesForm,
@@ -103,8 +113,6 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
   }
 
   const handleSubmit = () => {
-    sbmmStore.clearStructureErrorMessages(sbmmSample.id);
-
     if (sbmmStore.hasValidFields()) {
       LoadingActions.start();
       if (sbmmSample.is_new) {
@@ -117,26 +125,37 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
     }
   }
 
-  // const handleExportAnalyses = () => {
-  //   sbmmSamplesStore.toggleAnalysisStartExport();
-  //   AttachmentFetcher.downloadZipBySequenceBasedMacromolecule(sbmmSample.id)
-  //     .then(() => { sbmmStore.toggleAnalysisStartExport(); })
-  //     .catch((errorMessage) => { console.log(errorMessage); });
-  // }
+  const handleExportAnalyses = () => {
+    sbmmStore.toggleAnalysisStartExport();
+    AttachmentFetcher.downloadZipBySequenceBaseMacromoleculeSample(sbmmSample.id)
+      .then(() => { sbmmStore.toggleAnalysisStartExport(); })
+      .catch((errorMessage) => { console.log(errorMessage); });
+  }
 
   const downloadAnalysisButton = () => {
-    //   const hasNoAnalysis = sbmmSample.analyses?.length === 0 || sbmmSample.analyses?.length === undefined;
-    //   if (sbmmSample.isNew || hasNoAnalysis) { return null; }
-    // 
-    //   return (
-    //     <Button
-    //       variant="info"
-    //       onClick={() => handleExportAnalyses()}
-    //     >
-    //       Download Analysis
-    //       {sbmmSamplesStore.analysis_start_export && <i className="fa fa-spin fa-spinner ms-1" />}
-    //     </Button>
-    //   );
+    const hasNoAnalysis = sbmmSample.analyses?.length === 0 || sbmmSample.analyses?.length === undefined;
+    if (sbmmSample.isNew || hasNoAnalysis) { return null; }
+    return (
+      <Button
+        variant="info"
+        onClick={() => handleExportAnalyses()}
+      >
+        Download Analysis
+        {sbmmStore.analysis_start_export && <i className="fa fa-spin fa-spinner ms-1" />}
+      </Button>
+    );
+  }
+
+  const uniprotLogo = () => {
+    const linkUniprot =
+      sbmmSample.sequence_based_macromolecule.parent?.link_uniprot || sbmmSample.sequence_based_macromolecule?.link_uniprot;
+    if (!linkUniprot) { return null; }
+
+    return (
+      <a href={linkUniprot} className="pe-auto" target="_blank">
+        <img src="/images/wild_card/uniprot-logo.svg" className="uniprot-logo-white" />
+      </a>
+    );
   }
 
   const sbmmSampleHeader = () => {
@@ -162,6 +181,7 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
             )
           }
           <HeaderCommentSection element={sbmmSample} />
+          {uniprotLogo()}
         </div>
         <div className="d-flex align-items-center gap-1">
           <PrintCodeButton element={sbmmSample} />
@@ -214,7 +234,7 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
       <Card.Header>
         {sbmmSampleHeader()}
       </Card.Header>
-      <Card.Body style={{ minHeight: '500px' }}>
+      <Card.Body id="detail-body" style={{ minHeight: '500px' }}>
         <ElementDetailSortTab
           type="sequence_based_macromolecule_sample"
           availableTabs={Object.keys(tabContentComponents)}
@@ -234,6 +254,7 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
         <CommentModal element={sbmmSample} />
       </Card.Body>
       <Card.Footer>
+        
         <ButtonToolbar className="gap-2">
           <Button variant="primary" onClick={() => DetailActions.close(sbmmSample)}>
             Close
@@ -243,6 +264,13 @@ const SequenceBasedMacromoleculeSampleDetails = ({ toggleFullScreen }) => {
           </Button>
           {downloadAnalysisButton()}
         </ButtonToolbar>
+        {
+          Object.keys(sbmmSample.errors).length >= 1 && (
+            <div className="mt-2 text-danger">
+              {`This element cannot be ${submitLabel.toLowerCase()}d because not all fields are filled in correctly`}
+            </div>
+          )
+        }
       </Card.Footer>
     </Card>
   );
