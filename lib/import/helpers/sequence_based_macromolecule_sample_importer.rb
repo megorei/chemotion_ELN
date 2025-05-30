@@ -17,7 +17,7 @@ module Import
         @data.fetch('SequenceBasedMacromoleculeSample', {}).each do |uuid, fields|
           sbmm_uuid = fields.fetch('sequence_based_macromolecule_id')
           sbmm_id = fetch_sbmm(sbmm_uuid)
-          ancestry = @instances.fetch('SequenceBasedMacromoleculeSample', {}).fetch(fields['ancestry'], nil)
+          ancestry = @instances.dig('SequenceBasedMacromoleculeSample', fields['ancestry'])
           sbmm_sample = SequenceBasedMacromoleculeSample.create(
             fields.except('id', 'user_id', 'sequence_based_macromolecule_id', 'ancestry')
             .merge(
