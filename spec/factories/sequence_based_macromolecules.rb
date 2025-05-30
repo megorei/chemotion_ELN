@@ -36,6 +36,8 @@ FactoryBot.define do
       link_uniprot { "https://www.uniprot.org/uniprotkb/P12345/entry" }
       organism { "Oryctolagus cuniculus" }
       taxon_id { "9986" }
+      post_translational_modification { nil }
+      protein_sequence_modification { nil }
     end
 
     factory(:modified_uniprot_sbmm) do
