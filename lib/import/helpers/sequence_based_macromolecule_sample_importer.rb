@@ -32,14 +32,6 @@ module Import
         end
       end
 
-      def fields_for_query(json)
-        fields = []
-        json.except!('created_at', 'updated_at', 'deleted_at').map do |key, value|
-          fields << { "#{key}": value }
-        end
-        fields
-      end
-
       def fetch_sbmm(sbmm_uuid)
         sbmm_json = @data.fetch('SequenceBasedMacromolecule', {})[sbmm_uuid]
         sbmm_parent_id = sbmm_json['parent_id']
