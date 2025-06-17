@@ -17,6 +17,7 @@ ActiveRecord::Schema.define(version: 2025_15_05_141514) do
   enable_extension "pg_trgm"
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+  enable_extension "rdkit"
   enable_extension "uuid-ossp"
 
   create_table "affiliations", id: :serial, force: :cascade do |t|
@@ -72,7 +73,6 @@ ActiveRecord::Schema.define(version: 2025_15_05_141514) do
     t.datetime "deleted_at"
     t.bigint "filesize"
     t.jsonb "attachment_data"
-    t.integer "edit_state", default: 0
     t.integer "con_state"
     t.jsonb "log_data"
     t.string "created_by_type"
@@ -288,6 +288,18 @@ ActiveRecord::Schema.define(version: 2025_15_05_141514) do
     t.index ["collection_id"], name: "idx_collections_sbmm_sample_collection"
     t.index ["deleted_at"], name: "idx_collections_sbmm_sample_deleted_at"
     t.index ["sequence_based_macromolecule_sample_id"], name: "idx_collections_sbmm_sample_sample"
+  end
+
+  create_table "collections_vessels", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.bigint "collection_id"
+    t.uuid "vessel_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "deleted_at"
+    t.index ["collection_id"], name: "index_collections_vessels_on_collection_id"
+    t.index ["deleted_at"], name: "index_collections_vessels_on_deleted_at"
+    t.index ["vessel_id", "collection_id"], name: "index_collections_vessels_on_vessel_id_and_collection_id", unique: true
+    t.index ["vessel_id"], name: "index_collections_vessels_on_vessel_id"
   end
 
   create_table "collections_wellplates", id: :serial, force: :cascade do |t|
@@ -1566,7 +1578,7 @@ ActiveRecord::Schema.define(version: 2025_15_05_141514) do
     t.integer "element_detail_level", default: 10
     t.integer "celllinesample_detail_level", default: 10
     t.integer "devicedescription_detail_level", default: 10
-    t.integer "sequence_based_macromolecule_sample_detail_level", default: 10
+    t.integer "sequencebasedmacromoleculesample_detail_level", default: 10
     t.index ["collection_id"], name: "index_sync_collections_users_on_collection_id"
     t.index ["shared_by_id", "user_id", "fake_ancestry"], name: "index_sync_collections_users_on_shared_by_id"
     t.index ["user_id", "fake_ancestry"], name: "index_sync_collections_users_on_user_id_and_fake_ancestry"
@@ -1588,6 +1600,7 @@ ActiveRecord::Schema.define(version: 2025_15_05_141514) do
   create_table "third_party_apps", force: :cascade do |t|
     t.string "url"
     t.string "name", limit: 100, null: false
+    t.string "file_types", limit: 100
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["name"], name: "index_third_party_apps_on_name", unique: true
@@ -1649,7 +1662,6 @@ ActiveRecord::Schema.define(version: 2025_15_05_141514) do
     t.boolean "account_active"
     t.integer "matrix", default: 0
     t.jsonb "providers"
-    t.jsonb "inventory_labels", default: {}
     t.bigint "used_space", default: 0
     t.bigint "allocated_space", default: 0
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
@@ -1677,6 +1689,38 @@ ActiveRecord::Schema.define(version: 2025_15_05_141514) do
     t.integer "group_id"
     t.index ["group_id"], name: "index_users_groups_on_group_id"
     t.index ["user_id"], name: "index_users_groups_on_user_id"
+  end
+
+  create_table "vessel_templates", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name"
+    t.string "details"
+    t.string "material_details"
+    t.string "material_type"
+    t.string "vessel_type"
+    t.float "volume_amount"
+    t.string "volume_unit"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "deleted_at"
+    t.float "weight_amount"
+    t.string "weight_unit"
+    t.index ["deleted_at"], name: "index_vessel_templates_on_deleted_at"
+  end
+
+  create_table "vessels", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "vessel_template_id"
+    t.bigint "user_id"
+    t.string "name"
+    t.string "description"
+    t.string "short_label"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "deleted_at"
+    t.string "bar_code"
+    t.string "qr_code"
+    t.index ["deleted_at"], name: "index_vessels_on_deleted_at"
+    t.index ["user_id"], name: "index_vessels_on_user_id"
+    t.index ["vessel_template_id"], name: "index_vessels_on_vessel_template_id"
   end
 
   create_table "vocabularies", force: :cascade do |t|
@@ -1740,7 +1784,7 @@ ActiveRecord::Schema.define(version: 2025_15_05_141514) do
   add_foreign_key "sample_tasks", "samples"
   add_foreign_key "sample_tasks", "users", column: "creator_id"
   add_foreign_key "sequence_based_macromolecule_samples", "sequence_based_macromolecules"
-
+  add_foreign_key "sequence_based_macromolecule_samples", "users"
   create_function :collection_shared_names, sql_definition: <<-'SQL'
       CREATE OR REPLACE FUNCTION public.collection_shared_names(user_id integer, collection_id integer)
        RETURNS json
