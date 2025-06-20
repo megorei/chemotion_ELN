@@ -650,6 +650,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
       volume_as_used_value: this.volume_as_used_value,
       volume_as_used_unit: this.volume_as_used_unit,
       sequence_based_macromolecule: this.sequence_based_macromolecule,
+      errors: {},
     };
     return serialized;
   }

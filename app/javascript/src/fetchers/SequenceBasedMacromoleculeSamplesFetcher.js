@@ -125,11 +125,20 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
       }
     ).then((response) => response.json())
       .then((json) => {
-        const updatedSequenceBasedMacromoleculeSample =
-          new SequenceBasedMacromoleculeSample(json.sequence_based_macromolecule_sample);
-        updatedSequenceBasedMacromoleculeSample.updated = true;
-        updatedSequenceBasedMacromoleculeSample.updateChecksum();
-        return updatedSequenceBasedMacromoleculeSample;
+        if (json.error) {
+          let sbmmSampleWithErrors =
+            new SequenceBasedMacromoleculeSample(sequenceBasedMacromoleculeSample.serializeForCopy());
+          sbmmSampleWithErrors.id = sequenceBasedMacromoleculeSample.id;
+          sbmmSampleWithErrors.is_new = false;
+          sbmmSampleWithErrors.errors = { conflict: json.error };
+          return sbmmSampleWithErrors;
+        } else if (json.sequence_based_macromolecule_sample) {
+          const updatedSequenceBasedMacromoleculeSample =
+            new SequenceBasedMacromoleculeSample(json.sequence_based_macromolecule_sample);
+          updatedSequenceBasedMacromoleculeSample.updated = true;
+          updatedSequenceBasedMacromoleculeSample.updateChecksum();
+          return updatedSequenceBasedMacromoleculeSample;
+        }
       })
       .catch(errorMessage => console.log(errorMessage));
 

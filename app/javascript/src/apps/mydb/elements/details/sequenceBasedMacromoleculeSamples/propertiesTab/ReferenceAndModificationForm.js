@@ -48,7 +48,7 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
   const sbmmAttachmentDropzoneCols = sbmmAttachments.length >= 1 ? 2 : 12;
   const sbmmAttachmentListCols = showAttachments ? 10 : 12;
 
-  const sequenceLengthValue = parent?.sequence_length || (parent && parent?.sequence && parent?.sequence.length) || '';
+  const sequenceLengthValue = parent?.sequence.length || (parent && parent?.sequence && parent?.sequence.length) || '';
 
   const errorInModification = Object.keys(sbmmSample.errors).length >= 1
     && (sbmmSample.errors.sequence_based_macromolecule?.short_name

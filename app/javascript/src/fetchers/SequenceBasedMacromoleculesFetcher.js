@@ -21,6 +21,19 @@ export default class SequenceBasedMacromoleculesFetcher {
       .catch(errorMessage => console.log(errorMessage));
   }
 
+  static getSequenceBasedMacromoleculeByIds(sbmm_ids) {
+    return fetch(`/api/v1/sequence_based_macromolecules/by_ids/`, 
+      {
+        ...this._httpOptions('POST'),
+        body: JSON.stringify({ ids: sbmm_ids })
+      }
+    ).then(response => response.json())
+      .then((json) => {
+        return json
+      })
+      .catch(errorMessage => console.log(errorMessage));
+  }
+
   static _httpOptions(method = 'GET') {
     return {
       credentials: 'same-origin',

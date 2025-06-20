@@ -21,7 +21,7 @@ const PropertiesForm = ({ readonly }) => {
     if (!sbmmStore.toggable_contents.hasOwnProperty(generalAccordionIdent)) {
       sbmmStore.toggleContent(generalAccordionIdent);
     }
-    if (sbmmSample.is_new || sbmmStore.show_search_options[sbmmSample.id]) {
+    if ((sbmmSample.is_new && showSearchFields) || sbmmStore.show_search_options[sbmmSample.id]) {
       sbmmStore.toggleSearchOptions(sbmmSample.id, true);
     }
   }, []);
@@ -60,7 +60,17 @@ const PropertiesForm = ({ readonly }) => {
 
   const visibleForUnkownOrModification = isProtein && !['', undefined, 'uniprot'].includes(uniprotDerivationValue);
 
-  const showSearchFields = isProtein && uniprotDerivationValue;
+  const showReferenceField = isProtein && uniprotDerivationValue;
+  const showSearchFields = (
+    (
+      uniprotDerivationValue === 'uniprot'
+      && !sbmmSample.sequence_based_macromolecule?.primary_accession
+    )
+    || (
+      uniprotDerivationValue === 'uniprot_modified'
+      && !sbmmSample.sequence_based_macromolecule?.parent_identifier
+    )
+  );
 
   const showIfReferenceSelected =
     isProtein && (parent?.primary_accession || parent?.id
@@ -75,12 +85,12 @@ const PropertiesForm = ({ readonly }) => {
   const noPrimaryAccession = uniprotDerivationValue === 'uniprot'
     && sbmmSample.errors.sequence_based_macromolecule?.primary_accession
     && !sbmmSample.sequence_based_macromolecule?.primary_accession
-    && sbmmSample.isNew
+    && sbmmSample.is_new
 
   const noParentIdentifier = uniprotDerivationValue === 'uniprot_modified'
     && sbmmSample.errors.sequence_based_macromolecule?.parent_identifier
     && !sbmmSample.sequence_based_macromolecule?.parent_identifier
-    && sbmmSample.isNew
+    && sbmmSample.is_new
 
   const errorInGeneralDescription = Object.keys(sbmmSample.errors).length >= 1
     && (sbmmSample.errors.sequence_based_macromolecule?.primary_accession
@@ -128,7 +138,7 @@ const PropertiesForm = ({ readonly }) => {
       );
     } else {
       sbmmStore.setSbmmByResult(result);
-      // sbmmStore.toggleSearchOptions(sbmmSample.id, false);
+      sbmmStore.toggleSearchOptions(sbmmSample.id, false);
     }
   }
 
@@ -144,7 +154,7 @@ const PropertiesForm = ({ readonly }) => {
   });
 
   const dropAreaForReference = () => {
-    if (!showSearchFields) { return null; }
+    if (!showReferenceField) { return null; }
 
     const dndClassName = isOver && canDrop ? ' dnd-zone-over' : '';
     const disabledClassName = searchable ? ' bg-gray-200' : '';
@@ -171,7 +181,7 @@ const PropertiesForm = ({ readonly }) => {
   }
 
   const toggleButtonForSearchOptions = () => {
-    if (sbmmSample.is_new) { return null; }
+    if (showSearchFields || uniprotDerivationValue === '') { return null; }
 
     const buttonText = sbmmStore.show_search_options[sbmmSample.id] ? 'Close' : 'Reopen';
     const searchOptionsVisible = sbmmStore.show_search_options[sbmmSample.id] ? false : true;
@@ -252,13 +262,13 @@ const PropertiesForm = ({ readonly }) => {
                   uniprotDerivation, (sbmmSample.isNew ? false : true), 'Can only be changed during creation', true
                 )}
               </Col>
-              <Col className="col-2">
+              <Col className="col-2 align-self-end">
                 {toggleButtonForSearchOptions()}
               </Col>
             </Row>
 
             {
-              (sbmmSample.is_new || sbmmStore.show_search_options[sbmmSample.id]) && (
+              ((sbmmSample.is_new && showSearchFields) || sbmmStore.show_search_options[sbmmSample.id]) && (
                 <Row className="mb-4">
                   <Col>
                     {dropAreaForReference()}
@@ -352,7 +362,7 @@ const PropertiesForm = ({ readonly }) => {
                   <Col>
                     {formHelper.unitInput('amount_as_used_mol_value', 'Amount as used', 'amount_substance', disabled, '')}
                   </Col>
-                  <Col>
+                  <Col className="align-self-end">
                     {formHelper.unitInput('amount_as_used_mass_value', '', 'amount_mass', disabled, '')}
                   </Col>
                   {

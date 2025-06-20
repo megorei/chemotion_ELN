@@ -33,6 +33,19 @@ module Chemotion
 
         present sbmm, with: Entities::SequenceBasedMacromoleculeEntity, root: :sequence_based_macromolecule
       end
+
+      namespace :by_ids do
+        desc 'Get SBMMs entry by IDs'
+        params do
+          requires :ids, type: Array
+        end
+        post do
+          fetcher = Usecases::Sbmm::Finder.new
+          sbmms = fetcher.find_in_eln(id: params[:ids])
+
+          present sbmms, with: Entities::SequenceBasedMacromoleculeEntity, root: :sbmms
+        end
+      end
     end
   end
 end

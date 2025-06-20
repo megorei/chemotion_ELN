@@ -84,7 +84,9 @@ export const SequenceBasedMacromoleculeSamplesStore = types
     attachment_sort_direction: types.optional(types.string, 'asc'),
     filtered_attachments: types.optional(types.array(types.frozen({})), []),
     show_search_result: types.optional(types.boolean, false),
+    show_conflict_modal: types.optional(types.boolean, false),
     search_result: types.optional(types.array(types.frozen({})), []),
+    conflict_sbmms: types.optional(types.array(types.frozen({})), []),
     show_search_options: types.optional(types.frozen({}), {}),
   })
   .actions(self => ({
@@ -103,6 +105,12 @@ export const SequenceBasedMacromoleculeSamplesStore = types
 
       if (result?.sequence_based_macromolecule) {
         self.setSbmmByResult(result.sequence_based_macromolecule, primary_accession);
+      }
+    }),
+    getSequenceBasedMacromoleculeByIds: flow(function* getSequenceBasedMacromoleculeByIds(sbmm_ids) {
+      let result = yield SequenceBasedMacromoleculesFetcher.getSequenceBasedMacromoleculeByIds(sbmm_ids);
+      if (result.sbmms) {
+        self.conflict_sbmms = result.sbmms;
       }
     }),
     getLastObjectAndKeyByField(field, sequence_based_macromolecule_sample) {
@@ -351,6 +359,13 @@ export const SequenceBasedMacromoleculeSamplesStore = types
     closeSearchResult() {
       self.show_search_result = false;
     },
+    openConflictModal(ids) {
+      self.show_conflict_modal = true;
+      self.getSequenceBasedMacromoleculeByIds(ids);
+    },
+    closeConflictModal() {
+      self.show_conflict_modal = false;
+    },
     setSearchResult(result) {
       self.removeSearchResult();
       self.search_result = result;
@@ -437,5 +452,6 @@ export const SequenceBasedMacromoleculeSamplesStore = types
   .views(self => ({
     get filteredAttachments() { return values(self.filtered_attachments) },
     get searchResult() { return values(self.search_result) },
+    get conflictSbmms() { return values(self.conflict_sbmms) },
     get shownGroups() { return values(self.shown_groups) },
   }));
