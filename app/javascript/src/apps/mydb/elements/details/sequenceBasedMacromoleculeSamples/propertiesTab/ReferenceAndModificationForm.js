@@ -51,7 +51,7 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
   const sequenceLengthValue = parent?.sequence.length || (parent && parent?.sequence && parent?.sequence.length) || '';
 
   const errorInModification = Object.keys(sbmmSample.errors).length >= 1
-    && (sbmmSample.errors.sequence_based_macromolecule?.short_name
+    && (sbmmSample.errors.sequence_based_macromolecule
       || sbmmSample.errors?.structure_file);
 
   let accordionErrorByIdent = '';
@@ -127,7 +127,7 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
       <div className="text-danger mb-2">
         {`This file(s) `}
         <b>"{sbmmSample.errors?.structure_file}"</b>
-        {` does not have the correct file format. Only cif and pdf files are saved.`}
+        {` does not have the correct file format. Only cif and pdb files are saved.`}
       </div>
     )
   }
@@ -220,33 +220,33 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
             </Col>
             <Col>
               {formHelper.unitInput(
-                `${fieldPrefix}.molecular_weight`, 'Sequence mass (Da = g/mol)', 'molecular_weight', disabled, ''
+                `${fieldPrefix}.molecular_weight`, 'Sequence mass (Da = g/mol)', 'molecular_weight', disabled, true
               )}
             </Col>
           </Row>
           <Row className="mb-4">
             <Col>{formHelper.textInput(`${fieldPrefix}.full_name`, 'Full name', disabled, '')}</Col>
-          </Row>
-          <Row className="mb-4">
-            {
-              visibleForModification && (
-                <Col>{formHelper.textInput(`${fieldPrefix}.pdb_doi`, 'Pdb DOI', disabled, '')}</Col>
-              )
-            }
             <Col>{formHelper.textInput(`${fieldPrefix}.ec_numbers`, 'EC number', disabled, '')}</Col>
           </Row>
+          {(visibleForModification || ident === 'reference') && (
+            <Row className="mb-4">
+              {
+                visibleForModification && (
+                  <Col>{formHelper.textInput(`${fieldPrefix}.pdb_doi`, 'Pdb DOI', disabled, '')}</Col>
+                )
+              }
+              {
+                ident === 'reference' && (
+                  <Col>{formHelper.textInput(`${fieldPrefix}.link_pdb`, 'Link pdb', disabled, '')}</Col>
+                )
+              }
+            </Row>
+          )}
           <Row className="mb-4">
             <Col>
-              {formHelper.textareaInput(`${fieldPrefix}.splitted_sequence`, 'Sequence of the structure', 3, disabled, '')}
+              {formHelper.textareaInput(`${fieldPrefix}.splitted_sequence`, 'Sequence of the structure', 3, disabled, true)}
             </Col>
           </Row>
-          {
-            ident === 'reference' && (
-              <Row className="mb-4">
-                <Col>{formHelper.textInput(`${fieldPrefix}.link_pdb`, 'Link pdb', disabled, '')}</Col>
-              </Row>
-            )
-          }
           {
             (showAttachments || sbmmAttachments.length >= 1) && (
               <>

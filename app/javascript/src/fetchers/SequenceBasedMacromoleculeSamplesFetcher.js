@@ -72,30 +72,34 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
       }
     ).then(response => response.json())
       .then((json) => {
-        if (newSampleAttachmentFiles.length <= 0 && newSBMMAttachmentFiles.length <= 0) {
-          return new SequenceBasedMacromoleculeSample(json.sequence_based_macromolecule_sample);
-        }
+        if (json.error) {
+          return this.errorHandling(sequenceBasedMacromoleculeSample, json.error, true);
+        } else if (json.sequence_based_macromolecule_sample) {
+          if (newSampleAttachmentFiles.length <= 0 && newSBMMAttachmentFiles.length <= 0) {
+            return new SequenceBasedMacromoleculeSample(json.sequence_based_macromolecule_sample);
+          }
 
-        const attachmentTasks = [];
-        if (newSampleAttachmentFiles.length > 0) {
-          attachmentTasks.push(
-            AttachmentFetcher.updateAttachables(
-              newSampleAttachmentFiles, 'SequenceBasedMacromoleculeSample',
-              json.sequence_based_macromolecule_sample.id, []
-            )()
-          );
-        }
-        if (newSBMMAttachmentFiles.length > 0) {
-          attachmentTasks.push(
-            AttachmentFetcher.updateAttachables(
-              newSBMMAttachmentFiles, 'SequenceBasedMacromolecule',
-              json.sequence_based_macromolecule_sample.sequence_based_macromolecule.id, []
-            )()
-          );
-        }
+          const attachmentTasks = [];
+          if (newSampleAttachmentFiles.length > 0) {
+            attachmentTasks.push(
+              AttachmentFetcher.updateAttachables(
+                newSampleAttachmentFiles, 'SequenceBasedMacromoleculeSample',
+                json.sequence_based_macromolecule_sample.id, []
+              )()
+            );
+          }
+          if (newSBMMAttachmentFiles.length > 0) {
+            attachmentTasks.push(
+              AttachmentFetcher.updateAttachables(
+                newSBMMAttachmentFiles, 'SequenceBasedMacromolecule',
+                json.sequence_based_macromolecule_sample.sequence_based_macromolecule.id, []
+              )()
+            );
+          }
 
-        return Promise.all(attachmentTasks)
-          .then(() => new SequenceBasedMacromoleculeSample(json.sequence_based_macromolecule_sample));
+          return Promise.all(attachmentTasks)
+            .then(() => new SequenceBasedMacromoleculeSample(json.sequence_based_macromolecule_sample));
+        }
       })
       .catch(errorMessage => console.log(errorMessage));
 
@@ -126,12 +130,7 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
     ).then((response) => response.json())
       .then((json) => {
         if (json.error) {
-          let sbmmSampleWithErrors =
-            new SequenceBasedMacromoleculeSample(sequenceBasedMacromoleculeSample.serializeForCopy());
-          sbmmSampleWithErrors.id = sequenceBasedMacromoleculeSample.id;
-          sbmmSampleWithErrors.is_new = false;
-          sbmmSampleWithErrors.errors = { conflict: json.error };
-          return sbmmSampleWithErrors;
+          return this.errorHandling(sequenceBasedMacromoleculeSample, json.error, false);
         } else if (json.sequence_based_macromolecule_sample) {
           const updatedSequenceBasedMacromoleculeSample =
             new SequenceBasedMacromoleculeSample(json.sequence_based_macromolecule_sample);
@@ -171,6 +170,32 @@ export default class SequenceBasedMacromoleculeSamplesFetcher {
       { ...this._httpOptions('DELETE') }
     ).then(response => response.json())
       .catch(errorMessage => console.log(errorMessage));
+  }
+
+  static errorHandling(sequenceBasedMacromoleculeSample, error, isNew) {
+    let sbmmSampleWithErrors =
+      new SequenceBasedMacromoleculeSample(sequenceBasedMacromoleculeSample.serializeForCopy());
+    if (!isNew) {
+      sbmmSampleWithErrors.id = sequenceBasedMacromoleculeSample.id;
+    }
+    sbmmSampleWithErrors.is_new = isNew;
+    if (Array.isArray(error)) {
+      error.map((e) => {
+        const message = ['is empty', 'is missing'].includes(e.message) ? "Can't be blank" : e.message;
+        e.parameters.map((parameter) => {
+          const parts = [parameter.match(/^(\w+)_attributes/)[1], ...[...parameter.matchAll(/\[([^\]]+)\]/g)]
+            .map(m => m[1].replace(/_attributes$/, ''))];
+
+          parts.reduce((obj, key, i) => {
+            const errorKey = key == 'sequence' ? 'splitted_sequence' : (key.includes('modification') ? `${key}s` : key);
+            return obj[errorKey] ??= (i === parts.length - 1 ? message : {});
+          }, sbmmSampleWithErrors.errors);
+        });
+      });
+    } else {
+      sbmmSampleWithErrors.errors = { conflict: error };
+    }
+    return sbmmSampleWithErrors;
   }
 
   static _httpOptions(method = 'GET') {

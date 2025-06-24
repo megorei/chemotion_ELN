@@ -42,6 +42,8 @@ const ConflictModal = () => {
   }
 
   const rowsForModifications = (key, rows) => {
+    if (!sbmmStore.conflictSbmms[0][key]) { return rows; }
+
     const headline =
       key == 'protein_sequence_modifications' ? 'Sequence modifications' : 'Posttranslational modifications';
     const cleanedKeys =

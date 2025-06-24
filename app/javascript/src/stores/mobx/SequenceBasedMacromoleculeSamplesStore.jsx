@@ -42,6 +42,9 @@ const validationFields = [
   'sequence_based_macromolecule.primary_accession',
   'sequence_based_macromolecule.parent_identifier',
   'sequence_based_macromolecule.short_name',
+  'sequence_based_macromolecule.splitted_sequence',
+  'sequence_based_macromolecule.molecular_weight',
+  'sequence_based_macromolecule.post_translational_modifications.acetylation_lysin_number',
 ];
 
 const postModificationCheckboxWithDetailField = [
@@ -410,6 +413,17 @@ export const SequenceBasedMacromoleculeSamplesStore = types
       Object.entries(sbmmSample.errors).map(([key, value]) => {
         if (Object.keys(value).length === 0) {
           delete sbmmSample.errors[key];
+        } else {
+          Object.entries(value).map(([k, v]) => {
+            if (Object.keys(v).length === 0) {
+              delete sbmmSample.errors[key][k];
+              delete sbmmSample.errors[key];
+            } else {
+              if (sbmmSample[key][k] !== undefined && sbmmSample[key][k] !== '') {
+                delete sbmmSample.errors[key][k];
+              }
+            }
+          })
         }
       });
 
@@ -428,12 +442,18 @@ export const SequenceBasedMacromoleculeSamplesStore = types
         const isParentIdentifier =
           self.sequence_based_macromolecule_sample.isNew && key.includes('parent_identifier')
           && sbmm.uniprot_derivation == 'uniprot_modified' && !sbmm.parent_identifier;
-        const checkOnlyValue = !key.includes('primary_accession') && !key.includes('parent_identifier') && !hasValue;
+        const hasNoLysinNumber = sbmm.post_translational_modifications && key.includes('acetylation_lysin_number')
+          && sbmm.post_translational_modifications?.acetylation_enabled
+          && !hasValue;
+        const checkOnlyValue = !key.includes('primary_accession') && !key.includes('parent_identifier')
+          && !key.includes('acetylation_lysin_number') && !hasValue;
 
-        if (hasValue && Object.keys(sbmmSample.errors).length >= 1) {
-          sbmmSample = self.removeError(sbmmSample, errorPath);
-        } else if (isPrimaryAccession || isParentIdentifier) {
+        sbmmSample = self.removeError(sbmmSample, errorPath);
+
+        if (isPrimaryAccession || isParentIdentifier) {
           sbmmSample = self.setError(sbmmSample, errorPath, "Please choose a reference");
+        } else if (hasNoLysinNumber) {
+          sbmmSample = self.setError(sbmmSample, errorPath, "Can't be blank");
         } else if (checkOnlyValue) {
           sbmmSample = self.setError(sbmmSample, errorPath, "Can't be blank");
         }
@@ -454,4 +474,5 @@ export const SequenceBasedMacromoleculeSamplesStore = types
     get searchResult() { return values(self.search_result) },
     get conflictSbmms() { return values(self.conflict_sbmms) },
     get shownGroups() { return values(self.shown_groups) },
+    get openSbmmSamples() { return values(self.open_sequence_based_macromolecule_samples) }
   }));
