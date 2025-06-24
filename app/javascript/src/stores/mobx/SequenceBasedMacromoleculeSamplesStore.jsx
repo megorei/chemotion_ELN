@@ -36,7 +36,6 @@ const emptySequenceBasedMacromoleculeSample = {
 };
 
 const validationFields = [
-  'name',
   'sequence_based_macromolecule.sbmm_type',
   'sequence_based_macromolecule.uniprot_derivation',
   'sequence_based_macromolecule.primary_accession',

@@ -458,7 +458,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
     return new SequenceBasedMacromoleculeSample({
       collection_id: collectionID,
       type: 'sequence_based_macromolecule_sample',
-      name: 'New sequence based macromolecule',
+      name: '',
       short_label: '',
       external_label: '',
       activity_per_mass_unit: 'U/g',
@@ -671,7 +671,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
 
   title() {
     const short_label = this.short_label ? this.short_label : '';
-    return this.name ? `${short_label} ${this.name}` : short_label;
+    return !this.name && !short_label ? 'New sbmm sample' : (this.name ? `${short_label} ${this.name}` : short_label);
   }
 
   get attachmentCount() {

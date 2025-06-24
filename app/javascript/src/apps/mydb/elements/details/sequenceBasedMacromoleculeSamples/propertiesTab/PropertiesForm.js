@@ -224,12 +224,6 @@ const PropertiesForm = ({ readonly }) => {
 
   return (
     <Form>
-      <Row className="mb-4">
-        <Col>
-          {formHelper.textInput('name', 'Name', '')}
-        </Col>
-      </Row>
-
       <Accordion
         className={`mb-4 ${errorInGeneralDescription ? 'border border-danger' : ''}`}
         activeKey={sbmmStore.toggable_contents[generalAccordionIdent] && generalAccordionIdent}
@@ -316,11 +310,14 @@ const PropertiesForm = ({ readonly }) => {
           >
             <Accordion.Item eventKey={sampleAccordionIdent}>
               <Accordion.Header>
-                Sample Characteristics
+                Sample Characteristics - {sbmmSample.short_label}
               </Accordion.Header>
               <Accordion.Body>
                 <h5 className="mb-3">Application</h5>
                 <Row className="mb-4">
+                  <Col>
+                    {formHelper.textInput('name', 'Name', '')}
+                  </Col>
                   <Col>
                     {formHelper.selectInput(
                       'function_or_application', 'Function or application', sampleFunctionOrApplication, disabled, '', ''
