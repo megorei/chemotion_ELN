@@ -194,7 +194,8 @@ const SequenceBasedMacromoleculeSampleDetails = () => {
           >
             <span>
               <i className="icon-sequence_based_macromolecule me-1" />
-              {sbmmSample.name}
+              {sbmmSample.title()}
+              {sbmmSample.sbmmShortLabelForHeader(true)}
             </span>
           </OverlayTrigger>
           {

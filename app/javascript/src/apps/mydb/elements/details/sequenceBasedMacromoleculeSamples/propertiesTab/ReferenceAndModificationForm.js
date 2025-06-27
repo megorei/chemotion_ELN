@@ -69,9 +69,9 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
 
   const referenceAccordionHeader = () => {
     if (ident === 'sequence_modifications') {
-      return " Properties of the modified sequence or own protein";
+      return ` Properties of the modified sequence or own protein${sbmmSample.sbmmShortLabelForHeader()}`;
     } else if (uniprotDerivationValue === 'uniprot') {
-      return "Protein Identifiers and structural characteristics";
+      return `Protein Identifiers and structural characteristics${sbmmSample.sbmmShortLabelForHeader()}`;
     } else if (uniprotDerivationValue === 'uniprot_modified') {
       return "Protein Identifiers and structural characteristics of reference entries"
     }

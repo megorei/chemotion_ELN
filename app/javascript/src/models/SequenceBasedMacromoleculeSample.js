@@ -658,7 +658,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   static buildNewShortLabel() {
     const { currentUser } = UserStore.getState();
     if (!currentUser) { return 'NEW SEQUENCE BASED MACROMOLECULE'; }
-    return `${currentUser.initials}-SBMMS${currentUser.sequence_based_macromolecule_samples_count + 1}`;
+    return `${currentUser.initials}-sbmmS${currentUser.sequence_based_macromolecule_samples_count + 1}`;
   }
 
   static copyFromSequenceBasedMacromoleculeSampleAndCollectionId(sequence_based_macromolecule_sample, collection_id) {
@@ -672,6 +672,20 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   title() {
     const short_label = this.short_label ? this.short_label : '';
     return !this.name && !short_label ? 'New sbmm sample' : (this.name ? `${short_label} ${this.name}` : short_label);
+  }
+
+  sbmmShortLabel() {
+    if (!this.sequence_based_macromolecule?.id) { return ''; }
+
+    return `sbmm-${this.sequence_based_macromolecule.id}`;
+  }
+
+  sbmmShortLabelForHeader(withShortName = false) {
+    const sbmmShortLabel = this.sbmmShortLabel();
+    const sbmmShortName = withShortName ? ` ${this.sequence_based_macromolecule.short_name}` : '';
+    const spacer = this.title() || !withShortName ? ' - ' : '';
+  
+    return sbmmShortLabel ? `${spacer}${sbmmShortLabel}${sbmmShortName}` : '';
   }
 
   get attachmentCount() {
