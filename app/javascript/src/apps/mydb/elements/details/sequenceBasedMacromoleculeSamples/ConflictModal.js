@@ -58,9 +58,9 @@ const ConflictModal = () => {
       rows.push(
         <tr>
           <td>{modificationKey}</td>
-          <td>{booleanValueOrText(key, sbmmSample.sequence_based_macromolecule[key][modificationKey])}</td>
-          <td>{booleanValueOrText(key, sbmmStore.conflictSbmms[0][key][modificationKey])}</td>
-          <td>{booleanValueOrText(key, sbmmStore.conflictSbmms[1][key][modificationKey])}</td>
+          <td className="text-wrap">{booleanValueOrText(key, sbmmSample.sequence_based_macromolecule[key][modificationKey])}</td>
+          <td className="text-wrap">{booleanValueOrText(key, sbmmStore.conflictSbmms[0][key][modificationKey])}</td>
+          <td className="text-wrap">{booleanValueOrText(key, sbmmStore.conflictSbmms[1][key][modificationKey])}</td>
         </tr>
       );
     });
@@ -76,12 +76,14 @@ const ConflictModal = () => {
       if (key == 'protein_sequence_modifications' || key == 'post_translational_modifications') {
         rows = rowsForModifications(key, rows);
       } else {
+        const value1 = key == 'sequence' ? sbmmStore.conflictSbmms[0][key].match(/.{1,10}/g).join(' ') : sbmmStore.conflictSbmms[0][key];
+        const value2 = key == 'sequence' ? sbmmStore.conflictSbmms[1][key].match(/.{1,10}/g).join(' ') : sbmmStore.conflictSbmms[1][key];
         rows.push(
           <tr>
             <td>{key}</td>
-            <td>{booleanValueOrText(key, sbmmSample.sequence_based_macromolecule[key])}</td>
-            <td>{booleanValueOrText(key, sbmmStore.conflictSbmms[0][key])}</td>
-            <td>{booleanValueOrText(key, sbmmStore.conflictSbmms[1][key])}</td>
+            <td className="text-wrap">{booleanValueOrText(key, sbmmSample.sequence_based_macromolecule[key])}</td>
+            <td className="text-wrap">{booleanValueOrText(key, value1)}</td>
+            <td className="text-wrap">{booleanValueOrText(key, value2)}</td>
           </tr>
         );
       }
@@ -125,9 +127,9 @@ const ConflictModal = () => {
                   <tbody>
                     <tr>
                       <td className="w-25">&nbsp;</td>
-                      <td className="fs-6 fw-bold p-3">Your modifications</td>
-                      <td className="fs-6 fw-bold p-3">SBMM {sbmmStore.conflictSbmms[0].id}</td>
-                      <td className="fs-6 fw-bold p-3">SBMM {sbmmStore.conflictSbmms[1].id}</td>
+                      <td className="w-25 fs-6 fw-bold p-3">Your modifications</td>
+                      <td className="w-25 fs-6 fw-bold p-3">SBMM {sbmmStore.conflictSbmms[0].id}</td>
+                      <td className="w-25 fs-6 fw-bold p-3">SBMM {sbmmStore.conflictSbmms[1].id}</td>
                     </tr>
                     {rowOfSbmmKeys()}
                   </tbody>
