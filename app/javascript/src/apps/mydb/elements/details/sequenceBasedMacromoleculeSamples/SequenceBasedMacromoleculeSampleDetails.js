@@ -137,6 +137,7 @@ const SequenceBasedMacromoleculeSampleDetails = () => {
     if (sbmmStore.hasValidFields()) {
       LoadingActions.start();
       if (sbmmSample.is_new) {
+        sbmmStore.removeFromOpenSequenceBasedMacromoleculeSamples(sbmmSample);
         DetailActions.close(sbmmSample, true);
         ElementActions.createSequenceBasedMacromoleculeSample(sbmmSample);
       } else {

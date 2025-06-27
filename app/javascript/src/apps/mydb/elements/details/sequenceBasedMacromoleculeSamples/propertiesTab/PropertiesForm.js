@@ -21,7 +21,7 @@ const PropertiesForm = ({ readonly }) => {
     if (!sbmmStore.toggable_contents.hasOwnProperty(generalAccordionIdent)) {
       sbmmStore.toggleContent(generalAccordionIdent);
     }
-    if ((sbmmSample.is_new && showSearchFields) || sbmmStore.show_search_options[sbmmSample.id]) {
+    if (showSearchFields) {
       sbmmStore.toggleSearchOptions(sbmmSample.id, true);
     }
   }, []);
@@ -56,41 +56,42 @@ const PropertiesForm = ({ readonly }) => {
     : sbmmSample.sequence_based_macromolecule;
 
   const visibleForUniprotOrModification =
-    isProtein && !['', undefined, 'uniprot_unknown'].includes(uniprotDerivationValue);
+    isProtein && ['uniprot', 'uniprot_modified'].includes(uniprotDerivationValue);
 
   const visibleForUnkownOrModification = isProtein && !['', undefined, 'uniprot'].includes(uniprotDerivationValue);
 
-  const showReferenceField = isProtein && uniprotDerivationValue;
-  const showSearchFields = (
+  const hasReference = isProtein && (
     (
       uniprotDerivationValue === 'uniprot'
-      && !sbmmSample.sequence_based_macromolecule?.primary_accession
+      && sbmmSample.sequence_based_macromolecule?.primary_accession
     )
     || (
       uniprotDerivationValue === 'uniprot_modified'
-      && !sbmmSample.sequence_based_macromolecule?.parent_identifier
+      && (sbmmSample.sequence_based_macromolecule?.parent_identifier || sbmmSample.sequence_based_macromolecule?.parent.id)
     )
+    || uniprotDerivationValue === 'uniprot_unknown'
   );
+  const showSearchFields = (sbmmSample.isNew && !hasReference) || sbmmStore.show_search_options[sbmmSample.id];
+  const showNoSearchFields = (sbmmSample.isNew && hasReference && !sbmmStore.show_search_options[sbmmSample.id])
+    || !sbmmStore.show_search_options[sbmmSample.id];
 
-  const showIfReferenceSelected =
-    isProtein && (parent?.primary_accession || parent?.id
-      || sbmmSample.sequence_based_macromolecule?.parent_identifier
-      || parent?.other_reference_id || uniprotDerivationValue === 'uniprot_unknown');
+  const searchable = visibleForUniprotOrModification
+    && sbmmSample.sequence_based_macromolecule.search_field
+    && sbmmSample.sequence_based_macromolecule.search_term;
+
+  const visibleForModification = isProtein && uniprotDerivationValue == 'uniprot_modified' && !hasReference;
+
+  console.log(sbmmStore.openSbmmSamples);
+
+  const showIfReferenceSelected = hasReference
+    || parent?.other_reference_id || uniprotDerivationValue === 'uniprot_unknown';
 
   const showIfEnzymeIsSelected = sbmmSample.function_or_application === 'enzyme';
 
-  const showReference = isProtein && !['', undefined, 'uniprot_unknown'].includes(uniprotDerivationValue)
-    && (parent?.primary_accession || parent?.id);
+  const showReference = visibleForUniprotOrModification && (parent?.primary_accession || parent?.id);
 
-  const noPrimaryAccession = uniprotDerivationValue === 'uniprot'
-    && sbmmSample.errors.sequence_based_macromolecule?.primary_accession
-    && !sbmmSample.sequence_based_macromolecule?.primary_accession
-    && sbmmSample.is_new
-
-  const noParentIdentifier = uniprotDerivationValue === 'uniprot_modified'
-    && sbmmSample.errors.sequence_based_macromolecule?.parent_identifier
-    && !sbmmSample.sequence_based_macromolecule?.parent_identifier
-    && sbmmSample.is_new
+  const noReferenceError = sbmmSample.errors.sequence_based_macromolecule?.primary_accession
+    || sbmmSample.errors.sequence_based_macromolecule?.parent_identifier;
 
   const errorInGeneralDescription = Object.keys(sbmmSample.errors).length >= 1
     && (sbmmSample.errors.sequence_based_macromolecule?.primary_accession
@@ -99,16 +100,14 @@ const PropertiesForm = ({ readonly }) => {
       || sbmmSample.errors.sequence_based_macromolecule?.uniprot_derivation
       || sbmmSample.errors?.reference)
 
-  const searchable = ['uniprot', 'uniprot_modified'].includes(uniprotDerivationValue)
-    && sbmmSample.sequence_based_macromolecule.search_field
-    && sbmmSample.sequence_based_macromolecule.search_term;
-
   const derivationLabelWithIcon = (
     <>
       Existence in UniProt or reference
       <i className="text-danger ms-1 fa fa-exclamation-triangle" />
     </>
-  )
+  );
+
+  const sampleHeaderShortLabel = sbmmSample.short_label ? ` - ${sbmmSample.short_label}` : '';
 
   const searchSequenceBasedMolecules = () => {
     if (searchable) {
@@ -121,25 +120,10 @@ const PropertiesForm = ({ readonly }) => {
   }
 
   const handleDrop = (item) => {
-    const result = item.element.sequence_based_macromolecule;
-    const errorPath = ['errors', 'reference'];
-    if (sbmmSample.errors?.reference) {
-      sbmmSample = sbmmStore.removeError(sbmmSample, errorPath);
-    }
-    if (uniprotDerivationValue === 'uniprot' && result.uniprot_derivation !== 'uniprot') {
-      sbmmSample = sbmmStore.setError(
-        sbmmSample, errorPath,
-        'The sequence based macromolecule has not the right type. Only "Uniprot" is allowed.'
-      );
-    } else if (uniprotDerivationValue === 'uniprot_unknown' && result.uniprot_derivation !== 'uniprot_unknown') {
-      sbmmSample = sbmmStore.setError(
-        sbmmSample, errorPath,
-        'The sequence based macromolecule has not the right type. Only "Unknown" is allowed.'
-      );
-    } else {
-      sbmmStore.setSbmmByResult(result);
-      sbmmStore.toggleSearchOptions(sbmmSample.id, false);
-    }
+    const dropped_sbmm = item.element.sequence_based_macromolecule;
+    
+    sbmmStore.setSbmmBySearchResultOrDND(dropped_sbmm, 'full_sbmm', '');
+    sbmmStore.toggleSearchOptions(sbmmSample.id, false);
   }
 
   const [{ isOver, canDrop }, drop] = useDrop({
@@ -154,34 +138,29 @@ const PropertiesForm = ({ readonly }) => {
   });
 
   const dropAreaForReference = () => {
-    if (!showReferenceField) { return null; }
+    if (showNoSearchFields) { return null; }
 
     const dndClassName = isOver && canDrop ? ' dnd-zone-over' : '';
     const disabledClassName = searchable ? ' bg-gray-200' : '';
 
     return (
-      <>
-        <label className="form-label">Reference</label>
-        <div
-          key="element-dropzone-SEQUENCE_BASED_MACROMOLECULE"
-          ref={(node) => searchable ? node : drop(node)}
-          className={`border border-dashed border-3 p-1 text-center text-gray-600${dndClassName}${disabledClassName}`}
-        >
-          Drop SBMM here
-        </div>
-        {
-          sbmmSample.errors?.reference && (
-            <div className="text-danger mt-2">
-              {sbmmSample.errors.reference}
-            </div>
-          )
-        }
-      </>
+      <Row className="mb-4">
+        <Col>
+          <label className="form-label">Reference</label>
+          <div
+            key="element-dropzone-SEQUENCE_BASED_MACROMOLECULE"
+            ref={(node) => searchable ? node : drop(node)}
+            className={`p-2 dnd-zone text-center text-gray-600${dndClassName}${disabledClassName}`}
+          >
+            Drop a SBMM here to create a new sample of this SBMM
+          </div>
+        </Col>
+      </Row>
     );
   }
 
   const toggleButtonForSearchOptions = () => {
-    if (showSearchFields || uniprotDerivationValue === '') { return null; }
+    if (!hasReference) { return null; }
 
     const buttonText = sbmmStore.show_search_options[sbmmSample.id] ? 'Close' : 'Reopen';
     const searchOptionsVisible = sbmmStore.show_search_options[sbmmSample.id] ? false : true;
@@ -234,6 +213,7 @@ const PropertiesForm = ({ readonly }) => {
             General description
           </Accordion.Header>
           <Accordion.Body>
+            {dropAreaForReference()}
             <Row className="mb-4">
               <Col>
                 {
@@ -262,17 +242,14 @@ const PropertiesForm = ({ readonly }) => {
             </Row>
 
             {
-              ((sbmmSample.is_new && showSearchFields) || sbmmStore.show_search_options[sbmmSample.id]) && (
+              showSearchFields && visibleForUniprotOrModification && (
                 <Row className="mb-4">
-                  <Col>
-                    {dropAreaForReference()}
-                  </Col>
                   {searchFieldsForUniprotOrModification()}
                 </Row>
               )
             }
             {
-              (noPrimaryAccession || noParentIdentifier) && (
+              (!hasReference && noReferenceError) && (
                 <div className="text-danger">
                   Please choose a reference
                 </div>
@@ -282,6 +259,15 @@ const PropertiesForm = ({ readonly }) => {
         </Accordion.Item>
       </Accordion>
 
+      {
+        visibleForModification && (
+          <ReferenceAndModificationForm
+            ident="dnd_reference"
+            readonly={readonly}
+            key="dnd_reference_modification"
+          />
+        )
+      }
       {
         showReference && (
           <ReferenceAndModificationForm
@@ -310,7 +296,7 @@ const PropertiesForm = ({ readonly }) => {
           >
             <Accordion.Item eventKey={sampleAccordionIdent}>
               <Accordion.Header>
-                Sample Characteristics - {sbmmSample.short_label}
+                Sample Characteristics{sampleHeaderShortLabel}
               </Accordion.Header>
               <Accordion.Body>
                 <h5 className="mb-3">Application</h5>

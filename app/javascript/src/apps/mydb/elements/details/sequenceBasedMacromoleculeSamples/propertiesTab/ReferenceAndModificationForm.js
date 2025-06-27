@@ -1,6 +1,8 @@
 import React, { useContext, useEffect } from 'react';
 import { Row, Col, Accordion, } from 'react-bootstrap';
 import { initFormHelper } from 'src/utilities/FormHelper';
+import { useDrop } from 'react-dnd';
+import { DragDropItemTypes } from 'src/utilities/DndConst';
 import SequenceAndPostTranslationalModificationForm from './SequenceAndPostTranslationalModificationForm';
 import Attachment from 'src/models/Attachment';
 
@@ -32,10 +34,7 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
   }
 
   useEffect(() => {
-    if (!sbmmStore.toggable_contents.hasOwnProperty(`${sbmmSample.id}-reference`)
-      && uniprotDerivationValue !== 'uniprot_modified') {
-      sbmmStore.toggleContent(accordionIdent);
-    }
+    sbmmStore.toggleContentsOnOpenDetail(sbmmSample, uniprotDerivationValue);
   }, []);
 
   const visibleForModification = isProtein && uniprotDerivationValue === 'uniprot_modified';
@@ -132,6 +131,46 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
     )
   }
 
+  const handleDrop = (item) => {
+    let dropped_sbmm = item.element.sequence_based_macromolecule;
+
+    sbmmStore.setSbmmBySearchResultOrDND(dropped_sbmm, 'parent', '');
+    sbmmStore.toggleSearchOptions(sbmmSample.id, false);
+  }
+
+  const [{ isOver, canDrop }, drop] = useDrop({
+    accept: DragDropItemTypes['SEQUENCE_BASED_MACROMOLECULE'],
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+      canDrop: monitor.canDrop(),
+    }),
+    drop: (item) => {
+      handleDrop(item);
+    },
+  });
+
+  const dropAreaForReference = () => {
+    if (uniprotDerivationValue !== 'uniprot_modified') { return null; }
+
+    const dndClassName = isOver && canDrop ? ' dnd-zone-over' : '';
+
+    return (
+      <Row className="mb-4">
+        <Col>
+          <label className="form-label">Reference</label>
+          <div
+            key="element-dropzone-SEQUENCE_BASED_MACROMOLECULE"
+            ref={(node) => drop(node)}
+            className={`p-2 dnd-zone text-center text-gray-600${dndClassName}`}
+          >
+            Drop a SBMM here to add a reference for a modified protein
+          </div>
+          
+        </Col>
+      </Row>
+    );
+  }
+
   const dropzoneForModificationOrUniprot = () => {
     if (!showAttachments) { return null; }
     return (
@@ -185,6 +224,25 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
     return (<Col className={`col-${sbmmAttachmentListCols}`}>{attachmentList}</Col>);
   }
 
+  if (ident === 'dnd_reference') {
+    return (
+      <Accordion
+        className={`mb-4 ${accordionErrorByIdent}`}
+        activeKey={sbmmStore.toggable_contents[accordionIdent] && accordionIdent}
+        onSelect={() => sbmmStore.toggleContent(accordionIdent)}
+      >
+        <Accordion.Item eventKey={accordionIdent}>
+          <Accordion.Header>
+            {referenceAccordionHeader()}
+          </Accordion.Header>
+          <Accordion.Body>
+            {dropAreaForReference()}
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
+    );
+  }
+
   return (
     <Accordion
       className={`mb-4 ${accordionErrorByIdent}`}
@@ -196,6 +254,8 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
           {referenceAccordionHeader()}
         </Accordion.Header>
         <Accordion.Body>
+          {visibleForModification && ident == 'reference' && dropAreaForReference()}
+
           <h5 className="mb-3">Identifiers and sequence characteristics:</h5>
           <Row className="mb-4">
             {ident === 'reference' && (
@@ -280,7 +340,6 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
             <Col>{formHelper.textInput(`${fieldPrefix}.tissue`, 'Tissue', disabled, '')}</Col>
             <Col>{formHelper.textInput(`${fieldPrefix}.localisation`, 'Localisation', disabled, '')}</Col>
           </Row>
-
           {
             ident === 'sequence_modifications' && (
               <SequenceAndPostTranslationalModificationForm
