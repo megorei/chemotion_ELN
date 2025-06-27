@@ -18,7 +18,7 @@ module Usecases
               message: message,
               sbmm_id: sbmm.id,
               conflicting_sbmm_id: conflicting_sbmm.id,
-            }
+            },
           }
         end
 
