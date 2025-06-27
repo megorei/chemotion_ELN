@@ -116,7 +116,7 @@ const SequenceBasedMacromoleculeSampleDetails = () => {
         {conflict && (
           <Button
             variant="link"
-            onClick={() => sbmmStore.openConflictModal([conflict.sbmm_id, conflict.conflicting_sbmm_id])}
+            onClick={() => sbmmStore.openConflictModal(conflict.sbmm_id, conflict.conflicting_sbmm_id)}
           >
             More details
           </Button>

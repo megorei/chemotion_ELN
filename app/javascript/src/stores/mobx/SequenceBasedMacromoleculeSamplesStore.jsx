@@ -113,10 +113,11 @@ export const SequenceBasedMacromoleculeSamplesStore = types
         self.setSbmmBySearchResultOrDND(result.sequence_based_macromolecule, 'parent', primary_accession);
       }
     }),
-    getSequenceBasedMacromoleculeByIds: flow(function* getSequenceBasedMacromoleculeByIds(sbmm_ids) {
-      let result = yield SequenceBasedMacromoleculesFetcher.getSequenceBasedMacromoleculeByIds(sbmm_ids);
-      if (result.sbmms) {
-        self.conflict_sbmms = result.sbmms;
+    getSequenceBasedMacromoleculeByIds: flow(function* getSequenceBasedMacromoleculeByIds(sbmm_id, conflicting_sbmm_id) {
+      let result1 = yield SequenceBasedMacromoleculesFetcher.getSequenceBasedMacromoleculeByIdentifier(sbmm_id, 'eln');
+      let result2 = yield SequenceBasedMacromoleculesFetcher.getSequenceBasedMacromoleculeByIdentifier(conflicting_sbmm_id, 'eln');
+      if (result1 && result2) {
+        self.conflict_sbmms = [result1.sequence_based_macromolecule, result2.sequence_based_macromolecule];
       }
     }),
     getLastObjectAndKeyByField(field, sequence_based_macromolecule_sample) {
@@ -394,9 +395,9 @@ export const SequenceBasedMacromoleculeSamplesStore = types
     closeSearchResult() {
       self.show_search_result = false;
     },
-    openConflictModal(ids) {
+    openConflictModal(sbmm_id, conflicting_sbmm_id) {
       self.show_conflict_modal = true;
-      self.getSequenceBasedMacromoleculeByIds(ids);
+      self.getSequenceBasedMacromoleculeByIds(sbmm_id, conflicting_sbmm_id);
     },
     closeConflictModal() {
       self.show_conflict_modal = false;
