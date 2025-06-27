@@ -188,7 +188,6 @@ export const SequenceBasedMacromoleculeSamplesStore = types
         }
 
         Object.keys(emptySequenceBasedMacromoleculeSample).map((key) => {
-          console.log(key, selectedSbmm[key]);
           if (selectedSbmm[key] !== undefined) { sbmm[key] = selectedSbmm[key]; }
         });
       } else {
@@ -208,9 +207,6 @@ export const SequenceBasedMacromoleculeSamplesStore = types
           }
         });
       }
-
-      console.log('DND 1', sequenceBasedMacromoleculeSample);
-      console.log('sbmm', selectedSbmm);
 
       if (Object.keys(sequenceBasedMacromoleculeSample.errors).length >= 1) {
         sequenceBasedMacromoleculeSample = self.checkIfFieldsAreValid(sequenceBasedMacromoleculeSample);
@@ -446,6 +442,11 @@ export const SequenceBasedMacromoleculeSamplesStore = types
       }
 
       Object.entries(sbmmSample.errors).map(([key, value]) => {
+        if (key == 'conflict') {
+          delete sbmmSample.errors[key];
+          return;
+        }
+
         if (Object.keys(value).length === 0) {
           delete sbmmSample.errors[key];
         } else if (typeof value == 'object') {
@@ -454,7 +455,7 @@ export const SequenceBasedMacromoleculeSamplesStore = types
               delete sbmmSample.errors[key][k];
               delete sbmmSample.errors[key];
             } else {
-              if (sbmmSample[key][k] !== undefined && sbmmSample[key][k] !== '') {
+              if (sbmmSample[key] && sbmmSample[key][k] !== undefined && sbmmSample[key][k] !== '') {
                 delete sbmmSample.errors[key][k];
               }
             }

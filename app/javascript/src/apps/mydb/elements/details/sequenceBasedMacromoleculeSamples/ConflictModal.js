@@ -24,13 +24,15 @@ const ConflictModal = () => {
     <i className="fa fa-spinner fa-pulse fa-3x fa-fw" />
   );
 
-  console.log(sbmmStore.conflictSbmms);
-
   const booleanValueOrText = (key, value) => {
     let newValue = value;
 
     if (key == 'parent') {
       newValue = value?.id;
+    }
+
+    if (key == 'sequence') {
+      newValue = value.match(/.{1,10}/g).join(' ')
     }
 
     if (value === true) {
@@ -76,14 +78,12 @@ const ConflictModal = () => {
       if (key == 'protein_sequence_modifications' || key == 'post_translational_modifications') {
         rows = rowsForModifications(key, rows);
       } else {
-        const value1 = key == 'sequence' ? sbmmStore.conflictSbmms[0][key].match(/.{1,10}/g).join(' ') : sbmmStore.conflictSbmms[0][key];
-        const value2 = key == 'sequence' ? sbmmStore.conflictSbmms[1][key].match(/.{1,10}/g).join(' ') : sbmmStore.conflictSbmms[1][key];
         rows.push(
           <tr>
             <td>{key}</td>
             <td className="text-wrap">{booleanValueOrText(key, sbmmSample.sequence_based_macromolecule[key])}</td>
-            <td className="text-wrap">{booleanValueOrText(key, value1)}</td>
-            <td className="text-wrap">{booleanValueOrText(key, value2)}</td>
+            <td className="text-wrap">{booleanValueOrText(key, sbmmStore.conflictSbmms[0][key])}</td>
+            <td className="text-wrap">{booleanValueOrText(key, sbmmStore.conflictSbmms[1][key])}</td>
           </tr>
         );
       }

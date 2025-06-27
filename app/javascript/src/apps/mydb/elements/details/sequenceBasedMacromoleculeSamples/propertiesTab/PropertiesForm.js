@@ -81,8 +81,6 @@ const PropertiesForm = ({ readonly }) => {
 
   const visibleForModification = isProtein && uniprotDerivationValue == 'uniprot_modified' && !hasReference;
 
-  console.log(sbmmStore.openSbmmSamples);
-
   const showIfReferenceSelected = hasReference
     || parent?.other_reference_id || uniprotDerivationValue === 'uniprot_unknown';
 
