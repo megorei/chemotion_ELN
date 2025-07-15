@@ -280,7 +280,7 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
             </Col>
             <Col>
               {formHelper.unitInput(
-                `${fieldPrefix}.molecular_weight`, 'Sequence mass (Da = g/mol)', 'molecular_weight', disabled, true
+                `${fieldPrefix}.molecular_weight`, 'Sequence mass (kD = kg/mol)', 'molecular_weight', disabled, true
               )}
             </Col>
           </Row>

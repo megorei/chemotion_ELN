@@ -45,7 +45,6 @@ const validationFields = [
   'sequence_based_macromolecule.primary_accession',
   'sequence_based_macromolecule.parent_identifier',
   'sequence_based_macromolecule.short_name',
-  'sequence_based_macromolecule.molecular_weight',
   'sequence_based_macromolecule.post_translational_modifications.acetylation_lysin_number',
   'sequence_based_macromolecule.splitted_sequence',
 ];
