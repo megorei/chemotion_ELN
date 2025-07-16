@@ -80,6 +80,10 @@ class SequenceBasedMacromoleculeSample < ApplicationRecord
                           joins(:sequence_based_macromolecule)
                             .order(updated_at: :desc, 'sequence_based_macromolecules.short_name' => :asc)
                         }
+  scope :in_sbmm_sequence_order, lambda {
+                                   joins(:sequence_based_macromolecule)
+                                     .order('sequence_based_macromolecules.sequence' => :asc)
+                                 }
 
   def analyses
     container&.analyses || []

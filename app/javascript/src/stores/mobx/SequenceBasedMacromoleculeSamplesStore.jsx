@@ -93,6 +93,7 @@ export const SequenceBasedMacromoleculeSamplesStore = types
     search_result: types.optional(types.array(types.frozen({})), []),
     conflict_sbmms: types.optional(types.array(types.frozen({})), []),
     show_search_options: types.optional(types.frozen({}), {}),
+    list_grouped_by: types.optional(types.string, 'sbmm'),
   })
   .actions(self => ({
     searchForSequenceBasedMacromolecule: flow(function* searchForSequenceBasedMacromolecule(search_term, search_field) {
@@ -420,6 +421,9 @@ export const SequenceBasedMacromoleculeSamplesStore = types
       let searchOptions = { ...self.show_search_options };
       searchOptions[id] = value;
       self.show_search_options = searchOptions;
+    },
+    setListGroupedBy(value) {
+      self.list_grouped_by = value;
     },
     setModificationToggleButtons(fieldPrefix, field, fieldSuffix, value) {
       let sequenceBasedMacromoleculeSample = { ...self.sequence_based_macromolecule_sample };
