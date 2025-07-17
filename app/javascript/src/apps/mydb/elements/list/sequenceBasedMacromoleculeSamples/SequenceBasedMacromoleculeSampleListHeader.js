@@ -31,7 +31,6 @@ function SequenceBasedMacromoleculeSampleListHeader() {
       value={selectedValue}
       clearable={false}
       onChange={(e) => handleGroupSelect(e)}
-      menuPortalTarget={document.body}
     />
   );
 }

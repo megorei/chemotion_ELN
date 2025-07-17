@@ -1076,7 +1076,7 @@ class ElementStore {
   }
 
   handleCopyDeviceDescriptionFromClipboard(collectionId) {
-    const clipboardDeviceDescriptions = ClipboardStore.getState().deviceDescriptions;
+    const clipboardDeviceDescriptions = ClipboardStore.getState().device_descriptions;
     if (clipboardDeviceDescriptions && clipboardDeviceDescriptions.length > 0) {
       this.changeCurrentElement(DeviceDescription.copyFromDeviceDescriptionAndCollectionId(clipboardDeviceDescriptions[0], collectionId));
     }
@@ -1115,8 +1115,12 @@ class ElementStore {
     }
   }
 
-  handleSplitAsSubSequenceBasedMacromoleculeSample(ui_state) {
-    this.handleRefreshElements('sequence_based_macromolecule_sample');
+  handleSplitAsSubSequenceBasedMacromoleculeSample(uiState) {
+    ElementActions.fetchSequenceBasedMacromoleculeSamplesByCollectionId(
+      uiState.currentCollectionId,
+      {},
+      uiState.isSync,
+    );
   }
 
   // -- Reactions --
@@ -1280,7 +1284,7 @@ class ElementStore {
     } else {
       const perPage = uiState.number_of_results;
       const { fromDate, toDate, userLabel, productOnly } = uiState;
-      const params = { page, per_page: per_page, fromDate, toDate, userLabel, productOnly, name: type };
+      const params = { page, per_page: perPage, fromDate, toDate, userLabel, productOnly, name: type };
       const sortValue = type === 'sequence_based_macromolecule_sample' ? listOrder : moleculeSort;
       const fnName = type.split('_').map(x => x[0].toUpperCase() + x.slice(1)).join("") + 's';
       let fn = `fetch${fnName}ByCollectionId`;

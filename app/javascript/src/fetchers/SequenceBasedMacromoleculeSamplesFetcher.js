@@ -4,7 +4,7 @@ import SequenceBasedMacromoleculeSample from 'src/models/SequenceBasedMacromolec
 import AttachmentFetcher from 'src/fetchers/AttachmentFetcher';
 
 export default class SequenceBasedMacromoleculeSamplesFetcher {
-  static fetchByCollectionId(id, queryParams = {}, isSync = false, listOrder) {
+  static fetchByCollectionId(id, queryParams = {}, isSync = false, listOrder = 'sbmm') {
     const updatedQueryParams = { ...queryParams, listOrder };
     return BaseFetcher.fetchByCollectionId(
       id, updatedQueryParams, isSync, 'sequence_based_macromolecule_samples', SequenceBasedMacromoleculeSample
