@@ -495,7 +495,7 @@ export default class SequenceBasedMacromoleculeSample extends Element {
         pdb_doi: '',
         primary_accession: '',
         sbmm_subtype: '',
-        sbmm_type: '',
+        sbmm_type: 'protein',
         sequence: '',
         sequence_length: '',
         splitted_sequence: '',
