@@ -699,7 +699,7 @@ module Import
     end
 
     def fetch_ancestry(type, ancestry)
-      return if ancestry.blank?
+      return if ancestry == '/' || ancestry.blank?
 
       parents = ancestry.split('/')
       parent_uuid = parents[-1]
