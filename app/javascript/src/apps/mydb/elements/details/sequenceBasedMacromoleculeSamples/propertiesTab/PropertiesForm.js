@@ -48,6 +48,11 @@ const PropertiesForm = ({ readonly }) => {
     { label: 'Component', value: 'component' },
     { label: 'Energy source', value: 'energy_source' },
   ];
+  const heterologousExpression = [
+    { label: 'Yes', value: 'yes' },
+    { label: 'No', value: 'no' },
+    { label: 'Unknown', value: 'unknown' },
+  ];
 
   const isProtein = sbmmSample.sequence_based_macromolecule?.sbmm_type === 'protein';
   const uniprotDerivationValue = sbmmSample.sequence_based_macromolecule?.uniprot_derivation;
@@ -354,6 +359,28 @@ const PropertiesForm = ({ readonly }) => {
                     )
                   }
                 </Row>
+                {
+                  uniprotDerivationValue !== 'uniprot' && (
+                    <>
+                      <h5 className="mb-3">Details on Protein's source:</h5>
+                      <Row className="mb-4 align-items-end">
+                        <Col>
+                          {formHelper.selectInput(
+                            'heterologous_expression', 'Heterologous expression',
+                            heterologousExpression, disabled, '', ''
+                          )}
+                        </Col>
+                        <Col>{formHelper.textInput('organism', 'Organism', disabled, '')}</Col>
+                        <Col>{formHelper.textInput('taxon_id', 'Taxon ID', disabled, '')}</Col>
+                      </Row>
+                      <Row className="mb-4 align-items-end">
+                        <Col>{formHelper.textInput('strain', 'Strain', disabled, '')}</Col>
+                        <Col>{formHelper.textInput('tissue', 'Tissue', disabled, '')}</Col>
+                        <Col>{formHelper.textInput('localisation', 'Localisation', disabled, '')}</Col>
+                      </Row>
+                    </>
+                  )
+                }
               </Accordion.Body>
             </Accordion.Item>
           </Accordion>

@@ -478,6 +478,12 @@ export default class SequenceBasedMacromoleculeSample extends Element {
       molarity_value: '',
       volume_as_used_unit: 'L',
       volume_as_used_value: '',
+      heterologous_expression: '',
+      localisation: '',
+      organism: '',
+      strain: '',
+      taxon_id: '',
+      tissue: '',
       
       sequence_based_macromolecule: {
         accessions: [],
@@ -590,6 +596,13 @@ export default class SequenceBasedMacromoleculeSample extends Element {
       activity_per_volume_unit: this.activity_per_volume_unit,
       volume_as_used_value: this.volume_as_used_value,
       volume_as_used_unit: this.volume_as_used_unit,
+      heterologous_expression: this.heterologous_expression,
+      localisation: this.localisation,
+      organism: this.organism,
+      strain: this.strain,
+      taxon_id: this.taxon_id,
+      tissue: this.tissue,
+
       sequence_based_macromolecule_attributes: {
         accessions: this.accessions,
         ec_numbers: this.ec_numbers,
@@ -650,6 +663,12 @@ export default class SequenceBasedMacromoleculeSample extends Element {
       volume_as_used_value: this.volume_as_used_value,
       volume_as_used_unit: this.volume_as_used_unit,
       sequence_based_macromolecule: this.sequence_based_macromolecule,
+      heterologous_expression: this.heterologous_expression,
+      localisation: this.localisation,
+      organism: this.organism,
+      strain: this.strain,
+      taxon_id: this.taxon_id,
+      tissue: this.tissue,
       errors: {},
     };
     return serialized;

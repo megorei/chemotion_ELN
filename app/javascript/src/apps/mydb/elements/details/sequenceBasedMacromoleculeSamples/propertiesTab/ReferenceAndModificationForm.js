@@ -65,7 +65,7 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
     { label: 'Yes', value: 'yes' },
     { label: 'No', value: 'no' },
     { label: 'Unknown', value: 'unknown' },
-  ]
+  ];
 
   const referenceAccordionHeader = () => {
     if (ident === 'sequence_modifications') {
@@ -73,7 +73,7 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
     } else if (uniprotDerivationValue === 'uniprot') {
       return `Protein Identifiers and structural characteristics${sbmmSample.sbmmShortLabelForHeader()}`;
     } else if (uniprotDerivationValue === 'uniprot_modified') {
-      return "Protein Identifiers and structural characteristics of reference entries"
+      return "Protein Identifiers and structural characteristics of reference entries";
     }
   }
 
@@ -324,22 +324,29 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
             )
           }
 
-          <h5 className="mb-3">Details on Protein's source:</h5>
-          <Row className="mb-4 align-items-end">
-            <Col>
-              {formHelper.selectInput(
-                `${fieldPrefix}.heterologous_expression`, 'Heterologous expression',
-                heterologousExpression, disabled, '', ''
-              )}
-            </Col>
-            <Col>{formHelper.textInput(`${fieldPrefix}.organism`, 'Organism', disabled, '')}</Col>
-            <Col>{formHelper.textInput(`${fieldPrefix}.taxon_id`, 'Taxon ID', disabled, '')}</Col>
-          </Row>
-          <Row className="mb-4 align-items-end">
-            <Col>{formHelper.textInput(`${fieldPrefix}.strain`, 'Strain', disabled, '')}</Col>
-            <Col>{formHelper.textInput(`${fieldPrefix}.tissue`, 'Tissue', disabled, '')}</Col>
-            <Col>{formHelper.textInput(`${fieldPrefix}.localisation`, 'Localisation', disabled, '')}</Col>
-          </Row>
+          {
+            parent.uniprot_derivation === 'uniprot' && (
+              <>
+                <h5 className="mb-3">Details on Protein's source:</h5>
+                <Row className="mb-4 align-items-end">
+                  <Col>
+                    {formHelper.selectInput(
+                      `${fieldPrefix}.heterologous_expression`, 'Heterologous expression',
+                      heterologousExpression, disabled, '', ''
+                    )}
+                  </Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.organism`, 'Organism', disabled, '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.taxon_id`, 'Taxon ID', disabled, '')}</Col>
+                </Row>
+                <Row className="mb-4 align-items-end">
+                  <Col>{formHelper.textInput(`${fieldPrefix}.strain`, 'Strain', disabled, '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.tissue`, 'Tissue', disabled, '')}</Col>
+                  <Col>{formHelper.textInput(`${fieldPrefix}.localisation`, 'Localisation', disabled, '')}</Col>
+                </Row>
+              </>
+            )
+          }
+
           {
             ident === 'sequence_modifications' && (
               <SequenceAndPostTranslationalModificationForm
