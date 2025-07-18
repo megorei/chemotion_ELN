@@ -24,7 +24,11 @@ function ListItemHeader({
   );
 
   if (groupedByValue === 'sbmm_sequence') {
-    groupName = (<span className="fs-6">{group[0].sequence_based_macromolecule.splitted_sequence}</span>);
+    const sequence = group[0].sequence_based_macromolecule.sequence;
+    const startSequence = sequence.slice(0, 10);
+    const endSequence = sequence.slice(-10);
+    const displaySequence = sequence.length > 30 ? `${startSequence} ... ${endSequence}` : sequence;
+    groupName = (<span>{displaySequence}</span>);
   }
   return (
     <div
