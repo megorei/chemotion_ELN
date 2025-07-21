@@ -437,15 +437,15 @@ export default class SequenceBasedMacromoleculeSample extends Element {
   }
 
   get concentration_by_purity() {
-    return this.concentration_value && this.purity ? (this.concentration_value * this.purity) / 100 : '';
+    return this.concentration_value && this.purity ? parseFloat((this.concentration_value * this.purity) / 100).toFixed(8) : '';
   }
 
   get molarity_by_purity() {
-    return this.molarity_value && this.purity ? (this.molarity_value * this.purity) / 100 : '';
+    return this.molarity_value && this.purity ? parseFloat((this.molarity_value * this.purity) / 100).toFixed(8) : '';
   }
 
   get activity_per_mass_by_purity() {
-    return this.activity_per_mass_value && this.purity ? (this.activity_per_mass_value * this.purity) / 100 : '';
+    return this.activity_per_mass_value && this.purity ? parseFloat((this.activity_per_mass_value * this.purity) / 100).toFixed(8) : '';
   }
 
   get accessions() {
