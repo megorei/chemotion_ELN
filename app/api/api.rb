@@ -61,6 +61,7 @@ class API < Grape::API
 
     def public_request?
       request.path.start_with?(
+        '/api/v1/authentication/',
         '/api/v1/public/',
         '/api/v1/chemspectra/',
         '/api/v1/ketcher/layout',
@@ -209,6 +210,7 @@ class API < Grape::API
   mount Chemotion::DeviceDescriptionAPI
   mount Chemotion::VersionAPI
   mount Chemotion::ComponentAPI
+  mount Chemotion::AuthenticationAPI
 
   if Rails.env.development?
     add_swagger_documentation(info: {
