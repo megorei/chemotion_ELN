@@ -436,6 +436,18 @@ export default class SequenceBasedMacromoleculeSample extends Element {
     this._volume_as_used_unit = value;
   }
 
+  get concentration_by_purity() {
+    return this.concentration_value && this.purity ? (this.concentration_value * this.purity) / 100 : '';
+  }
+
+  get molarity_by_purity() {
+    return this.molarity_value && this.purity ? (this.molarity_value * this.purity) / 100 : '';
+  }
+
+  get activity_per_mass_by_purity() {
+    return this.activity_per_mass_value && this.purity ? (this.activity_per_mass_value * this.purity) / 100 : '';
+  }
+
   get accessions() {
     const accessions = this.sequence_based_macromolecule.accessions;
     if (accessions) {
@@ -484,6 +496,12 @@ export default class SequenceBasedMacromoleculeSample extends Element {
       strain: '',
       taxon_id: '',
       tissue: '',
+      obtained_by: '',
+      supplier: '',
+      formulation: '',
+      purity: '',
+      purity_detection: '',
+      purification_method: '',
       
       sequence_based_macromolecule: {
         accessions: [],
@@ -602,6 +620,12 @@ export default class SequenceBasedMacromoleculeSample extends Element {
       strain: this.strain,
       taxon_id: this.taxon_id,
       tissue: this.tissue,
+      obtained_by: this.obtained_by,
+      supplier: this.supplier,
+      formulation: this.formulation,
+      purity: this.purity,
+      purity_detection: this.purity_detection,
+      purification_method: this.purification_method,
 
       sequence_based_macromolecule_attributes: {
         accessions: this.accessions,
@@ -669,6 +693,12 @@ export default class SequenceBasedMacromoleculeSample extends Element {
       strain: this.strain,
       taxon_id: this.taxon_id,
       tissue: this.tissue,
+      obtained_by: this.obtained_by,
+      supplier: this.supplier,
+      formulation: this.formulation,
+      purity: this.purity,
+      purity_detection: this.purity_detection,
+      purification_method: this.purification_method,
       errors: {},
     };
     return serialized;

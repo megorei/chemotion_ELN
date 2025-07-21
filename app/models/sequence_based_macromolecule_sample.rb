@@ -20,15 +20,21 @@
 #  concentration_value             :float
 #  deleted_at                      :datetime
 #  external_label                  :string
+#  formulation                     :string           default("")
 #  function_or_application         :string
 #  heterologous_expression         :string           default("unknown"), not null
 #  localisation                    :string           default("")
 #  molarity_unit                   :string           default("mol/L"), not null
 #  molarity_value                  :float
 #  name                            :string           not null
+#  obtained_by                     :string           default("")
 #  organism                        :string           default("")
+#  purification_method             :string           default("")
+#  purity                          :float
+#  purity_detection                :string           default("")
 #  short_label                     :string           not null
 #  strain                          :string           default("")
+#  supplier                        :string           default("")
 #  tissue                          :string           default("")
 #  volume_as_used_unit             :string           default("L"), not null
 #  volume_as_used_value            :float

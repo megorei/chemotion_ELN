@@ -280,7 +280,7 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
             </Col>
             <Col>
               {formHelper.unitInput(
-                `${fieldPrefix}.molecular_weight`, 'Sequence mass (kD = kg/mol)', 'molecular_weight', disabled, true
+                `${fieldPrefix}.molecular_weight`, 'Sequence mass (kD = kg/mol)', 'molecular_weight', disabled, ''
               )}
             </Col>
           </Row>
@@ -304,7 +304,7 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
           )}
           <Row className="mb-4">
             <Col>
-              {formHelper.textareaInput(`${fieldPrefix}.splitted_sequence`, 'Sequence of the structure', 3, disabled, true)}
+              {formHelper.textareaInput(`${fieldPrefix}.splitted_sequence`, 'Sequence of the structure', 3, disabled, '', true)}
             </Col>
           </Row>
           {

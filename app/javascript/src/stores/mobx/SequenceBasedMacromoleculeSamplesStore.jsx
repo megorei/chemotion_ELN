@@ -5,7 +5,7 @@ import SequenceBasedMacromoleculesFetcher from 'src/fetchers/SequenceBasedMacrom
 import SequenceBasedMacromoleculeSample from 'src/models/SequenceBasedMacromoleculeSample';
 import Container from 'src/models/Container';
 
-const emptySequenceBasedMacromoleculeSample = {
+const emptySequenceBasedMacromolecule = {
   accessions: [],
   created_at: '',
   ec_numbers: '',
@@ -188,7 +188,7 @@ export const SequenceBasedMacromoleculeSamplesStore = types
           sbmm.parent_identifier = selectedSbmm?.parent.id || selectedSbmm?.id;
         }
 
-        Object.keys(emptySequenceBasedMacromoleculeSample).map((key) => {
+        Object.keys(emptySequenceBasedMacromolecule).map((key) => {
           if (selectedSbmm[key] !== undefined) { sbmm[key] = selectedSbmm[key]; }
         });
       } else {
@@ -198,7 +198,7 @@ export const SequenceBasedMacromoleculeSamplesStore = types
         }
         const sbmmOrParent = uniprotDerivation === 'uniprot_modified' ? sbmm?.parent : sbmm;
 
-        Object.keys(emptySequenceBasedMacromoleculeSample).map((key) => {
+        Object.keys(emptySequenceBasedMacromolecule).map((key) => {
           if (['post_translational_modifications', 'protein_sequence_modifications'].includes(key) && uniprotDerivation === 'uniprot_modified') {
             sbmm[key] = {};
             sbmmOrParent[key] = null;

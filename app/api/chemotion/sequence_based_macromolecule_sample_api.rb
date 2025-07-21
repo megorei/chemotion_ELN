@@ -43,7 +43,12 @@ module Chemotion
         optional :activity_value, type: Float
         optional :activity_unit, type: String, values: %w[U mU kat mkat µkat nkat], default: 'U'
         optional :container, type: Hash
-
+        optional :obtained_by, type: String, values: %w(purchased self_produced), allow_blank: true
+        optional :supplier, type: String
+        optional :formulation, type: String, values: %w(dissolved solid), allow_blank: true
+        optional :purity, type: Float
+        optional :purity_detection, type: String
+        optional :purification_method, type: String
 
         requires(:sequence_based_macromolecule_attributes, type: Hash) do
           requires :sbmm_type, type: String, desc: 'SBMM Type', values: %w[protein dna rna], allow_blank: false

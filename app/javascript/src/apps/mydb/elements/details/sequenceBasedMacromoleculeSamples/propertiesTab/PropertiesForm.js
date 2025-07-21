@@ -53,6 +53,14 @@ const PropertiesForm = ({ readonly }) => {
     { label: 'No', value: 'no' },
     { label: 'Unknown', value: 'unknown' },
   ];
+  const sampleObtainedBy = [
+    { label: 'Purchased', value: 'purchased' },
+    { label: 'Self Produced', value: 'self_produced' },
+  ];
+  const sampleFormulation = [
+    { label: 'Dissolved', value: 'dissolved' },
+    { label: 'Solid', value: 'solid' },
+  ];
 
   const isProtein = sbmmSample.sequence_based_macromolecule?.sbmm_type === 'protein';
   const uniprotDerivationValue = sbmmSample.sequence_based_macromolecule?.uniprot_derivation;
@@ -312,15 +320,37 @@ const PropertiesForm = ({ readonly }) => {
                       'function_or_application', 'Function or application', sampleFunctionOrApplication, disabled, '', ''
                     )}
                   </Col>
+                  <Col>
+                    {formHelper.selectInput(
+                      'obtained_by', 'Obtained by', sampleObtainedBy, disabled, '', ''
+                    )}
+                  </Col>
+                  <Col>
+                    {sbmmSample.obtained_by === 'purchased' && formHelper.textInput('supplier', 'Supplier', '')}
+                  </Col>
                 </Row>
 
                 <h5 className="mb-3">Sample stocks characteristics</h5>
                 <Row className="mb-4">
                   <Col>
                     {formHelper.unitInput('concentration_value', 'Concentration', 'concentration', disabled, '')}
+                    {
+                      sbmmSample.concentration_by_purity && (
+                        <div className="mt-2 fw-bold text-gray-600">
+                          corr {sbmmSample.concentration_by_purity} {sbmmSample.concentration_unit}
+                        </div>
+                      )
+                    }
                   </Col>
                   <Col>
                     {formHelper.unitInput('molarity_value', 'Molarity', 'molarity', disabled, '')}
+                    {
+                      sbmmSample.molarity_by_purity && (
+                        <div className="mt-2 fw-bold text-gray-600">
+                          corr {sbmmSample.molarity_by_purity} {sbmmSample.molarity_unit}
+                        </div>
+                      )
+                    }
                   </Col>
                   {
                     showIfEnzymeIsSelected && (
@@ -334,10 +364,37 @@ const PropertiesForm = ({ readonly }) => {
                           {formHelper.unitInput(
                             'activity_per_mass_value', 'Activity in U/g', 'activity_per_mass', disabled, ''
                           )}
+                          {
+                            sbmmSample.activity_per_mass_by_purity && (
+                              <div className="mt-2 fw-bold text-gray-600">
+                                corr {sbmmSample.activity_per_mass_by_purity} {sbmmSample.activity_per_mass_unit}
+                              </div>
+                            )
+                          }
                         </Col>
                       </>
                     )
                   }
+                </Row>
+
+                <Row className="mb-4">
+                  <Col>
+                    {formHelper.selectInput(
+                      'formulation', 'Formulation', sampleFormulation, disabled, '', ''
+                    )}
+                  </Col>
+                  <Col>
+                    {formHelper.unitInput('purity', 'Purity', 'purity', disabled, '')}
+                  </Col>
+                  <Col>
+                    {formHelper.textInput('purity_detection', 'Purity detection', '')}
+                  </Col>
+                </Row>
+
+                <Row className="mb-4">
+                  <Col>
+                    {formHelper.textareaInput('purification_method', 'Purification method', 3, disabled, '')}
+                  </Col>
                 </Row>
 
                 <h5 className="mb-3">Sample characteristics</h5>
