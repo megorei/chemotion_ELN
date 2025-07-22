@@ -27,6 +27,7 @@ import ChevronIcon from 'src/components/common/ChevronIcon';
 import DeviceDescriptionList from 'src/apps/mydb/elements/list/deviceDescriptions/DeviceDescriptionList';
 import DeviceDescriptionListHeader from 'src/apps/mydb/elements/list/deviceDescriptions/DeviceDescriptionListHeader';
 import SequenceBasedMacromoleculeSampleList from 'src/apps/mydb/elements/list/sequenceBasedMacromoleculeSamples/SequenceBasedMacromoleculeSampleList';
+import SequenceBasedMacromoleculeSampleListHeader from 'src/apps/mydb/elements/list/sequenceBasedMacromoleculeSamples/SequenceBasedMacromoleculeSampleListHeader';
 
 export default class ElementsTable extends React.Component {
   constructor(props) {
@@ -574,7 +575,12 @@ export default class ElementsTable extends React.Component {
     } else if (type === 'cell_line') {
       typeSpecificHeader = this.collapseButton();
     } else if (type === 'sequence_based_macromolecule_sample') {
-      typeSpecificHeader = this.collapseButton();
+      typeSpecificHeader = (
+        <>
+          <SequenceBasedMacromoleculeSampleListHeader />
+          {this.collapseButton()}
+        </>
+      );
     } else if (genericEl) {
       typeSpecificHeader = this.renderGenericElementsHeader();
     }
