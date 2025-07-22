@@ -127,6 +127,7 @@ class ElementStore {
       currentElement: null,
       elementWarning: false,
       moleculeSort: false,
+      sbmmSampleOrder: 'sbmm',
       // formerly from DetailStore
       selecteds: [],
       refreshCoefficient: [],
@@ -194,6 +195,7 @@ class ElementStore {
       handleSetCurrentElement: ElementActions.setCurrentElement,
       handleDeselectCurrentElement: ElementActions.deselectCurrentElement,
       handleChangeSorting: ElementActions.changeSorting,
+      handleChangeSbmmSampleOrder: ElementActions.changeSbmmSampleOrder,
       handleChangeElementsFilter: ElementActions.changeElementsFilter,
 
       handleFetchReactionById: ElementActions.fetchReactionById,
@@ -659,7 +661,7 @@ class ElementStore {
 
   handleFetchGenericElsByCollectionId(result) {
     //const klassName = result.element_klass && result.element_klass.name;
-    let {type} = result;
+    let { type } = result;
     if (typeof type === 'undefined' || type == null) {
       type = (result.result.elements && result.result.elements.length > 0 && result.result.elements[0].type) || result.result.type;
     }
@@ -1074,7 +1076,7 @@ class ElementStore {
   }
 
   handleCopyDeviceDescriptionFromClipboard(collectionId) {
-    const clipboardDeviceDescriptions = ClipboardStore.getState().deviceDescriptions;
+    const clipboardDeviceDescriptions = ClipboardStore.getState().device_descriptions;
     if (clipboardDeviceDescriptions && clipboardDeviceDescriptions.length > 0) {
       this.changeCurrentElement(DeviceDescription.copyFromDeviceDescriptionAndCollectionId(clipboardDeviceDescriptions[0], collectionId));
     }
@@ -1113,8 +1115,12 @@ class ElementStore {
     }
   }
 
-  handleSplitAsSubSequenceBasedMacromoleculeSample(ui_state) {
-    this.handleRefreshElements('sequence_based_macromolecule_sample');
+  handleSplitAsSubSequenceBasedMacromoleculeSample(uiState) {
+    ElementActions.fetchSequenceBasedMacromoleculeSamplesByCollectionId(
+      uiState.currentCollectionId,
+      {},
+      uiState.isSync,
+    );
   }
 
   // -- Reactions --
@@ -1254,7 +1260,7 @@ class ElementStore {
     if (typeof uiState[type] === 'undefined') return;
 
     const { page } = uiState[type];
-    const { moleculeSort } = this.state;
+    const { moleculeSort, listOrder } = this.state;
     if (this.state.elements[`${type}s`]) {
       this.state.elements[`${type}s`].page = page;
     }
@@ -1279,8 +1285,9 @@ class ElementStore {
       const perPage = uiState.number_of_results;
       const { fromDate, toDate, userLabel, productOnly } = uiState;
       const params = { page, per_page: perPage, fromDate, toDate, userLabel, productOnly, name: type };
-      const fnName = type.split('_').map((x) => x[0].toUpperCase() + x.slice(1)).join("") + 's';
-      const fn = `fetch${fnName}ByCollectionId`;
+      const sortValue = type === 'sequence_based_macromolecule_sample' ? listOrder : moleculeSort;
+      const fnName = type.split('_').map(x => x[0].toUpperCase() + x.slice(1)).join("") + 's';
+      let fn = `fetch${fnName}ByCollectionId`;
       const allowedActions = [
         'fetchSamplesByCollectionId',
         'fetchReactionsByCollectionId',
@@ -1292,7 +1299,7 @@ class ElementStore {
         'fetchSequenceBasedMacromoleculeSamplesByCollectionId'
       ];
       if (allowedActions.includes(fn)) {
-        ElementActions[fn](uiState.currentCollection.id, params, uiState.isSync, moleculeSort);
+        ElementActions[fn](uiState.currentCollection.id, params, uiState.isSync, sortValue);
       } else {
         ElementActions.fetchGenericElsByCollectionId(uiState.currentCollection.id, params, uiState.isSync, type);
         ElementActions.fetchSamplesByCollectionId(uiState.currentCollection.id, params, uiState.isSync, moleculeSort);
@@ -1301,7 +1308,7 @@ class ElementStore {
 
     MessagesFetcher.fetchSpectraMessages(0).then((result) => {
       result.messages.sort((a, b) => (a.id - b.id));
-      const {messages} = result;
+      const { messages } = result;
       if (messages && messages.length > 0) {
         const lastMsg = messages[0];
         this.setState({ spectraMsg: lastMsg });
@@ -1365,6 +1372,12 @@ class ElementStore {
     this.state.moleculeSort = sort;
     this.waitFor(UIStore.dispatchToken);
     this.handleRefreshElements('sample');
+  }
+
+  handleChangeSbmmSampleOrder(order) {
+    this.state.sbmmSampleOrder = order;
+    this.waitFor(UIStore.dispatchToken);
+    this.handleRefreshElements('sequence_based_macromolecule_sample');
   }
 
   handleChangeElementsFilter(filter) {
@@ -1590,7 +1603,7 @@ class ElementStore {
     }
 
     if (previous instanceof Reaction) {
-      const {samples} = previous;
+      const { samples } = previous;
       selecteds.map((nextSample) => {
         const previousSample = samples.find((s) => SameEleTypId(nextSample, s));
         if (previousSample) {
@@ -1609,7 +1622,7 @@ class ElementStore {
   }
 
   addElement(addEl) {
-    const {selecteds} = this.state;
+    const { selecteds } = this.state;
     return [...selecteds, addEl];
   }
 
