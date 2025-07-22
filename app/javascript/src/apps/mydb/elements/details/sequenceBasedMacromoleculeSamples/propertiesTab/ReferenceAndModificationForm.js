@@ -4,6 +4,7 @@ import { initFormHelper } from 'src/utilities/FormHelper';
 import { useDrop } from 'react-dnd';
 import { DragDropItemTypes } from 'src/utilities/DndConst';
 import SequenceAndPostTranslationalModificationForm from './SequenceAndPostTranslationalModificationForm';
+import { selectOptions } from 'src/apps/mydb/elements/details/sequenceBasedMacromoleculeSamples/selectOptions';
 import Attachment from 'src/models/Attachment';
 
 import { undoButton, removeButton, customDropzone, formatFileSize, } from 'src/apps/mydb/elements/list/AttachmentList';
@@ -60,12 +61,6 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
   } else if (errorInModification) {
     accordionErrorByIdent = 'border border-danger';
   }
-
-  const heterologousExpression = [
-    { label: 'Yes', value: 'yes' },
-    { label: 'No', value: 'no' },
-    { label: 'Unknown', value: 'unknown' },
-  ];
 
   const referenceAccordionHeader = () => {
     if (ident === 'sequence_modifications') {
@@ -332,7 +327,7 @@ const ReferenceAndModificationForm = ({ ident, readonly }) => {
                   <Col>
                     {formHelper.selectInput(
                       `${fieldPrefix}.heterologous_expression`, 'Heterologous expression',
-                      heterologousExpression, disabled, '', ''
+                      selectOptions['heterologous_expression'], disabled, '', ''
                     )}
                   </Col>
                   <Col>{formHelper.textInput(`${fieldPrefix}.organism`, 'Organism', disabled, '')}</Col>

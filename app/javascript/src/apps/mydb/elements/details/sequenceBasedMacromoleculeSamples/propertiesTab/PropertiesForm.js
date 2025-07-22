@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { Form, Row, Col, Accordion, Button, } from 'react-bootstrap';
 import { initFormHelper } from 'src/utilities/FormHelper';
+import { selectOptions } from 'src/apps/mydb/elements/details/sequenceBasedMacromoleculeSamples/selectOptions';
 import { useDrop } from 'react-dnd';
 import { DragDropItemTypes } from 'src/utilities/DndConst';
 import ReferenceAndModificationForm from './ReferenceAndModificationForm';
@@ -25,42 +26,6 @@ const PropertiesForm = ({ readonly }) => {
       sbmmStore.toggleSearchOptions(sbmmSample.id, true);
     }
   }, []);
-
-  const sbmmType = [{ label: 'Protein', value: 'protein' }];
-  const sbmmSubType = [
-    { label: 'Unmodified', value: 'unmodified' },
-    { label: 'Glycoprotein', value: 'glycoprotein' },
-  ];
-  const uniprotDerivation = [
-    { label: 'Does not exist', value: 'uniprot_unknown' },
-    { label: 'Protein used as described in Uniprot / reference', value: 'uniprot' },
-    { label: 'Used modified protein', value: 'uniprot_modified' },
-  ];
-  const sbmmSearchBy = [
-    { label: 'UniProt ID', value: 'accession' },
-    { label: 'Name', value: 'protein_name' },
-    { label: 'EC-Number', value: 'ec' },
-  ];
-  const sampleFunctionOrApplication = [
-    { label: 'Enzyme', value: 'enzyme' },
-    { label: 'Hormone', value: 'hormone' },
-    { label: 'Structural', value: 'structural' },
-    { label: 'Component', value: 'component' },
-    { label: 'Energy source', value: 'energy_source' },
-  ];
-  const heterologousExpression = [
-    { label: 'Yes', value: 'yes' },
-    { label: 'No', value: 'no' },
-    { label: 'Unknown', value: 'unknown' },
-  ];
-  const sampleObtainedBy = [
-    { label: 'Purchased', value: 'purchased' },
-    { label: 'Self Produced', value: 'self_produced' },
-  ];
-  const sampleFormulation = [
-    { label: 'Dissolved', value: 'dissolved' },
-    { label: 'Solid', value: 'solid' },
-  ];
 
   const isProtein = sbmmSample.sequence_based_macromolecule?.sbmm_type === 'protein';
   const uniprotDerivationValue = sbmmSample.sequence_based_macromolecule?.uniprot_derivation;
@@ -191,8 +156,8 @@ const PropertiesForm = ({ readonly }) => {
         <Col>
           {
             formHelper.selectInput(
-              'sequence_based_macromolecule.search_field', 'Search UniProt or Reference', sbmmSearchBy,
-              disabled, '', ''
+              'sequence_based_macromolecule.search_field', 'Search UniProt or Reference',
+              selectOptions['sbmm_search_by'], disabled, '', ''
             )
           }
         </Col>
@@ -229,14 +194,14 @@ const PropertiesForm = ({ readonly }) => {
               <Col>
                 {
                   formHelper.selectInput(
-                    'sequence_based_macromolecule.sbmm_type', 'Type', sbmmType, disabled, '', true
+                    'sequence_based_macromolecule.sbmm_type', 'Type', selectOptions['sbmm_type'], disabled, '', true
                   )
                 }
               </Col>
               <Col>
                 {
                   formHelper.selectInput(
-                    'sequence_based_macromolecule.sbmm_subtype', 'Subtype of protein', sbmmSubType, disabled, ''
+                    'sequence_based_macromolecule.sbmm_subtype', 'Subtype of protein', selectOptions['sbmm_sub_type'], disabled, ''
                   )
                 }
               </Col>
@@ -244,7 +209,7 @@ const PropertiesForm = ({ readonly }) => {
                 {formHelper.selectInput(
                   'sequence_based_macromolecule.uniprot_derivation',
                   derivationLabelWithIcon,
-                  uniprotDerivation, (sbmmSample.isNew ? false : true), 'Can only be changed during creation', true
+                  selectOptions['uniprot_derivation'], (sbmmSample.isNew ? false : true), 'Can only be changed during creation', true
                 )}
               </Col>
               <Col className="col-2 align-self-end">
@@ -317,12 +282,13 @@ const PropertiesForm = ({ readonly }) => {
                   </Col>
                   <Col>
                     {formHelper.selectInput(
-                      'function_or_application', 'Function or application', sampleFunctionOrApplication, disabled, '', ''
+                      'function_or_application', 'Function or application',
+                      selectOptions['sample_function_or_application'], disabled, '', ''
                     )}
                   </Col>
                   <Col>
                     {formHelper.selectInput(
-                      'obtained_by', 'Obtained by', sampleObtainedBy, disabled, '', ''
+                      'obtained_by', 'Obtained by', selectOptions['sample_obtained_by'], disabled, '', ''
                     )}
                   </Col>
                   <Col>
@@ -380,7 +346,7 @@ const PropertiesForm = ({ readonly }) => {
                 <Row className="mb-4">
                   <Col>
                     {formHelper.selectInput(
-                      'formulation', 'Formulation', sampleFormulation, disabled, '', ''
+                      'formulation', 'Formulation', selectOptions['sample_formulation'], disabled, '', ''
                     )}
                   </Col>
                   <Col>
@@ -424,7 +390,7 @@ const PropertiesForm = ({ readonly }) => {
                         <Col>
                           {formHelper.selectInput(
                             'heterologous_expression', 'Heterologous expression',
-                            heterologousExpression, disabled, '', ''
+                            selectOptions['heterologous_expression'], disabled, '', ''
                           )}
                         </Col>
                         <Col>{formHelper.textInput('organism', 'Organism', disabled, '')}</Col>
