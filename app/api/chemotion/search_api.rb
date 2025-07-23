@@ -4,7 +4,7 @@
 
 # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Lint/SafeNavigationChain, Style/RedundantParentheses
 
-# rubocop:disable Naming/VariableName, Naming/MethodParameterName, Layout/LineLength
+# rubocop:disable Naming/VariableName, Naming/MethodParameterName
 
 module Chemotion
   class SearchAPI < Grape::API
@@ -24,7 +24,8 @@ module Chemotion
           #  polymer_type
           # ]
           optional :elementType, type: String, values: %w[
-            All Samples Reactions Wellplates Screens all samples reactions wellplates screens elements cell_lines by_ids advanced structure
+            All Samples Reactions Wellplates Screens all samples reactions wellplates screens elements cell_lines
+            sequence_based_macromolecule_samples by_ids advanced structure
           ]
           optional :molfile, type: String
           optional :search_type, type: String, values: %w[similar sub]
@@ -34,8 +35,13 @@ module Chemotion
           optional :name, type: String
           optional :advanced_params, type: Array do
             optional :link, type: String, values: ['', 'AND', 'OR'], default: ''
-            optional :match, type: String, values: ['=', 'LIKE', 'ILIKE', 'NOT LIKE', 'NOT ILIKE', '>', '<', '>=', '<=', '@>', '<@'], default: 'LIKE'
-            optional :table, type: String, values: %w[samples reactions wellplates screens research_plans elements segments literatures]
+            optional :match, type: String,
+                             values: ['=', 'LIKE', 'ILIKE', 'NOT LIKE', 'NOT ILIKE', '>', '<', '>=', '<=', '@>', '<@'],
+                             default: 'LIKE'
+            optional :table, type: String, values: %w[
+              samples reactions wellplates screens research_plans elements segments literatures
+              sequence_based_macromolecule_samples
+            ]
             optional :element_id, type: Integer
             optional :unit, type: String
             requires :field, type: Hash
@@ -46,7 +52,7 @@ module Chemotion
           end
           optional :id_params, type: Hash do
             requires :model_name, type: String, values: %w[
-              sample reaction wellplate screen element research_plan
+              sample reaction wellplate screen element research_plan sequence_based_macromolecule_sample
             ]
             requires :ids, type: Array
             optional :total_elements, type: Integer
@@ -143,7 +149,9 @@ module Chemotion
                                        .where(query_cond)
                                        .joins(conditions[:joins].join(' '))
         scope = order_by_molecule(scope) if conditions[:model_name] == Sample
-        scope = scope.group("#{conditions[:model_name].table_name}.id") if %w[ResearchPlan Wellplate].include?(conditions[:model_name].to_s)
+        if %w[ResearchPlan Wellplate].include?(conditions[:model_name].to_s)
+          scope = scope.group("#{conditions[:model_name].table_name}.id")
+        end
         scope
       end
 
@@ -705,7 +713,7 @@ module Chemotion
   end
 end
 
-# rubocop:enable Naming/VariableName, Naming/MethodParameterName, Layout/LineLength
+# rubocop:enable Naming/VariableName, Naming/MethodParameterName
 
 # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Lint/SafeNavigationChain, Style/RedundantParentheses
 

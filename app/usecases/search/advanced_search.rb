@@ -20,6 +20,7 @@ module Usecases
           screen_ids: [],
           research_plan_ids: [],
           element_ids: [],
+          sequence_based_macromolecule_sample_ids: [],
         }
         @user_samples = Sample.by_collection_id(@collection_id)
         @user_reactions = Reaction.by_collection_id(@collection_id)
@@ -27,6 +28,7 @@ module Usecases
         @user_screens = Screen.by_collection_id(@collection_id)
         @user_research_plans = ResearchPlan.by_collection_id(@collection_id)
         @user_elements = Labimotion::Element.by_collection_id(@collection_id)
+        @user_sequence_based_macromolecule_samples = SequenceBasedMacromoleculeSample.by_collection_id(@collection_id)
       end
 
       def perform!
@@ -131,6 +133,10 @@ module Usecases
       def element_relations_element_ids
         sample_ids = Labimotion::ElementsSample.where(element_id: @elements[:element_ids]).pluck(:sample_id)
         @elements[:sample_ids] = @user_samples.where(id: sample_ids).uniq.pluck(:id)
+      end
+
+      def sequencebasedmacromoleculesample_relations_element_ids
+        
       end
       # rubocop:enable Metrics/AbcSize
     end

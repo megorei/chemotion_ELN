@@ -6,6 +6,7 @@ import CellLine from 'src/models/cellLine/CellLine';
 import Screen from 'src/models/Screen';
 import GenericEl from 'src/models/GenericEl';
 import ResearchPlan from 'src/models/ResearchPlan';
+import SequenceBasedMacromoleculeSample from 'src/models/SequenceBasedMacromoleculeSample';
 
 export default class SearchFetcher {
   static fetchBasedOnSearchSelectionAndCollection(params) {
@@ -28,7 +29,7 @@ export default class SearchFetcher {
       })
     }).then(response => response.json())
       .then((json) => {
-        const { samples, reactions, wellplates, screens, research_plans, cell_lines } = json;
+        const { samples, reactions, wellplates, screens, research_plans, cell_lines, sequence_based_macromolecule_samples } = json;
         const result = { ...json };
 
         Object.keys(json).forEach((key) => {
@@ -62,6 +63,13 @@ export default class SearchFetcher {
               if (cell_lines && cell_lines.totalElements && cell_lines.totalElements > 0) {
                 result.cell_lines.elements = cell_lines.elements.map(s => (CellLine.createFromRestResponse(0, s)));
               } else { result.cell_lines = { elements: [], totalElements: 0, ids: [] }; }
+              break;
+            case 'sequence_based_macromolecule_samples':
+              if (sequence_based_macromolecule_samples && sequence_based_macromolecule_samples.totalElements
+                && sequence_based_macromolecule_samples.totalElements > 0) {
+                result.sequence_based_macromolecule_samples.elements =
+                  sequence_based_macromolecule_samples.elements.map(s => (new SequenceBasedMacromoleculeSample(s)));
+              } else { result.sequence_based_macromolecule_samples = { elements: [], totalElements: 0, ids: [] }; }
               break;
             default:
               result[`${key}`].elements = json[`${key}`].elements.map(s => (new GenericEl(s)));
