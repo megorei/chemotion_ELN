@@ -204,13 +204,13 @@ function ResultButtons({ searchStore, handleClear, handleAdoptResult }) {
 
   return (
     <ButtonToolbar className="advanced-search-buttons results">
-      <Button variant="warning" onClick={() => searchStore.handleCancel()}>
+      <Button variant="primary" onClick={() => searchStore.handleCancel()}>
         Cancel
       </Button>
       <Button variant="info" onClick={handleClear}>
         Reset
       </Button>
-      <Button variant="primary" onClick={handleAdoptResult}>
+      <Button variant="warning" onClick={handleAdoptResult}>
         Adopt Result
       </Button>
     </ButtonToolbar>

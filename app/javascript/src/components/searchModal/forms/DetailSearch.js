@@ -611,6 +611,8 @@ const DetailSearch = () => {
       case 'boiling_point':
       case 'melting_point':
         return '<@';
+      case 'ec_numbers':
+        return '@>';
       case 'density':
       case 'molarity_value':
       case 'target_amount_value':
@@ -624,6 +626,8 @@ const DetailSearch = () => {
       case 'activity_per_volume_value':
       case 'activity_per_mass_value':
       case 'acetylation_lysin_number':
+      case 'sequence_length':
+      case 'molecular_weight':
         return searchStore.numeric_match;
       case 'unit_measurement':
       case 'solvent_smiles':

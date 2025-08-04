@@ -87,6 +87,7 @@ const TextSearch = () => {
             id={value[0]}
             value={`${value[0]}s`}
             variant="outline-dark"
+            className={`${value[0]}s` === searchStore.searchElement.element_table ? 'active' : null}
           >
             <OverlayTrigger delayShow={500} placement="top" overlay={tooltip}>
               <i className={iconClass} />

@@ -27,7 +27,7 @@ const AdvancedSearchRow = ({ idx }) => {
     return f.value.advanced === true && f.value.advanced !== undefined
   });
 
-  const specialMatcherFields = ['temperature', 'duration'];
+  const specialMatcherFields = ['temperature', 'duration', 'sequence_length'];
   if (specialMatcherFields.includes(selection.field.column)) {
     mapperOptions = unitMapperFields;
   }
@@ -79,16 +79,14 @@ const AdvancedSearchRow = ({ idx }) => {
   }
 
   const checkValueForNumber = (value) => {
-    let message = 'Only numbers are allowed';
-    searchStore.removeErrorMessage(message);
-
     if (isNaN(Number(value))) {
-      searchStore.addErrorMessage(message);
+      searchStore.addErrorMessage('Only numbers are allowed');
     }
   }
 
   const onChange = (formElement) => (e) => {
     let searchValues = { ...searchStore.advancedSearchValues[idx] };
+    searchStore.removeErrorMessage();
 
     if (e === undefined) {
       searchValues[formElement] = '';
@@ -99,12 +97,12 @@ const AdvancedSearchRow = ({ idx }) => {
     let value = formElementValue(formElement, e, e.currentTarget);
     searchValues[formElement] = value;
     searchValues['table'] = searchElement.table;
-    searchValues['element_id'] = searchElement.element_id
+    searchValues['element_id'] = searchElement.element_id;
 
     const fieldColumn = searchValues.field.column;
     if (value.column == 'temperature') { searchValues = temperatureConditions(searchValues, value.column) }
     if (value.column == 'duration') { searchValues = durationConditions(searchValues, value.column) }
-    if (specialMatcherFields.includes(fieldColumn) && formElement == 'value') { checkValueForNumber(value) }
+    if (specialMatcherFields.includes(searchValues.field.column)) { checkValueForNumber(searchValues.value) }
     if (!specialMatcherFields.includes(fieldColumn) && formElement != 'unit' && !specialMatcherFields.includes(value.column)) {
       searchValues['unit'] = '';
     }

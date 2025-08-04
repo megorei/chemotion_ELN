@@ -146,13 +146,13 @@ export default {
     },
     {
       value: {
-        column: 'purity_method',
-        label: 'Purity method',
+        column: 'purification_method',
+        label: 'Purification method',
         type: 'text',
         table: 'sequence_based_macromolecule_samples',
         advanced: false,
       },
-      label: 'Purity method'
+      label: 'Purification method'
     },
     {
       value: {
@@ -244,6 +244,7 @@ export default {
         label: 'Sequence length',
         type: 'text',
         table: 'sequence_based_macromolecules',
+        info: 'Only numbers are allowed',
         advanced: true,
       },
       label: 'Sequence length'
@@ -255,6 +256,7 @@ export default {
         type: 'textWithAddOn',
         addon: 'kg/mol',
         table: 'sequence_based_macromolecules',
+        info: 'Only numbers are allowed',
         advanced: false,
       },
       label: 'Sequence mass'
@@ -355,7 +357,7 @@ export default {
     },
     {
       value: {
-        column: 'modification_d_terminal_details',
+        column: 'modification_c_terminal_details',
         label: 'Details for C-Terminal modifications',
         type: 'text',
         table: 'protein_sequence_modifications',

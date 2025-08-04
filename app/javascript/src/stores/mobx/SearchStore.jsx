@@ -274,8 +274,12 @@ export const SearchStore = types
     },
     removeErrorMessage(message) {
       let neededFieldsMessage = 'Please fill out all needed fields';
-      let error_messages = self.error_messages.filter((m) => { return m != message && m != neededFieldsMessage });
-      self.error_messages = error_messages;
+      if (message === undefined) {
+        self.error_messages = [];
+      } else {
+        let error_messages = self.error_messages.filter((m) => { return m != message && m != neededFieldsMessage });
+        self.error_messages = error_messages;
+      }
     },
     changeTabCurrentPage(key, index, id) {
       const tabs = [...self.tab_current_page];

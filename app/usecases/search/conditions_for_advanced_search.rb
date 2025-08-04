@@ -169,7 +169,7 @@ module Usecases
         return [filter['smiles']] if filter['field']['column'] == 'solvent'
         return [filter['value'].to_f] if sanitize_float_fields(filter)
 
-        no_sanitizing_matches = ['=', '>=', '<=']
+        no_sanitizing_matches = ['=', '>=', '<=', '>', '<', '@>']
         sanitize = no_sanitizing_matches.exclude?(filter['match'])
         words = filter['value'].split(/(\r)?\n/).map!(&:strip)
         words = words.map { |e| "%#{ActiveRecord::Base.send(:sanitize_sql_like, e)}%" } if sanitize
@@ -477,9 +477,25 @@ module Usecases
 
       def sequence_based_macromolecule_field_options(filter)
         @conditions[:condition_table] = ''
-        @conditions[:field] = "#{@field_table}.#{filter['field']['column']}"
+
+        if filter['field']['column'] == 'ec_numbers'
+          @conditions[:first_condition] = "#{@field_table}.ec_numbers @> ARRAY['#{@conditions[:words][0]}']::varchar[]"
+          @conditions[:additional_condition] = ''
+          @conditions[:words][0] = ''
+        end
+
+        @conditions[:field] =
+          if filter['field']['column'] == 'sequence_length'
+            "LENGTH(#{@field_table}.sequence)"
+          elsif filter['field']['column'] == 'ec_numbers'
+            ''
+          else
+            "#{@field_table}.#{filter['field']['column']}"
+          end
+        
         field_table_inner_join =
-          'INNER JOIN sequence_based_macromolecules ON sequence_based_macromolecules.id = sequence_based_macromolecule_samples.sequence_based_macromolecule_id'
+          'INNER JOIN sequence_based_macromolecules ON 
+          sequence_based_macromolecules.id = sequence_based_macromolecule_samples.sequence_based_macromolecule_id'
         @conditions[:joins] << field_table_inner_join if @conditions[:joins].exclude?(field_table_inner_join)
       end
 
@@ -487,9 +503,11 @@ module Usecases
         @conditions[:condition_table] = ''
         @conditions[:field] = "#{@field_table}.#{filter['field']['column']}"
         sbmm_table_inner_join =
-          'INNER JOIN sequence_based_macromolecules ON sequence_based_macromolecules.id = sequence_based_macromolecule_samples.sequence_based_macromolecule_id'
+          'INNER JOIN sequence_based_macromolecules ON 
+          sequence_based_macromolecules.id = sequence_based_macromolecule_samples.sequence_based_macromolecule_id'
         field_table_inner_join =
-          'INNER JOIN protein_sequence_modifications ON protein_sequence_modifications.id = sequence_based_macromolecules.protein_sequence_modification_id'
+          'INNER JOIN protein_sequence_modifications ON 
+          protein_sequence_modifications.id = sequence_based_macromolecules.protein_sequence_modification_id'
         @conditions[:joins] << sbmm_table_inner_join if @conditions[:joins].exclude?(sbmm_table_inner_join)
         @conditions[:joins] << field_table_inner_join if @conditions[:joins].exclude?(field_table_inner_join)
       end
@@ -498,9 +516,11 @@ module Usecases
         @conditions[:condition_table] = ''
         @conditions[:field] = "#{@field_table}.#{filter['field']['column']}"
         sbmm_table_inner_join =
-          'INNER JOIN sequence_based_macromolecules ON sequence_based_macromolecules.id = sequence_based_macromolecule_samples.sequence_based_macromolecule_id'
+          'INNER JOIN sequence_based_macromolecules ON 
+          sequence_based_macromolecules.id = sequence_based_macromolecule_samples.sequence_based_macromolecule_id'
         field_table_inner_join =
-          'INNER JOIN post_translational_modifications ON post_translational_modifications.id = sequence_based_macromolecules.post_translational_modification_id'
+          'INNER JOIN post_translational_modifications ON 
+          post_translational_modifications.id = sequence_based_macromolecules.post_translational_modification_id'
         @conditions[:joins] << sbmm_table_inner_join if @conditions[:joins].exclude?(sbmm_table_inner_join)
         @conditions[:joins] << field_table_inner_join if @conditions[:joins].exclude?(field_table_inner_join)
       end
