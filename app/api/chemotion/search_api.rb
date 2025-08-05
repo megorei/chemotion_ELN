@@ -121,23 +121,6 @@ module Chemotion
              .order('molecules.sum_formular')
       end
 
-      def whitelisted_table(table:, column:, **_)
-        return true if %w[elements segments chemicals containers measurements molecules].include?(table)
-
-        API::WL_TABLES.key?(table) && API::WL_TABLES[table].include?(column)
-      end
-
-      # desc: return true if the detail level allow to access the column
-      def filter_with_detail_level(table:, column:, sample_detail_level:, reaction_detail_level:, **_)
-        # TODO: filter according to columns
-
-        return true unless table.in?(%w[samples reactions])
-        return true if table == 'samples' && (sample_detail_level.positive? || column == 'external_label')
-        return true if table == 'reactions' && reaction_detail_level > -1
-
-        false
-      end
-
       def advanced_search(c_id = @c_id, dl = @dl)
         conditions = Usecases::Search::ConditionsForAdvancedSearch.new(
           detail_levels: dl,

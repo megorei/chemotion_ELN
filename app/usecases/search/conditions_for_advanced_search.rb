@@ -22,14 +22,14 @@ module Usecases
         @table_or_tab_types = {
           generics: false, chemicals: false, analyses: false, measurements: false, literatures: false,
           sequence_based_macromolecules: false, protein_sequence_modifications: false,
-          post_translational_modifications: false,
+          post_translational_modifications: false
         }
       end
 
       def filter!
         @params.each_with_index do |filter, i|
           @conditions[:error] = "Your search for #{filter['field']['column']} is not allowed"
-          next unless table_or_detail_level_is_not_allowed(filter)
+          next unless table_or_detail_level_is_not_allowed?(filter)
 
           @conditions[:error] = ''
           basic_conditions_by_filter(filter)
@@ -67,6 +67,7 @@ module Usecases
         table == 'elements' ? Labimotion::Element : table.singularize.camelize.constantize
       end
 
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       def special_and_generic_conditions_by_filter(filter, number)
         if @table_or_tab_types[:generics]
           generic_field_options(filter, number)
@@ -78,6 +79,8 @@ module Usecases
           measurements_tab_options(filter)
         elsif @table_or_tab_types[:literatures]
           literatures_tab_options(filter)
+        elsif @table_or_tab_types[:sequence_based_macromolecule_samples]
+          sequence_based_macromolecule_sample_field_options
         elsif @table_or_tab_types[:sequence_based_macromolecules]
           sequence_based_macromolecule_field_options(filter)
         elsif @table_or_tab_types[:protein_sequence_modifications]
@@ -88,8 +91,9 @@ module Usecases
           special_non_generic_field_options(filter)
         end
       end
+      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
-      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/AbcSize, Metrics/PerceivedComplexity
       def table_or_tab_types
         @table_or_tab_types[:generics] = (@field_table.present? && @field_table == 'segments') ||
                                          (@table == 'elements' && %w[name short_label].exclude?(@conditions[:field]))
@@ -97,11 +101,16 @@ module Usecases
         @table_or_tab_types[:analyses] = @field_table.present? && %w[containers datasets].include?(@field_table)
         @table_or_tab_types[:measurements] = @field_table.present? && @field_table == 'measurements'
         @table_or_tab_types[:literatures] = @table.present? && @table == 'literatures'
-        @table_or_tab_types[:sequence_based_macromolecules] = @field_table.present? && @field_table == 'sequence_based_macromolecules'
-        @table_or_tab_types[:protein_sequence_modifications] = @field_table.present? && @field_table == 'protein_sequence_modifications'
-        @table_or_tab_types[:post_translational_modifications] = @field_table.present? && @field_table == 'post_translational_modifications'
+        @table_or_tab_types[:sequence_based_macromolecule_samples] =
+          @field_table.present? && @field_table == 'sequence_based_macromolecule_samples'
+        @table_or_tab_types[:sequence_based_macromolecules] =
+          @field_table.present? && @field_table == 'sequence_based_macromolecules'
+        @table_or_tab_types[:protein_sequence_modifications] =
+          @field_table.present? && @field_table == 'protein_sequence_modifications'
+        @table_or_tab_types[:post_translational_modifications] =
+          @field_table.present? && @field_table == 'post_translational_modifications'
       end
-      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/AbcSize, Metrics/PerceivedComplexity
 
       def conditions
         condition =
@@ -117,14 +126,14 @@ module Usecases
         @conditions[:words].collect { condition }.join(' OR ') if condition.present?
       end
 
-      def table_or_detail_level_is_not_allowed(filter)
+      def table_or_detail_level_is_not_allowed?(filter)
         filter['field']['table'] = filter['field']['table'] || filter['table']
         filter['field']['column'] = filter['field']['column'] || filter['field']['field']
         adv_field = filter['field'].to_h.merge(@detail_levels).symbolize_keys
-        whitelisted_table(**adv_field) && filter_with_detail_level(**adv_field)
+        whitelisted_table?(**adv_field) && filter_with_detail_level?(**adv_field)
       end
 
-      def whitelisted_table(table:, column:, **_)
+      def whitelisted_table?(table:, column:, **_)
         tables = %w[
           elements segments chemicals containers measurements molecules literals literatures datasets
           sequence_based_macromolecules protein_sequence_modifications post_translational_modifications
@@ -135,7 +144,7 @@ module Usecases
       end
 
       # desc: return true if the detail level allow to access the column
-      def filter_with_detail_level(table:, column:, sample_detail_level:, reaction_detail_level:, **_)
+      def filter_with_detail_level?(table:, column:, sample_detail_level:, reaction_detail_level:, **_)
         # TODO: filter according to columns
 
         return true unless table.in?(%w[samples reactions])
@@ -156,7 +165,7 @@ module Usecases
         end
       end
 
-      def sanitize_float_fields(filter)
+      def sanitize_float_fields?(filter)
         fields = %w[
           boiling_point melting_point density molarity_value target_amount_value purity
           temperature duration molecular_mass
@@ -167,7 +176,7 @@ module Usecases
       def sanitize_words(filter)
         return [filter['value']] if filter['value'] == 'true'
         return [filter['smiles']] if filter['field']['column'] == 'solvent'
-        return [filter['value'].to_f] if sanitize_float_fields(filter)
+        return [filter['value'].to_f] if sanitize_float_fields?(filter)
 
         no_sanitizing_matches = ['=', '>=', '<=', '>', '<', '@>']
         sanitize = no_sanitizing_matches.exclude?(filter['match'])
@@ -475,6 +484,13 @@ module Usecases
         @conditions[:joins] << field_table_inner_join if @conditions[:joins].exclude?(field_table_inner_join)
       end
 
+      def sequence_based_macromolecule_sample_field_options
+        field_table_inner_join =
+          'INNER JOIN sequence_based_macromolecules ON
+          sequence_based_macromolecules.id = sequence_based_macromolecule_samples.sequence_based_macromolecule_id'
+        @conditions[:joins] << field_table_inner_join if @conditions[:joins].exclude?(field_table_inner_join)
+      end
+
       def sequence_based_macromolecule_field_options(filter)
         @conditions[:condition_table] = ''
 
@@ -492,36 +508,23 @@ module Usecases
           else
             "#{@field_table}.#{filter['field']['column']}"
           end
-        
-        field_table_inner_join =
-          'INNER JOIN sequence_based_macromolecules ON 
-          sequence_based_macromolecules.id = sequence_based_macromolecule_samples.sequence_based_macromolecule_id'
-        @conditions[:joins] << field_table_inner_join if @conditions[:joins].exclude?(field_table_inner_join)
       end
 
       def protein_sequence_modification_field_options(filter)
         @conditions[:condition_table] = ''
         @conditions[:field] = "#{@field_table}.#{filter['field']['column']}"
-        sbmm_table_inner_join =
-          'INNER JOIN sequence_based_macromolecules ON 
-          sequence_based_macromolecules.id = sequence_based_macromolecule_samples.sequence_based_macromolecule_id'
         field_table_inner_join =
-          'INNER JOIN protein_sequence_modifications ON 
+          'INNER JOIN protein_sequence_modifications ON
           protein_sequence_modifications.id = sequence_based_macromolecules.protein_sequence_modification_id'
-        @conditions[:joins] << sbmm_table_inner_join if @conditions[:joins].exclude?(sbmm_table_inner_join)
         @conditions[:joins] << field_table_inner_join if @conditions[:joins].exclude?(field_table_inner_join)
       end
 
       def post_translational_modification_field_options(filter)
         @conditions[:condition_table] = ''
         @conditions[:field] = "#{@field_table}.#{filter['field']['column']}"
-        sbmm_table_inner_join =
-          'INNER JOIN sequence_based_macromolecules ON 
-          sequence_based_macromolecules.id = sequence_based_macromolecule_samples.sequence_based_macromolecule_id'
         field_table_inner_join =
-          'INNER JOIN post_translational_modifications ON 
+          'INNER JOIN post_translational_modifications ON
           post_translational_modifications.id = sequence_based_macromolecules.post_translational_modification_id'
-        @conditions[:joins] << sbmm_table_inner_join if @conditions[:joins].exclude?(sbmm_table_inner_join)
         @conditions[:joins] << field_table_inner_join if @conditions[:joins].exclude?(field_table_inner_join)
       end
     end

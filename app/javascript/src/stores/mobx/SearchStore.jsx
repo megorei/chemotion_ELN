@@ -211,7 +211,7 @@ export const SearchStore = types
           ids: ids.length > 0 ? ids : result.ids,
           page: result.page
         }
-      })
+      });
       self.tab_search_results.set(tabSearchResult.id, tabSearchResult)
     },
     showSearchResults() {
