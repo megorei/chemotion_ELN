@@ -134,16 +134,17 @@ const SearchResultTabContent = ({ list, tabResult, openDetail }) => {
     const tooltip = <Tooltip id="detailTip">Open detail</Tooltip>;
 
     if (['screen', 'research_plan'].includes(object.type) || object.short_label === undefined) { 
-      names = object.name;
+      names = [object.name];
     } else if (object.type == 'sample') {
       let infos = [];
       if (object.external_label) { infos.push(object.external_label) }
       if (object.xref && object.inventory_label) { infos.push(object.inventory_label) }
       if (object.xref && object.xref.cas) { infos.push(object.xref.cas) }
-      names = [object.short_label, object.name].concat(infos).join(" | ");
+      names = [object.short_label, object.name].concat(infos);
     } else {
-      names = [object.short_label, object.name].join(" | ");
+      names = [object.short_label, object.name];
     }
+    names = names.filter((e) => e).join(' | ');
 
     return (
       <OverlayTrigger placement="top" overlay={tooltip}>
