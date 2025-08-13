@@ -80,6 +80,7 @@ function SequenceBasedMacromoleculeSampleList({
 }) {
   const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
   const groupedByValue = sbmmStore.list_grouped_by;
+  const validElements = elements.filter((f) => f?.sequence_based_macromolecule !== null);
 
   const getGroupKey = useCallback((element) => {
     if (groupedByValue === 'sbmm_sequence') {
@@ -99,7 +100,7 @@ function SequenceBasedMacromoleculeSampleList({
   return (
     <ElementGroupsRenderer
       type="sequence_based_macromolecule_sample"
-      elements={elements}
+      elements={validElements}
       getGroupKey={getGroupKey}
       getGroupHeaderDragType={dndType}
       renderGroupHeader={(group, toggleGroupCollapse) => (
