@@ -385,6 +385,7 @@ module Chemotion
                      'sbmm_other_identifier', 'sbmm_own_identifier', 'sbmm_ec_numbers',
                      'sbmm_organism', 'sbmm_taxon_id', 'sbmm_strain', 'sbmm_tissue'
                   SequenceBasedMacromoleculeSample.by_collection_id(c_id)
+                                                  .joins(:sequence_based_macromolecule)
                                                   .order('sequence_based_macromolecule_samples.updated_at DESC')
                                                   .search_by(search_method, arg)
                 end
@@ -739,6 +740,7 @@ module Chemotion
 
         post do
           sbmm_samples = SequenceBasedMacromoleculeSample.by_collection_id(@c_id)
+                                                         .joins(:sequence_based_macromolecule)
                                                          .search_by(search_by_method, params[:selection][:name])
 
           serialization_by_elements_and_page(
