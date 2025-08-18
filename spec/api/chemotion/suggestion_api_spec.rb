@@ -110,7 +110,7 @@ describe Chemotion::SuggestionAPI do
       it 'returns two sbmm sample suggestions' do
         expect(response.status).to be 200
         expect(parsed_json_response['suggestions'].length).to be 2
-        search_by_methods = parsed_json_response['suggestions'].map { |result| result['search_by_method'] }
+        search_by_methods = parsed_json_response['suggestions'].pluck('search_by_method')
         expect(search_by_methods).to include('sbmm_sample_name', 'sbmm_systematic_name')
       end
     end
@@ -121,7 +121,7 @@ describe Chemotion::SuggestionAPI do
       it 'returns one sbmm sample suggestions' do
         expect(response.status).to be 200
         expect(parsed_json_response['suggestions'].length).to be 2
-        search_by_methods = parsed_json_response['suggestions'].map { |result| result['search_by_method'] }
+        search_by_methods = parsed_json_response['suggestions'].pluck('search_by_method')
         expect(search_by_methods).to include('sbmm_ec_numbers')
       end
     end
@@ -230,7 +230,7 @@ describe Chemotion::SuggestionAPI do
       it 'returns two sbmm sample suggestions' do
         expect(response.status).to be 200
         expect(parsed_json_response['suggestions'].length).to be 2
-        search_by_methods = parsed_json_response['suggestions'].map { |result| result['search_by_method'] }
+        search_by_methods = parsed_json_response['suggestions'].pluck('search_by_method')
         expect(search_by_methods).to include('sbmm_sample_name', 'sbmm_systematic_name')
       end
     end
