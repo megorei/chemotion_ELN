@@ -115,7 +115,7 @@ const toggleContent = (store, content) => {
 const labelWithInfo = (label, info) => {
   if (label === '') { return null; }
 
-  let formLabel = <Form.Label>{label}</Form.Label>;
+  let formLabel = <Form.Label className="w-100">{label}</Form.Label>;
 
   if (info) {
     formLabel = (
@@ -123,7 +123,7 @@ const labelWithInfo = (label, info) => {
         placement="top"
         overlay={<Tooltip id={uuid()}>{info}</Tooltip>}
       >
-        <Form.Label>{label}</Form.Label>
+        <Form.Label className="w-100">{label}</Form.Label>
       </OverlayTrigger>
     );
   }
@@ -392,6 +392,7 @@ const datePickerInput = (element, store, field, label, info) => {
         popperPlacement="bottom-start"
         isClearable
         dateFormat="dd-MM-YY"
+        wrapperClassName="w-100"
       />
     </Form.Group>
   );
@@ -415,6 +416,7 @@ const timePickerInput = (element, store, field, label, info) => {
         timeIntervals={15}
         timeCaption="Time"
         dateFormat="HH:mm"
+        wrapperClassName="w-100"
       />
     </Form.Group>
   );
@@ -435,6 +437,7 @@ const dateTimePickerInput = (element, store, field, label, info) => {
         dateFormat="dd/MM/yyyy HH:mm"
         placeholderText="dd/MM/YYYY HH:mm"
         popperPlacement="bottom-end"
+        wrapperClassName="w-100"
         selected={selectedDate}
         onChange={handleFieldChanged(store, field, 'datetime', element.type)}
       />
@@ -497,7 +500,7 @@ const identifierMultipleInputGroups = (element, label, options, store, info) => 
     <Form.Group key={`${store.key_prefix}-${idOrNew}-${formGroupKey}`}>
       {labelWithInfo(label, info)}
       <InputGroup key={`${store.key_prefix}-${idOrNew}-${formGroupKey}-group`}>
-        <InputGroup.Text key={`${element.type}-version_identifier_type`} className="py-0 my-0">
+        <InputGroup.Text key={`${element.type}-version_identifier_type`} className="p-0 my-0">
           {basicSelectInputWithSpecialLabel(element, store, 'version_identifier_type', 'Type', options, 'Type')}
         </InputGroup.Text>
         <Form.Control

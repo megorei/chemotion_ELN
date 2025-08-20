@@ -6,6 +6,7 @@ import {
   checkboxInput, componentInput, identifierMultipleInputGroups,
   inputGroupWithWeightUnit,
 } from '../FormFields';
+import { deviceDescriptionSelectOptions } from '../SelectOptions';
 
 import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
@@ -14,94 +15,11 @@ const PropertiesForm = () => {
   const deviceDescriptionsStore = useContext(StoreContext).deviceDescriptions;
   let deviceDescription = deviceDescriptionsStore.device_description;
 
-  const deviceType = [
-    {
-      "value": "stand-alone",
-      "label": "stand-alone"
-    },
-    {
-      "value": "component",
-      "label": "component"
-    },
-    {
-      "value": "equipment",
-      "label": "equipment"
-    },
-    {
-      "value": "setup",
-      "label": "setup"
-    }
-  ];
-
-  const deviceTypeDetail = [
-    {
-      "value": "has variable components",
-      "label": "has variable components"
-    },
-    {
-      "value": "no variable components",
-      "label": "no variable components"
-    }
-  ];
-
-  const operationMode = [
-    {
-      "value": "manual - walk in",
-      "label": "manual - walk in"
-    },
-    {
-      "value": "manual - service",
-      "label": "manual - service"
-    },
-    {
-      "value": "integrated - automated",
-      "label": "integrated - automated"
-    }
-  ];
-
-  const deviceTags = [
-    {
-      "value": "manufacturing",
-      "label": "manufacturing"
-    },
-    {
-      "value": "processes",
-      "label": "processes"
-    },
-    {
-      "value": "sensors",
-      "label": "sensors"
-    },
-    {
-      "value": "analysis",
-      "label": "analysis"
-    },
-    {
-      "value": "structuring",
-      "label": "structuring"
-    },
-    {
-      "value": "others",
-      "label": "others"
-    },
-  ];
-
-  const operatorType = [
-    {
-      "value": "technical",
-      "label": "technical"
-    },
-    {
-      "value": "administrative",
-      "label": "administrative"
-    }
-  ];
-
   const operatorFields = [
     { value: 'name', label: 'Name', type: 'text' },
     { value: 'phone', label: 'Phone', type: 'text' },
     { value: 'email', label: 'eMail', type: 'text' },
-    { value: 'type', label: 'Type', type: 'select', options: operatorType },
+    { value: 'type', label: 'Type', type: 'select', options: deviceDescriptionSelectOptions['operator_type'] },
     { value: 'comment', label: 'Comment', type: 'text' },
   ];
 
@@ -118,21 +36,6 @@ const PropertiesForm = () => {
   ];
   const vendorCompanyNameLabel = 'Details describing the vendor of the device';
 
-  const versionIdentifierTypes = [
-    { value: 'DOI', label: 'DOI', description: '- Digital Object Identifier' },
-    { value: 'Handle', label: 'Handle', description: '- CNRI Handle' },
-    { value: 'ARK', label: 'ARK', description: '- Archival Resource Key' },
-    { value: 'EISSN', label: 'EISSN', description: '- Electronic International Standard Serial Number' },
-    { value: 'IGSN', label: 'IGSN', description: '- physical samples and specimens' },
-    { value: 'PURL', label: 'PURL', description: '- Persistent Uniform Resource Locator' },
-    { value: 'RRID', label: 'RRID', description: '- Research Resource Identifiers' },
-  ];
-
-  const versionDoi = [
-    { value: 'version_identifier_type', label: 'Type', type: 'select', options: versionIdentifierTypes },
-    { value: 'version_doi', label: 'DOI', type: 'text' },
-    { value: 'version_doi_url', label: 'DOI-Link', type: 'text' },
-  ];
   const versionDoiLabel = 'Persistent identifier';
 
   const location = [
@@ -205,17 +108,28 @@ const PropertiesForm = () => {
       </Row>
       <Row className="mb-4">
         <Col>
-          {selectInput(deviceDescription, deviceDescriptionsStore, 'device_type', 'Device type', deviceType)}
-        </Col>
-        <Col>
           {
             selectInput(
-              deviceDescription, deviceDescriptionsStore, 'device_type_detail', 'Device type detail', deviceTypeDetail
+              deviceDescription, deviceDescriptionsStore, 'device_type', 'Device type',
+              deviceDescriptionSelectOptions['device_type']
             )
           }
         </Col>
         <Col>
-          {selectInput(deviceDescription, deviceDescriptionsStore, 'operation_mode', 'Operation mode', operationMode)}
+          {
+            selectInput(
+              deviceDescription, deviceDescriptionsStore, 'device_type_detail', 'Device type detail',
+              deviceDescriptionSelectOptions['device_type_detail']
+            )
+          }
+        </Col>
+        <Col>
+          {
+            selectInput(
+              deviceDescription, deviceDescriptionsStore, 'operation_mode', 'Operation mode',
+              deviceDescriptionSelectOptions['operation_mode']
+            )
+          }
         </Col>
       </Row>
 
@@ -250,7 +164,12 @@ const PropertiesForm = () => {
             </Row>
             <Row className="mb-3">
               <Col>
-                {multiSelectInput(deviceDescription, deviceDescriptionsStore, 'general_tags', 'Tags', deviceTags)}
+                {
+                  multiSelectInput(
+                    deviceDescription, deviceDescriptionsStore, 'general_tags', 'Tags',
+                    deviceDescriptionSelectOptions['device_tags']
+                  )
+                }
               </Col>
             </Row>
           </Accordion.Body>
@@ -297,7 +216,8 @@ const PropertiesForm = () => {
               <Col>
                 {
                   identifierMultipleInputGroups(
-                    deviceDescription, versionDoiLabel, versionIdentifierTypes, deviceDescriptionsStore
+                    deviceDescription, versionDoiLabel, deviceDescriptionSelectOptions['version_identifier_types'],
+                    deviceDescriptionsStore
                   )
                 }
               </Col>
