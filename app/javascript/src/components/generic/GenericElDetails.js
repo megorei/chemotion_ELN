@@ -13,7 +13,6 @@ import {
   Tooltip,
 } from 'react-bootstrap';
 import { cloneDeep, findIndex, merge } from 'lodash';
-import Aviator from 'aviator';
 import Immutable from 'immutable';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 import {
@@ -40,16 +39,11 @@ import ElementDetailSortTab from 'src/apps/mydb/elements/details/ElementDetailSo
 import { EditUserLabels, ShowUserLabels } from 'src/components/UserLabels';
 import ViewSpectra from 'src/apps/mydb/elements/details/ViewSpectra';
 import NMRiumDisplayer from 'src/components/nmriumWrapper/NMRiumDisplayer';
+import { aviatorNavigation } from 'src/utilities/routesUtils';
 
 const onNaviClick = (type, id) => {
-  const { currentCollection, isSync } = UIStore.getState();
-  const collectionUrl = !isNaN(id)
-    ? `${currentCollection.id}/${type}/${id}`
-    : `${currentCollection.id}/${type}`;
-  Aviator.navigate(
-    isSync ? `/scollection/${collectionUrl}` : `/collection/${collectionUrl}`,
-    { silent: true },
-  );
+  aviatorNavigation(type, id, true, false);
+
   if (type === 'reaction') {
     ElementActions.fetchReactionById(id);
   } else if (type === 'sample') {
@@ -543,41 +537,40 @@ export default class GenericElDetails extends Component {
           handleSubmit={this.handleSubmit}
         />
         <Card
-          className={`detail-card${
-            genericEl.isPendingToSave ? ' detail-card--unsaved' : ''
-          }`}
+          className={`detail-card${genericEl.isPendingToSave ? ' detail-card--unsaved' : ''
+            }`}
         >
-        <Card.Header>{this.header(genericEl)}</Card.Header>
-        <Card.Body>
-          <div className="tabs-container--with-borders">
-            <ElementDetailSortTab
-              type={genericEl.type}
-              availableTabs={Object.keys(tabContents)}
-              onTabPositionChanged={this.onTabPositionChanged}
-            />
-            <Tabs
-              activeKey={activeTab}
-              onSelect={(key) => this.handleSelect(key, genericEl.type)}
-              id="GenericElementDetailsXTab"
+          <Card.Header>{this.header(genericEl)}</Card.Header>
+          <Card.Body>
+            <div className="tabs-container--with-borders">
+              <ElementDetailSortTab
+                type={genericEl.type}
+                availableTabs={Object.keys(tabContents)}
+                onTabPositionChanged={this.onTabPositionChanged}
+              />
+              <Tabs
+                activeKey={activeTab}
+                onSelect={(key) => this.handleSelect(key, genericEl.type)}
+                id="GenericElementDetailsXTab"
+              >
+                {tabContentList}
+              </Tabs>
+            </div>
+          </Card.Body>
+          <Card.Footer>
+            <Button
+              variant="secondary"
+              onClick={() => DetailActions.close(genericEl, true)}
             >
-              {tabContentList}
-            </Tabs>
-          </div>
-        </Card.Body>
-        <Card.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => DetailActions.close(genericEl, true)}
-          >
-            Close
-          </Button>
-          <Button
-            variant="warning"
-            onClick={() => this.handleSubmit()}
-            style={this.saveBtnDisplay}
-          >
-            {submitLabel}
-          </Button>
+              Close
+            </Button>
+            <Button
+              variant="warning"
+              onClick={() => this.handleSubmit()}
+              style={this.saveBtnDisplay}
+            >
+              {submitLabel}
+            </Button>
           </Card.Footer>
         </Card>
       </>
