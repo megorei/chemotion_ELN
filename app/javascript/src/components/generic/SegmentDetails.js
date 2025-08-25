@@ -1,24 +1,17 @@
 /* eslint-disable no-restricted-globals */
 import React from 'react';
 import { findIndex, cloneDeep } from 'lodash';
-import Aviator from 'aviator';
 import { OverlayTrigger, Tooltip, Tab } from 'react-bootstrap';
-import UIStore from 'src/stores/alt/stores/UIStore';
 import UserStore from 'src/stores/alt/stores/UserStore';
 import GenericSGDetails from 'src/components/generic/GenericSGDetails';
 import Segment from 'src/models/Segment';
 import MatrixCheck from 'src/components/common/MatrixCheck';
 import ElementActions from 'src/stores/alt/actions/ElementActions';
+import { aviatorNavigation } from 'src/utilities/routesUtils';
 
 const onNaviClick = (type, id) => {
-  const { currentCollection, isSync } = UIStore.getState();
-  const collectionUrl = !isNaN(id)
-    ? `${currentCollection.id}/${type}/${id}`
-    : `${currentCollection.id}/${type}`;
-  Aviator.navigate(
-    isSync ? `/scollection/${collectionUrl}` : `/collection/${collectionUrl}`,
-    { silent: true },
-  );
+  aviatorNavigation(type, id, true, false);
+
   if (type === 'reaction') {
     ElementActions.fetchReactionById(id);
   } else if (type === 'sample') {

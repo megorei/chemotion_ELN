@@ -14,13 +14,14 @@ import { DragDropItemTypes } from 'src/utilities/DndConst';
 import NumeralInputWithUnitsCompo from 'src/apps/mydb/elements/details/NumeralInputWithUnitsCompo';
 import SampleName from 'src/components/common/SampleName';
 import ElementActions from 'src/stores/alt/actions/ElementActions';
-import { UrlSilentNavigation, SampleCode } from 'src/utilities/ElementUtils';
 import { correctPrefix, validDigit } from 'src/utilities/MathUtils';
 import Reaction from 'src/models/Reaction';
 import Sample from 'src/models/Sample';
 import { permitCls, permitOn } from 'src/components/common/uis';
 import GasPhaseReactionStore from 'src/stores/alt/stores/GasPhaseReactionStore';
 import { calculateFeedstockMoles } from 'src/utilities/UnitsConversion';
+import { SampleCode } from 'src/utilities/ElementUtils';
+import { aviatorNavigation } from 'src/utilities/routesUtils';
 
 const matSource = {
   beginDrag(props) {
@@ -121,7 +122,7 @@ class Material extends Component {
 
   handleMaterialClick(sample) {
     const { reaction } = this.props;
-    UrlSilentNavigation(sample);
+    aviatorNavigation(sample.type, sample.id, true, false);
     sample.updateChecksum();
     ElementActions.showReactionMaterial({ sample, reaction });
   }
@@ -153,7 +154,7 @@ class Material extends Component {
               precision={3}
               disabled={!permitOn(this.props.reaction)
                 || ((this.props.materialGroup !== 'products')
-                && !material.reference && this.props.lockEquivColumn)
+                  && !material.reference && this.props.lockEquivColumn)
                 || material.gas_type === 'gas'}
               onChange={e => this.handleAmountUnitChange(e, material.amount_l)}
               onMetricsChange={this.handleMetricsChange}
@@ -794,7 +795,7 @@ class Material extends Component {
               precision={4}
               disabled={!permitOn(reaction)
                 || (this.props.materialGroup === 'products'
-                || (!material.reference && this.props.lockEquivColumn))}
+                  || (!material.reference && this.props.lockEquivColumn))}
               onChange={e => this.handleAmountUnitChange(e, material.amount_mol)}
               onMetricsChange={this.handleMetricsChange}
               variant={material.amount_unit === 'mol' ? 'primary' : 'light'}

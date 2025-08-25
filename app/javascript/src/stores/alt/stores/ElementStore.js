@@ -31,10 +31,9 @@ import ResearchPlansFetcher from 'src/fetchers/ResearchPlansFetcher';
 import WellplatesFetcher from 'src/fetchers/WellplatesFetcher';
 import ScreensFetcher from 'src/fetchers/ScreensFetcher';
 
-import { elementShowOrNew } from 'src/utilities/routesUtils';
-
 import DetailActions from 'src/stores/alt/actions/DetailActions';
-import { SameEleTypId, UrlSilentNavigation } from 'src/utilities/ElementUtils';
+import { SameEleTypId } from 'src/utilities/ElementUtils';
+import { aviatorNavigation, aviatorNavigationWithCollectionId } from 'src/utilities/routesUtils';
 import { chmoConversions } from 'src/components/OlsComponent';
 import MatrixCheck from 'src/components/common/MatrixCheck';
 import GenericEl from 'src/models/GenericEl';
@@ -403,7 +402,7 @@ class ElementStore {
   handleOpenDeviceAnalysis({ device, type }) {
     switch (type) {
       case "NMR":
-        const { currentCollection, isSync } = UIStore.getState();
+        const { currentCollection } = UIStore.getState();
         const deviceAnalysis = device.devicesAnalyses.find((a) => a.analysisType === "NMR");
 
         // update Device in case of sample was added by dnd and device was not saved
@@ -411,15 +410,9 @@ class ElementStore {
         ElementActions.saveDevice(device);
 
         if (deviceAnalysis) {
-          Aviator.navigate(isSync
-            ? `/scollection/${currentCollection.id}/devicesAnalysis/${deviceAnalysis.id}`
-            : `/collection/${currentCollection.id}/devicesAnalysis/${deviceAnalysis.id}`
-          );
+          Aviator.navigate(`/collection/${currentCollection.id}/devicesAnalysis/${deviceAnalysis.id}`);
         } else {
-          Aviator.navigate(isSync
-            ? `/scollection/${currentCollection.id}/devicesAnalysis/new/${device.id}/${type}`
-            : `/collection/${currentCollection.id}/devicesAnalysis/new/${device.id}/${type}`
-          );
+          Aviator.navigate(`/collection/${currentCollection.id}/devicesAnalysis/new/${device.id}/${type}`);
         }
         break;
     }
@@ -510,13 +503,10 @@ class ElementStore {
   }
 
   handleSaveDeviceAnalysis(analysis) {
-    const { currentCollection, isSync } = UIStore.getState();
+    const { currentCollection } = UIStore.getState();
     this.state.currentElement = analysis;
 
-    Aviator.navigate(isSync
-      ? `/scollection/${currentCollection.id}/devicesAnalysis/${analysis.id}`
-      : `/collection/${currentCollection.id}/devicesAnalysis/${analysis.id}`
-    );
+    Aviator.navigate(`/collection/${currentCollection.id}/devicesAnalysis/${analysis.id}`);
   }
 
   handleChangeAnalysisExperimentProp({ analysis, experiment, prop, value }) {
@@ -624,7 +614,6 @@ class ElementStore {
 
   fetchElementsByCollectionIdandLayout() {
     const { currentSearchSelection, currentCollection } = UIStore.getState();
-    const isSync = !!(currentCollection && currentCollection.is_sync_to_me);
     if (currentSearchSelection != null) {
       const { currentType } = UserStore.getState();
       this.handleRefreshElements(currentType);
@@ -640,7 +629,7 @@ class ElementStore {
         if (layout.cell_line && layout.cell_line > 0) { this.handleRefreshElements('cell_line'); }
         if (layout.device_description && layout.device_description > 0) { this.handleRefreshElements('device_description'); }
         if (layout.vessel && layout.vessel > 0) { this.handleRefreshElements('vessel'); }
-        if (!isSync && layout.research_plan && layout.research_plan > 0) { this.handleRefreshElements('research_plan'); }
+        if (layout.research_plan && layout.research_plan > 0) { this.handleRefreshElements('research_plan'); }
 
 
         const { currentUser, genericEls } = UserStore.getState();
@@ -657,7 +646,7 @@ class ElementStore {
 
   handleFetchGenericElsByCollectionId(result) {
     //const klassName = result.element_klass && result.element_klass.name;
-    let {type} = result;
+    let { type } = result;
     if (typeof type === 'undefined' || type == null) {
       type = (result.result.elements && result.result.elements.length > 0 && result.result.elements[0].type) || result.result.type;
     }
@@ -951,19 +940,19 @@ class ElementStore {
 
   handleImportSamplesFromFile(data) {
     if (data.sdf) {
-      this.setState({sdfUploadData: data})
+      this.setState({ sdfUploadData: data })
     } else {
       this.handleRefreshElements('sample');
     }
   }
 
   handleImportSamplesFromFileConfirm() {
-    this.setState({sdfUploadData: null})
+    this.setState({ sdfUploadData: null })
     this.handleRefreshElements('sample');
   }
 
   handleImportSamplesFromFileDecline() {
-    this.setState({sdfUploadData: null})
+    this.setState({ sdfUploadData: null })
   }
 
   // -- Wellplates --
@@ -1163,17 +1152,17 @@ class ElementStore {
 
   handleCopyReaction(result) {
     this.changeCurrentElement(Reaction.copyFromReactionAndCollectionId(result.reaction, result.colId));
-    Aviator.navigate(`/collection/${result.colId}/reaction/copy`);
+    aviatorNavigationWithCollectionId(result.colId, 'reaction', 'copy', true, false);
   }
 
   handleCopyResearchPlan(result) {
     this.changeCurrentElement(ResearchPlan.copyFromResearchPlanAndCollectionId(result.research_plan, result.colId));
-    Aviator.navigate(`/collection/${result.colId}/research_plan/copy`);
+    aviatorNavigationWithCollectionId(result.colId, 'research_plan', 'copy', true, false);
   }
 
   handleCopyElement(result) {
     this.changeCurrentElement(GenericEl.copyFromCollectionId(result.element, result.colId));
-    Aviator.navigate(`/collection/${result.colId}/${result.element.type}/copy`);
+    aviatorNavigationWithCollectionId(result.colId, result.element.type, 'copy', true, false);
   }
 
   handleCopyCellLine(result) {
@@ -1206,15 +1195,8 @@ class ElementStore {
   navigateToNewElement(element = {}, klassType = '') {
     this.waitFor(UIStore.dispatchToken);
     const { type, id } = element;
-    const { uri, namedParams } = Aviator.getCurrentRequest();
-    const uriArray = uri.split(/\//);
-    if (!type) {
-      Aviator.navigate(`/${uriArray[1]}/${uriArray[2]}`, { silent: true });
-      return null;
-    }
-    namedParams[`${type}ID`] = id;
-    Aviator.navigate(`/${uriArray[1]}/${uriArray[2]}/${type}/${id}`, { silent: true });
-    elementShowOrNew({ type, klassType, params: namedParams });
+
+    aviatorNavigation(type, id, true, true);
     return null;
   }
 
@@ -1295,7 +1277,7 @@ class ElementStore {
 
     MessagesFetcher.fetchSpectraMessages(0).then((result) => {
       result.messages.sort((a, b) => (a.id - b.id));
-      const {messages} = result;
+      const { messages } = result;
       if (messages && messages.length > 0) {
         const lastMsg = messages[0];
         this.setState({ spectraMsg: lastMsg });
@@ -1631,7 +1613,7 @@ class ElementStore {
     }
 
     if (previous instanceof Reaction) {
-      const {samples} = previous;
+      const { samples } = previous;
       selecteds.map((nextSample) => {
         const previousSample = samples.find((s) => SameEleTypId(nextSample, s));
         if (previousSample) {
@@ -1650,7 +1632,7 @@ class ElementStore {
   }
 
   addElement(addEl) {
-    const {selecteds} = this.state;
+    const { selecteds } = this.state;
     return [...selecteds, addEl];
   }
 
@@ -1689,7 +1671,7 @@ class ElementStore {
       this.changeCurrentElement(newCurrentElement);
     }
 
-    UrlSilentNavigation(newCurrentElement);
+    aviatorNavigation(newCurrentElement?.type, newCurrentElement?.id, true, false);
     return true;
   }
 
