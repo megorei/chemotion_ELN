@@ -1050,14 +1050,14 @@ class ElementStore {
   }
 
   handleCopyDeviceDescriptionFromClipboard(collectionId) {
-    const clipboardDeviceDescriptions = ClipboardStore.getState().deviceDescriptions;
+    const clipboardDeviceDescriptions = ClipboardStore.getState().device_descriptions;
     if (clipboardDeviceDescriptions && clipboardDeviceDescriptions.length > 0) {
       this.changeCurrentElement(DeviceDescription.copyFromDeviceDescriptionAndCollectionId(clipboardDeviceDescriptions[0], collectionId));
     }
   }
 
   handleSplitAsSubDeviceDescription(uiState) {
-    ElementActions.fetchDeviceDescriptionsByCollectionId(uiState.currentCollectionId, {});
+    this.handleRefreshElements('device_description');
   }
 
   // -- Reactions --

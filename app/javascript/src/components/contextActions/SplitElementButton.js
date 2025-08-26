@@ -64,7 +64,7 @@ export default class SplitElementButton extends React.Component {
       this.setState({ currentCollection: newCurrentCollection });
     }
 
-    const newSelectedElements = ['sample', 'wellplate', ...genericEls.map((el) => el.name)].reduce(
+    const newSelectedElements = ['sample', 'wellplate', 'device_description', ...genericEls.map((el) => el.name)].reduce(
       (acc, el) => {
         const { checkedIds, checkedAll } = state[el] || {};
         const hasSelected = checkedIds?.size > 0 || checkedAll === true;

@@ -91,10 +91,10 @@ class ClipboardActions {
     );
   }
 
-  fetchDeviceDescriptionAndBuildCopy(deviceDescription, collectionId, action) {
+  fetchDeviceDescriptionAndBuildCopy(deviceDescription, collectionId) {
     const newDeviceDescription = new DeviceDescription(deviceDescription);
     newDeviceDescription.collection_id = collectionId;
-    return { device_descriptions: [newDeviceDescription], collection_id: collectionId, action };
+    return { device_descriptions: [newDeviceDescription], collection_id: collectionId };
   }
 }
 
