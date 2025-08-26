@@ -109,7 +109,6 @@ export default class SplitElementButton extends React.Component {
           excluded_ids: uiState.device_description.uncheckedIds,
         },
         currentCollectionId: uiState.currentCollection.id,
-        isSync: uiState.isSync,
       }
     }
 
