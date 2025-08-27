@@ -14,7 +14,6 @@ describe Chemotion::SuggestionAPI do
     {
       collection_id: collection.id,
       query: query,
-      is_sync: false,
     }
   end
 
@@ -141,7 +140,6 @@ describe Chemotion::SuggestionAPI do
           params: {
             collection_id: collection.id,
             query: query,
-            is_sync: false,
           }
       expect(response).to have_http_status(:success)
       expect(json_response.keys).to contain_exactly('suggestions')
@@ -157,7 +155,6 @@ describe Chemotion::SuggestionAPI do
             {
               collection_id: collection.id,
               query: query,
-              is_sync: false,
             }
       expect(response).to have_http_status(:unauthorized)
     end
