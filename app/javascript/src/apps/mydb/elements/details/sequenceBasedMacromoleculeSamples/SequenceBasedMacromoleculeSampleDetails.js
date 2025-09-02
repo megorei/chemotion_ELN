@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import {
-  Alert, Button, Tabs, Tab, Tooltip, OverlayTrigger
+  Alert, Button, Tabs, Tab, Tooltip, OverlayTrigger, ListGroupItem
 } from 'react-bootstrap';
 
 import PropertiesForm from './propertiesTab/PropertiesForm';
@@ -32,8 +32,9 @@ import DetailActions from 'src/stores/alt/actions/DetailActions';
 import UIStore from 'src/stores/alt/stores/UIStore';
 import UserStore from 'src/stores/alt/stores/UserStore';
 import CollectionUtils from 'src/models/collection/CollectionUtils';
+import ChemicalTab from 'src/components/ChemicalTab';
 
-const SequenceBasedMacromoleculeSampleDetails = () => {
+function SequenceBasedMacromoleculeSampleDetails() {
   const sbmmStore = useContext(StoreContext).sequenceBasedMacromoleculeSamples;
   let sbmmSample = sbmmStore.sequence_based_macromolecule_sample;
 
@@ -67,16 +68,36 @@ const SequenceBasedMacromoleculeSampleDetails = () => {
     }
   }, [alertRef.current]);
 
+  const sbmmInventoryTab = (ind) => (
+    <Tab eventKey={ind} title="Inventory" key={`Inventory${sbmmSample.id.toString()}`}>
+      {
+          !sbmmSample.isNew && <CommentSection section="sbmm_sample_inventory" element={sbmmSample} />
+        }
+      <ListGroupItem>
+        <ChemicalTab
+          sample={sbmmSample}
+          type="SBMM"
+          setSaveInventory={(v) => sbmmStore.setSaveInventoryAction(v)}
+          saveInventory={sbmmStore.saveInventoryAction}
+          editChemical={sbmmStore.editChemical}
+          key={`ChemicalTab${sbmmSample.id.toString()}`}
+        />
+      </ListGroupItem>
+    </Tab>
+  );
+
   const tabContentComponents = {
     properties: PropertiesForm,
     analyses: AnalysesContainer,
     attachments: AttachmentForm,
+    inventory: ChemicalTab,
   };
 
   const tabTitles = {
     properties: 'Properties',
     analyses: 'Analyses',
     attachments: 'Attachment',
+    inventory: 'Inventory',
   };
 
   const isReadOnly = () => {
@@ -95,19 +116,22 @@ const SequenceBasedMacromoleculeSampleDetails = () => {
 
   visibleTabs.forEach((key, i) => {
     let title = tabTitles[key];
-  
-    tabContents.push(
-      <Tab eventKey={key} title={title} key={`${key}_${sbmmSample.id}`} disabled={disabled(i)}>
-        {
-          !sbmmSample.isNew &&
-          <CommentSection section={`sequence_based_macromolecule_sample_${key}`} element={sbmmSample} />
-        }
-        {React.createElement(tabContentComponents[key], {
-          key: `${sbmmSample.id}-${key}`,
-          readonly: isReadOnly()
-        })}
-      </Tab>
-    );
+    if (key === 'inventory') {
+      tabContents.push(sbmmInventoryTab(key));
+    } else {
+      tabContents.push(
+        <Tab eventKey={key} title={title} key={`${key}_${sbmmSample.id}`} disabled={disabled(i)}>
+          {
+            !sbmmSample.isNew
+              && <CommentSection section={`sequence_based_macromolecule_sample_${key}`} element={sbmmSample} />
+          }
+          {React.createElement(tabContentComponents[key], {
+            key: `${sbmmSample.id}-${key}`,
+            readonly: isReadOnly()
+          })}
+        </Tab>
+      );
+    }
   });
 
   const errorMessage = () => {
@@ -176,10 +200,50 @@ const SequenceBasedMacromoleculeSampleDetails = () => {
     );
   }
 
+  // Handler for chemical save
+  const handleSubmitChemical = () => {
+    // Set saveInventoryAction to true, which triggers ChemicalTab to save
+    sbmmStore.setSaveInventoryAction(true);
+  };
+
+  const saveButtonForChemical = () => (
+    <OverlayTrigger
+      placement="bottom"
+      overlay={<Tooltip id="saveChemicalforSBMM">Save chemical</Tooltip>}
+    >
+      <Button
+        variant="warning"
+        size="xxsm"
+        onClick={() => handleSubmitChemical()}
+      >
+        <i className="fa fa-floppy-o " />
+      </Button>
+    </OverlayTrigger>
+  );
+
+  // Save button for sbmm sample
+  const saveButtonForSbmm = () => (
+    <OverlayTrigger
+      placement="bottom"
+      overlay={<Tooltip id="saveSequenceBasedMacromolecule">Save sequence based macromolecule</Tooltip>}
+    >
+      <Button
+        variant="warning"
+        size="xxsm"
+        onClick={() => handleSubmit()}
+      >
+        <i className="fa fa-floppy-o " />
+      </Button>
+    </OverlayTrigger>
+  );
+
   const sbmmSampleHeader = () => {
     const titleTooltip = formatTimeStampsOfElement(sbmmSample || {});
     const defCol = currentCollection && currentCollection.is_shared === false
       && currentCollection.is_locked === false && currentCollection.label !== 'All' ? currentCollection.id : null;
+    const isChemicalTab = sbmmStore.active_tab_key === 'inventory';
+    const chemicalSaveBtn = isChemicalTab && sbmmStore.isChemicalEdited;
+    const sampleSaveBtn = sbmmSample.isEdited && sbmmStore.active_tab_key !== 'inventory';
 
     return (
       <div className="d-flex align-items-center justify-content-between">
@@ -216,41 +280,55 @@ const SequenceBasedMacromoleculeSampleDetails = () => {
               defCol={defCol}
             />
           )}
-          {sbmmSample.isEdited && (
-            <OverlayTrigger
-              placement="bottom"
-              overlay={<Tooltip id="saveSequenceBasedMacromolecule">Save sequence based macromolecule</Tooltip>}
-            >
-              <Button
-                variant="warning"
-                size="xxsm"
-                onClick={() => handleSubmit()}
-              >
-                <i className="fa fa-floppy-o " />
-              </Button>
-            </OverlayTrigger>
-          )}
+          {(() => {
+            if (chemicalSaveBtn) {
+              return saveButtonForChemical();
+            }
+            if (sampleSaveBtn) {
+              return saveButtonForSbmm();
+            }
+            return null;
+          })()}
           <ConfirmClose el={sbmmSample} />
         </div>
       </div>
     );
-  }
+  };
 
+  // Footer logic: show save button for chemical if on inventory tab and isChemicalEdited, else show sbmm save
+  const isChemicalTab = sbmmStore.active_tab_key === 'inventory';
+  const chemicalSaveBtn = isChemicalTab && sbmmStore.isChemicalEdited;
+  const sampleSaveBtn = sbmmSample.isEdited && sbmmStore.active_tab_key !== 'inventory';
   const sbmmSampleFooter = () => (
     <>
       <Button variant="primary" onClick={() => DetailActions.close(sbmmSample)}>
         Close
       </Button>
-      <Button variant="warning" onClick={() => handleSubmit()}>
-        {submitLabel}
-      </Button>
+      {(() => {
+        if (chemicalSaveBtn) {
+          return (
+            <Button variant="warning" onClick={() => handleSubmitChemical()}>
+              {submitLabel}
+            </Button>
+          );
+        }
+        if (sampleSaveBtn) {
+          return (
+            <Button variant="warning" onClick={() => handleSubmit()}>
+              {submitLabel}
+            </Button>
+          );
+        }
+        return null;
+      })()}
       {downloadAnalysisButton()}
     </>
   );
+  const isPendingToSave = sbmmSample.isPendingToSave || sbmmStore.isChemicalEdited;
 
   return (
     <DetailCard
-      isPendingToSave={sbmmSample.isPendingToSave}
+      isPendingToSave={isPendingToSave}
       header={sbmmSampleHeader()}
       footer={sbmmSampleFooter()}
     >
