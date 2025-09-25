@@ -83,6 +83,7 @@ class Collection < ApplicationRecord
       .left_joins(:inventory)
       .where(user_id: user_and_group_ids)
       .or(where(collection_shares: { shared_with_id: user_and_group_ids }))
+      .distinct
     end
   )
 
@@ -92,6 +93,7 @@ class Collection < ApplicationRecord
     lambda do |user|
       left_joins(:inventory)
         .where(user_id: [user.id, *user.group_ids])
+        .distinct
         .select('collections.*, inventories.name AS inventory_name, inventories.prefix AS inventory_prefix')
     end
   )
@@ -102,6 +104,7 @@ class Collection < ApplicationRecord
         .joins(:user)
         .left_joins(:inventory)
         .where(collection_shares: { shared_with_id: [user.id, *user.group_ids] })
+        .distinct
         .select(
           [
             'collections.*',
