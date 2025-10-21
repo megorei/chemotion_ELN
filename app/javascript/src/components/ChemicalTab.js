@@ -88,7 +88,7 @@ export default class ChemicalTab extends React.Component {
       type,
     };
     if (type === 'SBMM') {
-      params.sequence_based_macromolecule_id = sample.id;
+      params.sequence_based_macromolecule_sample_id = sample.id;
       params.type = 'SBMM';
     } else {
       params.sample_id = sample.id;
