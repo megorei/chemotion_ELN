@@ -213,6 +213,7 @@ class API < Grape::API
   mount Chemotion::ComponentAPI
   mount Chemotion::VesselAPI
   mount Chemotion::CollectionShareAPI
+  mount Chemotion::CollectionElementsAPI
 
   if Rails.env.development?
     add_swagger_documentation(info: {
