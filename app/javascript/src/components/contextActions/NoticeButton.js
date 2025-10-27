@@ -71,17 +71,17 @@ const handleNotification = (nots, act, needCallback = true, context) => {
 
       const { currentPage, itemsPerPage } = InboxStore.getState();
 
-      if (n.subject == 'Shared Collection With Me') {
+      const refreshCollectionActions = [
+        'CollectionActions.fetchRemoteCollectionRoots',
+        'CollectionActions.fetchSyncInCollectionRoots',
+        'RefreshChemotionCollection',
+        'CollectionActions.fetchUnsharedCollectionRoots',
+      ];
+      if (refreshCollectionActions.includes(n.content.action) || n.subject == 'Shared Collection With Me') {
         context.collections.fetchCollections();
       }
 
       switch (n.content.action) {
-        case 'CollectionActions.fetchRemoteCollectionRoots':
-          context.collections.fetchCollections();
-          break;
-        case 'CollectionActions.fetchSyncInCollectionRoots':
-          context.collections.fetchCollections();
-          break;
         case 'InboxActions.fetchInbox':
           InboxActions.fetchInbox({ currentPage, itemsPerPage });
           break;
@@ -90,12 +90,6 @@ const handleNotification = (nots, act, needCallback = true, context) => {
           break;
         case 'ElementActions.refreshComputedProp':
           ElementActions.refreshComputedProp(n.content.cprop);
-          break;
-        case 'RefreshChemotionCollection':
-          context.collections.fetchCollections();
-          break;
-        case 'CollectionActions.fetchUnsharedCollectionRoots':
-          context.collections.fetchCollections();
           break;
         case 'ElementActions.fetchResearchPlanById':
           ElementActions.fetchResearchPlanById(
