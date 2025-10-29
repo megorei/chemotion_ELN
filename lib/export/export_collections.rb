@@ -104,7 +104,7 @@ module Export
 
     def prepare_data # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       # get the collections from the database, in order of ancestry, but with empty ancestry first
-      collections = Collection.order(Arel.sql("NULLIF(ancestry, '') ASC NULLS FIRST")).find(@collection_ids)
+      collections = Collection.order(ancestry: :asc).find(@collection_ids)
       # add decendants for nested collections
       if @nested
         descendants = []
@@ -120,9 +120,7 @@ module Export
       # loop over all collections
       collections.each do |collection|
         # fetch collection
-        fetch_one(collection, {
-                    'user_id' => 'User',
-                  })
+        fetch_one(collection, { 'user_id' => 'User' })
         fetch_samples collection
         fetch_chemicals collection
         fetch_components collection
