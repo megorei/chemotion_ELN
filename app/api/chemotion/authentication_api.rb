@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chemotion
   class AuthenticationAPI < Grape::API
     namespace :authentication do
