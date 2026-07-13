@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import Tree from 'react-ui-tree';
 import { Button } from 'react-bootstrap';
 import { set, isEmpty } from 'lodash';
@@ -6,25 +6,23 @@ import { List } from 'immutable';
 import AppModal from 'src/components/common/AppModal';
 import CollectionTabLayoutEditor from 'src/apps/mydb/collections/CollectionTabLayoutEditor';
 import UserStore from 'src/stores/alt/stores/UserStore';
-import UserActions from 'src/stores/alt/actions/UserActions';
 import { capitalizeWords } from 'src/utilities/textHelper';
 import { filterTabLayout, getArrayFromLayout, TAB_DISPLAY_NAMES } from 'src/utilities/CollectionTabsHelper';
-import { allElnElmentsWithLabel, allGenericElements } from 'src/apps/generic/Utils';
+import { allElnElmentsWithLabel } from 'src/apps/generic/Utils';
 import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 import ElementIcon from 'src/components/common/ElementIcon';
 
-function TabItemComponent({ item }) {
+const TabItemComponent = ({ item }) => {
   const displayName = TAB_DISPLAY_NAMES[item];
   return <div>{displayName ?? capitalizeWords(item)}</div>;
-}
+};
 
 const CollectionTabs = () => {
-  const collectionsStore = useContext(StoreContext).collections;
+  const { collectionsStore, userStore } = useContext(StoreContext);
   const [showModal, setShowModal] = useState(false);
-  const [profileData, setProfileData] = useState({});
   const [currentCollection, setCurrentCollection] = useState({});
-  const [allElements, setAllElements] = useState(allElnElmentsWithLabel)
+  const [allElements, setAllElements] = useState(allElnElmentsWithLabel);
   const [layouts, setLayouts] = useState(allElements.reduce((acc, { name }) => {
     acc[name] = { visible: List(), hidden: List() };
     return acc;
@@ -32,44 +30,27 @@ const CollectionTabs = () => {
   const [selectedCategory, setSelectedCategory] = useState(allElements[0]?.name || 'sample');
   const tree = collectionsStore.own_collection_tree;
 
-  useEffect(() => {
-    const { profile } = UserStore.getState();
-    if (profile && profile.data) {
-      setProfileData(profile.data)
-    }
-    getAllElements();
-  }, []);
+  const standardEls = allElnElmentsWithLabel.map((el) => ({ ...el, type: el.name }));
 
-  const getAllElements = () => {
-    const standardEls = allElnElmentsWithLabel.map((el) => ({
-      ...el,
-      type: el.name,
-    }));
+  const genericEls = userStore.allGenericElements();
+  if (genericEls.size < 1) { return; }
 
-    const genericEls = allGenericElements();
-    if (genericEls.size < 1) { return }
+  const genericElsWithLabel = genericEls.map((el) => ({
+    name: el.name,
+    label: el.label,
+    icon_name: el.icon_name,
+    type: el.name,
+    isGeneric: true
+  }));
+  const combined = [...standardEls, ...genericElsWithLabel];
+  combined.sort((a, b) => a.label.localeCompare(b.label));
 
-    const genericElsWithLabel = genericEls.map((el) => ({
-      name: el.name,
-      label: el.label,
-      icon_name: el.icon_name,
-      type: el.name,
-      isGeneric: true
-    }));
-    const combined = [...standardEls, ...genericElsWithLabel];
-    combined.sort((a, b) => a.label.localeCompare(b.label));
-
-    setAllElements(combined);
-    setSelectedCategory(combined[0]?.name);
-    setLayouts(combined.reduce((acc, { name }) => {
-      acc[name] = { visible: List(), hidden: List() };
-      return acc;
-    }, {}));
-  }
-
-  const handleChange = (tree) => {
-    collectionsStore.setOwnCollectionTree(tree);
-  }
+  setAllElements(combined);
+  setSelectedCategory(combined[0]?.name);
+  setLayouts(combined.reduce((acc, { name }) => {
+    acc[name] = { visible: List(), hidden: List() };
+    return acc;
+  }, {}));
 
   const handleSave = () => {
     const layoutSegments = allElnElmentsWithLabel.reduce((acc, { name }) => {
@@ -80,23 +61,22 @@ const CollectionTabs = () => {
     collectionsStore.updateCollection(currentCollection, layoutSegments);
 
     // Update profile
-    const userProfile = UserStore.getState().profile;
+    const { userProfile } = userStore;
     Object.entries(layoutSegments).map((type, layout) => {
       set(userProfile, `data.layout_detail_${type}`, layout);
     });
-    UserActions.updateUserProfile(userProfile);
+    userStore.updateUserProfile(userProfile);
 
     setShowModal(false);
-  }
+  };
 
   const onClickCollection = (node) => {
-    const tabsSegment = typeof (node.tabs_segment) == 'string' ? JSON.parse(node.tabs_segment) : node.tabs_segment;
-    const layouts = allElements.reduce((acc, { name, isGeneric }) => {
-      let layout;
+    const tabsSegment = typeof (node.tabs_segment) === 'string' ? JSON.parse(node.tabs_segment) : node.tabs_segment;
+    const updatedLayouts = allElements.reduce((acc, { name, isGeneric }) => {
       // Use element-specific layout, or generic layout for generic elements, or empty
       const layoutDetail = isGeneric ? 'layout_detail_generic' : `layout_detail_${name}`;
-      const defaultLayout = (profileData && profileData[layoutDetail]) || {};
-      layout = (isEmpty(tabsSegment[name])) ? defaultLayout : tabsSegment[name];
+      const defaultLayout = (userStore.profile && userStore.profile[layoutDetail]) || {};
+      const layout = (isEmpty(tabsSegment[name])) ? defaultLayout : tabsSegment[name];
 
       // Get segment labels for this element type
       const segmentKlasses = (UserStore.getState() && UserStore.getState().segmentKlasses) || [];
@@ -114,8 +94,8 @@ const CollectionTabs = () => {
 
     setCurrentCollection(node);
     setShowModal(true);
-    setLayouts(layouts);
-  }
+    setLayouts(updatedLayouts);
+  };
 
   const renderNode = (node) => {
     if (node.is_locked || node.id < 1) {
@@ -141,14 +121,14 @@ const CollectionTabs = () => {
         </Button>
       </div>
     );
-  }
+  };
 
   return (
     <div className="tree mt-2">
       <Tree
         paddingLeft={30}
         tree={tree}
-        onChange={handleChange}
+        onChange={(newTree) => collectionsStore.setOwnCollectionTree(newTree)}
         renderNode={renderNode}
       />
 
@@ -208,6 +188,6 @@ const CollectionTabs = () => {
       )}
     </div>
   );
-}
+};
 
 export default observer(CollectionTabs);
