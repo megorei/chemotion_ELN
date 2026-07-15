@@ -29,7 +29,7 @@ import GreenChemistry from 'src/apps/mydb/elements/details/reactions/greenChemis
 import Utils from 'src/utilities/Functions';
 import UIStore from 'src/stores/alt/stores/UIStore';
 import UIActions from 'src/stores/alt/actions/UIActions';
-import UserStore from 'src/stores/alt/stores/UserStore';
+import { StoreContext } from 'src/stores/mobx/RootStore';
 import { setReactionByType } from 'src/apps/mydb/elements/details/reactions/ReactionDetailsShare';
 import { aviatorNavigation } from 'src/utilities/routesUtils';
 import ReactionSvgFetcher from 'src/fetchers/ReactionSvgFetcher';
@@ -71,7 +71,7 @@ const formatReactionTypeOption = (option, { context }) => (
 
 const productLink = (product, active) => (
   <span>
-    {active && "Sample Analysis:"}
+    {active && 'Sample Analysis:'}
     <span
       aria-hidden="true"
       className="pseudo-link"
@@ -85,17 +85,20 @@ const productLink = (product, active) => (
 );
 
 export default class ReactionDetails extends Component {
-  constructor(props) {
-    super(props);
+  static contextType = StoreContext;
+
+  constructor(props, context) {
+    super(props, context);
 
     const { reaction } = props;
+    const { currentUser } = context.userStore || {};
     this.state = {
       reaction,
       activeTab: UIStore.getState().reaction.activeTab,
       activeAnalysisTab: UIStore.getState().reaction.activeAnalysisTab,
       visible: List(),
       sfn: UIStore.getState().hasSfn,
-      currentUser: (UserStore.getState() && UserStore.getState().currentUser) || {},
+      currentUser,
       reactionSvgVersion: 0, // Bumped when graphic is updated so shouldComponentUpdate sees a state change (we mutate reaction in place)
       isRefreshingGraphic: false,
       isEditingHeaderName: false,
@@ -427,7 +430,7 @@ export default class ReactionDetails extends Component {
     } else if (type === 'rfValue') {
       value = rfValueFormat(event.target.value) || '';
     } else {
-      value = event.target.value;
+      ({ value } = event.target);
     }
 
     const { reaction } = this.state;
@@ -559,8 +562,6 @@ export default class ReactionDetails extends Component {
     );
   }
 
-
-
   refreshGraphic() {
     const { reaction, isRefreshingGraphic } = this.state;
 
@@ -639,7 +640,7 @@ export default class ReactionDetails extends Component {
     }).filter((s) => s);
 
     let temperature = reaction.temperature_display;
-    if (/^[\-|\d]\d*\.{0,1}\d{0,2}$/.test(temperature)) {
+    if (/^[-|\d]\d*\.{0,1}\d{0,2}$/.test(temperature)) {
       temperature = `${temperature} ${reaction.temperature.valueUnit}`;
     }
     const productsOnly = reaction.isInteractionReaction();
@@ -825,7 +826,7 @@ export default class ReactionDetails extends Component {
    */
   // eslint-disable-next-line class-methods-use-this
   recalculateEquivalentsForMaterials(reaction) {
-    const referenceMaterial = reaction.referenceMaterial;
+    const { referenceMaterial } = reaction;
     if (!referenceMaterial || !referenceMaterial.amount_mol) {
       return;
     }
