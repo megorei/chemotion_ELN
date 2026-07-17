@@ -1,4 +1,4 @@
-import { getElementSegments } from './ElementUtils';
+import { getElementSegments } from 'src/utilities/ElementUtils';
 import { List } from 'immutable';
 
 export const TAB_DISPLAY_NAMES = {
@@ -21,7 +21,7 @@ const getVisibilityList = (layout, availableTabs, addInventoryTab) => {
 
   if (addInventoryTab && layout) {
     // eslint-disable-next-line no-param-reassign
-    layout.inventory = layout.inventory || layoutKeys.length + 1;
+    layout.inventory = layout?.inventory || layoutKeys.length + 1;
   }
   const enabled = availableTabs.filter(val => layoutKeys.includes(val));
   const leftover = availableTabs.filter(val => !layoutKeys.includes(val));
@@ -57,7 +57,7 @@ const getArrayFromLayout = (layout, element, addInventoryTab, availableTabs = nu
   }
   const layoutKeys = Object.keys(layout);
   let segmentAvailableTabs = [];
-  if (element == 'device_description') {
+  if (element === 'device_description') {
     segmentAvailableTabs = layoutKeys;
   } else {
     segmentAvailableTabs = availableTabs || getElementSegments(element, layoutKeys);
