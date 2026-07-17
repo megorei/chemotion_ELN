@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import {
   Button, Dropdown
 } from 'react-bootstrap';
-import UserStore from 'src/stores/alt/stores/UserStore';
 import { aviatorNavigationWithCollectionId } from 'src/utilities/routesUtils';
 import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
@@ -57,8 +56,7 @@ CollectionToggle.defaultProps = {
 
 const ElementCollectionLabels = ({ element, size, variant }) => {
   const collectionsStore = useContext(StoreContext).collections;
-
-  const { currentUser } = UserStore.getState();
+  const { currentUser } = useContext(StoreContext).userStore;
   if (!currentUser) return (<span />);
   if (!element.tag) return (<span />);
   if (!element.tag.taggable_data) return (<span />);
@@ -70,8 +68,7 @@ const ElementCollectionLabels = ({ element, size, variant }) => {
     aviatorNavigationWithCollectionId(label.id, element.type, element.id, true, true);
   };
 
-  const formatItems = (labels) => {
-    return labels.map((label) => {
+  const formatItems = (labels) => labels.map((label) => {
       const collectionFromStore = collectionsStore.find(label.id);
       if (!collectionFromStore) return null;
 
@@ -81,7 +78,6 @@ const ElementCollectionLabels = ({ element, size, variant }) => {
         </Dropdown.Item>
       );
     });
-  };
 
   const renderCollectionsItems = (title, labels) => {
     if (labels.length === 0) return null;
