@@ -13,15 +13,11 @@ export const TAB_DISPLAY_NAMES = {
 };
 
 const getVisibilityList = (layout, availableTabs, addInventoryTab) => {
-  if (typeof layout === 'undefined') {
-    // eslint-disable-next-line no-param-reassign
-    layout = { properties: 1, analyses: 2 };
-  }
-  const layoutKeys = Object.keys(layout);
+  const currentLayout = { ...(layout || { properties: 1, analyses: 2 }) };
+  const layoutKeys = Object.keys(currentLayout);
 
-  if (addInventoryTab && layout) {
-    // eslint-disable-next-line no-param-reassign
-    layout.inventory = layout?.inventory || layoutKeys.length + 1;
+  if (addInventoryTab) {
+    currentLayout.inventory = currentLayout.inventory || layoutKeys.length + 1;
   }
   const enabled = availableTabs.filter(val => layoutKeys.includes(val));
   const leftover = availableTabs.filter(val => !layoutKeys.includes(val));
@@ -29,7 +25,7 @@ const getVisibilityList = (layout, availableTabs, addInventoryTab) => {
   let hidden = [];
 
   enabled.forEach((key) => {
-    const order = layout[key];
+    const order = currentLayout[key];
     if (order < 0) { hidden[Math.abs(order)] = key; }
     if (order > 0) { visible[order] = key; }
   });
@@ -51,18 +47,15 @@ const getVisibilityList = (layout, availableTabs, addInventoryTab) => {
 };
 
 const getArrayFromLayout = (layout, element, addInventoryTab, availableTabs = null) => {
-  if (typeof layout === 'undefined') {
-    // eslint-disable-next-line no-param-reassign
-    layout = { properties: 1, analyses: 2 };
-  }
-  const layoutKeys = Object.keys(layout);
+  const currentLayout = { ...(layout || { properties: 1, analyses: 2 }) };
+  const layoutKeys = Object.keys(currentLayout);
   let segmentAvailableTabs = [];
   if (element === 'device_description') {
     segmentAvailableTabs = layoutKeys;
   } else {
     segmentAvailableTabs = availableTabs || getElementSegments(element, layoutKeys);
   }
-  return getVisibilityList(layout, segmentAvailableTabs, addInventoryTab);
+  return getVisibilityList(currentLayout, segmentAvailableTabs, addInventoryTab);
 };
 
 const filterTabLayout = (layoutState) => {

@@ -57,7 +57,7 @@ const CollectionTabs = () => {
     Object.entries(layoutSegments).map((type, layout) => {
       set(profile, `data.layout_detail_${type}`, layout);
     });
-    userStore.updateUserProfile(profile);
+    userStore.updateUserProfileValues(profile);
 
     setShowModal(false);
   };
