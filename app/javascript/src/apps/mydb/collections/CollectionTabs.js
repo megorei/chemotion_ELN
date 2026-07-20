@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useState, useContext } from 'react';
 import Tree from 'react-ui-tree';
 import { Button } from 'react-bootstrap';
@@ -5,7 +6,6 @@ import { set, isEmpty } from 'lodash';
 import { List } from 'immutable';
 import AppModal from 'src/components/common/AppModal';
 import CollectionTabLayoutEditor from 'src/apps/mydb/collections/CollectionTabLayoutEditor';
-import UserStore from 'src/stores/alt/stores/UserStore';
 import { capitalizeWords } from 'src/utilities/textHelper';
 import { filterTabLayout, getArrayFromLayout, TAB_DISPLAY_NAMES } from 'src/utilities/CollectionTabsHelper';
 import { allElnElmentsWithLabel } from 'src/apps/generic/Utils';
@@ -22,19 +22,16 @@ const CollectionTabs = () => {
   const { collectionsStore, userStore } = useContext(StoreContext);
   const [showModal, setShowModal] = useState(false);
   const [currentCollection, setCurrentCollection] = useState({});
-  const [allElements, setAllElements] = useState(allElnElmentsWithLabel);
-  const [layouts, setLayouts] = useState(allElements.reduce((acc, { name }) => {
+  const [layouts, setLayouts] = useState(() => allElnElmentsWithLabel.reduce((acc, { name }) => {
     acc[name] = { visible: List(), hidden: List() };
     return acc;
   }, {}));
-  const [selectedCategory, setSelectedCategory] = useState(allElements[0]?.name || 'sample');
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const tree = collectionsStore.own_collection_tree;
 
+  const { profile } = userStore;
   const standardEls = allElnElmentsWithLabel.map((el) => ({ ...el, type: el.name }));
-
   const genericEls = userStore.allGenericElements();
-  if (genericEls.size < 1) { return; }
-
   const genericElsWithLabel = genericEls.map((el) => ({
     name: el.name,
     label: el.label,
@@ -42,15 +39,11 @@ const CollectionTabs = () => {
     type: el.name,
     isGeneric: true
   }));
-  const combined = [...standardEls, ...genericElsWithLabel];
-  combined.sort((a, b) => a.label.localeCompare(b.label));
+  const allElements = [...standardEls, ...genericElsWithLabel].sort((a, b) => a.label.localeCompare(b.label));
 
-  setAllElements(combined);
-  setSelectedCategory(combined[0]?.name);
-  setLayouts(combined.reduce((acc, { name }) => {
-    acc[name] = { visible: List(), hidden: List() };
-    return acc;
-  }, {}));
+  const activeCategory = allElements.some((el) => el.name === selectedCategory)
+    ? selectedCategory
+    : allElements[0]?.name;
 
   const handleSave = () => {
     const layoutSegments = allElnElmentsWithLabel.reduce((acc, { name }) => {
@@ -61,11 +54,10 @@ const CollectionTabs = () => {
     collectionsStore.updateCollection(currentCollection, layoutSegments);
 
     // Update profile
-    const { userProfile } = userStore;
     Object.entries(layoutSegments).map((type, layout) => {
-      set(userProfile, `data.layout_detail_${type}`, layout);
+      set(profile, `data.layout_detail_${type}`, layout);
     });
-    userStore.updateUserProfile(userProfile);
+    userStore.updateUserProfile(profile);
 
     setShowModal(false);
   };
@@ -75,11 +67,11 @@ const CollectionTabs = () => {
     const updatedLayouts = allElements.reduce((acc, { name, isGeneric }) => {
       // Use element-specific layout, or generic layout for generic elements, or empty
       const layoutDetail = isGeneric ? 'layout_detail_generic' : `layout_detail_${name}`;
-      const defaultLayout = (userStore.profile && userStore.profile[layoutDetail]) || {};
+      const defaultLayout = (userStore.profile?.data && userStore.profile.data[layoutDetail]) || {};
       const layout = (isEmpty(tabsSegment[name])) ? defaultLayout : tabsSegment[name];
 
       // Get segment labels for this element type
-      const segmentKlasses = (UserStore.getState() && UserStore.getState().segmentKlasses) || [];
+      const segmentKlasses = (userStore.segmentKlasses) || [];
       const segmentLabels = segmentKlasses
         .filter((s) => s.element_klass && s.element_klass.name === name)
         .map((s) => s.label);
@@ -109,6 +101,7 @@ const CollectionTabs = () => {
         className="d-flex align-items-center justify-content-between mb-2 bg-dark-subtle"
         draggable={false}
         onMouseDown={(e) => e.stopPropagation()}
+        role="presentation"
       >
         <div className="ms-3">{node.label}</div>
         <Button
@@ -148,7 +141,7 @@ const CollectionTabs = () => {
               <div className="d-flex flex-column">
                 {allElements.map((element) => {
                   const { name, label } = element;
-                  const isActive = selectedCategory === name;
+                  const isActive = activeCategory === name;
                   const btnClass = `btn text-start py-2 mb-2 ${isActive ? 'surface-active' : ''}`;
                   return (
                     <button
@@ -175,11 +168,11 @@ const CollectionTabs = () => {
                 Choose which items appear for this category and in what order.
               </p>
               <CollectionTabLayoutEditor
-                visible={layouts[selectedCategory].visible}
-                hidden={layouts[selectedCategory].hidden}
+                visible={layouts[activeCategory].visible}
+                hidden={layouts[activeCategory].hidden}
                 getItemComponent={({ item }) => <TabItemComponent item={item} />}
                 onLayoutChange={(visible, hidden) => {
-                  setLayouts({ ...layouts, [selectedCategory]: { visible, hidden } });
+                  setLayouts({ ...layouts, [activeCategory]: { visible, hidden } });
                 }}
               />
             </div>

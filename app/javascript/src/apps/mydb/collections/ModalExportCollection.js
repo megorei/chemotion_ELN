@@ -3,16 +3,15 @@ import PropTypes from 'prop-types';
 import AppModal from 'src/components/common/AppModal';
 
 import { StoreContext } from 'src/stores/mobx/RootStore';
-import UserStore from 'src/stores/alt/stores/UserStore';
 
-function ModalExportCollection({ onHide }) {
+const ModalExportCollection = ({ onHide }) => {
   const collectionsStore = useContext(StoreContext).collections;
+  const { currentUser } = useContext(StoreContext).userStore;
   const lockedCollections = collectionsStore.locked_collection;
   const ownCollections = collectionsStore.own_collections;
   // The real shared collections live under the per-owner root nodes of the shared-with-me tree.
   const sharedCollections = collectionsStore.shared_with_me_collections.flatMap((owner) => owner.children || []);
   const allCollections = [];
-  const currentUser = (UserStore.getState() && UserStore.getState().currentUser) || {};
   const [checkedCollections, setCheckedCollections] = useState({});
   const [processing, setProcessing] = useState(false);
 
@@ -145,7 +144,7 @@ function ModalExportCollection({ onHide }) {
       {renderCheckAll()}
     </AppModal>
   );
-}
+};
 
 export default ModalExportCollection;
 
