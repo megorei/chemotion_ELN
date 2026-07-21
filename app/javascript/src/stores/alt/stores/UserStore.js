@@ -2,8 +2,8 @@ import alt from 'src/stores/alt/alt';
 import UserActions from 'src/stores/alt/actions/UserActions';
 
 class UserStore {
-  constructor() {
-    this.state = {
+  defaults() {
+    return {
       currentUser: null,
       profile: null,
       // TODO: currentTab and currentType should be in UIStore
@@ -19,8 +19,13 @@ class UserStore {
       unitsSystem: {},
       matriceConfigs: [],
       omniauthProviders: [],
-      bao: []
+      bao: [],
+      role: window.localStorage.getItem('chemotion-role') || 'Guest',
+      authToken: window.localStorage.getItem('chemotion-auth-token') || null
     };
+  }
+  constructor() {
+    this.state = this.defaults();
 
     this.bindListeners({
       handleFetchOlsRxno: UserActions.fetchOlsRxno,
@@ -37,8 +42,24 @@ class UserStore {
       handleSegementKlasses: UserActions.fetchSegmentKlasses,
       handleDatasetKlasses: UserActions.fetchDatasetKlasses,
       handleUnitsSystem: UserActions.fetchUnitsSystem,
-      handleOmniauthProviders: UserActions.fetchOmniauthProviders
+      handleOmniauthProviders: UserActions.fetchOmniauthProviders,
+      handleLogin: UserActions.login,
+      handleLogout: UserActions.logout,
     });
+  }
+
+  handleLogout() {
+    this.handleLogin({ authToken: null, role: 'Guest' }); // reset values in localStorage so defaults() works properly
+    const newState = this.defaults();
+    this.setState(newState);
+  }
+
+  handleLogin(result) {
+    this.state.authToken = result.authToken;
+    window.localStorage.setItem('chemotion-auth-token', result.authToken);
+
+    this.state.role = result.role;
+    window.localStorage.setItem('chemotion-role', result.role);
   }
 
   handleFetchUserLabels(result) {

@@ -138,7 +138,6 @@ export default class UsersFetcher {
   static submitAsForm(url, method, body) {
     const options = {
       body,
-      headers: {},
       handleResponseSuccess: (response) => response
     };
     if (method === 'PUT') {

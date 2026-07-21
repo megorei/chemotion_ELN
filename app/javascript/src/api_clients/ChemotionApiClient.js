@@ -2,6 +2,32 @@
 // TODO: research if the following import can be safely removed
 // import 'whatwg-fetch';
 
+// utility functions
+const buildHeaders = (headers) => {
+  const returnHeaders = new Headers();
+
+  if (headers != null) {
+    Object.keys(headers).forEach((header) => {
+      returnHeaders.set(header, headers[header]);
+    });
+  }
+  const authToken = localStorage.getItem('chemotion-auth-token');
+  if (authToken) { returnHeaders.set('Authorization', authToken); }
+  if (!returnHeaders.has('Accept')) returnHeaders.set('Accept', 'application/json');
+  if (!returnHeaders.has('Content-Type')) returnHeaders.set('Content-Type', 'application/json');
+
+  const content_type_available = returnHeaders.has('Content-Type');
+  const content_type = returnHeaders.get('Content-Type');
+  const content_type_null = content_type === 'null'; // JS returns null (object primitive) when the key is not set, but 'null' if the key is present but set to null
+
+  if (content_type_available && content_type_null) {
+    console.debug('Content-Type was null - deleting it from headers');
+    returnHeaders.delete('Content-Type');
+  }
+
+  return returnHeaders;
+};
+
 /**
  * Low-level request wrapper shared by every verb helper; the only place that
  * actually calls `fetch`.
@@ -28,10 +54,11 @@ const apiRequest = (apiEndpoint, options) => {
     credentials: 'same-origin',
     handleResponseSuccess: (response) => (response.status === 204 ? null : response.json()),
     handleResponseError: (exception) => { console.log(exception); },
-    headers: { Accept: 'application/json', 'Content-Type': 'application/json' }
   };
+  console.debug('apiRequest', options);
+  const headers = buildHeaders(options?.headers);
 
-  options = { ...globalDefaults, ...options };
+  options = { ...globalDefaults, ...options, headers };
   const { handleResponseSuccess, handleResponseError } = options;
 
   return fetch(apiEndpoint, options)
@@ -61,7 +88,7 @@ const putFormData = (apiEndpoint, options) => {
   const defaults = {
     method: 'PUT',
     headers: {
-      Accept: 'application/json' // lets see what omitting the content-type header does...
+      'Content-Type': null
     }
   };
 
@@ -83,7 +110,7 @@ const postFormData = (apiEndpoint, options) => {
   const defaults = {
     method: 'POST',
     headers: {
-      Accept: 'application/json' // lets see what omitting the content-type header does...
+      'Content-Type': null
     }
   };
 

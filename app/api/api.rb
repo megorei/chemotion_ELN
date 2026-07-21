@@ -27,7 +27,7 @@ class API < Grape::API
     end
 
     def detect_current_user
-      detect_current_user_from_session || detect_current_user_from_api_token || detect_current_user_from_jwt
+      detect_current_user_from_jwt || detect_current_user_from_api_token || detect_current_user_from_session
     end
 
     def detect_current_user_from_session
@@ -35,12 +35,16 @@ class API < Grape::API
     end
 
     def detect_current_user_from_jwt
+      return unless token_in_header?
+
       decoded_token = JsonWebToken.decode(current_token)
       user_id = decoded_token[:user_id]
 
       User.find(user_id)
-    rescue StandardError
-      nil
+    rescue StandardError => e
+      Rails.logger.debug('Ran into an exception')
+      Rails.logger.debug(e.message)
+      Rails.logger.debug(e.backtrace.join("\n"))
     end
 
     def detect_current_user_from_api_token
@@ -59,7 +63,7 @@ class API < Grape::API
     end
 
     def token_in_header?
-      request.headers['Authorization'].present?
+      request.headers['Authorization'].present? && request.headers['Authorization'].match?(/Bearer .*/)
     end
 
     def user_ids

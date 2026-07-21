@@ -6,6 +6,7 @@ import UserLabelsFetcher from 'src/fetchers/UserLabelsFetcher';
 import alt from 'src/stores/alt/alt';
 
 class UserActions {
+
   fetchOlsRxno() {
     return (dispatch) => {
       UsersFetcher.fetchOls('rxno')
@@ -61,13 +62,16 @@ class UserActions {
     };
   }
 
+  login(authToken, role) {
+    return (dispatch) => {
+      dispatch({authToken, role});
+    };
+  }
+
   logout() {
-    UsersFetcher.logoutUser()
-      .then((response) => {
-        if (response.status === 204) {
-          location = '/home';
-        }
-      });
+    return (dispatch) => {
+      dispatch();
+    };
   }
 
   fetchProfile() {
