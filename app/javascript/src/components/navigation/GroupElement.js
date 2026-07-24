@@ -79,6 +79,7 @@ const GroupElement = ({ group, currentUser, onDeleteGroup, onDeleteUser, onUpdat
         setGroupAdmin(groupRec, userRec, false);
       }
     }
+    return null;
   };
 
   // add multiple users
@@ -149,7 +150,7 @@ const GroupElement = ({ group, currentUser, onDeleteGroup, onDeleteUser, onUpdat
           type="button"
           variant="danger"
           title={tooltipText}
-          onClick={() => confirmDelete(type, groupRec, userRec)}
+          onClick={() => confirmDelete('', groupRec, userRec)}
         >
           <i className="fa fa-trash-o" />
         </Button>
