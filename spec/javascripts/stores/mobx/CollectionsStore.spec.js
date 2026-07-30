@@ -1,7 +1,7 @@
 /* eslint-disable import/no-unresolved */
 import expect from 'expect';
 import sinon from 'sinon';
-import { RootStore } from 'src/stores/mobx/RootStore';
+import { rootStore } from 'src/stores/mobx/RootStore';
 import ElementActions from 'src/stores/alt/actions/ElementActions';
 import CollectionElementsFetcher from 'src/fetchers/CollectionElementsFetcher';
 
@@ -21,7 +21,7 @@ describe('CollectionsStore', () => {
     deleteStub = sinon.stub(CollectionElementsFetcher, 'deleteElementsFromCollection');
     // isolate from the alt dispatcher / element refetch
     refreshStub = sinon.stub(ElementActions, 'refreshElementsAfterCollectionChanges');
-    store = RootStore.create({}).collectionsStore;
+    store = rootStore.collectionsStore;
   });
 
   afterEach(() => {
