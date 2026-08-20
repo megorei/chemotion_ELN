@@ -11,6 +11,55 @@ describe Chemotion::PublicAPI do
     end
   end
 
+  describe 'GET /api/v1/public/health' do
+    context 'when the database is reachable' do
+      before { get('/api/v1/public/health') }
+
+      it 'responds 200' do
+        expect(response).to have_http_status :ok
+      end
+
+      it 'responds with status ok, db true and the app version' do
+        expect(parsed_json_response).to eq(
+          'status' => 'ok',
+          'db' => true,
+          'version' => Chemotion::Application.config.version['version'],
+        )
+      end
+    end
+
+    context 'when the database is not reachable' do
+      before do
+        allow(Usecases::Public::HealthCheck).to receive(:database_ready?).and_return(false)
+        get('/api/v1/public/health')
+      end
+
+      it 'responds 503' do
+        expect(response).to have_http_status :service_unavailable
+      end
+
+      it 'responds with status error and db false' do
+        expect(parsed_json_response).to eq('status' => 'error', 'db' => false)
+      end
+    end
+  end
+
+  describe 'GET /api/v1/public/version' do
+    before { get('/api/v1/public/version') }
+
+    it 'responds 200' do
+      expect(response).to have_http_status :ok
+    end
+
+    it 'exposes only version and revision' do
+      expect(parsed_json_response.keys).to contain_exactly('version', 'revision')
+    end
+
+    it 'responds with the configured app version' do
+      expect(parsed_json_response['version']).to eq(Chemotion::Application.config.version['version'])
+    end
+  end
+
   describe 'POST /api/v1/public/token' do
     subject(:execute_request) { post('/api/v1/public/token', params: params) }
 
