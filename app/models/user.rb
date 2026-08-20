@@ -116,6 +116,7 @@ class User < ApplicationRecord
   has_many :calendar_entries, foreign_key: :created_by, inverse_of: :creator, dependent: :destroy
   has_many :comments, foreign_key: :created_by, inverse_of: :creator, dependent: :destroy
   has_many :api_tokens, dependent: :destroy
+  has_many :user_roles, dependent: :destroy
 
   accepts_nested_attributes_for :affiliations, :profile
 
@@ -350,25 +351,64 @@ class User < ApplicationRecord
     ).order('ua.from DESC')
   end
 
+  # --- RBAC (WP 06): first-class roles in user_roles ------------------------
+
+  # rubocop:disable Naming/PredicatePrefix -- has_role? is the WP-specified query API
+  def has_role?(name, scope_type: nil, scope_id: nil)
+    user_roles.exists?(name: name, scope_type: scope_type, scope_id: scope_id)
+  end
+  # rubocop:enable Naming/PredicatePrefix
+
+  # Idempotent grant. `granted_by` is the acting user's id (nil = system, e.g.
+  # backfill). Audit: granted_by + created_at on the row, plus a structured
+  # `user_role.granted` log line (see UserRole).
+  def grant_role!(name, scope_type: nil, scope_id: nil, granted_by: nil)
+    user_roles.find_or_create_by!(name: name, scope_type: scope_type, scope_id: scope_id) do |role|
+      role.granted_by = granted_by
+    end
+  end
+
+  # Revoke = delete (user_roles is not paranoid); a structured
+  # `user_role.revoked` log line records who/when/what scope.
+  def revoke_role!(name, scope_type: nil, scope_id: nil, revoked_by: nil)
+    user_roles.where(name: name, scope_type: scope_type, scope_id: scope_id).find_each do |role|
+      role.revoked_by = revoked_by
+      role.destroy!
+    end
+  end
+
+  # Facade over has_role?: the legacy profile.data flag readers keep their
+  # names and serialized shapes (typed client contract in UserStore), but are
+  # backed by user_roles since WP 06.
+  # rubocop:disable Naming/PredicateMethod, Naming/PredicatePrefix -- method names are the serialized client contract
   def is_templates_moderator
-    profile&.data&.fetch('is_templates_moderator', false)
+    has_role?(UserRole::TEMPLATES_MODERATOR)
   end
 
   def molecule_editor
-    profile&.data&.fetch('molecule_editor', false)
+    has_role?(UserRole::MOLECULE_EDITOR)
   end
 
+  # Same hash shape as the legacy profile.data['generic_admin']: string keys,
+  # granted scopes => true, non-granted scopes absent ({} when none) — all read
+  # sites (labimotion authenticate_admin!/authorized?, frontend) test truthiness
+  # per key, so an absent key is equivalent to the legacy stored false.
   def generic_admin
-    profile&.data&.fetch('generic_admin', {})
+    UserRole::GENERIC_ADMIN_SCOPES.each_with_object({}) do |scope, hash|
+      hash[scope] = true if has_role?(UserRole::GENERIC_ADMIN, scope_type: scope)
+    end
   end
 
   def converter_admin
-    profile&.data&.fetch('converter_admin', false)
+    has_role?(UserRole::CONVERTER_ADMIN)
   end
 
   def global_text_template_editor
-    profile&.data&.fetch('global_text_template_editor', false)
+    has_role?(UserRole::GLOBAL_TEXT_TEMPLATE_EDITOR)
   end
+  # rubocop:enable Naming/PredicateMethod, Naming/PredicatePrefix
+
+  # --- /RBAC ----------------------------------------------------------------
 
   def matrix_check_by_name(name)
     mx = Matrice.find_by(name: name)

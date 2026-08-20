@@ -62,4 +62,47 @@ RSpec.describe Chemotion::AdminUserAPI do
       expect(group.reload.admins).to include(user)
     end
   end
+
+  describe 'PUT /api/v1/admin/users/:id/profile (role writer)' do
+    let(:url) { "/api/v1/admin/users/#{user.id}/profile" }
+
+    it 'grants an unscoped role from a legacy flag param and keeps the response shape', :aggregate_failures do
+      put url, params: { is_templates_moderator: true }
+
+      expect(response).to have_http_status(:ok)
+      expect(parsed_json_response['is_templates_moderator']).to be true
+      expect(user.reload.has_role?(UserRole::TEMPLATES_MODERATOR)).to be true
+      expect(user.user_roles.find_by(name: UserRole::TEMPLATES_MODERATOR).granted_by).to eq(admin.id)
+    end
+
+    it 'revokes on false and leaves unrelated roles alone', :aggregate_failures do
+      user.grant_role!(UserRole::TEMPLATES_MODERATOR)
+      user.grant_role!(UserRole::MOLECULE_EDITOR)
+
+      put url, params: { is_templates_moderator: false }
+
+      expect(response).to have_http_status(:ok)
+      expect(parsed_json_response['is_templates_moderator']).to be false
+      expect(parsed_json_response['molecule_editor']).to be true
+      expect(user.has_role?(UserRole::TEMPLATES_MODERATOR)).to be false
+      expect(user.has_role?(UserRole::MOLECULE_EDITOR)).to be true
+    end
+
+    it 'grants and revokes scoped generic_admin roles from the auth_generic_admin hash', :aggregate_failures do
+      user.grant_role!(UserRole::GENERIC_ADMIN, scope_type: 'datasets')
+
+      put url, params: { auth_generic_admin: { elements: true, datasets: false } }
+
+      expect(response).to have_http_status(:ok)
+      expect(parsed_json_response['generic_admin']).to eq('elements' => true)
+      expect(user.has_role?(UserRole::GENERIC_ADMIN, scope_type: 'elements')).to be true
+      expect(user.has_role?(UserRole::GENERIC_ADMIN, scope_type: 'datasets')).to be false
+    end
+
+    it 'mirrors converter_admin into profile.data for the labimotion direct read' do
+      put url, params: { converter_admin: true }
+
+      expect(user.reload.profile.data['converter_admin']).to be true
+    end
+  end
 end

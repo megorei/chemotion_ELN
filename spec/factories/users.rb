@@ -37,12 +37,8 @@ FactoryBot.define do
 
     factory :generic_user do
       callback(:after_create) do |user|
-        profile = user.profile
-        data = profile&.data
-        unless data.nil?
-          data[:generic_admin] = { elements: true, segments: true, datasets: true }
-          # data.merge!(generic_admin: { elements: true, segments: true, datasets: true })
-          profile.update_columns(data: data)
+        UserRole::GENERIC_ADMIN_SCOPES.each do |scope|
+          user.grant_role!(UserRole::GENERIC_ADMIN, scope_type: scope)
         end
       end
     end
