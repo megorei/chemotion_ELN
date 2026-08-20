@@ -7,6 +7,10 @@ require 'dotenv'
 
 Dotenv.load
 
+# Explicit require: the tenant seam is needed below at config time, before
+# autoloading is available (lib/tenant_context.rb maps Zeitwerk-clean).
+require_relative '../lib/tenant_context'
+
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups, :plugins)
@@ -60,7 +64,7 @@ module Chemotion
       puts message
     end
 
-    uri = URI.parse(ENV['PUBLIC_URL'] || 'http://localhost:3000')
+    uri = TenantContext.current.root_uri
     scheme = uri.scheme || 'http'
     host   = uri.host   || 'localhost'
     port   = uri.port
