@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_07_09_140001) do
+ActiveRecord::Schema.define(version: 2026_08_20_120100) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -1713,6 +1713,22 @@ ActiveRecord::Schema.define(version: 2026_07_09_140001) do
     t.datetime "deleted_at"
   end
 
+  # Deliberately NOT paranoid: a revoked role is a deleted row; grant/revoke is
+  # audited via granted_by/timestamps and structured role-audit log lines.
+  create_table "user_roles", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.string "scope_type"
+    t.bigint "scope_id"
+    t.bigint "granted_by"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id", "name", "scope_type", "scope_id"], name: "index_user_roles_uniqueness", unique: true
+    t.index ["user_id", "name", "scope_type"], name: "index_user_roles_type_scoped_uniqueness", unique: true, where: "((scope_type IS NOT NULL) AND (scope_id IS NULL))"
+    t.index ["user_id", "name"], name: "index_user_roles_unscoped_uniqueness", unique: true, where: "((scope_type IS NULL) AND (scope_id IS NULL))"
+    t.index ["user_id"], name: "index_user_roles_on_user_id"
+  end
+
   create_table "users", id: :serial, force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -1886,6 +1902,8 @@ ActiveRecord::Schema.define(version: 2026_07_09_140001) do
   add_foreign_key "sample_tasks", "users", column: "creator_id"
   add_foreign_key "sequence_based_macromolecule_samples", "sequence_based_macromolecules"
   add_foreign_key "sequence_based_macromolecule_samples", "users"
+  add_foreign_key "user_roles", "users"
+  add_foreign_key "user_roles", "users", column: "granted_by"
   create_function :user_instrument, sql_definition: <<-'SQL'
       CREATE OR REPLACE FUNCTION public.user_instrument(user_id integer, sc text)
        RETURNS TABLE(instrument text)

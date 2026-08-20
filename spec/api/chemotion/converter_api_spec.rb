@@ -16,7 +16,7 @@ describe Chemotion::ConverterAPI do
     config.timeout = 30
     allow(Rails.configuration).to receive(:converter).and_return(config)
 
-    admin.profile.update!(data: admin.profile.data.merge('converter_admin' => true))
+    admin.grant_role!(UserRole::CONVERTER_ADMIN)
   end
 
   describe 'converter_admin gating' do

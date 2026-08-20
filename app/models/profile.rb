@@ -73,12 +73,11 @@ class Profile < ApplicationRecord
   end
 
   def data_default_bool
-    data['is_templates_moderator'] = false
-    data['molecule_editor'] = false
-    data['converter_admin'] = false
+    # Role flags (is_templates_moderator, molecule_editor, converter_admin,
+    # global_text_template_editor, generic_admin) moved to user_roles (WP 06)
+    # and are no longer seeded here.
     data['inbox_auto'] = false
     data['inbox_manual'] = true
-    data['global_text_template_editor'] = false
   end
 
   def data_default_layout
