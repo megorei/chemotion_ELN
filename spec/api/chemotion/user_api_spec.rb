@@ -103,10 +103,6 @@ describe Chemotion::UserAPI do
     pending 'TODO: Add missing spec'
   end
 
-  describe 'DELETE /api/v1/users/sign_out' do
-    pending 'TODO: Add missing spec'
-  end
-
   describe 'GET /api/v1/users/devices' do
     let(:own_device) { create(:device) }
     let(:group_device) { create(:device) }
