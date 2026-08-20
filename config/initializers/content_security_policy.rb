@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Be sure to restart your server when you modify this file.
 
 # Define an application-wide content security policy
@@ -24,7 +26,7 @@ Rails.application.config.content_security_policy do |policy|
 
   # connect_src for log and webpack-dev-serverwebsockets in development
   if Rails.env.development?
-    url = URI.parse(ENV['PUBLIC_URL'] || '')
+    url = URI.parse(TenantContext.current.public_url || '')
     scheme = url.scheme || 'http'
     host = url.host
     port = url.port
