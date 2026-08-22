@@ -43,6 +43,24 @@ RSpec.describe UserRole do
     end
   end
 
+  describe 'group_admin scoping (WP 07)' do
+    let(:group) { create(:group) }
+
+    it 'requires the group scope' do
+      expect(described_class.new(user: user, name: UserRole::GROUP_ADMIN)).not_to be_valid
+      expect(described_class.new(user: user, name: UserRole::GROUP_ADMIN, scope_type: 'bogus',
+                                 scope_id: group.id)).not_to be_valid
+      expect(described_class.new(user: user, name: UserRole::GROUP_ADMIN,
+                                 scope_type: UserRole::GROUP_ADMIN_SCOPE)).not_to be_valid
+    end
+
+    it 'is valid when scoped to a group id' do
+      role = described_class.new(user: user, name: UserRole::GROUP_ADMIN,
+                                 scope_type: UserRole::GROUP_ADMIN_SCOPE, scope_id: group.id)
+      expect(role).to be_valid
+    end
+  end
+
   describe 'paranoia' do
     it 'is deliberately not paranoid: revoked means deleted' do
       expect(described_class.new).not_to respond_to(:deleted_at)

@@ -642,8 +642,18 @@ class Group < User
   around_save :update_allocated_space
   before_destroy :remove_from_matrices
 
+  # WP 07 (REQ-ELN-12): the single resolution point for "is this user a group
+  # admin of this group" — GroupPolicy and the Grape GroupAdminHelpers both
+  # funnel through here. Truth is DUAL during the RBAC migration: the legacy
+  # users_admins join stays authoritative (WP 06 deliberately did not backfill
+  # it), and first-class user_roles grants (group_admin, scope 'group'/id) are
+  # honored additionally. Collapsing users_admins into user_roles is a WP 07
+  # part-2 / WP 08 decision.
   def administrated_by?(user)
-    users_admins.where(admin: user).present?
+    return false if user.nil?
+
+    users_admins.exists?(admin: user) ||
+      user.has_role?(UserRole::GROUP_ADMIN, scope_type: UserRole::GROUP_ADMIN_SCOPE, scope_id: id)
   end
 
   # Single source of truth for "removing this admin would leave the group with none" —

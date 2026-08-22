@@ -10,7 +10,7 @@ module Chemotion
   class AdminAPI < Grape::API
     resource :admin do
       before do
-        error!(401) unless current_user.is_a?(Admin)
+        error!('401 Unauthorized', 401) unless current_user.is_a?(Admin) # WP 07: bare error!(401) answered HTTP 500
       end
 
       desc 'Check disk space'

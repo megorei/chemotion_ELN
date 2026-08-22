@@ -14,6 +14,14 @@ class UserRole < ApplicationRecord
   CONVERTER_ADMIN = 'converter_admin'
   GLOBAL_TEXT_TEMPLATE_EDITOR = 'global_text_template_editor'
   GENERIC_ADMIN = 'generic_admin'
+  # WP 07 (REQ-ELN-12): first-class group adminship, always scoped to exactly
+  # one group (scope_type: GROUP_ADMIN_SCOPE, scope_id: <Group#id>). NOTE the
+  # duality: the legacy `users_admins` join remains the authoritative source of
+  # group adminship (WP 06 deliberately did not backfill it); rows here are
+  # honored ADDITIONALLY via Group#administrated_by?. Migrating users_admins
+  # into user_roles is a WP 07 part-2 / WP 08 decision.
+  GROUP_ADMIN = 'group_admin'
+  GROUP_ADMIN_SCOPE = 'group'
 
   # Operator-defined grantable set (REQ-ELN-13): role names cannot be invented
   # ad hoc by a (tenant) admin — extend this list deliberately.
@@ -23,6 +31,7 @@ class UserRole < ApplicationRecord
     CONVERTER_ADMIN,
     GLOBAL_TEXT_TEMPLATE_EDITOR,
     GENERIC_ADMIN,
+    GROUP_ADMIN,
   ].freeze
 
   # The generic_admin scopes mirror the legacy profile.data hash keys — the
@@ -92,12 +101,27 @@ class UserRole < ApplicationRecord
   private
 
   def scope_matches_role
-    if name == GENERIC_ADMIN
-      errors.add(:scope_type, "must be one of #{GENERIC_ADMIN_SCOPES.join(', ')}") unless
-        GENERIC_ADMIN_SCOPES.include?(scope_type)
-    elsif scope_type.present? || scope_id.present?
-      errors.add(:scope_type, "#{name} is a tenant-wide role and cannot be scoped")
+    case name
+    when GENERIC_ADMIN then validate_generic_admin_scope
+    when GROUP_ADMIN then validate_group_admin_scope
+    else validate_tenant_wide_scope
     end
+  end
+
+  def validate_generic_admin_scope
+    errors.add(:scope_type, "must be one of #{GENERIC_ADMIN_SCOPES.join(', ')}") unless
+      GENERIC_ADMIN_SCOPES.include?(scope_type)
+  end
+
+  def validate_group_admin_scope
+    errors.add(:scope_type, "must be '#{GROUP_ADMIN_SCOPE}'") unless scope_type == GROUP_ADMIN_SCOPE
+    errors.add(:scope_id, 'must reference a group') if scope_id.blank?
+  end
+
+  def validate_tenant_wide_scope
+    return if scope_type.blank? && scope_id.blank?
+
+    errors.add(:scope_type, "#{name} is a tenant-wide role and cannot be scoped")
   end
 
   def audit_grant

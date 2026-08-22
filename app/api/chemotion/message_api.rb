@@ -3,6 +3,8 @@
 module Chemotion
   # Publish-Subscription MessageAPI
   class MessageAPI < Grape::API
+    helpers GroupAdminHelpers
+
     resource :messages do
       desc 'Get message configuration'
       get 'config' do
@@ -130,6 +132,18 @@ module Chemotion
                               coerce_with: ->(val) { val.filter { |id| id.is_a?(Integer) } }
         end
         post do
+          # WP 07 (REQ-ELN-12), deny-by-default: this endpoint used to trust
+          # client-supplied channel_id/user_ids, letting any authenticated user
+          # spoof notifications to arbitrary receivers. Instance Admins keep
+          # the tenant-wide broadcast surface (MessagePublish/UserManagement
+          # admin UI); a group admin may target only members of groups they
+          # administrate (users_admins or user_roles, see GroupAdminHelpers).
+          # Channel-scoped delegation beyond that is REQ-ELN-14 (part 2).
+          unless current_user.is_a?(Admin)
+            target_ids = params[:user_ids].to_a.uniq
+            error!('401 Unauthorized', 401) if target_ids.empty? || (target_ids - administrated_member_ids).any?
+          end
+
           message = Message.create_msg_notification(
             channel_id: params[:channel_id],
             message_content: { data: params[:content] },
