@@ -6,7 +6,13 @@
 Rails.application.config.after_initialize do
   Rails.application.configure do
     begin
-      compute_config = ActiveRecord::Base.connection.table_exists?('matrices') ? (Matrice.find_by(name: 'computedProp')&.configs || {}) : {}
+      # WP 05: configs_with_secrets merges the encrypted hmac_secret /
+      # receiving_secret back in (they are stripped from the configs JSONB).
+      compute_config = if ActiveRecord::Base.connection.table_exists?('matrices')
+                         Matrice.find_by(name: 'computedProp')&.configs_with_secrets || {}
+                       else
+                         {}
+                       end
     rescue ActiveRecord::StatementInvalid, PG::ConnectionBad, PG::UndefinedTable
       compute_config = {}
     ensure

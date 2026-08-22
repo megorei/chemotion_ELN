@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_20_120100) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_22_120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -927,6 +927,15 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_20_120100) do
     t.string "doi"
     t.string "isbn"
     t.index ["deleted_at"], name: "index_literatures_on_deleted_at"
+  end
+
+  create_table "matrice_secrets", force: :cascade do |t|
+    t.bigint "matrice_id", null: false
+    t.string "key", null: false
+    t.text "secret"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["matrice_id", "key"], name: "index_matrice_secrets_on_matrice_id_and_key", unique: true
   end
 
   create_table "matrices", id: :serial, force: :cascade do |t|
@@ -1895,6 +1904,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_20_120100) do
   add_foreign_key "components", "samples"
   add_foreign_key "layer_tracks", "layers", column: "identifier", primary_key: "identifier"
   add_foreign_key "literals", "literatures"
+  add_foreign_key "matrice_secrets", "matrices", column: "matrice_id"
   add_foreign_key "reactions_reactant_sbmm_samples", "reactions"
   add_foreign_key "reactions_reactant_sbmm_samples", "sequence_based_macromolecule_samples"
   add_foreign_key "report_templates", "attachments"
