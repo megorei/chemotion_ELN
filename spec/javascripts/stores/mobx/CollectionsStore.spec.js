@@ -1,7 +1,8 @@
 /* eslint-disable import/no-unresolved */
 import expect from 'expect';
 import sinon from 'sinon';
-import { RootStore } from 'src/stores/mobx/RootStore';
+import { applySnapshot, getSnapshot } from 'mobx-state-tree';
+import { rootStore } from 'src/stores/mobx/RootStore';
 import { Collection } from 'src/stores/mobx/CollectionsStore';
 import ElementActions from 'src/stores/alt/actions/ElementActions';
 import CollectionElementsFetcher from 'src/fetchers/CollectionElementsFetcher';
@@ -12,6 +13,11 @@ import CollectionSharesFetcher from 'src/fetchers/CollectionSharesFetcher';
 // and the lock toast both branch on it, and the fetcher's return-shape change (boolean -> object|null|
 // undefined) is otherwise untested: restoring `handleResponseSuccess: (r) => r.ok` on the fetcher would
 // make lockedSampleIds empty and the "sample locked" toast silently never fire — these cases catch that.
+// RootStore is a module singleton now (the type is no longer exported), so capture the
+// pristine default snapshot at load time (before any test has run) and reapply it per
+// test — this restores exactly the state a fresh `RootStore.create({})` used to provide.
+const pristineCollectionsSnapshot = getSnapshot(rootStore.collectionsStore);
+
 describe('CollectionsStore', () => {
   const params = { collection_id: 1, ui_state: { currentCollection: { id: 1 } } };
   let deleteStub;
@@ -24,7 +30,8 @@ describe('CollectionsStore', () => {
     deleteStub = sinon.stub(CollectionElementsFetcher, 'deleteElementsFromCollection');
     // isolate from the alt dispatcher / element refetch
     refreshStub = sinon.stub(ElementActions, 'refreshElementsAfterCollectionChanges');
-    store = RootStore.create({}).collectionsStore;
+    applySnapshot(rootStore.collectionsStore, pristineCollectionsSnapshot);
+    store = rootStore.collectionsStore;
   });
 
   afterEach(() => {

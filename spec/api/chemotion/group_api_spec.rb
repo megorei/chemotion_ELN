@@ -67,6 +67,38 @@ describe Chemotion::GroupAPI do
     end
   end
 
+  # Regression guard for the set-union semantics: member groups AND administrated
+  # groups must both appear. A boolean `||` silently drops the administrated ones,
+  # because `current_user.groups` is an (always-truthy) relation even when empty.
+  describe 'GET /api/v1/groups for an admin who is not a member' do
+    let(:user) { non_member_admin }
+    let!(:member_group) do
+      create(:group, admins: [group_admin], users: [non_member_admin, group_admin],
+                     first_name: 'Member', last_name: 'Group')
+    end
+    let!(:administrated_group) do
+      create(:group, admins: [group_admin, non_member_admin], users: [group_admin, member],
+                     first_name: 'Administrated', last_name: 'Group')
+    end
+
+    it 'unions member groups with administrated groups' do
+      get '/api/v1/groups'
+      ids = parsed_json_response['currentGroups'].pluck('id')
+      expect(ids).to include(member_group.id, administrated_group.id)
+    end
+
+    context 'when the user is a member of no group at all' do
+      # overrides the outer let! - the eager hook now yields nil, so no membership exists
+      let(:member_group) { nil }
+
+      it 'still lists the administrated group' do
+        get '/api/v1/groups'
+        ids = parsed_json_response['currentGroups'].pluck('id')
+        expect(ids).to include(administrated_group.id)
+      end
+    end
+  end
+
   describe 'DELETE /api/v1/groups/:id' do
     subject(:execute_request) { delete "/api/v1/groups/#{group.id}" }
 
