@@ -2,7 +2,16 @@
 
 module Entities
   class MatriceEntity < ApplicationEntity
-    expose :id, :enabled, :name, :label, :configs
+    expose :id, :enabled, :name, :label
+
+    # WP 05 (REQ-ELN-5): secrets are write-only. Serialized configs carry a
+    # masked placeholder (Matrice::SECRET_PLACEHOLDER) for every stored or
+    # residual plaintext secret — never the value itself.
+    expose :configs
+
+    def configs
+      object.masked_configs
+    end
 
     expose_timestamps
 

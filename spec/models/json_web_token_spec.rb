@@ -6,8 +6,11 @@ RSpec.describe JsonWebToken do
   after { travel_back }
 
   let(:user_id) { 42 }
+  # NOTE: this used to be a hard-coded token string signed with the committed
+  # test secret_key_base from config/secrets.yml; the Rails 7.2 upgrade removed
+  # that file, so the fixture is now built against the effective key.
   let(:expected_token) do
-    'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo0MiwiZXhwIjoxNjY1NDA0MTI1fQ.jd-274lUfOejePcgYFOMQwiLuYanADMHhlFAPpAte_I'
+    JWT.encode({ user_id: user_id, exp: expected_timestamp }, Rails.application.secret_key_base, 'HS256')
   end
   let(:expected_timestamp) { 1_665_404_125 }
   let(:token_generated_time)  { Time.utc(2022, 4, 10, 12, 15, 25) }
@@ -29,9 +32,32 @@ RSpec.describe JsonWebToken do
     context 'when expire time missing' do
       subject(:encoded_token) { described_class.encode(payload) }
 
-      it 'returns a json web token with default expire date' do
-        expect(encoded_token).to eq(expected_token)
+      # WP 05: the silent 6-month default was replaced by the shared
+      # JWT_TTL_HOURS baseline (336 h = 2 weeks, aligned with the JSON login).
+      it 'returns a json web token expiring after the default TTL (336 hours)' do
+        decoded = JWT.decode(encoded_token, Rails.application.secret_key_base)[0]
+        expect(decoded['exp']).to eq((token_generated_time + 336.hours).to_i)
       end
+
+      it 'returns a json web token expiring after the TTL configured via JWT_TTL_HOURS' do
+        allow(ENV).to receive(:[]).and_call_original
+        allow(ENV).to receive(:[]).with('JWT_TTL_HOURS').and_return('24')
+
+        decoded = JWT.decode(encoded_token, Rails.application.secret_key_base)[0]
+        expect(decoded['exp']).to eq((token_generated_time + 24.hours).to_i)
+      end
+    end
+  end
+
+  describe '.ttl' do
+    it 'defaults to 336 hours (2 weeks)' do
+      expect(described_class.ttl).to eq(336.hours)
+    end
+
+    it 'reads JWT_TTL_HOURS at call time' do
+      allow(ENV).to receive(:[]).and_call_original
+      allow(ENV).to receive(:[]).with('JWT_TTL_HOURS').and_return('48')
+      expect(described_class.ttl).to eq(48.hours)
     end
   end
 

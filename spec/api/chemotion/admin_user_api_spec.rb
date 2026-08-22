@@ -105,4 +105,28 @@ RSpec.describe Chemotion::AdminUserAPI do
       expect(user.reload.profile.data['converter_admin']).to be true
     end
   end
+
+  describe 'matrix secrets (WP 05, REQ-ELN-5)' do
+    let!(:matrice) { create(:matrice, configs: {}) }
+
+    after { Devise.omniauth_configs.delete(:github) }
+
+    it 'accepts a new client_secret on PUT, stores it encrypted and never echoes it back', :aggregate_failures do
+      put '/api/v1/admin/matrix', params: {
+        id: matrice.id,
+        configs: { github: { enable: true, client_id: 'gh-id', client_secret: 'gh-new-secret' } },
+      }, as: :json
+
+      expect(response).to have_http_status(:created)
+      expect(response.body).not_to include('gh-new-secret')
+      expect(matrice.reload.configs.dig('github', 'client_secret')).to be_nil
+      expect(matrice.configs_with_secrets.dig('github', 'client_secret')).to eq('gh-new-secret')
+
+      get '/api/v1/admin/matrix'
+
+      serialized = parsed_json_response['matrices'].find { |m| m['id'] == matrice.id }
+      expect(serialized['configs'].dig('github', 'client_secret')).to eq(Matrice::SECRET_PLACEHOLDER)
+      expect(response.body).not_to include('gh-new-secret')
+    end
+  end
 end

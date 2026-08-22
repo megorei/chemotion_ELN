@@ -15,7 +15,8 @@ module Usecases
           last_name: user.last_name,
         }
 
-        JsonWebToken.encode(payload, 2.weeks.from_now)
+        # TTL: JWT_TTL_HOURS (default 336 h = 2 weeks) — see JsonWebToken.ttl
+        JsonWebToken.encode(payload)
       end
     end
   end
