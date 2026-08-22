@@ -127,4 +127,36 @@ RSpec.describe 'Group', type: :model do
       end
     end
   end
+
+  # WP 07 (REQ-ELN-12): group-admin truth is dual during the RBAC migration —
+  # the legacy users_admins join stays authoritative (WP 06 deliberately did
+  # not backfill it), and first-class user_roles grants are honored on top.
+  describe '#administrated_by? role duality' do
+    let(:person) { create(:person) }
+    let(:group) { create(:group) }
+
+    it 'is false without either source' do
+      expect(group.administrated_by?(person)).to be false
+    end
+
+    it 'is true via the legacy users_admins join' do
+      group.admins << person
+      expect(group.administrated_by?(person)).to be true
+    end
+
+    it 'is true via a first-class group_admin user_roles grant' do
+      person.grant_role!(UserRole::GROUP_ADMIN, scope_type: 'group', scope_id: group.id)
+      expect(group.administrated_by?(person)).to be true
+    end
+
+    it 'ignores a group_admin grant scoped to another group' do
+      other_group = create(:group)
+      person.grant_role!(UserRole::GROUP_ADMIN, scope_type: 'group', scope_id: other_group.id)
+      expect(group.administrated_by?(person)).to be false
+    end
+
+    it 'is false for nil' do
+      expect(group.administrated_by?(nil)).to be false
+    end
+  end
 end
