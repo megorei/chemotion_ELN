@@ -2,6 +2,8 @@
 
 source 'https://rubygems.org'
 
+ruby '3.2.11'
+
 gem 'aasm'
 gem 'activejob-status'
 gem 'activerecord-nulldb-adapter'
@@ -22,7 +24,7 @@ gem 'daemons'
 gem 'delayed_cron_job'
 gem 'delayed_job_active_record'
 gem 'devise'
-gem 'devise-two-factor'
+gem 'devise-two-factor', '~> 4.1', '>= 4.1.1'
 gem 'encryptor' # Needed for devise-two-factor
 gem 'dotenv-rails', require: 'dotenv/rails-now'
 
@@ -83,7 +85,7 @@ gem 'omniauth-shibboleth'
 gem 'chemical_elements'
 gem 'openbabel', '3.2.0.1', git: 'https://github.com/ComPlat/openbabel-gem.git', tag: 'v3.2.0.1'
 gem 'pandoc-ruby'
-gem 'paranoia', '2.6.0'
+gem 'paranoia', '~> 3.0'
 gem 'pg'
 gem 'pg_search'
 gem 'prawn'
@@ -93,7 +95,7 @@ gem 'puma', '< 6.0.0'
 
 gem 'rack'
 gem 'rack-cors', require: 'rack/cors'
-gem 'rails', '~> 6.1.7.7'
+gem 'rails', '~> 7.2.0'
 gem 'redcarpet' # markdown rendering (welcome mailer, application_helper#markdown)
 gem 'rinchi-gem', git: 'https://github.com/ComPlat/rinchi-gem.git', branch: 'main'
 gem 'rmagick'
@@ -106,6 +108,8 @@ gem 'ruby-ole'
 
 gem 'sablon', git: 'https://github.com/ComPlat/sablon', tag: 'v0.4.3-1'
 gem 'sassc-rails'
+# Rails 7.0 no longer depends on sprockets-rails — declare it to keep Sprockets.
+gem 'sprockets-rails'
 gem 'scenic'
 gem 'schmooze'
 gem 'semacode', git: 'https://github.com/toretore/semacode.git', branch: 'master' # required for Barby but not listed...
@@ -118,8 +122,7 @@ gem 'shrine', '~> 3.0'
 gem 'sys-filesystem'
 
 gem 'thor'
-gem 'thumbnailer', git: 'https://github.com/merlin-p/thumbnailer.git'
-gem 'turbo-sprockets-rails4'
+# turbo-sprockets-rails4 removed for Rails 7.0 (pinned sprockets ~> 3.0, and was disabled anyway).
 gem 'tzinfo-data'
 
 gem 'whenever', require: false

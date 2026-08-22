@@ -34,6 +34,10 @@
 #  index_attachments_on_attachable_type_and_attachable_id  (attachable_type,attachable_id)
 #  index_attachments_on_identifier                         (identifier) UNIQUE
 #  index_attachments_on_version                            (version) WHERE (deleted_at IS NULL)
+#
+#  index_attachments_on_attachable_type_and_attachable_id  (attachable_type,attachable_id)
+#  index_attachments_on_identifier                         (identifier) UNIQUE
+#  index_attachments_on_version                            (version) WHERE (deleted_at IS NULL)
 
 # rubocop: disable Metrics/ClassLength
 class Attachment < ApplicationRecord
@@ -45,7 +49,11 @@ class Attachment < ApplicationRecord
   include Labimotion::AttachmentConverter
   include AttachmentUploader::Attachment(:attachment)
 
-  enum edit_state: { not_editing: 0, editing: 1 }
+  # Declare the enum's backing type so the model loads even when the edit_state column is
+  # absent (old data migrations reference Attachment first) — Rails 7.1 otherwise rejects it.
+  # Matches the integer column (default 0 = not_editing), so behaviour is unchanged.
+  attribute :edit_state, :integer, default: 0
+  enum :edit_state, { not_editing: 0, editing: 1 }
 
   aasm(:document, column: :edit_state) do
     state :not_editing, initial: true
