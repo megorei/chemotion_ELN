@@ -22,6 +22,29 @@ Delayed::Worker.raise_signal_exceptions = :term
 Delayed::Worker.logger = Logger.new(File.join(Rails.root, 'log', 'delayed_job.log'))
 Delayed::Worker.logger = Logger.new($stdout) if Rails.env.test?
 
+# WP 09 (§9 NFR Observability): tenant-tagged worker logs. The worker's own
+# lines (Delayed::Worker.logger — job lifecycle, errors) are wrapped in
+# TaggedLogging and tagged per job run by the plugin below, mirroring the
+# request tag from config.log_tags ([<TENANT_ID>] / [single]).
+#
+# Deliberately NOT tagged here: Rails.logger lines emitted from inside job
+# code. config.log_tags only covers Rack requests, and wrapping Rails 7.2's
+# BroadcastLogger in per-job tagged blocks is fragile (tagging must be
+# supported by every broadcast sink). It is also unnecessary for the operator:
+# one stack serves exactly one tenant, so every line of a worker process log
+# belongs to that stack's tenant — aggregation keys on the stack for
+# non-request lines, exactly as for boot/initializer output.
+Delayed::Worker.logger = ActiveSupport::TaggedLogging.new(Delayed::Worker.logger)
+
+class TenantLogTagPlugin < Delayed::Plugin
+  callbacks do |lifecycle|
+    lifecycle.around(:invoke_job) do |job, *args, &block|
+      Delayed::Worker.logger.tagged(TenantContext.current.id || 'single') { block.call(job, *args) }
+    end
+  end
+end
+Delayed::Worker.plugins << TenantLogTagPlugin
+
 # Job classes removed from the codebase whose rows may still be queued. See the cleanup step
 # inside the after_initialize block. Plain strings, deliberately — the whole point is that no constant
 # needs to survive for these to be recognised.

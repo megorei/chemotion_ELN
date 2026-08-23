@@ -100,6 +100,8 @@ module Chemotion
           validate_layout!(params[:layout])
           normalized = params[:layout].to_h { |key, val| [key.to_s, val.to_i] }
           group.update!(default_profile_layout: normalized.presence)
+          AuditEvent.record(action: 'group.layout_changed', actor: current_user, subject: group,
+                            meta: { layout: group.default_profile_layout }, ip: request.ip)
 
           { default_profile_layout: group.default_profile_layout }
         end
@@ -121,6 +123,8 @@ module Chemotion
         put :storage_quota do
           validate_quota!(params[:allocated_space])
           group.update!(allocated_space: params[:allocated_space])
+          AuditEvent.record(action: 'group.quota_changed', actor: current_user, subject: group,
+                            meta: { allocated_space: params[:allocated_space] }, ip: request.ip)
 
           { allocated_space: group.reload.allocated_space }
         end
@@ -141,6 +145,8 @@ module Chemotion
             message_to: recipient_ids,
           )
           error!('Message could not be created', 422) unless message&.persisted?
+          AuditEvent.record(action: 'group.broadcast', actor: current_user, subject: group,
+                            meta: { recipients: recipient_ids.length }, ip: request.ip)
 
           { message_id: message.id, recipient_ids: recipient_ids }
         end

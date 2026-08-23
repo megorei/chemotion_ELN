@@ -50,6 +50,14 @@ module Chemotion
 
     config.action_dispatch.perform_deep_munge = false
 
+    # WP 09 (§9 NFR Observability): every request log line carries the tenant
+    # tag ([<TENANT_ID>], or [single] without one) so the operator can
+    # aggregate logs across stacks without app knowledge beyond the tag.
+    # production.rb re-declares log_tags (adding :subdomain/:uuid) and keeps
+    # this tag first; delayed_job worker tagging: see
+    # config/initializers/delayed_job_config.rb.
+    config.log_tags = [TenantContext.log_tag]
+
     # Zeitwerk requires one root per namespace. app/api and lib are each a single root
     # (Rails auto-adds app/*); the previous overlapping roots (app/api/*, app, lib/**/)
     # are removed so nested namespaces resolve conventionally

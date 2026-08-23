@@ -11,7 +11,12 @@ module Chemotion
         end
         post do
           token = Usecases::Authentication::BuildToken.execute!(params)
-          error!('401 Unauthorized', 401) if token.blank?
+          if token.blank?
+            AuditEvent.record(action: 'auth.login_failed', meta: { username: params[:username] }, ip: request.ip)
+            error!('401 Unauthorized', 401)
+          end
+          user = User.where(name_abbreviation: params[:username]).or(User.where(email: params[:username])).take
+          AuditEvent.record(action: 'auth.login', actor: user, meta: { username: params[:username] }, ip: request.ip)
 
           { token: token }
         end

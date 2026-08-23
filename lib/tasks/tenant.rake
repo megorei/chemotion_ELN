@@ -32,6 +32,7 @@ namespace :tenant do
     )
     admin.update!(account_active: true)
     admin.update!(confirmed_at: DateTime.now)
+    AuditEvent.record(action: 'tenant.admin_seeded', actor: :system, subject: admin, meta: { email: admin.email })
 
     puts '=' * 60
     puts 'tenant:seed_admin: Admin account created'
