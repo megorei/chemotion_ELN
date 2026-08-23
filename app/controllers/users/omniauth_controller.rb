@@ -73,22 +73,102 @@ module Users
       provider
     end
 
+    # Stable federated identifier: "issuer#identifier" (REQ-ELN-16). The
+    # identifier is the provider uid (eppn for shibboleth, ORCID iD, OIDC
+    # sub); the issuer is the OIDC iss when present, else the provider name.
+    def federated_id
+      return if auth&.uid.blank?
+
+      "#{federated_issuer}##{auth.uid}"
+    end
+
+    def federated_issuer
+      iss = begin
+        auth&.dig('extra', 'raw_info', 'iss')
+      rescue StandardError
+        nil
+      end
+      iss.presence || auth&.provider
+    end
+
     def auth_signup
       params = {
         email: email,
         uid: auth.uid,
         provider: auth.provider,
+        federated_id: federated_id,
         first_name: first_name,
         last_name: last_name,
+        # NOTE: entitlement->group mapping applies to home users only; for
+        # external guests User.from_omniauth skips the groups loop and guest
+        # provisioning below never touches groups (REQ-ELN-16, P1 WP 01).
         groups: groups,
       }
       @user = User.from_omniauth(params)
       if @user.persisted?
+        audit_guest_login if @user.external?
         sign_in_and_redirect @user, event: :authentication
+      elsif guest_gate_engaged?
+        # Inbound collaboration policy != off: unknown identities are treated
+        # as external — admitted only against a pending/active GuestGrant;
+        # the open self-registration path is closed.
+        guest_gated_signup
       else
         session_handler
         redirect_to new_user_registration_url
       end
+    end
+
+    def guest_gate_engaged?
+      TenantContext.current.inbound_collaboration?
+    end
+
+    def guest_gated_signup
+      grant = GuestGrant.find_usable(federated_id: federated_id, email: email)
+      if grant
+        @user = Usecases::Guests::Provision.execute!(grant: grant, attrs: guest_attrs)
+        audit_guest_login
+        sign_in_and_redirect @user, event: :authentication
+      else
+        deny_guest_login
+      end
+    rescue ActiveRecord::ActiveRecordError => e
+      Rails.logger.error("guest provisioning failed: #{e.message}")
+      deny_guest_login(reason: 'provisioning_failed')
+    end
+
+    def deny_guest_login(reason: 'no_grant')
+      AuditEvent.record(
+        action: 'guest.login_denied',
+        meta: { federated_id: federated_id, email: email, provider: auth&.provider, reason: reason },
+        ip: request.remote_ip,
+      )
+      flash[:alert] = 'Sign-in is restricted on this instance: no collaboration ' \
+                      'invitation was found for your identity. Please ask the person ' \
+                      'sharing with you for an invitation.'
+      redirect_to new_user_session_url
+    end
+
+    def guest_attrs
+      {
+        email: email,
+        uid: auth.uid,
+        provider: auth.provider,
+        federated_id: federated_id,
+        first_name: first_name,
+        last_name: last_name,
+        home_tenant_hint: federated_issuer,
+        ip: request.remote_ip,
+      }
+    end
+
+    def audit_guest_login
+      AuditEvent.record(
+        action: 'guest.login',
+        actor: @user,
+        meta: { federated_id: @user.federated_id, provider: auth&.provider },
+        ip: request.remote_ip,
+      )
     end
 
     def session_handler

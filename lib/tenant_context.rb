@@ -93,4 +93,29 @@ class TenantContext
   def storage_quota_bytes
     storage_quota_gb * (1024**3)
   end
+
+  # Inbound collaboration policy (REQ-ELN-16/17, P1 WP 01): governs whether
+  # federated identities from OTHER tenants may enter as guests.
+  #
+  #   off        - default; today's behaviour exactly (unknown federated
+  #                identities go through the normal registration flow).
+  #   federation - guest gate engaged: only identities holding a pending or
+  #                active GuestGrant are admitted (provisioned as external
+  #                guests); everyone else is denied.
+  #   open       - reserved; currently gates like 'federation'. The
+  #                federation/open differentiation (which federations are
+  #                trusted, grant-less entry) is WP 03 resolver scope.
+  #
+  # Interim ENV read until the WP 03 tenant-config resolver lands (same
+  # pattern as storage_quota_gb). Unknown values fail closed to 'off'.
+  INBOUND_COLLABORATION_POLICIES = %w[off federation open].freeze
+
+  def inbound_collaboration
+    value = ENV.fetch('TENANT_INBOUND_COLLABORATION', 'off')
+    INBOUND_COLLABORATION_POLICIES.include?(value) ? value : 'off'
+  end
+
+  def inbound_collaboration?
+    inbound_collaboration != 'off'
+  end
 end

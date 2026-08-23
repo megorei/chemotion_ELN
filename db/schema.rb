@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_23_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_23_130100) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -866,6 +866,19 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_23_120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.time "deleted_at"
+  end
+
+  create_table "guest_grants", force: :cascade do |t|
+    t.string "federated_id"
+    t.string "email"
+    t.string "state", default: "pending", null: false
+    t.integer "collection_id"
+    t.integer "created_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_guest_grants_on_email"
+    t.index ["federated_id"], name: "index_guest_grants_on_federated_id"
+    t.index ["state"], name: "index_guest_grants_on_state"
   end
 
   create_table "info_support_links", force: :cascade do |t|
@@ -1794,9 +1807,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_23_120000) do
     t.boolean "otp_required_for_login"
     t.string "otp_backup_codes", array: true
     t.jsonb "default_profile_layout"
+    t.string "federated_id"
+    t.boolean "external", default: false, null: false
+    t.string "home_tenant_hint"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["federated_id"], name: "index_users_on_federated_id", unique: true, where: "(federated_id IS NOT NULL)"
     t.index ["name_abbreviation"], name: "index_users_on_name_abbreviation", unique: true, where: "(name_abbreviation IS NOT NULL)"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true

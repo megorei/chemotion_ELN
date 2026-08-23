@@ -472,11 +472,14 @@ class User < ApplicationRecord
   end
 
   def self.from_omniauth(params)
-    user = find_by(email: params[:email]&.downcase)
+    user = find_for_omniauth(params)
     if user.present?
       providers = user.providers || {}
       providers[params[:provider]] = params[:uid]
       user.providers = providers
+      # Backfill the stable federated identifier on legacy matches (providers
+      # uid / email bootstrap) so future logins match identifier-first.
+      user.federated_id = params[:federated_id] if user.federated_id.blank? && params[:federated_id].present?
       user.save!
     else
       user = User.new(
@@ -487,7 +490,10 @@ class User < ApplicationRecord
       )
     end
 
-    if (params[:groups] || []).length&.positive?
+    # Entitlement->group auto-assignment (REQ-ELN-6) is for home users only:
+    # external guests never inherit group memberships (and thereby group
+    # shares) from IdP entitlements — REQ-ELN-16 (P1 WP 01).
+    if !user.external? && (params[:groups] || []).length&.positive?
       (params[:groups] || []).each do |group|
         name = group.split(':')
         if name.size == 3
@@ -497,6 +503,24 @@ class User < ApplicationRecord
       end
     end
     user
+  end
+
+  # Identity matching for federated logins, identifier-first (REQ-ELN-16):
+  # 1. stable federated_id ("issuer#identifier") — survives IdP email changes,
+  # 2. recorded provider uid (legacy rows from before federated_id existed),
+  # 3. email (bootstrap only; the caller then backfills federated_id).
+  # Email is a mutable IdP attribute and must never be the primary key of a
+  # federated identity.
+  def self.find_for_omniauth(params)
+    if params[:federated_id].present?
+      user = find_by(federated_id: params[:federated_id])
+      return user if user
+    end
+    if params[:provider].present? && params[:uid].present?
+      user = where('providers ->> ? = ?', params[:provider].to_s, params[:uid].to_s).first
+      return user if user
+    end
+    find_by(email: params[:email]&.downcase)
   end
 
   def link_omniauth(provider, uid)
