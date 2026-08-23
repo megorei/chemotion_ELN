@@ -27,6 +27,20 @@ module Chemotion
         layout = Rails.configuration.profile_default&.layout if Rails.configuration.respond_to?(:profile_default)
         templates_list = []
 
+        # WP 07 (REQ-ELN-14): a group-set default layout sits BETWEEN the
+        # user's own profile (wins — only nil slots are filled) and the
+        # profile_default.yml fallback below (which then fills what neither
+        # the user nor a group defined). Empty when the user's groups set no
+        # default, so single-tenant behaviour is unchanged.
+        group_layout =
+          current_user.respond_to?(:group_default_profile_layout) ? current_user.group_default_profile_layout : {}
+        if group_layout.present?
+          data['layout'] ||= {}
+          group_layout.each do |element, sorting|
+            data['layout'][element.to_s] = sorting if data['layout'][element.to_s].nil?
+          end
+        end
+
         layout&.each_key do |ll|
           data[ll.to_s] = layout[ll] if layout[ll].present? && data[ll.to_s].nil?
         end

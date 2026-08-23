@@ -621,6 +621,18 @@ class Person < User
   # `administrated_accounts`, or this would find nothing to check.
   before_destroy :prevent_destroying_sole_group_admin, prepend: true
 
+  # WP 07 (REQ-ELN-14): merged default UI layout of every group this person
+  # belongs to — per element key, the group with the LOWEST id wins (stable,
+  # documented tie-break; most users are in one group anyway). ProfileAPI
+  # applies this between the user's own layout (wins) and the
+  # profile_default.yml fallback. Empty hash when no group sets a default,
+  # so single-tenant behaviour is unchanged.
+  def group_default_profile_layout
+    groups.order(:id).pluck(:default_profile_layout).compact.reduce({}) do |merged, layout|
+      layout.merge(merged) # merged holds earlier (lower-id) groups: they win
+    end
+  end
+
   private
 
   def prevent_destroying_sole_group_admin
