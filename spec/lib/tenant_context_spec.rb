@@ -130,6 +130,33 @@ describe TenantContext do
     end
   end
 
+  describe '#inbound_collaboration (P1 WP 01, REQ-ELN-16/17)' do
+    it 'defaults to off (single-tenant behaviour unchanged)', :aggregate_failures do
+      with_env('TENANT_INBOUND_COLLABORATION' => nil) do
+        expect(described_class.current.inbound_collaboration).to eq('off')
+        expect(described_class.current.inbound_collaboration?).to be(false)
+      end
+    end
+
+    it 'accepts federation and open', :aggregate_failures do
+      with_env('TENANT_INBOUND_COLLABORATION' => 'federation') do
+        expect(described_class.current.inbound_collaboration).to eq('federation')
+        expect(described_class.current.inbound_collaboration?).to be(true)
+      end
+      with_env('TENANT_INBOUND_COLLABORATION' => 'open') do
+        expect(described_class.current.inbound_collaboration).to eq('open')
+        expect(described_class.current.inbound_collaboration?).to be(true)
+      end
+    end
+
+    it 'falls back to off for unknown values (fail closed)' do
+      with_env('TENANT_INBOUND_COLLABORATION' => 'bogus') do
+        expect(described_class.current.inbound_collaboration).to eq('off')
+        expect(described_class.current.inbound_collaboration?).to be(false)
+      end
+    end
+  end
+
   describe 'boot validation (config/initializers/tenant_context.rb)' do
     let(:initializer) { Rails.root.join('config/initializers/tenant_context.rb').to_s }
 
