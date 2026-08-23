@@ -61,6 +61,32 @@ RSpec.describe UserRole do
     end
   end
 
+  # WP 09 (§9 NFR Audit): grants/revokes land in the audit_events stream in
+  # addition to the structured log lines.
+  describe 'audit events (WP 09)' do
+    let(:admin) { create(:person) }
+
+    it 'records role.granted with the target user as subject' do
+      expect { user.grant_role!(UserRole::MOLECULE_EDITOR, granted_by: admin.id) }
+        .to change { AuditEvent.where(action: 'role.granted').count }.by(1)
+
+      event = AuditEvent.order(:id).last
+      expect(event).to have_attributes(actor_id: admin.id, subject_type: user.class.name, subject_id: user.id)
+      expect(event.metadata).to include('role' => UserRole::MOLECULE_EDITOR, 'by' => admin.id)
+    end
+
+    it 'records role.revoked with role and scope in the metadata' do
+      user.grant_role!(UserRole::GENERIC_ADMIN, scope_type: 'elements')
+
+      expect { user.revoke_role!(UserRole::GENERIC_ADMIN, scope_type: 'elements', revoked_by: admin.id) }
+        .to change { AuditEvent.where(action: 'role.revoked').count }.by(1)
+
+      event = AuditEvent.order(:id).last
+      expect(event).to have_attributes(actor_id: admin.id, subject_id: user.id)
+      expect(event.metadata).to include('role' => UserRole::GENERIC_ADMIN, 'scope_type' => 'elements')
+    end
+  end
+
   describe 'paranoia' do
     it 'is deliberately not paranoid: revoked means deleted' do
       expect(described_class.new).not_to respond_to(:deleted_at)

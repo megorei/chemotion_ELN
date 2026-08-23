@@ -141,6 +141,28 @@ describe Chemotion::GroupSettingsAPI do
     end
   end
 
+  # WP 09 (§9 NFR Audit): delegated group-admin changes land in audit_events.
+  describe 'audit events (WP 09)' do
+    it 'records group.quota_changed with the group as subject' do
+      expect { put "/api/v1/group_settings/#{group.id}/storage_quota", params: { allocated_space: 1024 }, as: :json }
+        .to change { AuditEvent.where(action: 'group.quota_changed').count }.by(1)
+
+      event = AuditEvent.order(:id).last
+      expect(event).to have_attributes(actor_id: group_admin.id, subject_type: 'Group', subject_id: group.id)
+      expect(event.metadata['allocated_space']).to eq(1024)
+    end
+
+    it 'records group.layout_changed' do
+      expect { put "/api/v1/group_settings/#{group.id}/profile_layout", params: { layout: { sample: 1 } }, as: :json }
+        .to change { AuditEvent.where(action: 'group.layout_changed').count }.by(1)
+    end
+
+    it 'records no event when the change is rejected' do
+      expect { put "/api/v1/group_settings/#{group.id}/storage_quota", params: { allocated_space: -1 }, as: :json }
+        .not_to change(AuditEvent, :count)
+    end
+  end
+
   describe 'storage quota' do
     context 'with a finite tenant budget of 1 GB' do
       before do

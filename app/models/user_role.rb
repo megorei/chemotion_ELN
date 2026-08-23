@@ -126,10 +126,14 @@ class UserRole < ApplicationRecord
 
   def audit_grant
     audit('user_role.granted', granted_by)
+    AuditEvent.record(action: 'role.granted', actor: granted_by, subject: user,
+                      meta: { role: name, scope_type: scope_type, scope_id: scope_id, by: granted_by })
   end
 
   def audit_revoke
     audit('user_role.revoked', revoked_by)
+    AuditEvent.record(action: 'role.revoked', actor: revoked_by, subject: user,
+                      meta: { role: name, scope_type: scope_type, scope_id: scope_id, by: revoked_by })
   end
 
   def audit(event, actor_id)

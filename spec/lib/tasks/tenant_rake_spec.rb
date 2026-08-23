@@ -43,6 +43,18 @@ describe 'tenant:seed_admin' do
   context 'when no admin exists yet' do
     before { ENV['EMAIL'] = 'ops@example.com' }
 
+    # WP 09 (§9 NFR Audit)
+    it 'records a tenant.admin_seeded audit event with the system actor' do
+      expect { invoke_capturing_stdout }
+        .to change { AuditEvent.where(action: 'tenant.admin_seeded').count }.by(1)
+
+      event = AuditEvent.order(:id).last
+      admin = User.find_by(type: 'Admin')
+      expect(event).to have_attributes(actor_type: 'system', actor_id: nil,
+                                       subject_type: 'Admin', subject_id: admin.id)
+      expect(event.metadata['email']).to eq('ops@example.com')
+    end
+
     it 'creates an active, confirmed Admin with the given email and defaults' do
       expect { invoke_capturing_stdout }.to change { User.where(type: 'Admin').count }.from(0).to(1)
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_22_130000) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_23_120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -92,6 +92,20 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_22_130000) do
     t.index ["attachable_type", "attachable_id"], name: "index_attachments_on_attachable_type_and_attachable_id"
     t.index ["identifier"], name: "index_attachments_on_identifier", unique: true
     t.index ["version"], name: "index_attachments_on_version", opclass: :varchar_pattern_ops, where: "(deleted_at IS NULL)"
+  end
+
+  create_table "audit_events", force: :cascade do |t|
+    t.integer "actor_id"
+    t.string "actor_type", null: false
+    t.string "action", null: false
+    t.string "subject_type"
+    t.integer "subject_id"
+    t.jsonb "metadata", default: {}, null: false
+    t.string "ip"
+    t.datetime "created_at", null: false
+    t.index ["actor_id"], name: "index_audit_events_on_actor_id"
+    t.index ["created_at"], name: "index_audit_events_on_created_at"
+    t.index ["subject_type", "subject_id"], name: "index_audit_events_on_subject_type_and_subject_id"
   end
 
   create_table "authentication_keys", id: :serial, force: :cascade do |t|

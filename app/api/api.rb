@@ -205,6 +205,7 @@ class API < Grape::API
   mount Chemotion::ReportAPI
   mount Chemotion::AttachmentAPI
   mount Chemotion::PublicAPI
+  mount Chemotion::MetricsAPI
   mount Chemotion::ProfileAPI
   mount Chemotion::CodeLogAPI
   mount Chemotion::DeviceAPI

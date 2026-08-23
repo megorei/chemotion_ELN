@@ -44,6 +44,13 @@ class TenantContext
     def reset!
       @current = nil
     end
+
+    # Rack request log tag for config.log_tags (WP 09): the tenant id, or
+    # 'single' when no TENANT_ID is configured, so operator-side log
+    # aggregation can always key on the first tag of a line.
+    def log_tag
+      ->(_request) { current.id || 'single' }
+    end
   end
 
   def initialize(id: nil, name: nil, domain: nil)
