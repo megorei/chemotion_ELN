@@ -73,4 +73,17 @@ class TenantContext
   def application_title
     ENV['APPLICATION_TITLE'].presence || DEFAULT_APPLICATION_TITLE
   end
+
+  # Tenant-wide storage budget in GB. 0 / unset = unlimited (matching the
+  # allocated_space convention on users, where 0 means infinite). Group
+  # quotas (GroupSettingsAPI, WP 07 / REQ-ELN-14) are validated against this
+  # at write time; enforcing the budget at upload time is a documented
+  # follow-up. Read per call (not memoized) like public_url.
+  def storage_quota_gb
+    ENV['TENANT_STORAGE_QUOTA_GB'].to_i
+  end
+
+  def storage_quota_bytes
+    storage_quota_gb * (1024**3)
+  end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_22_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_22_130000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -1779,6 +1779,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_22_120000) do
     t.integer "consumed_timestep"
     t.boolean "otp_required_for_login"
     t.string "otp_backup_codes", array: true
+    t.jsonb "default_profile_layout"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["email"], name: "index_users_on_email", unique: true
