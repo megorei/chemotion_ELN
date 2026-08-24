@@ -2,10 +2,16 @@
 
 # This initializer loads the optional configuration for:
 #   the ketcher rendering service
+# WP 02, ENV-first — REQ-ELN-27/28: resolves through Chemotion::EnvConfig
+# (KETCHER_SERVICE_* ENV pair > config/ketcher_service.yml (optional) >
+# app_config.yml).
+require_relative '../../lib/chemotion/env_config'
 
 # Specific
 validations = lambda do |config, service|
-  url = URI.parse(config.send(service)&.url)
+  raise ArgumentError, 'no url configured' if config.send(service)&.url.blank?
+
+  url = URI.parse(config.send(service).url)
   raise ArgumentError, "Invalid URL: #{url}" unless url.host && %w[http https].include?(url.scheme)
 
   # set description
@@ -18,17 +24,14 @@ service_setter = :"#{service}=" # Service setter
 ref = "Initializing #{service}:" # Message prefix
 
 Rails.application.configure do
-  config.send(service_setter, config_for(service)) # Load config/.yml
+  config.send(service_setter, Chemotion::EnvConfig.section_options(service))
   validations.call(config, service) # Validate configuration
-# Rescue:
-# - RuntimeError is raised if the file is not found
-# - NoMethodError is raised if the yml file cannot be parsed
 rescue RuntimeError, NoMethodError, ArgumentError, URI::InvalidURIError => e
   Rails.logger.warn "#{ref} Error while loading configuration #{e.message}"
   # Create service key or clear config
   config.send(service_setter, nil)
 ensure
-  # Load default missing configuration if the yml file not found or no config is defined for the environment
+  # Load default missing configuration if the service is not configured
   config.send(service_setter, config_for(:default_missing)) unless config.send(service)
   Rails.logger.info "#{ref} #{config.send(service).desc}"
 end
@@ -49,7 +52,7 @@ begin
   FileUtils.cp(source, destination)
 
   Rails.logger.info "Ketcher common templates copied from #{source} to #{destination}"
-rescue StandardError => error
-  Rails.logger.warn error
+rescue StandardError => e
+  Rails.logger.warn e
   Rails.logger.warn "Ketcher common templates source file not found: #{source}"
 end

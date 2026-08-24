@@ -180,9 +180,16 @@ module Chemotion
     end
 
     # OTP secret key used by Devise for encrypting two-factor authentication secrets.
-    # In development and test, it falls back to a default value. In production, ensure
-    # OTP_SECRET_KEY is set in the environment to keep encryption secure.
-    config.otp_secret_encryption_key = ENV.fetch('OTP_SECRET_KEY')
+    # In development and test, it falls back to a key derived from secret_key_base
+    # (WP 02, REQ-ELN-28 — the comment used to promise this fallback without
+    # implementing it). In production, OTP_SECRET_KEY must be set in the
+    # environment: boot fails fast (KeyError) to keep encryption secure.
+    config.otp_secret_encryption_key =
+      if ENV['OTP_SECRET_KEY'].present? || Rails.env.production?
+        ENV.fetch('OTP_SECRET_KEY')
+      else
+        OpenSSL::HMAC.hexdigest('SHA256', Rails.application.secret_key_base, 'otp_secret_encryption_key')
+      end
 
     # OnlyOffice document-server JWT secret, from ENV (off the deprecated
     # Rails.application.secrets). Dev/test: set this ENV when using OnlyOffice locally.

@@ -2,6 +2,10 @@
 
 # This initializer loads the optional configuration for:
 #   the additional structure editors
+# WP 02, ENV-first — REQ-ELN-27/28: resolves through Chemotion::EnvConfig
+# (STRUCTURE_EDITOR_* ENV pair > config/structure_editors.yml (optional) >
+# app_config.yml).
+require_relative '../../lib/chemotion/env_config'
 
 # Specific
 validations = lambda do |config, service|
@@ -18,17 +22,14 @@ service_setter = :"#{service}=" # Service setter
 ref = "Initializing #{service}:" # Message prefix
 
 Rails.application.configure do
-  config.send(service_setter, config_for(service)) # Load config/.yml
+  config.send(service_setter, Chemotion::EnvConfig.section_options(service))
   validations.call(config, service) # Validate and set description
-# Rescue:
-# - RuntimeError is raised if the file is not found
-# - NoMethodError is raised if the yml file cannot be parsed
 rescue RuntimeError, NoMethodError, ArgumentError, URI::InvalidURIError => e
   Rails.logger.warn "#{ref} Error while loading configuration #{e.message}"
   # Create service key or clear config
   config.send(service_setter, nil)
 ensure
-  # Load default missing configuration if the yml file not found or no config is defined for the environment
+  # Load default missing configuration if no editors are configured
   config.send(service_setter, config_for(:default_missing)) unless config.send(service)
   Rails.logger.info "#{ref} #{config.send(service).desc}"
 end
