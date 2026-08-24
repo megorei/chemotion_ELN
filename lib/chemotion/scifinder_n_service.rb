@@ -1,6 +1,18 @@
 module Chemotion::ScifinderNService
+  # REQ-ELN-28 (WP 02): the SciFinder-n provider config is optional. All
+  # entry points guard against an unconfigured provider and degrade
+  # gracefully instead of nil-crashing (config.sfn_config.provider is nil
+  # unless configured — see config/initializers/scifinder_n.rb).
+  NOT_CONFIGURED_MESSAGE = 'SciFinder-n service is not configured'
+
+  def self.provider
+    Rails.configuration.try(:sfn_config)&.provider
+  end
+
   def self.provider_access(access_token)
-    sfn_provider = Rails.configuration.sfn_config.provider
+    sfn_provider = provider
+    raise StandardError, NOT_CONFIGURED_MESSAGE if sfn_provider.blank?
+
     data = { grant_type: 'refresh_token', client_id: sfn_provider[:client_id], refresh_token: access_token }
     begin
       res = ScifinderN.retrieve_access(URI.join(sfn_provider[:sso], sfn_provider[:token_endpoint]), data)
@@ -20,7 +32,9 @@ module Chemotion::ScifinderNService
   end
 
   def self.provider_search(search, str, type, token)
-    sfn_provider = Rails.configuration.sfn_config.provider
+    sfn_provider = provider
+    return { errors: [NOT_CONFIGURED_MESSAGE] } if sfn_provider.blank?
+
     sfn_api = URI.join(sfn_provider[:host], "/api/v1/#{search}")
     data = { str_data: { ctype: "chemical/#{type}", str: str } }.to_json
     begin
@@ -41,7 +55,9 @@ module Chemotion::ScifinderNService
   end
 
   def self.provider_authorize(code, verifier)
-    sfn_provider = Rails.configuration.sfn_config.provider
+    sfn_provider = provider
+    raise StandardError, NOT_CONFIGURED_MESSAGE if sfn_provider.blank?
+
     data = {
       grant_type: 'authorization_code',
       client_id: sfn_provider[:client_id],
@@ -72,7 +88,9 @@ module Chemotion::ScifinderNService
   end
 
   def self.provider_builder
-    sfn_provider = Rails.configuration.sfn_config.provider
+    sfn_provider = provider
+    return if sfn_provider.blank?
+
     res = ScifinderN.get_metadata(sfn_provider)
     return unless res&.success?
 
