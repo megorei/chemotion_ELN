@@ -52,7 +52,7 @@ begin
   FileUtils.cp(source, destination)
 
   Rails.logger.info "Ketcher common templates copied from #{source} to #{destination}"
-rescue StandardError => error
-  Rails.logger.warn error
+rescue StandardError => e
+  Rails.logger.warn e
   Rails.logger.warn "Ketcher common templates source file not found: #{source}"
 end

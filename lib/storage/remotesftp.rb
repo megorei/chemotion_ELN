@@ -1,12 +1,11 @@
 require 'net/sftp'
 require 'storage'
 
-# NOTE (WP 02): legacy/dead path — Zeitwerk-ignored (see config/application.rb)
+# NOTE: (WP 02) legacy/dead path — Zeitwerk-ignored (see config/application.rb)
 # and unused since 2016. Nil-hardened anyway (inventory §1.5 #7): credentials
 # now read from the storage.yml schema (:stores:sftp:...) with safe navigation,
 # and a missing configuration raises a clear error instead of a nil crash.
 class RemoteSFTP < Storage
-
   def initialize
     super
     sftp_config = Rails.configuration.storage.stores&.dig(:sftp) || {}

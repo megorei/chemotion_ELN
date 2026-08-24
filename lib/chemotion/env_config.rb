@@ -47,7 +47,7 @@ module Chemotion
   #
   # This module is deliberately tiny: it is the seam the WP 03 tenant-aware
   # resolver will replace (single entry points: .section / .resolve).
-  module EnvConfig
+  module EnvConfig # rubocop:disable Metrics/ModuleLength
     APP_CONFIG_PATH = 'config/app_config.yml'
 
     # Fixed prefix per former yml source (REQ-ELN-28).
@@ -162,7 +162,7 @@ module Chemotion
           next unless key.is_a?(String) && key.start_with?(prefix)
 
           rest = key[prefix.length..]
-          next if rest.nil? || rest.empty?
+          next if rest.blank?
 
           var_kind, path = classify(name, rest, root)
           next unless var_kind == kind
@@ -218,17 +218,16 @@ module Chemotion
         when 'false' then false
         when /\A-?\d+\z/ then Integer(value, 10)
         when /\A-?\d+\.\d+\z/ then Float(value)
-        else
-          if value.start_with?('[', '{')
-            begin
-              JSON.parse(value, symbolize_names: true)
-            rescue JSON::ParserError
-              raw
-            end
-          else
-            raw
-          end
+        else coerce_json(value, raw)
         end
+      end
+
+      def coerce_json(value, raw)
+        return raw unless value.start_with?('[', '{')
+
+        JSON.parse(value, symbolize_names: true)
+      rescue JSON::ParserError
+        raw
       end
 
       def to_options(value)

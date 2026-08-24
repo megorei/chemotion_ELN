@@ -6,10 +6,12 @@ require 'rails_helper'
 # deployment-variable moves to ENV; YAML stays static and diffable.
 RSpec.describe 'config yml hygiene' do # rubocop:disable RSpec/DescribeClass
   # Framework files that legitimately read ENV through ERB.
-  FRAMEWORK_ALLOWLIST = %w[
-    config/cable.yml
-    config/shakapacker.yml
-  ].freeze
+  def framework_allowlist
+    %w[
+      config/cable.yml
+      config/shakapacker.yml
+    ]
+  end
 
   def tracked_config_ymls
     Dir.chdir(Rails.root) do
@@ -18,8 +20,8 @@ RSpec.describe 'config yml hygiene' do # rubocop:disable RSpec/DescribeClass
   end
 
   it 'contains no ERB in non-framework config ymls (REQ-ELN-29)' do
-    offenders = (tracked_config_ymls - FRAMEWORK_ALLOWLIST).select do |file|
-      File.read(Rails.root.join(file)).include?('<%')
+    offenders = (tracked_config_ymls - framework_allowlist).select do |file|
+      Rails.root.join(file).read.include?('<%')
     end
     expect(offenders).to be_empty, "ERB found in: #{offenders.join(', ')} (REQ-ELN-29 bans ERB in config ymls)"
   end

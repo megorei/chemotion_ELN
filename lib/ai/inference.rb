@@ -22,9 +22,8 @@ module Ai::Inference
         headers: { 'Content-Type' => 'application/json' },
       )
       JSON.parse(rsp.body)[0]
-    rescue
-      err_body = { 'error' => 'Prediction Sever not found. Please try again later.' }
-      err_body
+    rescue StandardError
+      { 'error' => 'Prediction Sever not found. Please try again later.' }
     end
   end
 
@@ -42,9 +41,8 @@ module Ai::Inference
         headers: { 'Content-Type' => 'application/json' },
       )
       JSON.parse(rsp.body)[0]
-    rescue
-      err_body = { 'error' => 'Prediction Sever not found. Please try again later.' }
-      err_body
+    rescue StandardError
+      { 'error' => 'Prediction Sever not found. Please try again later.' }
     end
   end
 end

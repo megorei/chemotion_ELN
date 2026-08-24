@@ -5,7 +5,7 @@
 # (SPECTRA_* ENV pair > config/spectra.yml (optional) > app_config.yml).
 require_relative '../../lib/chemotion/env_config'
 
-Rails.application.configure do
+Rails.application.configure do # rubocop:disable Metrics/BlockLength
   config.spectra = ActiveSupport::OrderedOptions.new
   config.spectra.chemspectra = ActiveSupport::OrderedOptions.new
   config.spectra.nmriumwrapper = ActiveSupport::OrderedOptions.new

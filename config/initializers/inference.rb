@@ -23,7 +23,8 @@ Rails.application.config.after_initialize do
             {}
           end
         inference_config = inference_config.merge(matrice_config.slice(:url, :port))
-      rescue ActiveRecord::StatementInvalid, PG::ConnectionBad, PG::UndefinedTable
+      rescue ActiveRecord::StatementInvalid, PG::ConnectionBad, PG::UndefinedTable => e
+        Rails.logger&.debug { "inference: matrice fallback unavailable (#{e.class})" }
       end
     end
 
