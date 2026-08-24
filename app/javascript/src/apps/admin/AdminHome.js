@@ -16,6 +16,7 @@ import DevicesList from 'src/apps/admin/devices/DevicesList';
 // import TemplateManagement from 'src/apps/admin/TemplateManagement';
 import ThirdPartyApp from 'src/apps/admin/ThirdPartyApp';
 import InfoSupportLinks from 'src/apps/admin/InfoSupportLinks';
+import TenantSettings from 'src/apps/admin/tenantSettings/TenantSettings';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 
 const ADMIN_PAGES = [
@@ -31,6 +32,7 @@ const ADMIN_PAGES = [
   { key: 14, label: 'ChemSpectra Layouts', component: ChemSpectraLayouts },
   { key: 15, label: 'Third Party Apps', component: ThirdPartyApp },
   { key: 16, label: 'Info & Support Links', component: InfoSupportLinks },
+  { key: 17, label: 'Tenant Settings', component: TenantSettings },
 ];
 
 const AdminHome = () => {

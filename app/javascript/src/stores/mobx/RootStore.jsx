@@ -13,6 +13,7 @@ import { VesselDetailsStore } from 'src/stores/mobx/VesselDetailsStore';
 import { SequenceBasedMacromoleculeSamplesStore } from 'src/stores/mobx/SequenceBasedMacromoleculeSamplesStore';
 import { CollectionsStore } from 'src/stores/mobx/CollectionsStore';
 import { NotificationsStore } from 'src/stores/mobx/NotificationsStore';
+import { TenantSettingsStore } from 'src/stores/mobx/TenantSettingsStore';
 import UserStore from 'src/stores/mobx/UserStore';
 
 const RootStore = types
@@ -30,6 +31,7 @@ const RootStore = types
     sequenceBasedMacromoleculeSamplesStore: types.optional(SequenceBasedMacromoleculeSamplesStore, {}),
     collectionsStore: types.optional(CollectionsStore, {}),
     notificationsStore: types.optional(NotificationsStore, {}),
+    tenantSettingsStore: types.optional(TenantSettingsStore, {}),
     userStore: types.optional(UserStore, {})
   })
   .actions((self) => ({
@@ -53,6 +55,7 @@ const RootStore = types
       applySnapshot(self.deviceDescriptionsStore, {});
       applySnapshot(self.sequenceBasedMacromoleculeSamplesStore, {});
       applySnapshot(self.collectionsStore, {});
+      applySnapshot(self.tenantSettingsStore, {});
       applySnapshot(self.userStore, {});
     }
   }))
@@ -70,6 +73,7 @@ const RootStore = types
     get sequenceBasedMacromoleculeSamples() { return self.sequenceBasedMacromoleculeSamplesStore; },
     get collections() { return self.collectionsStore; },
     get notifications() { return self.notificationsStore; },
+    get tenantSettings() { return self.tenantSettingsStore; },
     get user() { return self.userStore; },
   }));
 export const rootStore = RootStore.create({});
