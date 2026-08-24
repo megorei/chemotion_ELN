@@ -53,7 +53,8 @@ module Usecases
       def self.load_annotated_image(attachment, _attachment_file)
         return File.open(attachment.attachment.url) unless attachment.annotated?
 
-        store = Rails.configuration.shrine_storage.store
+        # NOTE: hash access — OrderedOptions#store would hit Hash#store(key, value)
+        store = Rails.configuration.shrine_storage[:store]
         annotated_file_path = "#{store}/#{attachment.attachment_data['derivatives']['annotation']['annotated_file_location'] || 'not available'}" # rubocop:disable Layout/LineLength
         annotated_file_exists = annotated_file_path && File.file?(annotated_file_path)
         if annotated_file_exists
