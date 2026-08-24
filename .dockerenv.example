@@ -6,6 +6,11 @@
 ##   volume names, host ports, migration behavior):
 ##     cp .dockerenv.example .dockerenv   # then adjust and pass --env-file .dockerenv
 ## Do not commit .dockerenv to the repository.
+##
+## NOTE (WP 02): this file only covers compose/build-time knobs of the DEV
+## stack. The application's runtime configuration (tenant packaging) is
+## documented in .env.tenant.example — the ENV-first surface that replaces the
+## per-deployment config/*.yml files.
 ## `docker compose --env-file .dockerenv -f docker-compose.dev.yml config`
 ##  will use the values from this file
 
