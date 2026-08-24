@@ -1,0 +1,205 @@
+# =============================================================================
+# app_config.yml — consolidated configuration STRUCTURE (WP 02, REQ-ELN-30)
+# =============================================================================
+#
+# One top-level section per former single-purpose config/*.yml file. This file
+# ships in the image and carries STRUCTURE ONLY: key names (implying the ENV
+# variable pair) plus static, environment-independent defaults (timeouts,
+# protocol ports, shipped fallback lists). It never carries deployment- or
+# environment-specific values — those come from ENV (or, backward-compatibly,
+# from a per-deployment config/<section>.yml, which is now OPTIONAL).
+#
+# ENV naming (REQ-ELN-28) — per setting:
+#   PREFIX_KEY          = Absolute value (operator-fixed, wins over everything)
+#   PREFIX_KEY_DEFAULT  = Default value  (used unless yml/Absolute overrides)
+# Neither set -> nil; consumers treat the setting as optional.
+#
+# Prefix map (fixed, derived from the former filename):
+#   converter.yml         -> CONVERTER_
+#   datacollectors.yml    -> DATACOLLECTOR_
+#   editors.yml           -> EDITOR_
+#   indigo_service.yml    -> INDIGO_
+#   inference.yml         -> INFERENCE_
+#   ketcher_service.yml   -> KETCHER_SERVICE_
+#   profile_default.yml   -> PROFILE_DEFAULT_
+#   radar.yml             -> RADAR_
+#   scifinder_n.yml       -> SCIFINDER_
+#   shrine.yml            -> SHRINE_
+#   spectra.yml           -> SPECTRA_
+#   storage.yml           -> STORAGE_
+#   structure_editors.yml -> STRUCTURE_EDITOR_
+#   ui_components.yml     -> UI_COMPONENT_
+#   user_props.yml        -> USER_PROP_
+# (database.yml and framework files — cable, shakapacker — stay out of scope.)
+#
+# Flattening: nested keys join with a double underscore:
+#   EDITOR_DOCSERVER__URI, STORAGE_STORES__LOCAL__DATA_FOLDER
+# List-heavy/free-form subtrees take JSON values on the subtree variable:
+#   DATACOLLECTOR_SERVICES='[{"name":"mailcollector"}]'
+#   STRUCTURE_EDITOR_EDITORS='{"ketcher":{"label":"Ketcher","extSrc":"..."}}'
+#
+# Resolution order (Chemotion::EnvConfig): Absolute ENV > per-deployment yml >
+# Default ENV > (template fallback for profile_default/ui_components/user_props)
+# > this file's static defaults > nil.
+#
+# The full variable list ships in .env.tenant.example.
+# =============================================================================
+
+# Labimotion converter-app (file-format conversion service).
+converter:
+  url: null           # CONVERTER_URL — converter-app base URI
+  profile: null       # CONVERTER_PROFILE — basic-auth user
+  secret_key: null    # CONVERTER_SECRET_KEY — SECRET (basic-auth password)
+  timeout: 300        # CONVERTER_TIMEOUT — seconds (static default)
+  # CONVERTER_EXT — JSON array of allowed file extensions.
+  ext:
+    - '.aif'
+    - '.brml'
+    - '.cif'
+    - '.dpt'
+    - '.dsp'
+    - '.dta'
+    - '.gz'
+    - '.pssession'
+    - '.tar'
+    - '.txt'
+    - '.xls'
+    - '.xlsx'
+    - '.xy'
+
+# Instrument data collection (IMAP + sftp/local folder watchers).
+datacollectors:
+  # DATACOLLECTOR_SERVICES — JSON array, e.g.
+  #   '[{"name":"mailcollector","cron":"5,20,35,50 * * * *"},
+  #     {"name":"folderwatcherlocal","every":5,"watcher_sleep":30}]'
+  services: null
+  mailcollector:
+    server: null        # DATACOLLECTOR_MAILCOLLECTOR__SERVER — IMAP host
+    mail_address: null  # DATACOLLECTOR_MAILCOLLECTOR__MAIL_ADDRESS
+    password: null      # DATACOLLECTOR_MAILCOLLECTOR__PASSWORD — SECRET
+    port: 993           # DATACOLLECTOR_MAILCOLLECTOR__PORT (static IMAP default)
+    ssl: true           # DATACOLLECTOR_MAILCOLLECTOR__SSL (static default)
+    aliases: null       # DATACOLLECTOR_MAILCOLLECTOR__ALIASES — JSON array
+  keydir: 'config/data_collector_keys' # DATACOLLECTOR_KEYDIR — ssh-key dir
+  # DATACOLLECTOR_SFTPUSERS — JSON array: '[{"user":"u1","password":"p1"}]' — SECRET
+  sftpusers: null
+  # DATACOLLECTOR_LOCALCOLLECTORS — JSON array: '[{"path":"/data/collector"}]'
+  localcollectors: null
+
+# OnlyOffice document server + imprint info block (former editors.yml,
+# initializer c_editors.rb).
+editors:
+  docserver:
+    enable: null           # EDITOR_DOCSERVER__ENABLE — true/false
+    uri: null              # EDITOR_DOCSERVER__URI — document-server base URI
+    api: 'web-apps/apps/api/documents/api.js' # EDITOR_DOCSERVER__API (static)
+    callback_server: null  # EDITOR_DOCSERVER__CALLBACK_SERVER — must match PUBLIC_URL
+    # EDITOR_DOCSERVER__EXT — JSON: '{"text":["doc","docx"],...}'
+    ext:
+      text: ['doc', 'docx']
+      spreadsheet: ['xls', 'xlsx']
+      presentation: ['ppt', 'pptx']
+  info:
+    address: null     # EDITOR_INFO__ADDRESS — imprint block
+    title: null       # EDITOR_INFO__TITLE
+    name: null        # EDITOR_INFO__NAME
+    logo: null        # EDITOR_INFO__LOGO
+    mail: null        # EDITOR_INFO__MAIL
+    website: null     # EDITOR_INFO__WEBSITE
+    feedbackurl: null # EDITOR_INFO__FEEDBACKURL
+
+# Indigo structure-render fallback service.
+indigo_service:
+  indigo_service_url: null # INDIGO_INDIGO_SERVICE_URL — service base URI
+
+# Reaction prediction service (falls back to the reactionPrediction matrice
+# when neither ENV nor yml configures a url).
+inference:
+  url: null  # INFERENCE_URL
+  port: null # INFERENCE_PORT
+
+# Ketcher SVG render service.
+ketcher_service:
+  url: null # KETCHER_SERVICE_URL — render endpoint
+
+# Default element-layout profile for new users.
+profile_default:
+  # PROFILE_DEFAULT_LAYOUT — JSON of the whole layout tree, e.g.
+  #   '{"layout":{"sample":1,"reaction":2,...},"layout_detail_sample":{...}}'
+  # Without ENV/yml, the shipped profile_default.yml.example applies.
+  layout: null
+
+# RADAR research-data archive (OAuth2).
+radar:
+  url: null             # RADAR_URL — RADAR API base
+  client_id: null       # RADAR_CLIENT_ID
+  client_secret: null   # RADAR_CLIENT_SECRET — SECRET
+  redirect_uri: null    # RADAR_REDIRECT_URI — must match tenant host
+  email: null           # RADAR_EMAIL
+  backlink: null        # RADAR_BACKLINK
+  publisher: null       # RADAR_PUBLISHER
+  resource: null        # RADAR_RESOURCE
+  resourceType: null    # RADAR_RESOURCETYPE
+  softwareName: null    # RADAR_SOFTWARENAME
+  softwareVersion: null # RADAR_SOFTWAREVERSION
+
+# SciFinder-n (CAS) integration.
+scifinder_n:
+  provider:
+    metadata: null      # SCIFINDER_PROVIDER__METADATA — CAS OAuth metadata URI
+    host: null          # SCIFINDER_PROVIDER__HOST
+    client_id: null     # SCIFINDER_PROVIDER__CLIENT_ID — sensitive
+    redirect: null      # SCIFINDER_PROVIDER__REDIRECT — must match tenant host
+    redirect_host: null # SCIFINDER_PROVIDER__REDIRECT_HOST
+
+# Shrine attachment storage (live store). Unset paths default to
+# uploads/<env>[, /cache] in code (see config/initializers/shrine.rb).
+shrine:
+  maximum_size: 100 # SHRINE_MAXIMUM_SIZE — MB upload cap (static default)
+  cache: null       # SHRINE_CACHE — temporary upload dir
+  store: null       # SHRINE_STORE — permanent upload dir
+
+# Spectra services.
+spectra:
+  chemspectra:
+    url: null # SPECTRA_CHEMSPECTRA__URL
+  nmriumwrapper:
+    url: null # SPECTRA_NMRIUMWRAPPER__URL
+
+# Legacy file storage (pre-Shrine; still boot-required). Unset stores default
+# to tmp/local under uploads/<env> in code (see config/initializers/storage.rb).
+storage:
+  maximum_size: 100     # STORAGE_MAXIMUM_SIZE — MB (static default)
+  primary_store: null   # STORAGE_PRIMARY_STORE — defaults to 'local' in code
+  secondary_store: null # STORAGE_SECONDARY_STORE
+  # STORAGE_STORES — JSON, or deep-flattened per key:
+  #   STORAGE_STORES__LOCAL__DATA_FOLDER, STORAGE_STORES__LOCAL__THUMBNAIL_FOLDER,
+  #   STORAGE_STORES__TMP__DATA_FOLDER, ... (sftp/s3os analogous — SECRET fields)
+  stores: null
+
+# Additional structure editors offered in the UI.
+structure_editors:
+  # STRUCTURE_EDITOR_EDITORS — JSON:
+  #   '{"ketcher":{"label":"Ketcher","extSrc":"/editors/ketcher/standalone/index.html"}}'
+  # or deep-flattened: STRUCTURE_EDITOR_EDITORS__KETCHER__LABEL, ...
+  editors: null
+
+# Optional UI components (opt-in feature flags; fail closed).
+ui_components:
+  weighing_tasks: false # UI_COMPONENT_WEIGHING_TASKS — true enables
+  sample_explorer: false # UI_COMPONENT_SAMPLE_EXPLORER — true enables
+
+# User/device name-abbreviation validation rules.
+user_props:
+  name_abbreviation:
+    # USER_PROP_NAME_ABBREVIATION__RESERVED_LIST — JSON array: '["CRR","CRS"]'
+    reserved_list: null
+    length_group: null    # USER_PROP_NAME_ABBREVIATION__LENGTH_GROUP — JSON: '[2,5]'
+    length_device: null   # USER_PROP_NAME_ABBREVIATION__LENGTH_DEVICE — JSON: '[2,6]'
+    # Absolute var for length_default keeps its natural name (it matches this
+    # known key); its Default-tier var is …__LENGTH_DEFAULT_DEFAULT.
+    length_default: null  # USER_PROP_NAME_ABBREVIATION__LENGTH_DEFAULT — JSON: '[2,3]'
+    # Plain regexp SOURCE string (no !ruby/regexp): consumers match via
+    # String#match?, which accepts a pattern string.
+    format_abbr: null     # USER_PROP_NAME_ABBREVIATION__FORMAT_ABBR
+    format_abbr_err_msg: null # USER_PROP_NAME_ABBREVIATION__FORMAT_ABBR_ERR_MSG
