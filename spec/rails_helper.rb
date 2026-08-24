@@ -20,6 +20,23 @@ end
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV['RAILS_ENV'] ||= 'test'
 require 'spec_helper'
+
+# WP 02 (REQ-ELN-29): the datacollector test configuration used to be
+# generated through ERB in config/datacollectors.yml (Dir.mktmpdir, Dir.home)
+# — ERB in config ymls is banned. The dynamic test values are provided through
+# the ENV-first path instead (Default tier, so a live datacollectors.yml
+# test: section still wins), before Rails boots.
+require 'tmpdir'
+ENV['DATACOLLECTOR_SERVICES_DEFAULT'] ||=
+  '[{"name":"folderwatcherlocal","watcher_sleep":0},{"name":"filewatcherlocal","watcher_sleep":0},' \
+  '{"name":"folderwatchersftp","watcher_sleep":0},{"name":"filewatchersftp","watcher_sleep":0}]'
+ENV['DATACOLLECTOR_KEYDIR_DEFAULT'] ||= "#{Dir.home}/.ssh/"
+ENV['DATACOLLECTOR_LOCALCOLLECTORS_DEFAULT'] ||= %([{"path":"#{Dir.mktmpdir(%w[chemotion_collector_test-])}"}])
+ENV['DATACOLLECTOR_MAILCOLLECTOR__SERVER_DEFAULT'] ||= 'imap.server.de'
+ENV['DATACOLLECTOR_MAILCOLLECTOR__MAIL_ADDRESS_DEFAULT'] ||= 'service@mail'
+ENV['DATACOLLECTOR_MAILCOLLECTOR__PASSWORD_DEFAULT'] ||= 'password'
+ENV['DATACOLLECTOR_MAILCOLLECTOR__ALIASES_DEFAULT'] ||= '["alias_one@kit.edu","alias_two@kit.edu"]'
+
 require File.expand_path('../config/environment', __dir__)
 require 'rspec/rails'
 # require 'capybara/rails'
