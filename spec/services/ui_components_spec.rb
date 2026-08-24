@@ -5,8 +5,7 @@ require 'rails_helper'
 describe UiComponents do
   describe '.enabled?' do
     def stub_config(value)
-      config = value.nil? ? value : ActiveSupport::OrderedOptions.new.merge(value)
-      allow(Rails.configuration).to receive(:ui_components).and_return(config)
+      allow(AppConfig).to receive(:get).with(:ui_components).and_return(value)
     end
 
     it 'is enabled when explicitly set to true' do
@@ -29,9 +28,19 @@ describe UiComponents do
       expect(described_class.enabled?(:weighing_tasks)).to be(false)
     end
 
+    it 'is disabled (fail closed) when the resolver raises' do
+      allow(AppConfig).to receive(:get).and_raise(StandardError, 'resolver down')
+      expect(described_class.enabled?(:weighing_tasks)).to be(false)
+    end
+
     it 'accepts a string component name' do
       stub_config(weighing_tasks: true)
       expect(described_class.enabled?('weighing_tasks')).to be(true)
+    end
+
+    it 'resolves a tenant_settings override at request time (WP 03)' do
+      TenantSetting.write(section: 'ui_components', key: 'weighing_tasks', value: true)
+      expect(described_class.enabled?(:weighing_tasks)).to be(true)
     end
   end
 end

@@ -106,6 +106,36 @@ RSpec.describe Chemotion::AdminUserAPI do
     end
   end
 
+  describe 'matrix configs save (WP 03 / ADR-007: devise hot-reload hack removed)' do
+    let!(:matrice) { create(:matrice, configs: {}) }
+
+    it 'persists configs and emits config.restart_requested instead of reloading devise.rb', :aggregate_failures do
+      expect do
+        put '/api/v1/admin/matrix', params: {
+          id: matrice.id,
+          configs: { github: { enable: true, client_id: 'gh-id' } },
+        }, as: :json
+      end.to change(AuditEvent.where(action: 'config.restart_requested'), :count).by(1)
+
+      expect(response).to have_http_status(:created)
+      expect(matrice.reload.configs.dig('github', 'client_id')).to eq('gh-id')
+
+      event = AuditEvent.where(action: 'config.restart_requested').last
+      expect(event.actor_id).to eq(admin.id)
+      expect(event.subject_type).to eq('Matrice')
+      expect(event.subject_id).to eq(matrice.id)
+      expect(event.metadata).to include('section' => 'omniauth', 'matrice' => matrice.name)
+    end
+
+    it 'does not request a restart when only non-config attributes change' do
+      expect do
+        put '/api/v1/admin/matrix', params: { id: matrice.id, label: 'new label' }, as: :json
+      end.not_to change(AuditEvent.where(action: 'config.restart_requested'), :count)
+
+      expect(matrice.reload.label).to eq('new label')
+    end
+  end
+
   describe 'matrix secrets (WP 05, REQ-ELN-5)' do
     let!(:matrice) { create(:matrice, configs: {}) }
 
