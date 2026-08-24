@@ -272,7 +272,14 @@ module Chemotion
           matrice = Matrice.find(params.delete(:id))
           begin
             matrice.update!(attributes) unless attributes.empty?
-            load Rails.root.join('config/initializers/devise.rb') if params[:configs].present?
+            if params[:configs].present?
+              # ADR-007: the former `load config/initializers/devise.rb`
+              # hot-reload hack (per-worker only) is superseded — provider
+              # config changes persist and flag an operator-executed restart
+              # (picked up by chemop via the audit stream).
+              AuditEvent.record(action: 'config.restart_requested', actor: current_user, ip: request.ip,
+                                subject: matrice, meta: { section: 'omniauth', matrice: matrice.name })
+            end
             status 201
           rescue ActiveRecord::RecordInvalid => e
             if params[:configs].present?

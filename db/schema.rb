@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_23_130100) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_24_120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -1703,6 +1703,26 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_23_130100) do
     t.index ["channel_id", "user_id"], name: "index_subscriptions_on_channel_id_and_user_id", unique: true
   end
 
+  create_table "tenant_setting_secrets", force: :cascade do |t|
+    t.string "section", null: false
+    t.string "key", null: false
+    t.text "secret"
+    t.bigint "updated_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["section", "key"], name: "index_tenant_setting_secrets_on_section_and_key", unique: true
+  end
+
+  create_table "tenant_settings", force: :cascade do |t|
+    t.string "section", null: false
+    t.string "key", null: false
+    t.jsonb "value"
+    t.bigint "updated_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["section", "key"], name: "index_tenant_settings_on_section_and_key", unique: true
+  end
+
   create_table "text_templates", id: :serial, force: :cascade do |t|
     t.string "type"
     t.integer "user_id", null: false
@@ -1944,6 +1964,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_23_130100) do
   add_foreign_key "sample_tasks", "users", column: "creator_id"
   add_foreign_key "sequence_based_macromolecule_samples", "sequence_based_macromolecules"
   add_foreign_key "sequence_based_macromolecule_samples", "users"
+  add_foreign_key "tenant_setting_secrets", "users", column: "updated_by"
+  add_foreign_key "tenant_settings", "users", column: "updated_by"
   add_foreign_key "user_roles", "users"
   add_foreign_key "user_roles", "users", column: "granted_by"
   create_function :user_instrument, sql_definition: <<-'SQL'

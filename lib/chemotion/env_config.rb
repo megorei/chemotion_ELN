@@ -79,13 +79,27 @@ module Chemotion
       #   no live yml exists (replaces the legacy self-healing example copy)
       # @return [Hash]
       def section(name, env: ENV, root: Rails.root, template_fallback: false)
+        layers(name, env: env, root: root, template_fallback: template_fallback)
+          .values
+          .reduce { |merged, layer| merged.deep_merge(layer) }
+      end
+
+      # The individual resolution layers for +name+, lowest priority first:
+      # :static (app_config.yml) < :template (<name>.yml.example, only with
+      # template_fallback and no live yml) < :env_default < :yml <
+      # :env_absolute. The WP 03 resolver (AppConfig) slots its DB tenant tier
+      # between :yml and :env_absolute and derives per-key provenance from
+      # this map.
+      def layers(name, env: ENV, root: Rails.root, template_fallback: false)
         name = name.to_sym
         live_yml = yml_layer(name, root)
-        merged = structure(name, root: root).deep_dup
-        merged = merged.deep_merge(template_layer(name, root)) if template_fallback && live_yml.nil?
-        merged = merged.deep_merge(env_layer(name, :default, env, root))
-        merged = merged.deep_merge(live_yml) if live_yml
-        merged.deep_merge(env_layer(name, :absolute, env, root))
+        {
+          static: structure(name, root: root).deep_dup,
+          template: template_fallback && live_yml.nil? ? template_layer(name, root) : {},
+          env_default: env_layer(name, :default, env, root),
+          yml: live_yml || {},
+          env_absolute: env_layer(name, :absolute, env, root),
+        }
       end
 
       # Same as {.section} but as nested ActiveSupport::OrderedOptions

@@ -8,12 +8,16 @@ module Chemotion
     resource :messages do
       desc 'Get message configuration'
       get 'config' do
-        # Floors protect every client from a misconfigured .env driving a runaway polling loop —
-        # regardless of what MESSAGE_AUTO_INTERNAL/MESSAGE_IDLE_TIME are set to (including non-numeric
+        # WP 03: resolved through AppConfig at request time (DB tenant tier >
+        # legacy MESSAGE_* ENV) — a tenant_settings change applies without restart.
+        # Floors protect every client from a misconfigured value driving a runaway polling loop —
+        # regardless of what auto_interval/idle_time resolve to (including non-numeric
         # garbage, which .to_i coerces to 0), the served values can never go below these.
-        { messageEnable: ENV['MESSAGE_ENABLE'] || 'true',
-          messageAutoInterval: [(ENV['MESSAGE_AUTO_INTERNAL'] || 6000).to_i, 500].max,
-          idleTimeout: [(ENV['MESSAGE_IDLE_TIME'] || 12).to_i, 5].max }
+        enable = AppConfig.get(:messaging, :enable)
+        enable = true if enable.nil? # only an explicit false disables
+        { messageEnable: enable.to_s,
+          messageAutoInterval: [(AppConfig.get(:messaging, :auto_interval) || 6000).to_i, 500].max,
+          idleTimeout: [(AppConfig.get(:messaging, :idle_time) || 12).to_i, 5].max }
       end
 
       desc 'Return messages of the current user'
