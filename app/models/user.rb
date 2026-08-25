@@ -501,7 +501,15 @@ class User < ApplicationRecord
   # - add subcollections
   # - delete it
 
+  # Every account type except +Group+ gets one. The "All" collection backs the MyDB element paths,
+  # and config/routes.rb routes a +Group+ session to the command-and-control view for `/`, `/group`,
+  # `/mydb` and `/mydb/*any`, so a group can never use one. This is deliberately narrower than
+  # +create_chemotion_public_collection+'s Person-only guard: +Admin+ subclasses +User+, not
+  # +Person+, and admins do hold and use an "All" collection — the element and import paths
+  # dereference it without a nil check.
   def create_all_collection
+    return if type == 'Group'
+
     Collection.create(user: self, label: 'All', position: 0, is_locked: true)
   end
 
@@ -594,8 +602,13 @@ class Group < User
   around_save :update_allocated_space
   before_destroy :remove_from_matrices
 
+  # The single resolution point for "is this user a group admin of this
+  # group" — GroupPolicy and the Grape GroupAdminHelpers both funnel through
+  # here.
   def administrated_by?(user)
-    users_admins.where(admin: user).present?
+    return false if user.nil?
+
+    users_admins.exists?(admin: user)
   end
 
   # Single source of truth for "removing this admin would leave the group with none" —

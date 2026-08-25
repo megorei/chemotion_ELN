@@ -19,6 +19,23 @@ RSpec.describe Usecases::Authentication::BuildToken do
       expect(excute).to eq('my-token')
     end
 
+    it 'expires after JWT_TTL_HOURS (default 336 h = 2 weeks)' do
+      payload = JsonWebToken.decode(excute)
+      expect(payload[:exp]).to be_within(60).of(336.hours.from_now.to_i)
+    end
+
+    context 'with JWT_TTL_HOURS set' do
+      before do
+        allow(ENV).to receive(:[]).and_call_original
+        allow(ENV).to receive(:[]).with('JWT_TTL_HOURS').and_return('1')
+      end
+
+      it 'expires after the configured TTL' do
+        payload = JsonWebToken.decode(excute)
+        expect(payload[:exp]).to be_within(60).of(1.hour.from_now.to_i)
+      end
+    end
+
     context 'when user not found' do
       let(:params) do
         {

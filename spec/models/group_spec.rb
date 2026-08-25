@@ -66,8 +66,11 @@ RSpec.describe 'Group', type: :model do
       expect(group.type).to eq 'Group'
     end
 
-    it 'creates an All collection' do
-      expect(group.collections.pluck(:label)).to match_array ['All']
+    # A group gets no collections at all: the "All" collection backs the MyDB element paths, and
+    # config/routes.rb routes a Group session to the command-and-control view for /mydb, so it can
+    # never be used. Same reasoning as the repository collection, which has always been Person-only.
+    it 'creates no collections' do
+      expect(group.collections).to be_empty
     end
   end
 
@@ -122,6 +125,26 @@ RSpec.describe 'Group', type: :model do
         expect(group.sole_admin?(sole_admin.id)).to be false
         expect(group.sole_admin?(other_person.id)).to be false
       end
+    end
+  end
+
+  # administrated_by? is the single resolution point for group adminship —
+  # GroupPolicy and the Grape GroupAdminHelpers both funnel through it.
+  describe '#administrated_by?' do
+    let(:person) { create(:person) }
+    let(:group) { create(:group) }
+
+    it 'is false without a users_admins entry' do
+      expect(group.administrated_by?(person)).to be false
+    end
+
+    it 'is true via the users_admins join' do
+      group.admins << person
+      expect(group.administrated_by?(person)).to be true
+    end
+
+    it 'is false for nil' do
+      expect(group.administrated_by?(nil)).to be false
     end
   end
 end
