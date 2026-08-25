@@ -10,6 +10,11 @@ Rails.application.config.after_initialize do
     rescue ActiveRecord::StatementInvalid, PG::ConnectionBad, PG::UndefinedTable
       compute_config = {}
     ensure
+      # The ensure block also runs when an exception OUTSIDE the rescued list
+      # is raised (or raised before the assignment completes) — compute_config
+      # is then nil and the hash accesses below crash, masking the original
+      # boot error with a NoMethodError from this initializer.
+      compute_config ||= {}
       config.compute_config = ActiveSupport::OrderedOptions.new
       config.compute_config.server = compute_config['server']
       config.compute_config.hmac_secret = compute_config['hmac_secret']
