@@ -4,9 +4,7 @@ import {
   Accordion,
   Button,
   Row,
-  Col,
-  OverlayTrigger,
-  Tooltip
+  Col
 } from 'react-bootstrap';
 import { Map } from 'immutable';
 import { uniqBy } from 'lodash';
@@ -21,7 +19,7 @@ import Literature from 'src/models/Literature';
 import LiteraturesFetcher from 'src/fetchers/LiteraturesFetcher';
 import UIStore from 'src/stores/alt/stores/UIStore';
 import { StoreContext } from 'src/stores/mobx/RootStore';
-import { copyToClipboard } from 'src/utilities/clipboard';
+import CopyButton from 'src/components/common/CopyButton';
 
 const Cite = require('citation-js');
 
@@ -195,24 +193,14 @@ export default class LiteratureModal extends Component {
     return (
       <div className="d-flex flex-grow-1 align-items-baseline justify-content-between">
         {title}
-        <OverlayTrigger
+        <CopyButton
+          text={clipboardText}
           placement="bottom"
-          overlay={
-            <Tooltip id="assign_button">copy to clipboard</Tooltip>
-          }
-        >
-          <Button
-            size="sm"
-            active
-            className="me-2"
-            onClick={(e) => {
-              e.stopPropagation();
-              copyToClipboard(clipboardText);
-            }}
-          >
-            <i className="fa fa-clipboard" />
-          </Button>
-        </OverlayTrigger>
+          tooltipId={`copy-${title.replace(/\s+/g, '-')}`}
+          size="sm"
+          className="me-2"
+          active
+        />
       </div>
     );
   }

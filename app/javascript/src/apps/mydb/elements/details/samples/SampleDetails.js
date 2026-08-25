@@ -64,7 +64,7 @@ import CommentModal from 'src/components/common/CommentModal';
 import { formatTimeStampsOfElement } from 'src/utilities/timezoneHelper';
 import { commentActivation } from 'src/utilities/CommentHelper';
 import PrivateNoteElement from 'src/apps/mydb/elements/details/PrivateNoteElement';
-import { copyToClipboard } from 'src/utilities/clipboard';
+import CopyButton from 'src/components/common/CopyButton';
 // eslint-disable-next-line import/no-named-as-default
 import VersionsTable from 'src/apps/mydb/elements/details/VersionsTable';
 
@@ -1021,14 +1021,12 @@ export default class SampleDetails extends React.Component {
               allowCreateWhileLoading
               formatCreateLabel={(inputValue) => `Create "${inputValue}"`}
             />
-            <OverlayTrigger placement="bottom" overlay={this.clipboardTooltip()}>
-              <Button
-                variant="light"
-                onClick={() => copyToClipboard(cas)}
-              >
-                <i className="fa fa-clipboard" />
-              </Button>
-            </OverlayTrigger>
+            <CopyButton
+              text={cas}
+              placement="bottom"
+              variant="light"
+              tooltipId="copy_cas"
+            />
           </div>
         </InputGroup>
         {!validCas && errorMessage}
@@ -1215,26 +1213,13 @@ export default class SampleDetails extends React.Component {
           disabled
           readOnly
         />
-        <OverlayTrigger placement="bottom" overlay={this.clipboardTooltip()}>
-          <Button
-            variant="light"
-            onClick={() => copyToClipboard(
-              (this.state.showInchikey
-                ? sample.molecule_inchikey
-                : this.state.inchiString)
-              || ' '
-            )}
-          >
-            <i className="fa fa-clipboard" />
-          </Button>
-        </OverlayTrigger>
+        <CopyButton
+          text={(this.state.showInchikey ? sample.molecule_inchikey : this.state.inchiString) || ' '}
+          placement="bottom"
+          variant="light"
+          tooltipId="copy_inchi"
+        />
       </InputGroup>
-    );
-  }
-
-  clipboardTooltip() {
-    return (
-      <Tooltip id="assign_button">copy to clipboard</Tooltip>
     );
   }
 
@@ -1260,14 +1245,12 @@ export default class SampleDetails extends React.Component {
             }
           }}
         />
-        <OverlayTrigger placement="bottom" overlay={this.clipboardTooltip()}>
-          <Button
-            variant="light"
-            onClick={() => copyToClipboard(sample.molecule_cano_smiles || '')}
-          >
-            <i className="fa fa-clipboard" />
-          </Button>
-        </OverlayTrigger>
+        <CopyButton
+          text={sample.molecule_cano_smiles || ''}
+          placement="bottom"
+          variant="light"
+          tooltipId="copy_smiles"
+        />
         <OverlayTrigger placement="bottom" overlay={this.moleculeCreatorTooltip()}>
           <Button
             variant="light"
@@ -1294,14 +1277,12 @@ export default class SampleDetails extends React.Component {
           disabled
           readOnly
         />
-        <OverlayTrigger placement="bottom" overlay={this.clipboardTooltip()}>
-          <Button
-            variant="light"
-            onClick={() => copyToClipboard(sample.molfile || '')}
-          >
-            <i className="fa fa-clipboard" />
-          </Button>
-        </OverlayTrigger>
+        <CopyButton
+          text={sample.molfile || ''}
+          placement="bottom"
+          variant="light"
+          tooltipId="copy_molfile"
+        />
         <Button
           variant="light"
           onClick={this.handleMolfileShow}

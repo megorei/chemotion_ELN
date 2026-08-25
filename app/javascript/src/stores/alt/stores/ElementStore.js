@@ -229,6 +229,7 @@ class ElementStore {
         ElementActions.bulkCreateWellplatesFromSamples,
       handleFetchWellplateById: ElementActions.fetchWellplateById,
       handleImportWellplateSpreadsheet: ElementActions.importWellplateSpreadsheet,
+      handleResizeWellplate: ElementActions.resizeWellplate,
       handleCreateWellplate: ElementActions.createWellplate,
       handleGenerateWellplateFromClipboard:
         ElementActions.generateWellplateFromClipboard,
@@ -1005,6 +1006,12 @@ class ElementStore {
     if (updated) {
       this.setState({ selecteds: newSelecteds });
     }
+  }
+
+  handleResizeWellplate(result) {
+    if (result.error) { return; }
+
+    this.handleUpdateWellplate(result);
   }
 
   handleImportWellplateSpreadsheet(result) {
