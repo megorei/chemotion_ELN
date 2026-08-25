@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_24_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_25_120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -874,6 +874,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_24_120000) do
     t.string "state", default: "pending", null: false
     t.integer "collection_id"
     t.integer "created_by"
+    t.integer "permission_level", default: 0, null: false
+    t.integer "celllinesample_detail_level", default: 0, null: false
+    t.integer "devicedescription_detail_level", default: 0, null: false
+    t.integer "element_detail_level", default: 0, null: false
+    t.integer "reaction_detail_level", default: 0, null: false
+    t.integer "researchplan_detail_level", default: 0, null: false
+    t.integer "sample_detail_level", default: 0, null: false
+    t.integer "screen_detail_level", default: 0, null: false
+    t.integer "sequencebasedmacromoleculesample_detail_level", default: 0, null: false
+    t.integer "wellplate_detail_level", default: 0, null: false
+    t.datetime "expires_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_guest_grants_on_email"

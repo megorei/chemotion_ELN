@@ -109,5 +109,70 @@ RSpec.describe GuestGrant do
       expect(event.actor_id).to eq(admin.id)
       expect(event.metadata['federated_id']).to eq('idp#guest')
     end
+
+    context 'with a converted collection share (WP 02)' do
+      let(:collection) { create(:collection, shared: true) }
+      let(:grant) do
+        create(:guest_grant, federated_id: guest.federated_id, state: 'active', collection: collection)
+      end
+
+      before do
+        CollectionShare.create!(collection: collection, shared_with_id: guest.id, permission_level: 0)
+      end
+
+      it 'destroys the converted share and refreshes the shared flag' do
+        expect { grant.revoke! }
+          .to change { CollectionShare.where(collection: collection, shared_with_id: guest.id).count }
+          .from(1).to(0)
+        expect(collection.reload.shared).to be(false)
+      end
+
+      it 'leaves other recipients` shares on the collection untouched' do
+        other = create(:person)
+        CollectionShare.create!(collection: collection, shared_with_id: other.id, permission_level: 1)
+        grant.revoke!
+        expect(CollectionShare.where(collection: collection, shared_with_id: other.id)).to exist
+        expect(collection.reload.shared).to be(true)
+      end
+    end
+  end
+
+  describe 'expiry (WP 02)' do
+    it 'find_usable ignores an expired invitation' do
+      create(:guest_grant, federated_id: 'idp#late', expires_at: 1.day.ago)
+      expect(described_class.find_usable(federated_id: 'idp#late')).to be_nil
+    end
+
+    it 'find_usable returns a not-yet-expired invitation' do
+      grant = create(:guest_grant, federated_id: 'idp#in-time', expires_at: 1.day.from_now)
+      expect(described_class.find_usable(federated_id: 'idp#in-time')).to eq(grant)
+    end
+
+    it 'expired? is false without expires_at' do
+      expect(build(:guest_grant).expired?).to be(false)
+    end
+  end
+
+  describe '.redeemable_for' do
+    let(:guest) { create(:person, external: true, federated_id: 'idp#redeemer', email: 'redeemer@example.org') }
+
+    it 'finds attached grants and detached email invitations, skipping expired and foreign ones',
+       :aggregate_failures do
+      attached = create(:guest_grant, federated_id: guest.federated_id)
+      detached = create(:guest_grant, federated_id: nil, email: guest.email)
+      create(:guest_grant, federated_id: guest.federated_id, expires_at: 1.hour.ago)
+      create(:guest_grant, federated_id: 'idp#other')
+      create(:guest_grant, federated_id: 'idp#other-2', email: guest.email)
+
+      expect(described_class.redeemable_for(guest)).to contain_exactly(attached, detached)
+    end
+  end
+
+  describe '#share_attributes' do
+    it 'mirrors exactly the collection_shares parameter columns' do
+      grant = build(:guest_grant, permission_level: 2, sample_detail_level: 3)
+      expect(grant.share_attributes).to include(permission_level: 2, sample_detail_level: 3)
+      expect(grant.share_attributes.keys).to match_array(described_class::SHARE_PARAM_COLUMNS)
+    end
   end
 end
