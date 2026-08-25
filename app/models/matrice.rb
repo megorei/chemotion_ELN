@@ -108,7 +108,10 @@ class Matrice < ApplicationRecord
   # them from the JSONB. A SECRET_PLACEHOLDER value round-tripping back from the
   # admin UI keeps the stored secret (write-only contract); blank values are
   # left untouched (seeded '' placeholders act as "not configured").
+  # Guarded to Hash: mid-migration-history saves (e.g. 20210222154608 on a
+  # fresh DB) see the pre-JSONB string default '{}' here.
   def extract_secrets_from_configs
+    return unless configs.is_a?(Hash)
     return if configs.blank?
 
     updated = configs.deep_dup
