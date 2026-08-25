@@ -343,6 +343,162 @@ module Chemotion
           present transferred, with: Entities::OwnCollectionEntity, root: :collection
         end
       end
+
+      # P1 WP 02 (REQ-ELN-17): sharing with EXTERNAL people. A known guest
+      # (already provisioned federated identity) gets a CollectionShare
+      # directly; an unknown identity becomes a pending GuestGrant that
+      # converts on their first federated login (Usecases::Guests::RedeemGrants).
+      namespace :invitations do
+        helpers do
+          # Tenant inbound policy, enforced at invite time (it is enforced
+          # again at login time by the OmniAuth guest gate): off → no external
+          # sharing at all; federation → the invite must carry the stable
+          # federated identifier (issuer#id), an email alone is not enough to
+          # pre-authorize a login; open → email-only invitations are allowed.
+          def enforce_inbound_policy!(identifier)
+            case TenantContext.current.inbound_collaboration
+            when 'off'
+              error!('403 Forbidden: inbound collaboration is disabled on this instance', 403)
+            when 'federation'
+              return if identifier.present?
+
+              error!('422 Unprocessable Entity: this instance requires a federated identifier ' \
+                     '(issuer#id) for external invitations', 422)
+            end
+          end
+
+          # Externals are capped twice: by the tenant's guest ceiling
+          # (TENANT_GUEST_MAX_PERMISSION_LEVEL, hard-limited below
+          # manage_shares) and — like every share write — by the inviter's own
+          # effective level (no self-escalation via guests).
+          def enforce_guest_cap!(collection, permission_level)
+            max_level = TenantContext.current.guest_max_permission_level
+            if permission_level.to_i > max_level
+              error!("403 Forbidden: external guests may hold at most permission level #{max_level} " \
+                     'on this instance', 403)
+            end
+            prevent_privilege_escalation!(collection, permission_level)
+          end
+
+          # The already-provisioned guest for the invited identity, if any.
+          # An identifier or email resolving to a NON-external (home) account
+          # is refused — locals are shared with directly, not invited.
+          def resolve_invitee!(identifier, email)
+            user = User.find_by(federated_id: identifier) if identifier.present?
+            user ||= User.where(external: true).find_by(email: email.to_s.downcase) if email.present?
+            return user if user.nil? || user.external?
+
+            error!('422 Unprocessable Entity: this identity belongs to a local user — ' \
+                   'share the collection with them directly', 422)
+          end
+
+          def administrable_grant(grant_id)
+            grant = GuestGrant.find(grant_id)
+            raise ActiveRecord::RecordNotFound if grant.collection_id.blank?
+
+            administrable_collection(grant.collection_id)
+            grant
+          end
+        end
+
+        desc 'List the external invitations/grants on a collection'
+        params do
+          requires :collection_id, type: Integer
+        end
+        get do
+          collection = administrable_collection(params[:collection_id])
+
+          present GuestGrant.where(collection_id: collection.id).order(:created_at),
+                  with: Entities::GuestGrantEntity, root: :invitations
+        end
+
+        desc 'Invite an external person (by federated identifier and/or email) to a collection'
+        params do
+          requires :collection_id, type: Integer
+          optional :identifier, type: String, desc: 'stable federated identifier (issuer#id)'
+          optional :email, type: String
+          at_least_one_of :identifier, :email
+          optional :permission_level, type: Integer, default: 0,
+                                      values: CollectionShare::PERMISSION_LEVELS.values
+          optional :celllinesample_detail_level, type: Integer
+          optional :devicedescription_detail_level, type: Integer
+          optional :element_detail_level, type: Integer
+          optional :reaction_detail_level, type: Integer
+          optional :researchplan_detail_level, type: Integer
+          optional :sample_detail_level, type: Integer
+          optional :screen_detail_level, type: Integer
+          optional :sequencebasedmacromoleculesample_detail_level, type: Integer
+          optional :wellplate_detail_level, type: Integer
+          optional :expires_at, type: DateTime
+        end
+        post do
+          collection = administrable_collection(params[:collection_id])
+          enforce_inbound_policy!(params[:identifier])
+          enforce_guest_cap!(collection, params[:permission_level])
+
+          share_params = declared(params, include_missing: false)
+                         .except(:collection_id, :identifier, :email, :expires_at)
+          guest = resolve_invitee!(params[:identifier], params[:email])
+
+          # Re-inviting the same identity to the same collection updates the
+          # grant in place instead of stacking rows (a revoked grant reopens);
+          # the identifier is the primary key of an identity, the email lookup
+          # only matches grants never attached to one.
+          grant =
+            if params[:identifier].present?
+              GuestGrant.find_or_initialize_by(collection_id: collection.id, federated_id: params[:identifier])
+            else
+              GuestGrant.find_or_initialize_by(collection_id: collection.id, federated_id: nil,
+                                               email: params[:email].to_s.downcase)
+            end
+          grant.assign_attributes(share_params.merge(expires_at: params[:expires_at], created_by: current_user.id))
+          grant.email = params[:email].to_s.downcase if params[:email].present? && grant.email.blank?
+          grant.federated_id ||= guest&.federated_id
+          # A known guest gets the real share right away — their grant starts
+          # active (it is an admission ticket for an already-admitted identity).
+          grant.state = guest ? 'active' : 'pending'
+
+          ActiveRecord::Base.transaction(requires_new: true) do
+            grant.save!
+            if guest
+              share = CollectionShare.find_or_initialize_by(collection: collection, shared_with_id: guest.id)
+              share.assign_attributes(share_params)
+              share.save!
+              refresh_shared_flag!(collection)
+            end
+          end
+
+          AuditEvent.record(
+            action: 'guest.invited',
+            actor: current_user,
+            subject: grant,
+            meta: { collection_id: collection.id, federated_id: grant.federated_id,
+                    email: grant.email, permission_level: grant.permission_level,
+                    direct_share: guest.present? },
+          )
+          if guest
+            CollectionShareNotifier.new(current_user)
+                                   .notify!([guest.id], "#{current_user.name} has shared a collection with you.")
+          end
+
+          present grant, with: Entities::GuestGrantEntity, root: :invitation
+        end
+
+        desc 'Revoke an external invitation/grant (removes the converted share, closes the login door)'
+        params do
+          requires :id, type: Integer
+        end
+        delete '/:id' do
+          grant = administrable_grant(params[:id])
+          # A delegated admin may not revoke a guest whose level outranks their own.
+          prevent_privilege_escalation!(grant.collection, grant.permission_level)
+
+          grant.revoke!(by: current_user)
+
+          status 204
+          body false
+        end
+      end
     end
   end
 end

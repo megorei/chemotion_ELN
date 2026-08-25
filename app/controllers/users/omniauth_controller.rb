@@ -106,7 +106,10 @@ module Users
       }
       @user = User.from_omniauth(params)
       if @user.persisted?
-        audit_guest_login if @user.external?
+        if @user.external?
+          redeem_guest_grants
+          audit_guest_login
+        end
         sign_in_and_redirect @user, event: :authentication
       elsif guest_gate_engaged?
         # Inbound collaboration policy != off: unknown identities are treated
@@ -127,6 +130,7 @@ module Users
       grant = GuestGrant.find_usable(federated_id: federated_id, email: email)
       if grant
         @user = Usecases::Guests::Provision.execute!(grant: grant, attrs: guest_attrs)
+        redeem_guest_grants
         audit_guest_login
         sign_in_and_redirect @user, event: :authentication
       else
@@ -160,6 +164,16 @@ module Users
         home_tenant_hint: federated_issuer,
         ip: request.remote_ip,
       }
+    end
+
+    # WP 02 conversion seam: every guest login (first or returning) redeems
+    # the identity's open invitations into real CollectionShares. A conversion
+    # hiccup must not block the login — the grants stay redeemable for the
+    # next attempt.
+    def redeem_guest_grants
+      Usecases::Guests::RedeemGrants.execute!(user: @user)
+    rescue ActiveRecord::ActiveRecordError => e
+      Rails.logger.error("guest grant redemption failed: #{e.message}")
     end
 
     def audit_guest_login

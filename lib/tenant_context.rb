@@ -118,4 +118,17 @@ class TenantContext
   def inbound_collaboration?
     inbound_collaboration != 'off'
   end
+
+  # Ceiling for permission levels grantable to external guests (P1 WP 02,
+  # REQ-ELN-17): default read-only (0); the operator may raise it via
+  # TENANT_GUEST_MAX_PERMISSION_LEVEL, but never to manage_shares (4) or
+  # above — external identities must not administrate shares. Same interim
+  # ENV pattern as inbound_collaboration; garbage values fail closed to 0.
+  GUEST_PERMISSION_HARD_CEILING = 3 # < CollectionShare::PERMISSION_LEVELS[:manage_shares]
+
+  def guest_max_permission_level
+    Integer(ENV.fetch('TENANT_GUEST_MAX_PERMISSION_LEVEL', 0)).clamp(0, GUEST_PERMISSION_HARD_CEILING)
+  rescue ArgumentError
+    0
+  end
 end

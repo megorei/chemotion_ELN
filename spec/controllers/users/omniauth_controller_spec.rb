@@ -125,6 +125,43 @@ RSpec.describe Users::OmniauthController, type: :controller do
           .to eq('guest.login' => 2, 'guest.provisioned' => 1)
       end
     end
+
+    # WP 02 (REQ-ELN-17): the invitation carries share parameters; the first
+    # login converts it into a real CollectionShare.
+    context 'when the pending grant carries a collection (invitation)' do
+      let(:collection) { create(:collection) }
+      let!(:grant) do
+        create(:guest_grant, federated_id: nil, email: 'guest@remote.edu',
+                             collection: collection, permission_level: 0, sample_detail_level: 1)
+      end
+
+      it 'converts the invitation into a CollectionShare on first login', :aggregate_failures do
+        with_inbound_collaboration('federation') do
+          get :shibboleth
+
+          guest = User.order(:id).last
+          share = CollectionShare.find_by(collection: collection, shared_with_id: guest.id)
+          expect(share).to have_attributes(permission_level: 0, sample_detail_level: 1)
+          expect(collection.reload.shared).to be(true)
+          expect(grant.reload.state).to eq('active')
+        end
+      end
+
+      it 'redeems invitations issued between logins on the next login' do
+        with_inbound_collaboration('federation') do
+          get :shibboleth
+          sign_out(:user)
+          later_collection = create(:collection)
+          create(:guest_grant, federated_id: 'shibboleth#gguest@remote.edu', collection: later_collection)
+
+          get :shibboleth
+
+          guest = User.find_by!(federated_id: 'shibboleth#gguest@remote.edu')
+          expect(CollectionShare.where(shared_with_id: guest.id).pluck(:collection_id))
+            .to contain_exactly(collection.id, later_collection.id)
+        end
+      end
+    end
   end
 
   context 'when the policy is federation and no grant exists' do
