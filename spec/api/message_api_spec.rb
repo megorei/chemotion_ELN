@@ -174,13 +174,24 @@ describe Chemotion::MessageAPI do
       end
     end
 
+    # POST /messages/new is deny-by-default since the group-admin-scope
+    # enforcement: instance Admins keep the system-broadcast surface, a plain
+    # user (this context's u1) is refused — the old "any authenticated user
+    # may publish" contract was the broadcast-spoofing hole.
     describe 'publish a message' do
-      before do
-        post '/api/v1/messages/new', params: { channel_id: m_sys.channel_id, content: m_sys.content[:data] }.to_json,
-                                     headers: { 'CONTENT_TYPE' => 'application/json' }
+      let(:publish_params) do
+        { channel_id: m_sys.channel_id, content: m_sys.content[:data] }.to_json
       end
 
-      it 'returns 201' do
+      it 'returns 401 for a plain user (deny-by-default)' do
+        post '/api/v1/messages/new', params: publish_params, headers: { 'CONTENT_TYPE' => 'application/json' }
+        expect(response.code).to eq '401'
+      end
+
+      it 'returns 201 for an instance Admin' do
+        allow_any_instance_of(WardenAuthentication).to receive(:current_user)
+          .and_return(create(:admin))
+        post '/api/v1/messages/new', params: publish_params, headers: { 'CONTENT_TYPE' => 'application/json' }
         expect(response.code).to eq '201'
       end
     end

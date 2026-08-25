@@ -15,6 +15,17 @@ RSpec.describe AppConfig do
     Chemotion::EnvConfig.reset!
   end
 
+  # Blanks the yml layer for the radar section: a developer checkout may carry
+  # a filled config/radar.yml (the radar controller specs need one with test
+  # values), which would otherwise shadow the "unset optional setting" cases.
+  def without_radar_yml_tier
+    allow(Chemotion::EnvConfig).to receive(:layers).and_wrap_original do |original, name, **kwargs|
+      layers = original.call(name, **kwargs)
+      name.to_s == 'radar' ? layers.merge(yml: {}) : layers
+    end
+    described_class.reset_memo!
+  end
+
   describe '.get precedence (REQ-ELN-31)' do
     it 'falls through to the WP 02 layers when the DB tier is empty' do
       expect(described_class.get(:converter, :timeout, env: {})).to eq(300) # structural default
@@ -47,6 +58,11 @@ RSpec.describe AppConfig do
     end
 
     it 'tolerates unset optional settings as nil (REQ-ELN-28)' do
+      # A developer checkout may carry a filled config/radar.yml (the radar
+      # controller specs need one) — blank the yml tier so this example tests
+      # the resolver, not the checkout.
+      without_radar_yml_tier
+
       expect(described_class.get(:radar, :client_id, env: {})).to be_nil
       expect(described_class.get(:messaging, :enable, env: {})).to be_nil
     end
@@ -146,6 +162,8 @@ RSpec.describe AppConfig do
     end
 
     it 'tags unset optional keys with source nil' do
+      without_radar_yml_tier # see the REQ-ELN-28 example: checkout-independence
+
       effective = described_class.effective(:radar, env: {})
 
       expect(effective['client_id']).to include(value: nil, source: 'nil')

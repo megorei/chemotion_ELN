@@ -16,6 +16,10 @@ RSpec.describe 'config yml hygiene' do # rubocop:disable RSpec/DescribeClass
   def tracked_config_ymls
     Dir.chdir(Rails.root) do
       `git ls-files -- 'config/*.yml' 'config/*.yml.example' 'config/*.yml.ci'`.split("\n")
+        # Locale files are Rails-managed translations, not deployment config —
+        # the framework's standard en.yml header even demonstrates `<%= t(...) %>`
+        # in a comment. (git pathspec `config/*.yml` matches across slashes.)
+        .reject { |file| file.start_with?('config/locales/') }
     end
   end
 
