@@ -95,9 +95,12 @@ module Chemotion
         live_yml = yml_layer(name, root)
         {
           static: structure(name, root: root).deep_dup,
-          template: template_fallback && live_yml.nil? ? template_layer(name, root) : {},
+          # yml/template nulls mean "not set here" and fall through — the
+          # shipped .yml.example templates carry null placeholders, and a
+          # checkout/CI that copies them must not shadow the lower tiers.
+          template: template_fallback && live_yml.nil? ? deep_compact(template_layer(name, root)) : {},
           env_default: env_layer(name, :default, env, root),
-          yml: live_yml || {},
+          yml: deep_compact(live_yml || {}),
           env_absolute: env_layer(name, :absolute, env, root),
         }
       end
@@ -133,6 +136,19 @@ module Chemotion
       def reset!
         @app_config = nil
         @known_paths = nil
+      end
+
+      # Recursively removes nil-valued keys (and subtrees emptied by that) so
+      # an explicit yml null cannot shadow a lower resolution tier.
+      def deep_compact(hash)
+        hash.each_with_object({}) do |(key, value), result|
+          if value.is_a?(Hash)
+            nested = deep_compact(value)
+            result[key] = nested unless nested.empty?
+          elsif !value.nil?
+            result[key] = value
+          end
+        end
       end
 
       private

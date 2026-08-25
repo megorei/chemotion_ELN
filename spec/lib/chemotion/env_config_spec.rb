@@ -35,6 +35,25 @@ RSpec.describe Chemotion::EnvConfig do
       expect(section[:timeout]).to eq(60)
     end
 
+    # A yml key with an explicit null means "not set here", not "unset the
+    # lower tiers" — otherwise every checkout/CI that copies the
+    # .yml.example templates (which ship null placeholders) poisons the
+    # structural defaults. Regression: the CI-equivalent runner copies
+    # converter.yml.example and timeout resolved to nil instead of 300.
+    it 'lets an explicit-null yml value fall through to the structural default' do
+      Dir.mktmpdir do |dir|
+        FileUtils.mkdir_p(File.join(dir, 'config'))
+        FileUtils.cp(Rails.root.join('config/app_config.yml'), File.join(dir, 'config/app_config.yml'))
+        File.write(File.join(dir, 'config/converter.yml'),
+                   "test:\n  url:\n  timeout:\n  profile: from-yml\n")
+
+        section = described_class.section(:converter, env: {}, root: Pathname.new(dir))
+
+        expect(section[:timeout]).to eq(300)  # structural default survives the null
+        expect(section[:profile]).to eq('from-yml') # real yml values still win
+      end
+    end
+
     it 'lets a Default ENV variable win over the structural default' do
       section = described_class.section(:converter, env: { 'CONVERTER_URL_DEFAULT' => 'http://conv:4000/' })
       expect(section[:url]).to eq('http://conv:4000/')
