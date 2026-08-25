@@ -41,4 +41,25 @@ export default class CollectionSharesFetcher {
       handleResponseSuccess: (response) => response.ok,
     });
   }
+
+  // External invitations / guest grants (REQ-ELN-17): sharing with people who
+  // have no account here. A known guest gets the share right away; an unknown
+  // identity becomes a pending grant that converts on their first federated login.
+
+  static getInvitations(collectionId) {
+    return ApiClient.getJson(`/api/v1/collection_shares/invitations.json?collection_id=${collectionId}`)
+      .then((json) => json.invitations);
+  }
+
+  static addInvitation(params) {
+    return ApiClient.postJson('/api/v1/collection_shares/invitations', { body: params })
+      .then((json) => json && json.invitation);
+  }
+
+  // 204 No Content, like deleteCollectionShare.
+  static revokeInvitation(invitationId) {
+    return ApiClient.deleteRequest(`/api/v1/collection_shares/invitations/${invitationId}`, {
+      handleResponseSuccess: (response) => response.ok,
+    });
+  }
 }

@@ -66,7 +66,10 @@ const mountWith = (collections) => {
 const systemSection = (wrapper) => wrapper.find('.system-collections');
 const allCollections = [allCollection, repositoryRoot, transferred, ordinary];
 
-describe('MyCollections system collections section', () => {
+// function() (not arrow) so this.timeout applies: the mountWith(...) confirm tests do a full
+// enzyme mount of MyCollections and flake past mocha's 2s default under a loaded runner.
+describe('MyCollections system collections section', function suite() {
+  this.timeout(10000);
   afterEach(() => {
     rendered.forEach((wrapper) => wrapper.unmount());
     rendered = [];
