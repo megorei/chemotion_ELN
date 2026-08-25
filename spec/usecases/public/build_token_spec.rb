@@ -19,6 +19,13 @@ RSpec.describe Usecases::Public::BuildToken do
       expect(excute).to eq('my-token')
     end
 
+    # Previously this token silently got the 6-month JsonWebToken default;
+    # it is now aligned with the JSON login on JWT_TTL_HOURS.
+    it 'expires after JWT_TTL_HOURS (default 336 h = 2 weeks)' do
+      payload = JsonWebToken.decode(excute)
+      expect(payload[:exp]).to be_within(60).of(336.hours.from_now.to_i)
+    end
+
     context 'when user not found' do
       let(:params) do
         {
