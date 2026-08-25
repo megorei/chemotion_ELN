@@ -49,7 +49,7 @@ RSpec.describe Chemotion::EnvConfig do
 
         section = described_class.section(:converter, env: {}, root: Pathname.new(dir))
 
-        expect(section[:timeout]).to eq(300)  # structural default survives the null
+        expect(section[:timeout]).to eq(300) # structural default survives the null
         expect(section[:profile]).to eq('from-yml') # real yml values still win
       end
     end
