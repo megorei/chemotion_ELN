@@ -127,4 +127,24 @@ RSpec.describe 'Group', type: :model do
       end
     end
   end
+
+  # administrated_by? is the single resolution point for group adminship —
+  # GroupPolicy and the Grape GroupAdminHelpers both funnel through it.
+  describe '#administrated_by?' do
+    let(:person) { create(:person) }
+    let(:group) { create(:group) }
+
+    it 'is false without a users_admins entry' do
+      expect(group.administrated_by?(person)).to be false
+    end
+
+    it 'is true via the users_admins join' do
+      group.admins << person
+      expect(group.administrated_by?(person)).to be true
+    end
+
+    it 'is false for nil' do
+      expect(group.administrated_by?(nil)).to be false
+    end
+  end
 end

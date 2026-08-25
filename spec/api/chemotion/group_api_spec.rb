@@ -386,4 +386,64 @@ describe Chemotion::GroupAPI do
       end
     end
   end
+
+  # Regression guard: a group admin's power ends at the
+  # boundary of the own group — adminship of group A grants nothing on group B.
+  describe 'group-scope enforcement against the admin of another group' do
+    let(:other_admin) { create(:person) }
+    let(:user) { other_admin }
+
+    before { create(:group, admins: [other_admin], users: [other_admin]) }
+
+    it 'denies destroying group B' do
+      delete "/api/v1/groups/#{group.id}"
+      expect(response).to have_http_status(:unauthorized)
+      expect(Group.where(id: group.id)).not_to be_empty
+    end
+
+    it 'denies adding members to group B' do
+      post "/api/v1/groups/#{group.id}/members", params: { user_ids: [other_admin.id] }, as: :json
+      expect(response).to have_http_status(:unauthorized)
+      expect(group.reload.users.pluck(:id)).not_to include(other_admin.id)
+    end
+
+    it 'denies removing members of group B' do
+      delete "/api/v1/groups/#{group.id}/members/#{member.id}"
+      expect(response).to have_http_status(:unauthorized)
+      expect(group.reload.users.pluck(:id)).to include(member.id)
+    end
+
+    it 'denies promoting members of group B' do
+      post "/api/v1/groups/#{group.id}/admins/#{member.id}"
+      expect(response).to have_http_status(:unauthorized)
+      expect(group.reload.admins.pluck(:id)).not_to include(member.id)
+    end
+
+    it 'denies demoting the admin of group B' do
+      delete "/api/v1/groups/#{group.id}/admins/#{group_admin.id}"
+      expect(response).to have_http_status(:unauthorized)
+      expect(group.reload.admins.pluck(:id)).to include(group_admin.id)
+    end
+  end
+
+  # The gate must resolve current_user identically for session and JWT
+  # callers (both funnel into detect_current_user).
+  describe 'group-admin authorization via JWT' do
+    include_context 'api request jwt context'
+
+    let(:jwt_user) { group_admin }
+
+    it 'authorizes the group admin exactly like a session caller' do
+      post "/api/v1/groups/#{group.id}/admins/#{member.id}", headers: jwt_request_header
+      expect(group.reload.admins.pluck(:id)).to include(member.id)
+    end
+
+    it 'denies a JWT caller who is not a group admin' do
+      jwt_stranger = create(:person)
+      token = JsonWebToken.encode(user_id: jwt_stranger.id)
+      post "/api/v1/groups/#{group.id}/admins/#{member.id}",
+           headers: { Authorization: "Bearer #{token}" }
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
 end

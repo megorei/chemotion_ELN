@@ -4,7 +4,8 @@ module Chemotion
   class AdminDeviceAPI < Grape::API
     resource :admin_devices do
       before do
-        error!(401) unless current_user.is_a?(Admin)
+        # bare error!(401) answered HTTP 500 (Grape default status)
+        error!('401 Unauthorized', 401) unless current_user.is_a?(Admin)
       end
       namespace :byname do
         # Find top (5) matched device by name
