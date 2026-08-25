@@ -68,7 +68,7 @@ export default class WellplateDetails extends Component {
 
     UIStore.listen(this.onUIStoreChange);
 
-    if (MatrixCheck(currentUser.matrix, commentActivation) && !wellplate.isNew) {
+    if (MatrixCheck(currentUser?.matrix, commentActivation) && !wellplate.isNew) {
       CommentActions.fetchComments(wellplate);
     }
   }
