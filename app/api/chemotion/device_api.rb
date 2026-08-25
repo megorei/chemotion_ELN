@@ -1,5 +1,40 @@
 module Chemotion
   class DeviceAPI < Grape::API
+    helpers GroupAdminHelpers
+
+    # This legacy API trusted client-supplied device ids — any authenticated
+    # user could read/update/delete any device. Mutations now
+    # require: instance Admin, a directly linked user (users_devices), or a
+    # group admin of a linked group. Reads additionally allow members of a
+    # linked group (same exposure as GET /api/v1/users/devices).
+    helpers do
+      def device_linked_user_ids(device)
+        device.users_devices.pluck(:user_id)
+      end
+
+      def device_manager?(device)
+        return false if current_user.nil?
+        return true if current_user.is_a?(Admin)
+        return true if device_linked_user_ids(device).include?(current_user.id)
+
+        device.groups.any? { |group| group_admin_of?(group) }
+      end
+
+      def device_reader?(device)
+        return true if device_manager?(device)
+
+        (device_linked_user_ids(device) & current_user.group_ids).any?
+      end
+
+      def require_device_manager!(device)
+        error!('401 Unauthorized', 401) unless device_manager?(device)
+      end
+
+      def require_device_reader!(device)
+        error!('401 Unauthorized', 401) unless device_reader?(device)
+      end
+    end
+
     resource :devices do
       desc "Create Device"
       params do
@@ -31,6 +66,7 @@ module Chemotion
           if device.nil?
             error!("404 Device with supplied id not found", 404)
           else
+            require_device_reader!(device)
             present device, with: Entities::DeviceEntity, root: :device
           end
         end
@@ -43,6 +79,7 @@ module Chemotion
           if device.nil?
             error!("404 Device with supplied id not found", 404)
           else
+            require_device_manager!(device)
             user = User.find_by(id: device.user_id)
             unless user.nil?
               user.selected_device = device
@@ -63,17 +100,12 @@ module Chemotion
           if device.nil?
             error!("404 Device with supplied id not found", 404)
           else
-            device.devices_samples.destroy_all
-            device.devices_analyses.map{|d_a|
-              d_a.analyses_experiments.destroy_all
-              d_a.destroy
-            }
-            # delete as selected_device
-            user = User.find_by(id: device.user_id)
-            if !user.nil? && user.selected_device == device
-              user.selected_device = nil
-              user.save!
-            end
+            require_device_manager!(device)
+            # NOTE: the legacy cleanup here (devices_samples /
+            # devices_analyses destruction, "delete as selected_device" via
+            # device.user_id) referenced tables and attributes dropped when
+            # Device left the users STI table — the route 500ed for everyone
+            # before doing anything. Reduced to the plain (paranoid) destroy.
 
             present device.destroy, with: Entities::DeviceEntity, root: :device
           end
@@ -95,6 +127,7 @@ module Chemotion
           if device.nil?
             error!("404 Device with supplied id not found", 404)
           else
+            require_device_manager!(device)
             # update devices_samples
             old_sample_ids = device.devices_samples.map {|devices_sample| devices_sample.id}
             new_sample_ids = params[:samples].map {|s|
@@ -130,7 +163,12 @@ module Chemotion
 
       desc "get Devices"
       get do
-        present Device.all, with: Entity::DeviceEntity, root: :devices
+        # Was `Device.all` (leaked every device to every user) presented
+        # through a `Entity::DeviceEntity` typo that 500ed the route for
+        # everyone. Scoped to the caller's own + group devices (instance
+        # Admins see all), matching GET /api/v1/users/devices.
+        devices = current_user.is_a?(Admin) ? Device.all : Device.by_user_ids(user_ids).distinct
+        present devices, with: Entities::DeviceEntity, root: :devices
       end
     end
   end
