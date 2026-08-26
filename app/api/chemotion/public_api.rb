@@ -62,6 +62,31 @@ module Chemotion
         end
       end
 
+      namespace :devise_mappings do
+        desc 'get devise module mappings'
+        get do
+          mappings = Devise.mappings[:user]&.modules&.map { |m| { m.to_s => true } }&.reduce(:merge!)
+          mappings['unlock_strategy_enabled'] = User.unlock_strategy_enabled?(:email)
+          mappings['minimum_password_length'] = User.password_length.min
+          { devise_mappings: mappings }
+        end
+      end
+
+      namespace :about do
+        desc 'get Chemotion ELN - About Infos'
+        get do
+          current_version = []
+          Chemotion::Application.config.version.each do |k, v|
+            next if v.to_s == '0'
+            current_version << { k.humanize => v }
+          end
+          changelog_version = Chemotion::Application.config.version["version"]&.gsub(/\./,'')
+          changelog_link =  "https://github.com/ComPlat/chemotion_ELN/blob/main/CHANGELOG.md##{changelog_version}"
+
+          { version: current_version, changelog_link: changelog_link }
+        end
+      end
+
       namespace :download do
         desc 'download file for editoring'
         before do

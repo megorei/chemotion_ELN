@@ -44,6 +44,7 @@ x-common-image:
 
 services:
   setup:
+    platform: linux/amd64
     build: *common-build
     image: *chemotion_eln_dev
     depends_on:
@@ -60,6 +61,7 @@ services:
     command: "./prepare-ruby-dev.sh"
 
   postgres:
+    platform: linux/amd64
     image: ${DOCKER_PG_IMAGE:-complat/dev:postgres16-rdkit}
     environment:
       - 'POSTGRES_HOST_AUTH_METHOD=trust'
@@ -78,6 +80,7 @@ services:
       - database:/var/lib/postgresql/data
 
   app:
+    platform: linux/amd64
     image: *chemotion_eln_dev
     depends_on:
       setup:
@@ -109,6 +112,7 @@ services:
       - chemotion
 
   webpacker:
+    platform: linux/amd64
     image: *chemotion_eln_dev
     # Gate only on setup (which installs gems + node packages and prepares the
     # DB). app and webpacker then start in parallel instead of webpacker waiting
@@ -135,6 +139,7 @@ services:
     command: './run-js-dev.sh'
 
   storybook:
+    platform: linux/amd64
     # Opt-in: only starts with `--profile storybook`, keeping the default `up`
     # lean. node packages are guaranteed by setup completing.
     profiles: ["storybook"]
@@ -151,6 +156,36 @@ services:
       - "6006:6006"
     working_dir: "/home/ubuntu/app"
     command: 'yarn run storybook'
+  onlyoffice-documentserver:
+    build:
+      context: "../Docker-DocumentServer/"
+      target: documentserver-community
+    image: onlyoffice/documentserver
+    container_name: onlyoffice-documentserver
+    environment:
+      - JWT_ENABLED=true
+      - JWT_SECRET=HavPfu73lGeGkdFnfnIEb3eXpMBMfq8a
+      - JWT_HEADER=Authorization
+      - JWT_IN_BODY=true
+    ports:
+      - '8080:80'
+      - '4430:443'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/info/info.json"]
+      interval: 30s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+    stdin_open: true
+    restart: always
+    stop_grace_period: 60s
+    volumes:
+       - /var/www/onlyoffice/Data
+       - /var/log/onlyoffice
+       - /var/lib/onlyoffice/documentserver/App_Data/cache/files
+       - /var/www/onlyoffice/documentserver-example/public/files
+       - /usr/share/fonts
+
 
 
 volumes:
