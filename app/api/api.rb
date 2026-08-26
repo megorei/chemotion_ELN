@@ -13,6 +13,14 @@ class API < Grape::API
   prefix :api
   version 'v1'
 
+  # REQ-ELN-18 hardening: an id outside the caller's accessible scope (e.g.
+  # Collection.accessible_for(...).find in collection_helpers#set_var) must
+  # answer 404, not an unrescued 500. APIs with their own rescue_from keep
+  # their local handling — Grape resolves the nearest handler first.
+  rescue_from ActiveRecord::RecordNotFound do
+    error!('404 Not Found', 404)
+  end
+
   # TODO: needs to be tested,
   # source: http://funonrails.com/2014/03/api-authentication-using-devise-token/
   helpers do # rubocop:disable Metrics/BlockLength
