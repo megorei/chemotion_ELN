@@ -29,6 +29,12 @@ module Entities
     expose :converter_admin, documentation: { type: 'Boolean', desc: 'converter administrator' }
     expose :global_text_template_editor, documentation: { type: 'Boolean', desc: 'global text template editor' }
     expose :account_active, documentation: { type: 'Boolean', desc: 'User Account Active or Inactive' }
+    # Guest context (REQ-ELN-19): the UI shows a persistent guest banner and
+    # origin labels based on these two fields.
+    expose :external, documentation: { type: 'Boolean', desc: 'guest account from a foreign home tenant' },
+                      if: ->(obj, _opts) { obj.respond_to?(:external) }
+    expose :home_tenant_hint, documentation: { type: 'String', desc: "guest's home tenant (issuer hint)" },
+                              if: ->(obj, _opts) { obj.respond_to?(:home_tenant_hint) }
     expose :matrix, documentation: { type: 'Integer', desc: "User's matrix" }
     expose :counters
     expose :generic_admin, documentation: { type: 'Hash', desc: 'Generic administrator' }

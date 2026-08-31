@@ -49,6 +49,10 @@ export default class UsersFetcher {
     return ApiClient.getJson('/api/v1/users/current');
   }
 
+  static fetchInstanceInfo() {
+    return ApiClient.getJson('/api/v1/public/instance');
+  }
+
   static fetchProfile() {
     return ApiClient.getJson('/api/v1/profiles');
   }

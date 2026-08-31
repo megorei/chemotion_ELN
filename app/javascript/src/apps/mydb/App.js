@@ -6,6 +6,7 @@ import { aviatorNavigation, aviatorNavigationToApp } from 'src/utilities/routesU
 
 import ElementDragLayer from 'src/components/ElementDragLayer';
 import Sidebar from 'src/apps/mydb/mainNavigation/sidebar/Sidebar';
+import GuestBanner from 'src/components/navigation/GuestBanner';
 import Topbar from 'src/apps/mydb/mainNavigation/topbar/Topbar';
 
 import FlowViewerModal from 'src/apps/generic/FlowViewerModal';
@@ -86,6 +87,7 @@ const App = () => {
 
   useEffect(() => {
     userStore.fetchCurrentUser();
+    userStore.fetchInstance();
     userStore.fetchOlsRxno();
     userStore.fetchOlsChmo();
     userStore.fetchOlsBao();
@@ -117,11 +119,14 @@ const App = () => {
   }, []);
 
   const content = userStore.currentUser !== null ? (
-    <div className="mydb-app d-flex vh-100">
-      <Sidebar />
-      <div className="d-flex flex-column flex-grow-1">
-        <Topbar />
-        <Elements />
+    <div className="mydb-app d-flex flex-column vh-100">
+      <GuestBanner />
+      <div className="d-flex flex-grow-1 overflow-hidden">
+        <Sidebar />
+        <div className="d-flex flex-column flex-grow-1">
+          <Topbar />
+          <Elements />
+        </div>
       </div>
     </div>
   ) : null;

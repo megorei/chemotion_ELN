@@ -24,7 +24,7 @@ function CollectionSubtree({
   onAddShare,
   onManageShares,
 }) {
-  const { collections: collectionsStore } = useContext(StoreContext);
+  const { collections: collectionsStore, userStore } = useContext(StoreContext);
   const uiState = UIStore.getState();
   const { currentCollection } = uiState;
   const children = root.children || [];
@@ -171,6 +171,22 @@ function CollectionSubtree({
               overlay={<SharedToMeInfosTooltip collectionId={root.id} owner={root.owner} />}
             >
               <i className="fa fa-share-alt" />
+            </OverlayTrigger>
+          )}
+          {/* Foreign-origin label for guests (REQ-ELN-19): shared data
+              belongs to the hosting tenant, not the guest's home. */}
+          {sharedWithMe && root.id !== 0 && userStore.isGuest && userStore.instanceDisplayName && (
+            <OverlayTrigger
+              placement="top"
+              overlay={(
+                <Tooltip id={`collection_origin_${root.id}`}>
+                  {`Origin: ${userStore.instanceDisplayName}`}
+                </Tooltip>
+              )}
+            >
+              <span className="badge text-bg-info" data-testid="origin-badge">
+                {userStore.instanceDisplayName}
+              </span>
             </OverlayTrigger>
           )}
         </>
