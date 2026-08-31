@@ -95,6 +95,20 @@ const collectionHasPermission = (collection, permissionLevel) => {
   return collection.collection_share_id && collection.permission_level >= permissionLevel;
 };
 
+// REQ-ELN-19 read-only affordance: for a guest, "no permission_level" never
+// means "own collection" (guests own none) — write controls must stay hidden
+// unless an explicit share grants at least the requested level.
+const userCanWriteInCollection = (collection, user, permissionLevel = PermissionConst.EditElements) => {
+  if (user && user.external) {
+    return Boolean(collection
+      && collection.collection_share_id
+      && collection.permission_level !== undefined
+      && collection.permission_level >= permissionLevel);
+  }
+  return collectionHasPermission(collection, permissionLevel);
+};
+
 export {
-  isElementSelectionEmpty, filterParamsFromUIState, collectionOptions, collectionHasPermission
+  isElementSelectionEmpty, filterParamsFromUIState, collectionOptions,
+  collectionHasPermission, userCanWriteInCollection
 };

@@ -44,6 +44,19 @@ module Chemotion
         { version: version['version'], revision: version['current_revision'] }
       end
 
+      desc 'Instance identity for UI context labelling (REQ-ELN-19)'
+      get 'instance' do
+        tenant = TenantContext.current
+        {
+          instance: {
+            id: tenant.id,
+            name: tenant.name,
+            application_title: tenant.application_title,
+            guest_max_permission_level: tenant.guest_max_permission_level,
+          },
+        }
+      end
+
       namespace :token do
         desc 'Generate Token'
         params do

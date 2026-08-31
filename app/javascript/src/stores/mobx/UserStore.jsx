@@ -48,6 +48,9 @@ const User = types.model(
     molecule_editor: types.optional(types.boolean, false),
     converter_admin: types.optional(types.boolean, false),
     account_active: types.optional(types.boolean, false),
+    // guest context (REQ-ELN-19)
+    external: types.optional(types.boolean, false),
+    home_tenant_hint: types.maybeNull(types.string),
     matrix: types.optional(types.integer, 0),
     counters: types.map(types.union(types.integer, types.string)),
     generic_admin: types.frozen({ elements: false, segments: false, datasets: false }),
@@ -252,10 +255,22 @@ const ExtraRule = types.model(
   }
 );
 
+// Tenant identity served by GET /api/v1/public/instance (REQ-ELN-19)
+const Instance = types.model(
+  'Instance',
+  {
+    id: types.maybeNull(types.string),
+    name: types.optional(types.string, ''),
+    application_title: types.optional(types.string, ''),
+    guest_max_permission_level: types.optional(types.integer, 0)
+  }
+);
+
 const UserStore = types.model(
   'UserStore',
   {
     authToken: types.maybeNull(types.string, localStorage.getItem('chemotion-auth-token')),
+    instance: types.maybeNull(Instance),
     role: types.optional(types.string, localStorage.getItem('chemotion-role') || 'Guest'),
     currentUser: types.maybeNull(User),
     currentRoute: types.optional(types.string, location.pathname || '/home'),
@@ -284,6 +299,25 @@ const UserStore = types.model(
   fetchCurrentUser: flow(function* fetchCurrentUser() {
     const result = yield UsersFetcher.fetchCurrentUser();
     self.currentUser = User.create(result.user);
+  }),
+  // Fetches tenant identity and guards against store-state bleed across
+  // origins: when the persisted origin differs from the served one, every
+  // store is reset before the new context is stored (REQ-ELN-19).
+  fetchInstance: flow(function* fetchInstance() {
+    const result = yield UsersFetcher.fetchInstanceInfo();
+    const instance = result?.instance;
+    if (!instance) { return; }
+
+    const origin = String(instance.id ?? instance.name ?? '');
+    const previousOrigin = localStorage.getItem('chemotion-origin');
+    if (previousOrigin && previousOrigin !== origin) {
+      getRoot(self).reset();
+    }
+    localStorage.setItem('chemotion-origin', origin);
+    self.instance = Instance.create({
+      ...instance,
+      id: instance.id == null ? null : String(instance.id)
+    });
   }),
   fetchProfile: flow(function* fetchProfile() {
     const result = yield UsersFetcher.fetchProfile();
@@ -410,6 +444,12 @@ const UserStore = types.model(
     self.setRole('Guest');
   }
 })).views((self) => ({
+  get isGuest() {
+    return self.currentUser?.external === true;
+  },
+  get instanceDisplayName() {
+    return self.instance?.name || self.instance?.application_title || '';
+  },
   isUserQuotaExceeded(filteredAttachments) {
     const totalSize = filteredAttachments.filter((attachment) => attachment.is_new && !attachment.is_deleted)
       .reduce((acc, attachment) => acc + attachment.filesize, 0);
