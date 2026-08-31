@@ -282,6 +282,7 @@ module Chemotion
       put '/:id' do
         share = CollectionShare.find(params[:id])
         collection = administrable_collection(share.collection_id)
+        previous_level = share.permission_level
         # Guard both the level being granted and the level being overwritten: a delegated admin may
         # neither promote someone above themselves nor demote someone who outranks them.
         prevent_privilege_escalation!(collection, params[:permission_level])
@@ -312,6 +313,21 @@ module Chemotion
           share.update!(attributes)
           write_shares!(descendants, [share.shared_with_id], attributes,
                         new_share_defaults: share_value_defaults(share))
+        end
+
+        # P1 WP 05: audit guest grant-level changes (REQ-ELN-20) — only when
+        # the recipient is external and the level actually moved.
+        if params[:permission_level].present? && params[:permission_level] != previous_level &&
+           User.where(id: share.shared_with_id, external: true).exists?
+          AuditEvent.record(
+            action: 'guest.level_changed',
+            actor: current_user,
+            subject: collection,
+            meta: { share_id: share.id, recipient_id: share.shared_with_id,
+                    from_level: previous_level, to_level: params[:permission_level],
+                    cascaded: descendants.size },
+            ip: request.ip,
+          )
         end
 
         CollectionShareNotifier.new(current_user).notify!(

@@ -85,6 +85,21 @@ class GuestGrant < ApplicationRecord
     redeemable.where(federated_id: nil).find_by(email: email.downcase)
   end
 
+  # P1 WP 05: the expired counterpart of find_usable — the grant that WOULD
+  # have opened the door had it not expired. Expiry is observed lazily at
+  # login time (deliberately no sweeper); the interesting signal is "someone
+  # tried to use an expired invitation".
+  def self.find_expired(federated_id:, email: nil)
+    expired = usable.where(expires_at: ...Time.current)
+    if federated_id.present?
+      grant = expired.find_by(federated_id: federated_id)
+      return grant if grant
+    end
+    return if email.blank?
+
+    expired.where(federated_id: nil).find_by(email: email.downcase)
+  end
+
   # Every redeemable grant belonging to +user+'s identity: attached by
   # federated_id, plus detached email invitations issued before this login.
   def self.redeemable_for(user)
