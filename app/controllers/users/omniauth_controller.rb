@@ -134,11 +134,27 @@ module Users
         audit_guest_login
         sign_in_and_redirect @user, event: :authentication
       else
-        deny_guest_login
+        deny_expired_or_missing_guest_login
       end
     rescue ActiveRecord::ActiveRecordError => e
       Rails.logger.error("guest provisioning failed: #{e.message}")
       deny_guest_login(reason: 'provisioning_failed')
+    end
+
+    # P1 WP 05: an invitation that would have matched but is expired gets its
+    # own audit event before the denial (lazy expiry — no sweeper exists).
+    def deny_expired_or_missing_guest_login
+      expired_grant = GuestGrant.find_expired(federated_id: federated_id, email: email)
+      return deny_guest_login if expired_grant.nil?
+
+      AuditEvent.record(
+        action: 'guest.invitation_expired',
+        subject: expired_grant,
+        meta: { federated_id: federated_id, email: email,
+                expired_at: expired_grant.expires_at },
+        ip: request.remote_ip,
+      )
+      deny_guest_login(reason: 'expired')
     end
 
     def deny_guest_login(reason: 'no_grant')

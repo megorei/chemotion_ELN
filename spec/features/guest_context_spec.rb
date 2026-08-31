@@ -5,6 +5,16 @@ require 'rails_helper'
 # P1 WP 04 (REQ-ELN-19): guest journey — login as external guest, the
 # persistent context banner is visible; a local user never sees it.
 describe 'Guest UI context' do
+  # The mydb app fetches /units_system/units_system.json at boot. The
+  # initializer that writes it silently fails on the CI runner
+  # (Labimotion::Units missing — known labimotion test_fails category), and
+  # the resulting 404 raises through Capybara. Self-provide a minimal file.
+  before(:all) do
+    path = Rails.public_path.join('units_system')
+    FileUtils.mkdir_p(path)
+    file = path.join('units_system.json')
+    File.write(file, { fields: [] }.to_json) unless File.exist?(file)
+  end
   describe 'as external guest' do
     let!(:guest) do
       create(:person, external: true, federated_id: 'idp.home-uni.example#guest',

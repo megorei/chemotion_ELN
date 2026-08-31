@@ -8,6 +8,7 @@ require 'grape-swagger'
 # count, not complexity.
 class API < Grape::API
   include LogidzeModule
+  include GuestAuditModule
 
   format :json
   prefix :api
@@ -229,6 +230,7 @@ class API < Grape::API
   mount Chemotion::AdminAPI
   mount Chemotion::AdminUserAPI
   mount Chemotion::TenantSettingsAPI
+  mount Chemotion::AuditEventsAPI
   mount Chemotion::AdminInfoSupportAPI
   mount Chemotion::EditorAPI
   mount Chemotion::UiAPI
