@@ -70,6 +70,17 @@ module AppConfig # rubocop:disable Metrics/ModuleLength -- one resolver: tiers, 
       new_account_inactive: 'DEVISE_NEW_ACCOUNT_INACTIVE',
       allow_unconfirmed: 'DEVISE_ALLOW_UNCONFIRMED', sender: 'DEVISE_SENDER'
     },
+    guests: {
+      write_escalation: 'TENANT_GUEST_WRITE_ESCALATION',
+      max_permission_level: 'TENANT_GUEST_MAX_PERMISSION_LEVEL'
+    },
+  }.freeze
+
+  # Static defaults for ENV_FALLBACKS sections whose keys must always render
+  # in the admin settings UI even when neither ENV nor a DB row exists
+  # (P1 WP 06: the guest policy switch ships visible-but-off).
+  STATIC_FALLBACK_DEFAULTS = {
+    guests: { write_escalation: '', max_permission_level: '0' }.freeze,
   }.freeze
 
   # REQ-ELN-9 / ADR-007: the enumerated boot-wired surface. A change here
@@ -196,7 +207,8 @@ module AppConfig # rubocop:disable Metrics/ModuleLength -- one resolver: tiers, 
           section, env: env, template_fallback: TEMPLATE_FALLBACK_SECTIONS.include?(section)
         )
       else
-        { static: {}, template: {}, env_default: env_fallback_layer(section, env), yml: {}, env_absolute: {} }
+        { static: (STATIC_FALLBACK_DEFAULTS[section] || {}).dup, template: {},
+          env_default: env_fallback_layer(section, env), yml: {}, env_absolute: {} }
       end
     end
 

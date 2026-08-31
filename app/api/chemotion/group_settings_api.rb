@@ -129,6 +129,31 @@ module Chemotion
           { allocated_space: group.reload.allocated_space }
         end
 
+        desc "Get the group's guest permission cap and the tenant policy context"
+        get :guest_permission do
+          {
+            guest_max_permission_level: group.guest_max_permission_level,
+            tenant_escalation_enabled: GuestPolicy.escalation_enabled?,
+            tenant_guest_cap: GuestPolicy.external_cap,
+          }
+        end
+
+        desc "Restrict the guest write-escalation cap for this group's members " \
+             '(nil clears the restriction = inherit tenant policy; a group can ' \
+             'restrict, never extend, the tenant allowance)'
+        params do
+          optional :guest_max_permission_level, type: Integer,
+                   values: (0..TenantContext::GUEST_PERMISSION_HARD_CEILING).to_a
+        end
+        put :guest_permission do
+          group.update!(guest_max_permission_level: params[:guest_max_permission_level])
+          AuditEvent.record(action: 'group.guest_cap_changed', actor: current_user, subject: group,
+                            meta: { guest_max_permission_level: group.guest_max_permission_level },
+                            ip: request.ip)
+
+          { guest_max_permission_level: group.reload.guest_max_permission_level }
+        end
+
         desc 'Broadcast a message to all members of the group (recipients are resolved server-side)'
         params do
           requires :content, type: String, desc: 'message text'

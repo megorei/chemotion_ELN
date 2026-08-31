@@ -146,6 +146,32 @@ module Chemotion
         end
       end
 
+      # P1 WP 06 (REQ-ELN-20c): cap any share write whose recipient is an
+      # external guest — the invitations namespace is not the only door to a
+      # guest grant (guests are discoverable in the share autocomplete).
+      # Only enforced when a level is being (re)granted; existing grants are
+      # deliberately not retro-modified by policy flips.
+      def enforce_guest_cap_for_recipients!(collection, recipient_ids, permission_level)
+        return if permission_level.nil?
+
+        externals = User.where(id: recipient_ids, external: true)
+        return if externals.none?
+
+        cap = GuestPolicy.external_cap(grantor: current_user)
+        return if permission_level.to_i <= cap
+
+        AuditEvent.record(
+          action: 'guest.escalation_denied',
+          actor: current_user,
+          subject: collection,
+          meta: { requested_level: permission_level.to_i, max_level: cap,
+                  recipient_ids: externals.ids },
+          ip: request.ip,
+        )
+        error!("403 Forbidden: external guests may hold at most permission level #{cap} " \
+               'on this instance', 403)
+      end
+
       # Upsert the share (per user) onto each target and refresh its shared flag. No transaction of
       # its own — the caller wraps this (together with any sibling write, e.g. the PUT target update)
       # in a single ActiveRecord::Base.transaction so the whole cascade is atomic.
@@ -222,6 +248,7 @@ module Chemotion
         cascade = cascade_requested?(params[:apply_to_subcollections], params[:permission_level])
         targets = cascade_targets(collection, cascade)
         validate_share_targets!(targets, params[:user_ids], params[:permission_level])
+        enforce_guest_cap_for_recipients!(collection, params[:user_ids], params[:permission_level])
         # requires_new: true so the cascade rolls back to a savepoint even when nested in an outer
         # transaction (e.g. transactional test fixtures) — without it a mid-cascade failure would
         # leave the earlier writes behind.
@@ -260,6 +287,7 @@ module Chemotion
         prevent_privilege_escalation!(collection, params[:permission_level])
         prevent_privilege_escalation!(collection, share.permission_level)
         prevent_invalid_ownership_offer!(collection, [share.shared_with_id], params[:permission_level])
+        enforce_guest_cap_for_recipients!(collection, [share.shared_with_id], params[:permission_level])
 
         # include_missing: false keeps this a partial update; see the note on the create endpoint.
         attributes = declared(params, include_missing: false)
@@ -372,8 +400,15 @@ module Chemotion
           # manage_shares) and — like every share write — by the inviter's own
           # effective level (no self-escalation via guests).
           def enforce_guest_cap!(collection, permission_level)
-            max_level = TenantContext.current.guest_max_permission_level
+            max_level = GuestPolicy.external_cap(grantor: current_user)
             if permission_level.to_i > max_level
+              AuditEvent.record(
+                action: 'guest.escalation_denied',
+                actor: current_user,
+                subject: collection,
+                meta: { requested_level: permission_level.to_i, max_level: max_level },
+                ip: request.ip,
+              )
               error!("403 Forbidden: external guests may hold at most permission level #{max_level} " \
                      'on this instance', 403)
             end

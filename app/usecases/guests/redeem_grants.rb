@@ -56,9 +56,29 @@ module Usecases
         return unless share.new_record?
 
         share.assign_attributes(grant.share_attributes)
+        clamp_to_policy!(share, grant)
         share.save!
         grant.collection.update!(shared: true)
         grant
+      end
+
+      # P1 WP 06 (REQ-ELN-20c): redemption is when a pending grant BECOMES an
+      # effective share — re-clamp to the policy of that moment. A grant
+      # minted while escalation was on must not redeem above today's cap
+      # (existing ACTIVE shares stay untouched — policy flips never
+      # retro-modify them; revocation is manual).
+      def clamp_to_policy!(share, grant)
+        cap = GuestPolicy.max_level_for(user)
+        return if cap.nil? || share.permission_level.to_i <= cap
+
+        AuditEvent.record(
+          action: 'guest.escalation_denied',
+          actor: user,
+          subject: grant,
+          meta: { requested_level: share.permission_level.to_i, max_level: cap,
+                  clamped_at: 'redemption' },
+        )
+        share.permission_level = cap
       end
 
       def audit(converted)
