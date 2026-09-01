@@ -52,7 +52,9 @@ RSpec.describe ServiceContract do
     end
 
     it 'is unknown without a pin' do
-      set('indigo_service', 'expected_version', nil)
+      # nil would only remove the DB override and fall back to the yml pin —
+      # an empty override is how a tenant disables the check
+      set('indigo_service', 'expected_version', '')
       stub_request(:get, 'http://indigo.example/v2/indigo/info')
         .to_return(status: 200, body: { Indigo: { version: '9.9' } }.to_json)
       expect(described_class.check(:indigo)).to include(ok: :unknown)
