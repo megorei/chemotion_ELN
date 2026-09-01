@@ -8,6 +8,10 @@ RSpec.describe Usecases::Guests::RedeemGrants do
 
   describe '.execute!' do
     it 'converts a pending grant into a CollectionShare with the carried parameters', :aggregate_failures do
+      # P1 WP 06: redemption re-clamps to the CURRENT policy — allow the
+      # carried level here so this example keeps testing parameter carry-over
+      # (the clamp itself is covered in redeem_grants_clamp_spec).
+      allow(GuestPolicy).to receive(:max_level_for).and_return(3)
       grant = create(:guest_grant, federated_id: guest.federated_id, collection: collection,
                                    permission_level: 1, sample_detail_level: 2)
 

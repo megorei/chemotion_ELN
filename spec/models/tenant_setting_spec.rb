@@ -19,7 +19,7 @@ RSpec.describe TenantSetting do
       expect(described_class::SECTIONS).to match_array(
         %w[converter spectra indigo_service ketcher_service editors structure_editors scifinder_n
            inference smtp ui_components profile_default user_props radar datacollectors messaging
-           datacite signup],
+           datacite signup guests identity],
       )
     end
   end

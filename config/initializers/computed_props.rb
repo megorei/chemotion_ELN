@@ -16,6 +16,10 @@ Rails.application.config.after_initialize do
     rescue ActiveRecord::StatementInvalid, PG::ConnectionBad, PG::UndefinedTable
       compute_config = {}
     ensure
+      # Local dev patch: if the begin block raised an unrescued error,
+      # compute_config is nil here and the ensure would MASK the original
+      # exception with a nil-crash.
+      compute_config ||= {}
       config.compute_config = ActiveSupport::OrderedOptions.new
       config.compute_config.server = compute_config['server']
       config.compute_config.hmac_secret = compute_config['hmac_secret']
