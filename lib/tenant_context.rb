@@ -77,6 +77,12 @@ class TenantContext
     URI.parse(public_url || DEFAULT_PUBLIC_URL)
   end
 
+  # Instance identity for provenance refs (P2 WP 01, REQ-ELN-22): a stable
+  # per-deployment handle. Explicit INSTANCE_ID wins; else the public host.
+  def instance_id
+    ENV['INSTANCE_ID'].presence || root_uri.host
+  end
+
   def application_title
     ENV['APPLICATION_TITLE'].presence || DEFAULT_APPLICATION_TITLE
   end

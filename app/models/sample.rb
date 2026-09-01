@@ -277,6 +277,8 @@ class Sample < ApplicationRecord
   composed_of :amount, mapping: %w[amount_value amount_unit]
 
   has_ancestry orphan_strategy: :adopt
+  # P2 WP 01: origin/copy provenance markers (REQ-ELN-22, 21c)
+  has_many :provenances, as: :element, dependent: :destroy
 
   belongs_to :creator, foreign_key: :created_by, class_name: 'User'
   belongs_to :molecule, optional: true

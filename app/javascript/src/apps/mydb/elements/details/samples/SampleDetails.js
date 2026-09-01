@@ -28,6 +28,7 @@ import QcStore from 'src/stores/alt/stores/QcStore';
 
 import ElementAnalysesLabels from 'src/apps/mydb/elements/labels/ElementAnalysesLabels';
 import PubchemLabels from 'src/components/pubchem/PubchemLabels';
+import ProvenanceLabels from 'src/apps/mydb/elements/labels/ProvenanceLabels';
 import PubchemLcss from 'src/components/pubchem/PubchemLcss';
 import ElementReactionLabels from 'src/apps/mydb/elements/labels/ElementReactionLabels';
 import ElementDetailCard from 'src/apps/mydb/elements/details/ElementDetailCard';
@@ -118,6 +119,7 @@ const sampleTitleAppendix = (sample, handleFastInput) => (
   <>
     <ElementAnalysesLabels element={sample} key={`${sample.id}_analyses`} />
     <PubchemLabels element={sample} />
+    <ProvenanceLabels element={sample} />
     {sample.isNew && !sample.isMixture() && <FastInput fnHandle={handleFastInput} />}
   </>
 );
