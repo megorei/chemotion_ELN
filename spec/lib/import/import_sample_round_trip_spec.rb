@@ -16,6 +16,10 @@ RSpec.describe 'sample export/import round trip' do # rubocop:disable RSpec/Desc
   let(:zip_path) { Rails.public_path.join('zip', "#{export_id}.zip") }
 
   def export!
+    # canonicalize: the factory molecule carries a fake inchikey; content
+    # resolution on import always yields the canonical molecule for the
+    # molfile — align the source so molecule identity is comparable
+    source_sample.update_columns(molecule_id: Molecule.find_or_create_by_molfile(source_sample.molfile).id)
     export = Export::ExportSample.new(export_id, source_sample.id, user.id)
     export.prepare_data
     export.to_file
