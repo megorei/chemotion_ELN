@@ -74,6 +74,9 @@ module AppConfig # rubocop:disable Metrics/ModuleLength -- one resolver: tiers, 
       write_escalation: 'TENANT_GUEST_WRITE_ESCALATION',
       max_permission_level: 'TENANT_GUEST_MAX_PERMISSION_LEVEL'
     },
+    identity: {
+      group_rules: 'TENANT_IDENTITY_GROUP_RULES'
+    },
   }.freeze
 
   # Static defaults for ENV_FALLBACKS sections whose keys must always render
@@ -81,6 +84,8 @@ module AppConfig # rubocop:disable Metrics/ModuleLength -- one resolver: tiers, 
   # (P1 WP 06: the guest policy switch ships visible-but-off).
   STATIC_FALLBACK_DEFAULTS = {
     guests: { write_escalation: '', max_permission_level: '0' }.freeze,
+    # [] (not '') so the admin UI renders the JSON editor (REQ-ELN-6)
+    identity: { group_rules: [].freeze }.freeze,
   }.freeze
 
   # REQ-ELN-9 / ADR-007: the enumerated boot-wired surface. A change here

@@ -18,6 +18,7 @@ import ThirdPartyApp from 'src/apps/admin/ThirdPartyApp';
 import InfoSupportLinks from 'src/apps/admin/InfoSupportLinks';
 import TenantSettings from 'src/apps/admin/tenantSettings/TenantSettings';
 import AuditEvents from 'src/apps/admin/AuditEvents';
+import ServiceStatus from 'src/apps/admin/ServiceStatus';
 import { StoreContext } from 'src/stores/mobx/RootStore';
 
 const ADMIN_PAGES = [
@@ -35,6 +36,7 @@ const ADMIN_PAGES = [
   { key: 16, label: 'Info & Support Links', component: InfoSupportLinks },
   { key: 17, label: 'Tenant Settings', component: TenantSettings },
   { key: 18, label: 'Audit Events', component: AuditEvents },
+  { key: 19, label: 'Service Status', component: ServiceStatus },
 ];
 
 const AdminHome = () => {

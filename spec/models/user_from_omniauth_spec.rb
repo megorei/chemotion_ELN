@@ -66,19 +66,14 @@ RSpec.describe User, '.from_omniauth' do
   end
 
   describe 'entitlement group auto-assignment' do
+    # Moved to the request-time rules engine (REQ-ELN-6):
+    # Usecases::Identity::SyncGroups, invoked from the OmniAuth callback.
+    # The model deliberately no longer maps a groups param.
     let!(:group) { create(:group, first_name: 'Complat Lab', last_name: 'uni') }
-    let(:group_params) { params.merge(groups: ['group:uni:Complat Lab']) }
 
-    it 'still assigns groups to internal users (existing behaviour)' do
+    it 'ignores a legacy groups param (mapping lives in SyncGroups now)' do
       user = create(:person, email: 'guest@remote.edu')
-      described_class.from_omniauth(group_params)
-      expect(user.reload.groups).to include(group)
-    end
-
-    it 'is skipped for external (guest) users' do
-      user = create(:person, email: 'guest@remote.edu', external: true,
-                             federated_id: 'shibboleth#uid-123')
-      described_class.from_omniauth(group_params)
+      described_class.from_omniauth(params.merge(groups: ['group:uni:Complat Lab']))
       expect(user.reload.groups).to be_empty
     end
   end

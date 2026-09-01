@@ -39,6 +39,7 @@ class TenantSetting < ApplicationRecord
     datacite
     signup
     guests
+    identity
   ].freeze
 
   # Dot-joined key paths whose values are credentials — these are stored

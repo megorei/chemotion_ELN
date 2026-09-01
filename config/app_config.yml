@@ -48,6 +48,7 @@
 # Labimotion converter-app (file-format conversion service).
 converter:
   url: null           # CONVERTER_URL — converter-app base URI
+  expected_version: 'v1.9.3' # CONVERTER_EXPECTED_VERSION — pinned contract (.service-dependencies); no version endpoint today -> reachability-only check
   profile: null       # CONVERTER_PROFILE — basic-auth user
   secret_key: null    # CONVERTER_SECRET_KEY — SECRET (basic-auth password)
   timeout: 300        # CONVERTER_TIMEOUT — seconds (static default)
@@ -111,6 +112,7 @@ editors:
 # Indigo structure-render fallback service.
 indigo_service:
   indigo_service_url: null # INDIGO_INDIGO_SERVICE_URL — service base URI
+  expected_version: '1.35.0-rc.2' # INDIGO_EXPECTED_VERSION — matched against GET v2/indigo/info
 
 # Reaction prediction service (falls back to the reactionPrediction matrice
 # when neither ENV nor yml configures a url).
@@ -163,6 +165,7 @@ shrine:
 spectra:
   chemspectra:
     url: null # SPECTRA_CHEMSPECTRA__URL
+    expected_version: 'v1.5.1' # SPECTRA_CHEMSPECTRA__EXPECTED_VERSION — pinned contract; reachability-only (no version endpoint)
   nmriumwrapper:
     url: null # SPECTRA_NMRIUMWRAPPER__URL
 
