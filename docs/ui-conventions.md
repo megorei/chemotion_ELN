@@ -41,6 +41,16 @@ can be held to every checklist item. Verified at commit `34a865c95`.
   (`app/javascript/src/stores/mobx/RootStore.jsx:18-34`; singleton + context exported at
   `:75-76`: `export const rootStore = RootStore.create({}); export const StoreContext =
   React.createContext(rootStore);`). Never create or extend anything under `stores/alt/`.
+
+  **Documented exception (decided 2026-09-01): ephemeral fetch state of read-only admin
+  tables.** A page that (a) only DISPLAYS data fetched through a §3 fetcher, (b) shares no
+  state with any other component, (c) persists nothing across navigation, and (d) mutates
+  nothing except its own filters/pagination MAY hold that state in local `useState` instead
+  of an MST store. Examples: `src/apps/admin/AuditEvents.js`, `src/apps/admin/ServiceStatus.js`.
+  The moment such a page grows shared state, writes, or cross-component consumption, it
+  graduates to an MST store (the `TenantSettingsStore` shape — its section snapshots and the
+  secret ban are exactly why IT needs one). Everything else in this guide (fetchers only,
+  `observer` when reading stores, harness idioms, §9 bans) applies unchanged.
 - [ ] **Store shape**: `types.model('Name', {…}).actions((self) => ({…})).views(…)`. Async
   actions are MST `flow(function* …)` generators that `yield` fetcher calls — see
   `UserStore.jsx:284-287` (`fetchCurrentUser`) and `:368-371` (`fetchEditors`, which maps the
