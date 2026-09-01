@@ -39,8 +39,10 @@ RSpec.describe 'sample export/import round trip' do # rubocop:disable RSpec/Desc
     expect(copy).not_to eq(source_sample)
     expect(copy.name).to eq('roundtrip probe')
     expect(copy.collections).to include(target_collection)
-    # rooted: the source ancestry never crosses (REQ-ELN-22 import rule)
-    expect(copy.ancestry).to be_nil
+    # rooted: the source ancestry never crosses (REQ-ELN-22 import rule);
+    # ancestry 4.x materializes a root as "/"
+    expect(copy.root?).to be true
+    expect(copy.ancestors).to be_empty
     # molecule resolved by CONTENT, globally shared (ADR-006 baseline a)
     expect(copy.molecule_id).to eq(source_sample.molecule_id)
     # containers travelled
@@ -74,7 +76,7 @@ RSpec.describe 'sample export/import round trip' do # rubocop:disable RSpec/Desc
 
   it 'rejects a payload with a newer schema_version' do
     export!
-    rewrite_meta { |meta| meta['schema_version'] = 99 }
+    rewrite_meta { |meta| meta.merge('schema_version' => 99) }
     expect { import! }.to raise_error(Import::ImportSample::VersionMismatchError, /schema_version 99/)
   end
 
