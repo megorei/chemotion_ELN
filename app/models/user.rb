@@ -490,18 +490,9 @@ class User < ApplicationRecord
       )
     end
 
-    # Entitlement->group auto-assignment (REQ-ELN-6) is for home users only:
-    # external guests never inherit group memberships (and thereby group
-    # shares) from IdP entitlements — REQ-ELN-16 (P1 WP 01).
-    if !user.external? && (params[:groups] || []).length&.positive?
-      (params[:groups] || []).each do |group|
-        name = group.split(':')
-        if name.size == 3
-          group = Group.find_by(first_name: name[2], last_name: name[1])
-          user.groups << group if group.present? && user.groups.exclude?(group)
-        end
-      end
-    end
+    # Entitlement->group auto-assignment (REQ-ELN-6) moved to the request-time
+    # rules engine Usecases::Identity::SyncGroups (tenant-set identity.group_rules),
+    # invoked from the OmniAuth callback — the model stays mapping-free.
     user
   end
 

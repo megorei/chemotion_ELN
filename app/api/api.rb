@@ -231,6 +231,7 @@ class API < Grape::API
   mount Chemotion::AdminUserAPI
   mount Chemotion::TenantSettingsAPI
   mount Chemotion::AuditEventsAPI
+  mount Chemotion::ServiceStatusAPI
   mount Chemotion::AdminInfoSupportAPI
   mount Chemotion::EditorAPI
   mount Chemotion::UiAPI

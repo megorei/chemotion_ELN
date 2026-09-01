@@ -46,16 +46,27 @@ module Users
       auth&.info&.email
     end
 
-    def groups
-      entitlements = auth.extra.raw_info.entitlements
-      entitlements&.map do |str|
-        match = str.match(/(group:[^#]+)/)
-        match[1] if match
+    # IdP attribute bag for the tenant-set group rules (REQ-ELN-6): the
+    # omniauth strategy's raw_info first, raw Shibboleth request headers as
+    # fallback (entitlement attributes are not in info_fields — widening
+    # those would be a restart-required provider change).
+    def idp_attributes
+      raw = begin
+        auth&.dig('extra', 'raw_info')&.to_hash || {}
+      rescue StandardError
+        {}
       end
+      {
+        'entitlements' => Array(raw['entitlements'].presence ||
+                                request.env['HTTP_ENTITLEMENT']&.split(';')),
+        'affiliation' => Array(raw['affiliation'].presence ||
+                               request.env['HTTP_AFFILIATION']&.split(';')),
+        'isMemberOf' => Array(raw['isMemberOf'].presence ||
+                              request.env['HTTP_ISMEMBEROF']&.split(';')),
+      }
     rescue StandardError => e
       Rails.logger.error(e.message)
-      Rails.logger.error(e.backtrace.join("\n"))
-      []
+      {}
     end
 
     def affiliation
@@ -99,16 +110,16 @@ module Users
         federated_id: federated_id,
         first_name: first_name,
         last_name: last_name,
-        # NOTE: entitlement->group mapping applies to home users only; for
-        # external guests User.from_omniauth skips the groups loop and guest
-        # provisioning below never touches groups (REQ-ELN-16, P1 WP 01).
-        groups: groups,
       }
       @user = User.from_omniauth(params)
       if @user.persisted?
         if @user.external?
           redeem_guest_grants
           audit_guest_login
+        else
+          # REQ-ELN-6: tenant-set IdP-attribute -> group rules, request-time.
+          # External guests are excluded here AND inside the usecase.
+          Usecases::Identity::SyncGroups.execute!(user: @user, attributes: idp_attributes)
         end
         sign_in_and_redirect @user, event: :authentication
       elsif guest_gate_engaged?
