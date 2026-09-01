@@ -26,12 +26,12 @@ RSpec.describe Usecases::Identity::SyncGroups do
 
   describe 'built-in default rule (no tenant rules configured)' do
     it 'maps the legacy entitlement format unchanged' do
-      sync('entitlements' => ['urn:x:group:uni:Complat Lab#idp'])
+      sync({ 'entitlements' => ['urn:x:group:uni:Complat Lab#idp'] })
       expect(user.reload.groups).to include(legacy_group)
     end
 
     it 'ignores non-matching entitlements' do
-      sync('entitlements' => ['urn:mace:something-else'])
+      sync({ 'entitlements' => ['urn:mace:something-else'] })
       expect(user.reload.groups).to be_empty
     end
   end
@@ -42,27 +42,27 @@ RSpec.describe Usecases::Identity::SyncGroups do
     it 'assigns a static target group by name_abbreviation on match' do
       set_rules([{ 'source' => 'affiliation', 'match' => '\\Astaff@kit\\.edu\\z',
                    'group' => { 'name_abbreviation' => 'STF' } }])
-      sync('affiliation' => ['staff@kit.edu'])
+      sync({ 'affiliation' => ['staff@kit.edu'] })
       expect(user.reload.groups).to contain_exactly(staff_group)
     end
 
     it 'reads isMemberOf as a source' do
       set_rules([{ 'source' => 'isMemberOf', 'match' => 'cn=chemists',
                    'group' => { 'name_abbreviation' => 'STF' } }])
-      sync('isMemberOf' => ['cn=chemists,ou=groups,dc=kit'])
+      sync({ 'isMemberOf' => ['cn=chemists,ou=groups,dc=kit'] })
       expect(user.reload.groups).to contain_exactly(staff_group)
     end
 
     it 'REPLACES the built-in default rule (tenant takes control)' do
       set_rules([{ 'source' => 'affiliation', 'match' => 'staff',
                    'group' => { 'name_abbreviation' => 'STF' } }])
-      sync('entitlements' => ['urn:x:group:uni:Complat Lab#idp'])
+      sync({ 'entitlements' => ['urn:x:group:uni:Complat Lab#idp'] })
       expect(user.reload.groups).to be_empty
     end
 
     it 'supports the legacy dynamic capture format without a static target' do
       set_rules([{ 'source' => 'entitlements', 'match' => '(group:[^#]+)' }])
-      sync('entitlements' => ['urn:x:group:uni:Complat Lab#idp'])
+      sync({ 'entitlements' => ['urn:x:group:uni:Complat Lab#idp'] })
       expect(user.reload.groups).to include(legacy_group)
     end
 
@@ -70,7 +70,7 @@ RSpec.describe Usecases::Identity::SyncGroups do
       set_rules([{ 'match' => 'no-source' },
                  { 'source' => 'affiliation', 'match' => '([unclosed' },
                  { 'source' => 'affiliation', 'match' => 'staff', 'group' => { 'name_abbreviation' => 'STF' } }])
-      expect { sync('affiliation' => ['staff@kit.edu']) }.not_to raise_error
+      expect { sync({ 'affiliation' => ['staff@kit.edu'] }) }.not_to raise_error
       expect(user.reload.groups).to contain_exactly(staff_group)
     end
 
@@ -79,7 +79,7 @@ RSpec.describe Usecases::Identity::SyncGroups do
       allow(AppConfig).to receive(:get).with(:identity, :group_rules).and_return(
         '[{"source":"affiliation","match":"staff","group":{"name_abbreviation":"STF"}}]',
       )
-      sync('affiliation' => ['staff@kit.edu'])
+      sync({ 'affiliation' => ['staff@kit.edu'] })
       expect(user.reload.groups).to contain_exactly(staff_group)
     end
   end
@@ -94,14 +94,14 @@ RSpec.describe Usecases::Identity::SyncGroups do
     it 'is additive-only: unmatched existing memberships stay' do
       other = create(:group, first_name: 'Other', last_name: 'uni')
       user.groups << other
-      sync('entitlements' => ['urn:x:group:uni:Complat Lab#idp'])
+      sync({ 'entitlements' => ['urn:x:group:uni:Complat Lab#idp'] })
       expect(user.reload.groups).to contain_exactly(other, legacy_group)
     end
 
     it 'is idempotent per membership and audits each NEW assignment once' do
       expect do
-        sync('entitlements' => ['urn:x:group:uni:Complat Lab#idp'])
-        sync('entitlements' => ['urn:x:group:uni:Complat Lab#idp'])
+        sync({ 'entitlements' => ['urn:x:group:uni:Complat Lab#idp'] })
+        sync({ 'entitlements' => ['urn:x:group:uni:Complat Lab#idp'] })
       end.to change { AuditEvent.where(action: 'identity.group_assigned').count }.by(1)
       expect(user.reload.groups.size).to eq(1)
     end
