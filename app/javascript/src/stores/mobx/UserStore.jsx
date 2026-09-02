@@ -259,9 +259,11 @@ const ExtraRule = types.model(
 const Instance = types.model(
   'Instance',
   {
+    // single-tenant instances serve id/name as null — maybeNull, not
+    // optional (optional only tolerates ABSENT keys, not null values)
     id: types.maybeNull(types.string),
-    name: types.optional(types.string, ''),
-    application_title: types.optional(types.string, ''),
+    name: types.maybeNull(types.string),
+    application_title: types.maybeNull(types.string),
     guest_max_permission_level: types.optional(types.integer, 0)
   }
 );
@@ -308,7 +310,7 @@ const UserStore = types.model(
     const instance = result?.instance;
     if (!instance) { return; }
 
-    const origin = String(instance.id ?? instance.name ?? '');
+    const origin = String(instance.id ?? instance.name ?? instance.application_title ?? '');
     const previousOrigin = localStorage.getItem('chemotion-origin');
     if (previousOrigin && previousOrigin !== origin) {
       getRoot(self).reset();

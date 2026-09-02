@@ -81,6 +81,13 @@ describe('UserStore guest context', () => {
     expect(store.instanceDisplayName).toEqual('Chemotion ELN');
   });
 
+  it('tolerates the single-tenant payload (id and name are null)', async () => {
+    instanceStub.resolves(instancePayload({ id: null, name: null }));
+    await store.fetchInstance();
+    expect(store.instanceDisplayName).toEqual('Chemotion ELN');
+    expect(localStorage.getItem('chemotion-origin')).toEqual('Chemotion ELN');
+  });
+
   it('resets the root store when the served origin differs from the persisted one', async () => {
     localStorage.setItem('chemotion-origin', 'aachen');
     store.setAuthToken('token-from-old-origin');
