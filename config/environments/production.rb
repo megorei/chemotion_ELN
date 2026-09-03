@@ -9,10 +9,6 @@ Rails.application.configure do
   # Code is not reloaded between requests.
   config.cache_classes = true
 
-  # TODO: Keep rails 4.2 bahaviour til constants and file structure are
-  # compatible with eager loading.
-  config.enable_dependency_loading = true
-
   # Eager load code on boot. This eager loads most of Rails and
   # your application in memory, allowing both threaded web servers
   # and those relying on copy on write to perform better.
@@ -47,12 +43,7 @@ Rails.application.configure do
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.action_controller.asset_host = 'http://assets.example.com'
 
-  TurboSprockets.configure do |config|
-    config.precompiler.enabled = false
-    config.preloader.enabled = false
-    config.preloader.worker_count = 2
-    config.precompiler.worker_count = 2
-  end
+  # (turbo-sprockets-rails4 removed for Rails 7.0 — precompiler/preloader were disabled anyway.)
 
   # Specifies the header that your server uses for sending files.
   # config.action_dispatch.x_sendfile_header = 'X-Sendfile' # for Apache
@@ -73,8 +64,10 @@ Rails.application.configure do
   # when problems arise.
   config.log_level = :info
 
-  # Prepend all log lines with the following tags.
-  config.log_tags = %i[subdomain uuid]
+  # Prepend all log lines with the following tags. The tenant tag stays first
+  # (WP 09) — this assignment replaces the one in application.rb, so it must
+  # re-include TenantContext.log_tag.
+  config.log_tags = [TenantContext.log_tag, :subdomain, :uuid]
 
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
@@ -97,7 +90,7 @@ Rails.application.configure do
   config.active_support.deprecation = :notify
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
-  config.log_formatter = OnelineLogFormatter.new
+  config.log_formatter = Chemotion::OnelineLogFormatter.new
 
   # Use a different logger for distributed setups.
   # require 'syslog/logger'

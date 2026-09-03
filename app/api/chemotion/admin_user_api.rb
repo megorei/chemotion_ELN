@@ -218,33 +218,34 @@ module Chemotion
             end
 
             put do
-              profile = @user.profile
-              pdata = profile.data || {}
-              case params[:is_templates_moderator]
-              when true, false
-                pdata = pdata.merge('is_templates_moderator' => params[:is_templates_moderator])
+              # Role flags are first-class user_roles since WP 06 — the request
+              # params keep their legacy flag names, but writes go through
+              # grant_role!/revoke_role! (audited) instead of profile.data.
+              {
+                is_templates_moderator: UserRole::TEMPLATES_MODERATOR,
+                converter_admin: UserRole::CONVERTER_ADMIN,
+                molecule_editor: UserRole::MOLECULE_EDITOR,
+                global_text_template_editor: UserRole::GLOBAL_TEXT_TEMPLATE_EDITOR,
+              }.each do |param_name, role_name|
+                case params[param_name]
+                when true
+                  @user.grant_role!(role_name, granted_by: current_user.id)
+                when false
+                  @user.revoke_role!(role_name, revoked_by: current_user.id)
+                end
               end
 
-              case params[:converter_admin]
-              when true, false
-                pdata = pdata.merge('converter_admin' => params[:converter_admin])
+              params[:auth_generic_admin].presence&.each do |scope, granted|
+                next unless UserRole::GENERIC_ADMIN_SCOPES.include?(scope.to_s)
+
+                case granted
+                when true
+                  @user.grant_role!(UserRole::GENERIC_ADMIN, scope_type: scope.to_s, granted_by: current_user.id)
+                when false
+                  @user.revoke_role!(UserRole::GENERIC_ADMIN, scope_type: scope.to_s, revoked_by: current_user.id)
+                end
               end
 
-              case params[:molecule_editor]
-              when true, false
-                pdata = pdata.merge('molecule_editor' => params[:molecule_editor])
-              end
-
-              case params[:global_text_template_editor]
-              when true, false
-                pdata = pdata.merge('global_text_template_editor' => params[:global_text_template_editor])
-              end
-
-              if params[:auth_generic_admin].present?
-                pdata = pdata.deep_merge('generic_admin' => params[:auth_generic_admin])
-              end
-
-              profile.update!(data: pdata)
               present @user, with: Entities::UserEntity
             end
           end
@@ -271,7 +272,14 @@ module Chemotion
           matrice = Matrice.find(params.delete(:id))
           begin
             matrice.update!(attributes) unless attributes.empty?
-            load Rails.root.join('config/initializers/devise.rb') if params[:configs].present?
+            if params[:configs].present?
+              # ADR-007: the former `load config/initializers/devise.rb`
+              # hot-reload hack (per-worker only) is superseded — provider
+              # config changes persist and flag an operator-executed restart
+              # (picked up by chemop via the audit stream).
+              AuditEvent.record(action: 'config.restart_requested', actor: current_user, ip: request.ip,
+                                subject: matrice, meta: { section: 'omniauth', matrice: matrice.name })
+            end
             status 201
           rescue ActiveRecord::RecordInvalid => e
             if params[:configs].present?

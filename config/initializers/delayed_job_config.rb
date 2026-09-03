@@ -22,21 +22,31 @@ Delayed::Worker.raise_signal_exceptions = :term
 Delayed::Worker.logger = Logger.new(File.join(Rails.root, 'log', 'delayed_job.log'))
 Delayed::Worker.logger = Logger.new($stdout) if Rails.env.test?
 
-# NB: this initialiser is NOT idempotent (yet), do NOT use:  `Rails.application.reloader.to_prepare do` block
-# to supress:
-# ```
-# DEPRECATION WARNING: Initialization autoloaded the constants  ApplicationRecord
-#  ApplicationJob, CollectDataFromMailJob, CollectDataFromSftpJob, CollectDataFromLocalJob,
-#  CollectFileFromLocalJob, CollectFileFromSftpJob, PubchemCidJob, PubchemLcssJob,
-#  RefreshElementTagJob, ChemrepoIdJob, and InitCronJobsJob.
+# WP 09 (§9 NFR Observability): tenant-tagged worker logs. The worker's own
+# lines (Delayed::Worker.logger — job lifecycle, errors) are wrapped in
+# TaggedLogging and tagged per job run by the plugin below, mirroring the
+# request tag from config.log_tags ([<TENANT_ID>] / [single]).
 #
-# Being able to do this is deprecated. Autoloading during initialization is going
-# to be an error condition in future versions of Rails.
-# ```
-# otherwise InitCronJobsJob will be called multiple times
+# Deliberately NOT tagged here: Rails.logger lines emitted from inside job
+# code. config.log_tags only covers Rack requests, and wrapping Rails 7.2's
+# BroadcastLogger in per-job tagged blocks is fragile (tagging must be
+# supported by every broadcast sink). It is also unnecessary for the operator:
+# one stack serves exactly one tenant, so every line of a worker process log
+# belongs to that stack's tenant — aggregation keys on the stack for
+# non-request lines, exactly as for boot/initializer output.
+Delayed::Worker.logger = ActiveSupport::TaggedLogging.new(Delayed::Worker.logger)
+
+class TenantLogTagPlugin < Delayed::Plugin
+  callbacks do |lifecycle|
+    lifecycle.around(:invoke_job) do |job, *args, &block|
+      Delayed::Worker.logger.tagged(TenantContext.current.id || 'single') { block.call(job, *args) }
+    end
+  end
+end
+Delayed::Worker.plugins << TenantLogTagPlugin
 
 # Job classes removed from the codebase whose rows may still be queued. See the cleanup step
-# inside the on_load block. Plain strings, deliberately — the whole point is that no constant
+# inside the after_initialize block. Plain strings, deliberately — the whole point is that no constant
 # needs to survive for these to be recognised.
 OBSOLETE_JOB_CLASSES = %w[PubchemSingleLcssJob PubchemCidJob PubchemLcssJob].freeze
 
@@ -74,7 +84,10 @@ if ENV.fetch('CRON_CONFIG_PC_LCSS', nil).present?
   Rails.logger.warn msg
 end
 
-ActiveSupport.on_load(:active_record) do
+# Runs in after_initialize (not on_load(:active_record)) so the Job constants are not
+# autoloaded during initialization (an error in Rails 7). after_initialize also runs
+# once per boot, so — unlike to_prepare — InitCronJobsJob is not re-scheduled on reload.
+Rails.application.config.after_initialize do
   next unless ActiveRecord::Base.connection.table_exists?('delayed_jobs') && Delayed::Job.column_names.include?('cron')
 
   # List of recurring jobs with default attributes JobClass, enabled, cron_variable

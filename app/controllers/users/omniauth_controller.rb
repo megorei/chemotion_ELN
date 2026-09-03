@@ -46,16 +46,27 @@ module Users
       auth&.info&.email
     end
 
-    def groups
-      entitlements = auth.extra.raw_info.entitlements
-      entitlements&.map do |str|
-        match = str.match(/(group:[^#]+)/)
-        match[1] if match
+    # IdP attribute bag for the tenant-set group rules (REQ-ELN-6): the
+    # omniauth strategy's raw_info first, raw Shibboleth request headers as
+    # fallback (entitlement attributes are not in info_fields — widening
+    # those would be a restart-required provider change).
+    def idp_attributes
+      raw = begin
+        auth&.dig('extra', 'raw_info')&.to_hash || {}
+      rescue StandardError
+        {}
       end
+      {
+        'entitlements' => Array(raw['entitlements'].presence ||
+                                request.env['HTTP_ENTITLEMENT']&.split(';')),
+        'affiliation' => Array(raw['affiliation'].presence ||
+                               request.env['HTTP_AFFILIATION']&.split(';')),
+        'isMemberOf' => Array(raw['isMemberOf'].presence ||
+                              request.env['HTTP_ISMEMBEROF']&.split(';')),
+      }
     rescue StandardError => e
       Rails.logger.error(e.message)
-      Rails.logger.error(e.backtrace.join("\n"))
-      []
+      {}
     end
 
     def affiliation
@@ -73,22 +84,132 @@ module Users
       provider
     end
 
+    # Stable federated identifier: "issuer#identifier" (REQ-ELN-16). The
+    # identifier is the provider uid (eppn for shibboleth, ORCID iD, OIDC
+    # sub); the issuer is the OIDC iss when present, else the provider name.
+    def federated_id
+      return if auth&.uid.blank?
+
+      "#{federated_issuer}##{auth.uid}"
+    end
+
+    def federated_issuer
+      iss = begin
+        auth&.dig('extra', 'raw_info', 'iss')
+      rescue StandardError
+        nil
+      end
+      iss.presence || auth&.provider
+    end
+
     def auth_signup
       params = {
         email: email,
         uid: auth.uid,
         provider: auth.provider,
+        federated_id: federated_id,
         first_name: first_name,
         last_name: last_name,
-        groups: groups,
       }
       @user = User.from_omniauth(params)
       if @user.persisted?
+        if @user.external?
+          redeem_guest_grants
+          audit_guest_login
+        else
+          # REQ-ELN-6: tenant-set IdP-attribute -> group rules, request-time.
+          # External guests are excluded here AND inside the usecase.
+          Usecases::Identity::SyncGroups.execute!(user: @user, attributes: idp_attributes)
+        end
         sign_in_and_redirect @user, event: :authentication
+      elsif guest_gate_engaged?
+        # Inbound collaboration policy != off: unknown identities are treated
+        # as external — admitted only against a pending/active GuestGrant;
+        # the open self-registration path is closed.
+        guest_gated_signup
       else
         session_handler
         redirect_to new_user_registration_url
       end
+    end
+
+    def guest_gate_engaged?
+      TenantContext.current.inbound_collaboration?
+    end
+
+    def guest_gated_signup
+      grant = GuestGrant.find_usable(federated_id: federated_id, email: email)
+      if grant
+        @user = Usecases::Guests::Provision.execute!(grant: grant, attrs: guest_attrs)
+        redeem_guest_grants
+        audit_guest_login
+        sign_in_and_redirect @user, event: :authentication
+      else
+        deny_expired_or_missing_guest_login
+      end
+    rescue ActiveRecord::ActiveRecordError => e
+      Rails.logger.error("guest provisioning failed: #{e.message}")
+      deny_guest_login(reason: 'provisioning_failed')
+    end
+
+    # P1 WP 05: an invitation that would have matched but is expired gets its
+    # own audit event before the denial (lazy expiry — no sweeper exists).
+    def deny_expired_or_missing_guest_login
+      expired_grant = GuestGrant.find_expired(federated_id: federated_id, email: email)
+      return deny_guest_login if expired_grant.nil?
+
+      AuditEvent.record(
+        action: 'guest.invitation_expired',
+        subject: expired_grant,
+        meta: { federated_id: federated_id, email: email,
+                expired_at: expired_grant.expires_at },
+        ip: request.remote_ip,
+      )
+      deny_guest_login(reason: 'expired')
+    end
+
+    def deny_guest_login(reason: 'no_grant')
+      AuditEvent.record(
+        action: 'guest.login_denied',
+        meta: { federated_id: federated_id, email: email, provider: auth&.provider, reason: reason },
+        ip: request.remote_ip,
+      )
+      flash[:alert] = 'Sign-in is restricted on this instance: no collaboration ' \
+                      'invitation was found for your identity. Please ask the person ' \
+                      'sharing with you for an invitation.'
+      redirect_to new_user_session_url
+    end
+
+    def guest_attrs
+      {
+        email: email,
+        uid: auth.uid,
+        provider: auth.provider,
+        federated_id: federated_id,
+        first_name: first_name,
+        last_name: last_name,
+        home_tenant_hint: federated_issuer,
+        ip: request.remote_ip,
+      }
+    end
+
+    # WP 02 conversion seam: every guest login (first or returning) redeems
+    # the identity's open invitations into real CollectionShares. A conversion
+    # hiccup must not block the login — the grants stay redeemable for the
+    # next attempt.
+    def redeem_guest_grants
+      Usecases::Guests::RedeemGrants.execute!(user: @user)
+    rescue ActiveRecord::ActiveRecordError => e
+      Rails.logger.error("guest grant redemption failed: #{e.message}")
+    end
+
+    def audit_guest_login
+      AuditEvent.record(
+        action: 'guest.login',
+        actor: @user,
+        meta: { federated_id: @user.federated_id, provider: auth&.provider },
+        ip: request.remote_ip,
+      )
     end
 
     def session_handler

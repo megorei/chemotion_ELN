@@ -64,6 +64,10 @@ class User < ApplicationRecord
   attr_writer :login
   attr_accessor :provider, :uid
 
+  # counters may receive a nil hash key via Labimotion's generic-element
+  # short-label logic (nameless element_klass); tolerate it like Rails 6.1.
+  attribute :counters, LenientHstoreType.new
+
   acts_as_paranoid
   # Include default devise modules. Others available are: :timeoutable
 
@@ -116,6 +120,7 @@ class User < ApplicationRecord
   has_many :calendar_entries, foreign_key: :created_by, inverse_of: :creator, dependent: :destroy
   has_many :comments, foreign_key: :created_by, inverse_of: :creator, dependent: :destroy
   has_many :api_tokens, dependent: :destroy
+  has_many :user_roles, dependent: :destroy
 
   accepts_nested_attributes_for :affiliations, :profile
 
@@ -350,25 +355,64 @@ class User < ApplicationRecord
     ).order('ua.from DESC')
   end
 
+  # --- RBAC (WP 06): first-class roles in user_roles ------------------------
+
+  # rubocop:disable Naming/PredicatePrefix -- has_role? is the WP-specified query API
+  def has_role?(name, scope_type: nil, scope_id: nil)
+    user_roles.exists?(name: name, scope_type: scope_type, scope_id: scope_id)
+  end
+  # rubocop:enable Naming/PredicatePrefix
+
+  # Idempotent grant. `granted_by` is the acting user's id (nil = system, e.g.
+  # backfill). Audit: granted_by + created_at on the row, plus a structured
+  # `user_role.granted` log line (see UserRole).
+  def grant_role!(name, scope_type: nil, scope_id: nil, granted_by: nil)
+    user_roles.find_or_create_by!(name: name, scope_type: scope_type, scope_id: scope_id) do |role|
+      role.granted_by = granted_by
+    end
+  end
+
+  # Revoke = delete (user_roles is not paranoid); a structured
+  # `user_role.revoked` log line records who/when/what scope.
+  def revoke_role!(name, scope_type: nil, scope_id: nil, revoked_by: nil)
+    user_roles.where(name: name, scope_type: scope_type, scope_id: scope_id).find_each do |role|
+      role.revoked_by = revoked_by
+      role.destroy!
+    end
+  end
+
+  # Facade over has_role?: the legacy profile.data flag readers keep their
+  # names and serialized shapes (typed client contract in UserStore), but are
+  # backed by user_roles since WP 06.
+  # rubocop:disable Naming/PredicateMethod, Naming/PredicatePrefix -- method names are the serialized client contract
   def is_templates_moderator
-    profile&.data&.fetch('is_templates_moderator', false)
+    has_role?(UserRole::TEMPLATES_MODERATOR)
   end
 
   def molecule_editor
-    profile&.data&.fetch('molecule_editor', false)
+    has_role?(UserRole::MOLECULE_EDITOR)
   end
 
+  # Same hash shape as the legacy profile.data['generic_admin']: string keys,
+  # granted scopes => true, non-granted scopes absent ({} when none) — all read
+  # sites (labimotion authenticate_admin!/authorized?, frontend) test truthiness
+  # per key, so an absent key is equivalent to the legacy stored false.
   def generic_admin
-    profile&.data&.fetch('generic_admin', {})
+    UserRole::GENERIC_ADMIN_SCOPES.each_with_object({}) do |scope, hash|
+      hash[scope] = true if has_role?(UserRole::GENERIC_ADMIN, scope_type: scope)
+    end
   end
 
   def converter_admin
-    profile&.data&.fetch('converter_admin', false)
+    has_role?(UserRole::CONVERTER_ADMIN)
   end
 
   def global_text_template_editor
-    profile&.data&.fetch('global_text_template_editor', false)
+    has_role?(UserRole::GLOBAL_TEXT_TEMPLATE_EDITOR)
   end
+  # rubocop:enable Naming/PredicateMethod, Naming/PredicatePrefix
+
+  # --- /RBAC ----------------------------------------------------------------
 
   def matrix_check_by_name(name)
     mx = Matrice.find_by(name: name)
@@ -398,10 +442,11 @@ class User < ApplicationRecord
   end
 
   def remove_from_matrices
-    Matrice.where('include_ids @> ARRAY[?]', [id]).find_each do |ma|
+    # ::integer[] cast: Rails 7.2 binds ARRAY[?] as a param Postgres reads as text[] (7.1 inlined it).
+    Matrice.where('include_ids @> ARRAY[?]::integer[]', [id]).find_each do |ma|
       ma.update_columns(include_ids: ma.include_ids -= [id])
     end
-    Matrice.where('exclude_ids @> ARRAY[?]', [id]).find_each do |ma|
+    Matrice.where('exclude_ids @> ARRAY[?]::integer[]', [id]).find_each do |ma|
       ma.update_columns(exclude_ids: ma.exclude_ids -= [id])
     end
   end
@@ -427,11 +472,14 @@ class User < ApplicationRecord
   end
 
   def self.from_omniauth(params)
-    user = find_by(email: params[:email]&.downcase)
+    user = find_for_omniauth(params)
     if user.present?
       providers = user.providers || {}
       providers[params[:provider]] = params[:uid]
       user.providers = providers
+      # Backfill the stable federated identifier on legacy matches (providers
+      # uid / email bootstrap) so future logins match identifier-first.
+      user.federated_id = params[:federated_id] if user.federated_id.blank? && params[:federated_id].present?
       user.save!
     else
       user = User.new(
@@ -442,16 +490,28 @@ class User < ApplicationRecord
       )
     end
 
-    if (params[:groups] || []).length&.positive?
-      (params[:groups] || []).each do |group|
-        name = group.split(':')
-        if name.size == 3
-          group = Group.find_by(first_name: name[2], last_name: name[1])
-          user.groups << group if group.present? && user.groups.exclude?(group)
-        end
-      end
-    end
+    # Entitlement->group auto-assignment (REQ-ELN-6) moved to the request-time
+    # rules engine Usecases::Identity::SyncGroups (tenant-set identity.group_rules),
+    # invoked from the OmniAuth callback — the model stays mapping-free.
     user
+  end
+
+  # Identity matching for federated logins, identifier-first (REQ-ELN-16):
+  # 1. stable federated_id ("issuer#identifier") — survives IdP email changes,
+  # 2. recorded provider uid (legacy rows from before federated_id existed),
+  # 3. email (bootstrap only; the caller then backfills federated_id).
+  # Email is a mutable IdP attribute and must never be the primary key of a
+  # federated identity.
+  def self.find_for_omniauth(params)
+    if params[:federated_id].present?
+      user = find_by(federated_id: params[:federated_id])
+      return user if user
+    end
+    if params[:provider].present? && params[:uid].present?
+      user = where('providers ->> ? = ?', params[:provider].to_s, params[:uid].to_s).first
+      return user if user
+    end
+    find_by(email: params[:email]&.downcase)
   end
 
   def link_omniauth(provider, uid)
@@ -576,6 +636,18 @@ class Person < User
   # `administrated_accounts`, or this would find nothing to check.
   before_destroy :prevent_destroying_sole_group_admin, prepend: true
 
+  # WP 07 (REQ-ELN-14): merged default UI layout of every group this person
+  # belongs to — per element key, the group with the LOWEST id wins (stable,
+  # documented tie-break; most users are in one group anyway). ProfileAPI
+  # applies this between the user's own layout (wins) and the
+  # profile_default.yml fallback. Empty hash when no group sets a default,
+  # so single-tenant behaviour is unchanged.
+  def group_default_profile_layout
+    groups.order(:id).pluck(:default_profile_layout).compact.reduce({}) do |merged, layout|
+      layout.merge(merged) # merged holds earlier (lower-id) groups: they win
+    end
+  end
+
   private
 
   def prevent_destroying_sole_group_admin
@@ -597,8 +669,18 @@ class Group < User
   around_save :update_allocated_space
   before_destroy :remove_from_matrices
 
+  # WP 07 (REQ-ELN-12): the single resolution point for "is this user a group
+  # admin of this group" — GroupPolicy and the Grape GroupAdminHelpers both
+  # funnel through here. Truth is DUAL during the RBAC migration: the legacy
+  # users_admins join stays authoritative (WP 06 deliberately did not backfill
+  # it), and first-class user_roles grants (group_admin, scope 'group'/id) are
+  # honored additionally. Collapsing users_admins into user_roles is a WP 07
+  # part-2 / WP 08 decision.
   def administrated_by?(user)
-    users_admins.where(admin: user).present?
+    return false if user.nil?
+
+    users_admins.exists?(admin: user) ||
+      user.has_role?(UserRole::GROUP_ADMIN, scope_type: UserRole::GROUP_ADMIN_SCOPE, scope_id: id)
   end
 
   # Single source of truth for "removing this admin would leave the group with none" —
@@ -624,9 +706,6 @@ class Group < User
       user.update(allocated_space: allocated_space)
     end
   end
-end
-
-class DeviceDeprecated < User
 end
 
 # rubocop: enable Metrics/ClassLength, Metrics/CyclomaticComplexity

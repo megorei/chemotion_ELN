@@ -46,7 +46,9 @@ module KetcherService
     end
 
     def self.svg(molfile)
-      url = URI(Rails.configuration.ketcher_service.url)
+      # WP 03: request-time resolve (DB tenant tier > KETCHER_SERVICE_* ENV >
+      # yml) — a tenant can point at their own renderer without restart.
+      url = URI(AppConfig.get(:ketcher_service, :url).to_s)
       request = Net::HTTP::Post.new(url.path, { 'Content-Type' => 'application/json' })
       request.body = { molfile: molfile.force_encoding('utf-8') }.to_json
       svg = RenderSvg.call_render_service(url, request)

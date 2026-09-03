@@ -4,6 +4,7 @@ import { Button, ButtonGroup } from 'react-bootstrap';
 
 import UserInfoIcon from 'src/apps/mydb/collections/UserInfoIcon';
 import PermissionIcons from 'src/apps/mydb/collections/PermissionIcons';
+import ExternalInvitations from 'src/apps/mydb/collections/ExternalInvitations';
 import AppModal from 'src/components/common/AppModal';
 import { observer } from 'mobx-react';
 import { StoreContext } from 'src/stores/mobx/RootStore';
@@ -63,6 +64,7 @@ function CollectionSharesEditModal({
           </div>
         ))}
       </div>
+      <ExternalInvitations collectionId={node.id} />
     </AppModal>
   );
 }

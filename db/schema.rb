@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_07_09_140001) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_25_120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -92,6 +92,20 @@ ActiveRecord::Schema.define(version: 2026_07_09_140001) do
     t.index ["attachable_type", "attachable_id"], name: "index_attachments_on_attachable_type_and_attachable_id"
     t.index ["identifier"], name: "index_attachments_on_identifier", unique: true
     t.index ["version"], name: "index_attachments_on_version", opclass: :varchar_pattern_ops, where: "(deleted_at IS NULL)"
+  end
+
+  create_table "audit_events", force: :cascade do |t|
+    t.integer "actor_id"
+    t.string "actor_type", null: false
+    t.string "action", null: false
+    t.string "subject_type"
+    t.integer "subject_id"
+    t.jsonb "metadata", default: {}, null: false
+    t.string "ip"
+    t.datetime "created_at", null: false
+    t.index ["actor_id"], name: "index_audit_events_on_actor_id"
+    t.index ["created_at"], name: "index_audit_events_on_created_at"
+    t.index ["subject_type", "subject_id"], name: "index_audit_events_on_subject_type_and_subject_id"
   end
 
   create_table "authentication_keys", id: :serial, force: :cascade do |t|
@@ -854,6 +868,30 @@ ActiveRecord::Schema.define(version: 2026_07_09_140001) do
     t.time "deleted_at"
   end
 
+  create_table "guest_grants", force: :cascade do |t|
+    t.string "federated_id"
+    t.string "email"
+    t.string "state", default: "pending", null: false
+    t.integer "collection_id"
+    t.integer "created_by"
+    t.integer "permission_level", default: 0, null: false
+    t.integer "celllinesample_detail_level", default: 0, null: false
+    t.integer "devicedescription_detail_level", default: 0, null: false
+    t.integer "element_detail_level", default: 0, null: false
+    t.integer "reaction_detail_level", default: 0, null: false
+    t.integer "researchplan_detail_level", default: 0, null: false
+    t.integer "sample_detail_level", default: 0, null: false
+    t.integer "screen_detail_level", default: 0, null: false
+    t.integer "sequencebasedmacromoleculesample_detail_level", default: 0, null: false
+    t.integer "wellplate_detail_level", default: 0, null: false
+    t.datetime "expires_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_guest_grants_on_email"
+    t.index ["federated_id"], name: "index_guest_grants_on_federated_id"
+    t.index ["state"], name: "index_guest_grants_on_state"
+  end
+
   create_table "info_support_links", force: :cascade do |t|
     t.string "label", null: false
     t.string "url", null: false
@@ -927,6 +965,15 @@ ActiveRecord::Schema.define(version: 2026_07_09_140001) do
     t.string "doi"
     t.string "isbn"
     t.index ["deleted_at"], name: "index_literatures_on_deleted_at"
+  end
+
+  create_table "matrice_secrets", force: :cascade do |t|
+    t.bigint "matrice_id", null: false
+    t.string "key", null: false
+    t.text "secret"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["matrice_id", "key"], name: "index_matrice_secrets_on_matrice_id_and_key", unique: true
   end
 
   create_table "matrices", id: :serial, force: :cascade do |t|
@@ -1667,6 +1714,26 @@ ActiveRecord::Schema.define(version: 2026_07_09_140001) do
     t.index ["channel_id", "user_id"], name: "index_subscriptions_on_channel_id_and_user_id", unique: true
   end
 
+  create_table "tenant_setting_secrets", force: :cascade do |t|
+    t.string "section", null: false
+    t.string "key", null: false
+    t.text "secret"
+    t.bigint "updated_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["section", "key"], name: "index_tenant_setting_secrets_on_section_and_key", unique: true
+  end
+
+  create_table "tenant_settings", force: :cascade do |t|
+    t.string "section", null: false
+    t.string "key", null: false
+    t.jsonb "value"
+    t.bigint "updated_by"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["section", "key"], name: "index_tenant_settings_on_section_and_key", unique: true
+  end
+
   create_table "text_templates", id: :serial, force: :cascade do |t|
     t.string "type"
     t.integer "user_id", null: false
@@ -1713,6 +1780,22 @@ ActiveRecord::Schema.define(version: 2026_07_09_140001) do
     t.datetime "deleted_at"
   end
 
+  # Deliberately NOT paranoid: a revoked role is a deleted row; grant/revoke is
+  # audited via granted_by/timestamps and structured role-audit log lines.
+  create_table "user_roles", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.string "scope_type"
+    t.bigint "scope_id"
+    t.bigint "granted_by"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id", "name", "scope_type", "scope_id"], name: "index_user_roles_uniqueness", unique: true
+    t.index ["user_id", "name", "scope_type"], name: "index_user_roles_type_scoped_uniqueness", unique: true, where: "((scope_type IS NOT NULL) AND (scope_id IS NULL))"
+    t.index ["user_id", "name"], name: "index_user_roles_unscoped_uniqueness", unique: true, where: "((scope_type IS NULL) AND (scope_id IS NULL))"
+    t.index ["user_id"], name: "index_user_roles_on_user_id"
+  end
+
   create_table "users", id: :serial, force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -1754,9 +1837,14 @@ ActiveRecord::Schema.define(version: 2026_07_09_140001) do
     t.integer "consumed_timestep"
     t.boolean "otp_required_for_login"
     t.string "otp_backup_codes", array: true
+    t.jsonb "default_profile_layout"
+    t.string "federated_id"
+    t.boolean "external", default: false, null: false
+    t.string "home_tenant_hint"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["deleted_at"], name: "index_users_on_deleted_at"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["federated_id"], name: "index_users_on_federated_id", unique: true, where: "(federated_id IS NOT NULL)"
     t.index ["name_abbreviation"], name: "index_users_on_name_abbreviation", unique: true, where: "(name_abbreviation IS NOT NULL)"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
@@ -1879,6 +1967,7 @@ ActiveRecord::Schema.define(version: 2026_07_09_140001) do
   add_foreign_key "components", "samples"
   add_foreign_key "layer_tracks", "layers", column: "identifier", primary_key: "identifier"
   add_foreign_key "literals", "literatures"
+  add_foreign_key "matrice_secrets", "matrices", column: "matrice_id"
   add_foreign_key "reactions_reactant_sbmm_samples", "reactions"
   add_foreign_key "reactions_reactant_sbmm_samples", "sequence_based_macromolecule_samples"
   add_foreign_key "report_templates", "attachments"
@@ -1886,6 +1975,10 @@ ActiveRecord::Schema.define(version: 2026_07_09_140001) do
   add_foreign_key "sample_tasks", "users", column: "creator_id"
   add_foreign_key "sequence_based_macromolecule_samples", "sequence_based_macromolecules"
   add_foreign_key "sequence_based_macromolecule_samples", "users"
+  add_foreign_key "tenant_setting_secrets", "users", column: "updated_by"
+  add_foreign_key "tenant_settings", "users", column: "updated_by"
+  add_foreign_key "user_roles", "users"
+  add_foreign_key "user_roles", "users", column: "granted_by"
   create_function :user_instrument, sql_definition: <<-'SQL'
       CREATE OR REPLACE FUNCTION public.user_instrument(user_id integer, sc text)
        RETURNS TABLE(instrument text)

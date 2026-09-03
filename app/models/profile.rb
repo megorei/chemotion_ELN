@@ -22,6 +22,21 @@
 class Profile < ApplicationRecord
   acts_as_paranoid
 
+  # Element keys every profile layout starts from. Also the whitelist for the
+  # per-group default layout (GroupSettingsAPI, WP 07 / REQ-ELN-14) — plus
+  # whatever Labimotion::ElementKlass rows exist at validation time.
+  DEFAULT_LAYOUT = {
+    'sample' => 1,
+    'reaction' => 2,
+    'wellplate' => 3,
+    'screen' => 4,
+    'research_plan' => 5,
+    'cell_line' => -1000,
+    'device_description' => -1100,
+    'sequence_based_macromolecule_sample' => -1200,
+    'vessel' => -1300,
+  }.freeze
+
   belongs_to :user
 
   before_create :set_default
@@ -73,27 +88,16 @@ class Profile < ApplicationRecord
   end
 
   def data_default_bool
-    data['is_templates_moderator'] = false
-    data['molecule_editor'] = false
-    data['converter_admin'] = false
+    # Role flags (is_templates_moderator, molecule_editor, converter_admin,
+    # global_text_template_editor, generic_admin) moved to user_roles (WP 06)
+    # and are no longer seeded here.
     data['inbox_auto'] = false
     data['inbox_manual'] = true
-    data['global_text_template_editor'] = false
   end
 
   def data_default_layout
     return if data['layout'].present?
 
-    data.merge!(layout: {
-                  'sample' => 1,
-                  'reaction' => 2,
-                  'wellplate' => 3,
-                  'screen' => 4,
-                  'research_plan' => 5,
-                  'cell_line' => -1000,
-                  'device_description' => -1100,
-                  'sequence_based_macromolecule_sample' => -1200,
-                  'vessel' => -1300,
-                })
+    data.merge!(layout: DEFAULT_LAYOUT.dup)
   end
 end

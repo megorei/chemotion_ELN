@@ -26,6 +26,13 @@ module Chemotion
         end
 
         get 'start' do
+          # REQ-ELN-28 (WP 02): the docserver/imprint config is optional —
+          # degrade with a clear error instead of a nil-crash 500.
+          editors_config = Rails.configuration.editors
+          docserver = editors_config&.docserver
+          error!('OnlyOffice document server is not configured', 503) if docserver.blank?
+
+          info = editors_config.info || {}
           error!('401 Unauthorized', 401) unless @attachment.editable_document?
           error!('401 Document is already being edited', 401) if @attachment.editing?
           payload = {
@@ -45,7 +52,7 @@ module Chemotion
               fileType: file_extension,
               key: token,
               title: @attachment.filename,
-              url: "#{Rails.configuration.editors.docserver[:callback_server]}/api/v1/public/download?token=#{token}",
+              url: "#{docserver[:callback_server]}/api/v1/public/download?token=#{token}",
               permissions: {
                 download: true,
                 edit: true,
@@ -54,37 +61,37 @@ module Chemotion
               },
             },
             editorConfig: {
-              callbackUrl: "#{Rails.configuration.editors.docserver[:callback_server]}/api/v1/public/callback",
+              callbackUrl: "#{docserver[:callback_server]}/api/v1/public/callback",
               mode: 'edit',
               lang: 'en',
               customization: {
                 chat: false,
                 compactToolbar: false,
                 customer: {
-                  address: Rails.configuration.editors.info[:address],
-                  info: Rails.configuration.editors.info[:title],
-                  logo: Rails.configuration.editors.info[:logo],
-                  mail: Rails.configuration.editors.info[:mail],
-                  name: Rails.configuration.editors.info[:name],
-                  www: Rails.configuration.editors.info[:website],
+                  address: info[:address],
+                  info: info[:title],
+                  logo: info[:logo],
+                  mail: info[:mail],
+                  name: info[:name],
+                  www: info[:website],
                 },
                 feedback: {
-                  url: Rails.configuration.editors.info[:feedbackurl],
+                  url: info[:feedbackurl],
                   visible: false,
                 },
                 forcesave: false,
                 help: false,
                 logo: {
-                  image: Rails.configuration.editors.info[:logo],
-                  imageEmbedded: Rails.configuration.editors.info[:logo],
-                  url: Rails.configuration.editors.info[:website],
+                  image: info[:logo],
+                  imageEmbedded: info[:logo],
+                  url: info[:website],
                 },
                 showReviewChanges: false,
                 zoom: 100,
               },
             },
           }
-          only_office_token = JWT.encode only_office_payload, Rails.application.secrets.only_office_secret_key_base
+          only_office_token = JWT.encode only_office_payload, Rails.configuration.only_office_secret_key_base
 
           { token: token, only_office_token: only_office_token }
         end

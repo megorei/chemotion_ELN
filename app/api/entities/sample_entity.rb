@@ -21,6 +21,8 @@ module Entities
       expose! :type
       expose :comments,                                     using: 'Entities::CommentEntity'
       expose :comment_count
+      # P2 WP 01: origin/copy provenance badges (REQ-ELN-22, 21c)
+      expose :provenances,      unless: :displayed_in_list, using: 'Entities::ProvenanceEntity'
       expose :dry_solvent
       expose! :gas_type
       expose! :gas_phase_data

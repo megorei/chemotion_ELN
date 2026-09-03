@@ -62,4 +62,101 @@ RSpec.describe Chemotion::AdminUserAPI do
       expect(group.reload.admins).to include(user)
     end
   end
+
+  describe 'PUT /api/v1/admin/users/:id/profile (role writer)' do
+    let(:url) { "/api/v1/admin/users/#{user.id}/profile" }
+
+    it 'grants an unscoped role from a legacy flag param and keeps the response shape', :aggregate_failures do
+      put url, params: { is_templates_moderator: true }
+
+      expect(response).to have_http_status(:ok)
+      expect(parsed_json_response['is_templates_moderator']).to be true
+      expect(user.reload.has_role?(UserRole::TEMPLATES_MODERATOR)).to be true
+      expect(user.user_roles.find_by(name: UserRole::TEMPLATES_MODERATOR).granted_by).to eq(admin.id)
+    end
+
+    it 'revokes on false and leaves unrelated roles alone', :aggregate_failures do
+      user.grant_role!(UserRole::TEMPLATES_MODERATOR)
+      user.grant_role!(UserRole::MOLECULE_EDITOR)
+
+      put url, params: { is_templates_moderator: false }
+
+      expect(response).to have_http_status(:ok)
+      expect(parsed_json_response['is_templates_moderator']).to be false
+      expect(parsed_json_response['molecule_editor']).to be true
+      expect(user.has_role?(UserRole::TEMPLATES_MODERATOR)).to be false
+      expect(user.has_role?(UserRole::MOLECULE_EDITOR)).to be true
+    end
+
+    it 'grants and revokes scoped generic_admin roles from the auth_generic_admin hash', :aggregate_failures do
+      user.grant_role!(UserRole::GENERIC_ADMIN, scope_type: 'datasets')
+
+      put url, params: { auth_generic_admin: { elements: true, datasets: false } }
+
+      expect(response).to have_http_status(:ok)
+      expect(parsed_json_response['generic_admin']).to eq('elements' => true)
+      expect(user.has_role?(UserRole::GENERIC_ADMIN, scope_type: 'elements')).to be true
+      expect(user.has_role?(UserRole::GENERIC_ADMIN, scope_type: 'datasets')).to be false
+    end
+
+    it 'mirrors converter_admin into profile.data for the labimotion direct read' do
+      put url, params: { converter_admin: true }
+
+      expect(user.reload.profile.data['converter_admin']).to be true
+    end
+  end
+
+  describe 'matrix configs save (WP 03 / ADR-007: devise hot-reload hack removed)' do
+    let!(:matrice) { create(:matrice, configs: {}) }
+
+    it 'persists configs and emits config.restart_requested instead of reloading devise.rb', :aggregate_failures do
+      expect do
+        put '/api/v1/admin/matrix', params: {
+          id: matrice.id,
+          configs: { github: { enable: true, client_id: 'gh-id' } },
+        }, as: :json
+      end.to change(AuditEvent.where(action: 'config.restart_requested'), :count).by(1)
+
+      expect(response).to have_http_status(:created)
+      expect(matrice.reload.configs.dig('github', 'client_id')).to eq('gh-id')
+
+      event = AuditEvent.where(action: 'config.restart_requested').last
+      expect(event.actor_id).to eq(admin.id)
+      expect(event.subject_type).to eq('Matrice')
+      expect(event.subject_id).to eq(matrice.id)
+      expect(event.metadata).to include('section' => 'omniauth', 'matrice' => matrice.name)
+    end
+
+    it 'does not request a restart when only non-config attributes change' do
+      expect do
+        put '/api/v1/admin/matrix', params: { id: matrice.id, label: 'new label' }, as: :json
+      end.not_to change(AuditEvent.where(action: 'config.restart_requested'), :count)
+
+      expect(matrice.reload.label).to eq('new label')
+    end
+  end
+
+  describe 'matrix secrets (WP 05, REQ-ELN-5)' do
+    let!(:matrice) { create(:matrice, configs: {}) }
+
+    after { Devise.omniauth_configs.delete(:github) }
+
+    it 'accepts a new client_secret on PUT, stores it encrypted and never echoes it back', :aggregate_failures do
+      put '/api/v1/admin/matrix', params: {
+        id: matrice.id,
+        configs: { github: { enable: true, client_id: 'gh-id', client_secret: 'gh-new-secret' } },
+      }, as: :json
+
+      expect(response).to have_http_status(:created)
+      expect(response.body).not_to include('gh-new-secret')
+      expect(matrice.reload.configs.dig('github', 'client_secret')).to be_nil
+      expect(matrice.configs_with_secrets.dig('github', 'client_secret')).to eq('gh-new-secret')
+
+      get '/api/v1/admin/matrix'
+
+      serialized = parsed_json_response['matrices'].find { |m| m['id'] == matrice.id }
+      expect(serialized['configs'].dig('github', 'client_secret')).to eq(Matrice::SECRET_PLACEHOLDER)
+      expect(response.body).not_to include('gh-new-secret')
+    end
+  end
 end

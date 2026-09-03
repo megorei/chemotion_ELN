@@ -1,5 +1,5 @@
 import React from 'react';
-import { types } from 'mobx-state-tree';
+import { types, applySnapshot } from 'mobx-state-tree';
 import { MeasurementsStore } from 'src/stores/mobx/MeasurementsStore';
 import { SampleTasksStore } from 'src/stores/mobx/SampleTasksStore';
 import { CellLineDetailsStore } from 'src/stores/mobx/CellLineDetailsStore';
@@ -13,8 +13,10 @@ import { VesselDetailsStore } from 'src/stores/mobx/VesselDetailsStore';
 import { SequenceBasedMacromoleculeSamplesStore } from 'src/stores/mobx/SequenceBasedMacromoleculeSamplesStore';
 import { CollectionsStore } from 'src/stores/mobx/CollectionsStore';
 import { NotificationsStore } from 'src/stores/mobx/NotificationsStore';
+import { TenantSettingsStore } from 'src/stores/mobx/TenantSettingsStore';
+import UserStore from 'src/stores/mobx/UserStore';
 
-export const RootStore = types
+const RootStore = types
   .model({
     measurementsStore: types.optional(MeasurementsStore, { measurements: {}, sampleHeaders: {} }),
     sampleTasksStore: types.optional(SampleTasksStore, {}),
@@ -29,7 +31,34 @@ export const RootStore = types
     sequenceBasedMacromoleculeSamplesStore: types.optional(SequenceBasedMacromoleculeSamplesStore, {}),
     collectionsStore: types.optional(CollectionsStore, {}),
     notificationsStore: types.optional(NotificationsStore, {}),
+    tenantSettingsStore: types.optional(TenantSettingsStore, {}),
+    userStore: types.optional(UserStore, {})
   })
+  .actions((self) => ({
+    reset: () => {
+      self.userStore.logout();
+      // applySnapshot resets each store's data in place instead of replacing the node
+      // (self.field = Store.create({})). Replacing would destroy the old node while its
+      // in-flight flow actions (fetches started before logout) are still pending; once
+      // they resolve and try to write to `self`, mobx-state-tree throws because the node
+      // is dead. Resetting in place keeps the node alive, so those late writes just land
+      // on the (already-reset) store instead of crashing.
+      applySnapshot(self.measurementsStore, { measurements: {}, sampleHeaders: {} });
+      applySnapshot(self.sampleTasksStore, {});
+      applySnapshot(self.cellLineDetailsStore, {});
+      applySnapshot(self.vesselDetailsStore, {});
+      applySnapshot(self.searchStore, {});
+      applySnapshot(self.devicesStore, {});
+      applySnapshot(self.deviceMetadataStore, {});
+      applySnapshot(self.attachmentNotificationStore, {});
+      applySnapshot(self.calendarStore, {});
+      applySnapshot(self.deviceDescriptionsStore, {});
+      applySnapshot(self.sequenceBasedMacromoleculeSamplesStore, {});
+      applySnapshot(self.collectionsStore, {});
+      applySnapshot(self.tenantSettingsStore, {});
+      applySnapshot(self.userStore, {});
+    }
+  }))
   .views((self) => ({
     get measurements() { return self.measurementsStore; },
     get sampleTasks() { return self.sampleTasksStore; },
@@ -44,6 +73,8 @@ export const RootStore = types
     get sequenceBasedMacromoleculeSamples() { return self.sequenceBasedMacromoleculeSamplesStore; },
     get collections() { return self.collectionsStore; },
     get notifications() { return self.notificationsStore; },
+    get tenantSettings() { return self.tenantSettingsStore; },
+    get user() { return self.userStore; },
   }));
 export const rootStore = RootStore.create({});
 export const StoreContext = React.createContext(rootStore);

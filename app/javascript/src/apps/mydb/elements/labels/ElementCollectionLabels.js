@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import {
   Button, Dropdown, OverlayTrigger
 } from 'react-bootstrap';
-import UserStore from 'src/stores/alt/stores/UserStore';
 import PermissionIcons from 'src/apps/mydb/collections/PermissionIcons';
 import UserInfosTooltip from 'src/apps/mydb/collections/UserInfosTooltip';
 import SharedToMeInfosTooltip from 'src/apps/mydb/collections/SharedToMeInfosTooltip';
@@ -114,8 +113,7 @@ CollectionToggle.defaultProps = {
 
 const ElementCollectionLabels = ({ element, size, variant }) => {
   const collectionsStore = useContext(StoreContext).collections;
-
-  const { currentUser } = UserStore.getState();
+  const { currentUser } = useContext(StoreContext).userStore;
   if (!currentUser) return (<span />);
   if (!element.tag) return (<span />);
   if (!element.tag.taggable_data) return (<span />);

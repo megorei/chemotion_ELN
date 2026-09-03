@@ -4,7 +4,9 @@
 return if Rails.env.test?
 
 Rails.application.configure do
-  uri = URI.parse(config.root_url)
+  # instance identity (host/scheme/port) comes from the tenant context;
+  # equals URI.parse(config.root_url), which application.rb derives the same way
+  uri = TenantContext.current.root_uri
   scheme = uri.scheme
   host   = uri.host
   port   = uri.port

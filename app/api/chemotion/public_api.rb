@@ -28,6 +28,35 @@ module Chemotion
         status 204
       end
 
+      desc 'Health/readiness check (app + database)'
+      get 'health' do
+        if Usecases::Public::HealthCheck.database_ready?
+          { status: 'ok', db: true, version: Chemotion::Application.config.version['version'] }
+        else
+          status 503
+          { status: 'error', db: false }
+        end
+      end
+
+      desc 'App version info'
+      get 'version' do
+        version = Chemotion::Application.config.version || {}
+        { version: version['version'], revision: version['current_revision'] }
+      end
+
+      desc 'Instance identity for UI context labelling (REQ-ELN-19)'
+      get 'instance' do
+        tenant = TenantContext.current
+        {
+          instance: {
+            id: tenant.id,
+            name: tenant.name,
+            application_title: tenant.application_title,
+            guest_max_permission_level: tenant.guest_max_permission_level,
+          },
+        }
+      end
+
       namespace :token do
         desc 'Generate Token'
         params do
@@ -59,6 +88,16 @@ module Chemotion
             res[k] = { icon: File.basename(config[k].options[:icon] || ''), label: config[k].options[:label] }
           end
           { omniauth_providers: res, extra_rules: extra_rules }
+        end
+      end
+
+      namespace :devise_mappings do
+        desc 'get devise module mappings'
+        get do
+          mappings = Devise.mappings[:user]&.modules&.map { |m| { m.to_s => true } }&.reduce(:merge!)
+          mappings['unlock_strategy_enabled'] = User.unlock_strategy_enabled?(:email)
+          mappings['minimum_password_length'] = User.password_length.min
+          { devise_mappings: mappings }
         end
       end
 

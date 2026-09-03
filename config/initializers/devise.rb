@@ -95,7 +95,9 @@ Devise.setup do |config| # rubocop:disable Metrics/BlockLength
   # a value less than 10 in other environments. Note that, for bcrypt (the default
   # encryptor), the cost increases exponentially with the number of stretches (e.g.
   # a value of 20 is already extremely slow: approx. 60 seconds for 1 calculation).
-  config.stretches = Rails.env.test? ? 1 : 10
+  # WP 05 (REQ-ELN-10): operator security baseline via ENV; the previous
+  # hard-coded values remain the shipped defaults (test keeps the fast path).
+  config.stretches = Integer(ENV['DEVISE_BCRYPT_COST'] || (Rails.env.test? ? 1 : 10))
 
   # Setup a pepper to generate the encrypted password.
   # config.pepper = 'PASSWORD'
@@ -141,7 +143,9 @@ Devise.setup do |config| # rubocop:disable Metrics/BlockLength
 
   # ==> Configuration for :validatable
   # Range for password length.
-  config.password_length = 8..72
+  # WP 05 (REQ-ELN-10): operator-defined password policy floor (defaults 8..72).
+  config.password_length =
+    Integer(ENV['DEVISE_PASSWORD_MIN_LENGTH'] || 8)..Integer(ENV['DEVISE_PASSWORD_MAX_LENGTH'] || 72)
 
   # Email regex used to validate email formats. It simply asserts that
   # one (and only one) @ exists in the given string. This is mainly
@@ -174,7 +178,8 @@ Devise.setup do |config| # rubocop:disable Metrics/BlockLength
 
   # Number of authentication tries before locking an account if lock_strategy
   # is failed attempts.
-  config.maximum_attempts = 5
+  # WP 05 (REQ-ELN-10): operator-defined lockout threshold (default 5).
+  config.maximum_attempts = Integer(ENV['DEVISE_MAXIMUM_ATTEMPTS'] || 5)
 
   # Time interval to unlock the account if :time is enabled as unlock_strategy.
   config.unlock_in = 10.minutes
@@ -240,11 +245,42 @@ Devise.setup do |config| # rubocop:disable Metrics/BlockLength
   # config.omniauth :github, 'APP_ID', 'APP_SECRET', scope: 'user,public_repo'
 
   begin
-    auth_config = if ActiveRecord::Base.connection.table_exists?('matrices')
-                    Matrice.find_by(name: 'userProvider')&.configs || {}
+    conn = ActiveRecord::Base.connection
+    # Read via raw SQL to avoid autoloading Matrice during initialization (an error in
+    # Rails 7). Can't defer to after_initialize: the OmniAuth providers must be
+    # registered here in Devise.setup, before the middleware is built.
+    auth_config = if conn.table_exists?('matrices')
+                    raw = conn.select_value("SELECT configs FROM matrices WHERE name = #{conn.quote('userProvider')} LIMIT 1")
+                    raw.is_a?(String) ? JSON.parse(raw) : (raw || {})
                   else
                     {}
                   end
+
+    # WP 05 (REQ-ELN-5): client_secrets no longer live in the configs JSONB —
+    # they sit encrypted in matrice_secrets (key = dot-joined config path).
+    # Merge them back for the OmniAuth registration below. Raw SQL + direct
+    # ActiveRecord::Encryption decrypt, again to avoid autoloading app models
+    # during initialization.
+    if auth_config.present? && conn.table_exists?('matrice_secrets')
+      matrice_id = conn.select_value(
+        "SELECT id FROM matrices WHERE name = #{conn.quote('userProvider')} LIMIT 1",
+      )
+      matrice_id && conn.select_rows(
+        "SELECT key, secret FROM matrice_secrets WHERE matrice_id = #{Integer(matrice_id)}",
+      ).each do |path, ciphertext|
+        next if ciphertext.blank?
+
+        begin
+          value = ActiveRecord::Encryption::Encryptor.new.decrypt(ciphertext)
+        rescue StandardError => e
+          Rails.logger.warn("devise.rb: cannot decrypt matrice secret '#{path}': #{e.class}")
+          next
+        end
+        *parents, leaf = path.split('.')
+        target = parents.inject(auth_config) { |node, key| node[key].is_a?(Hash) ? node[key] : (node[key] = {}) }
+        target[leaf] = value
+      end
+    end
   rescue ActiveRecord::StatementInvalid, PG::ConnectionBad, PG::UndefinedTable
     auth_config = {}
   end

@@ -159,8 +159,7 @@ describe Chemotion::TextTemplateAPI do
     context 'when current user has global_text_template_editor privilege' do
       before do
         template
-        profile = user.profile || user.create_profile
-        profile.update_columns(data: (profile.data || {}).merge('global_text_template_editor' => true)) # rubocop:disable Rails/SkipsModelValidations
+        user.grant_role!(UserRole::GLOBAL_TEXT_TEMPLATE_EDITOR)
       end
 
       it 'deletes the PredefinedTextTemplate of that name' do
@@ -220,8 +219,7 @@ describe Chemotion::TextTemplateAPI do
     context 'when user has global_text_template_editor privilege' do
       before do
         template
-        profile = user.profile || user.create_profile
-        profile.update_columns(data: (profile.data || {}).merge('global_text_template_editor' => true)) # rubocop:disable Rails/SkipsModelValidations
+        user.grant_role!(UserRole::GLOBAL_TEXT_TEMPLATE_EDITOR)
       end
 
       let(:expected_output) do
@@ -272,8 +270,7 @@ describe Chemotion::TextTemplateAPI do
 
     context 'when current user has global_text_template_editor privilege' do
       before do
-        profile = user.profile || user.create_profile
-        profile.update_columns(data: (profile.data || {}).merge('global_text_template_editor' => true)) # rubocop:disable Rails/SkipsModelValidations
+        user.grant_role!(UserRole::GLOBAL_TEXT_TEMPLATE_EDITOR)
       end
 
       let(:expected_output) do

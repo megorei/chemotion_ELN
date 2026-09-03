@@ -8,10 +8,19 @@ require 'grape-swagger'
 # count, not complexity.
 class API < Grape::API
   include LogidzeModule
+  include GuestAuditModule
 
   format :json
   prefix :api
   version 'v1'
+
+  # REQ-ELN-18 hardening: an id outside the caller's accessible scope (e.g.
+  # Collection.accessible_for(...).find in collection_helpers#set_var) must
+  # answer 404, not an unrescued 500. APIs with their own rescue_from keep
+  # their local handling — Grape resolves the nearest handler first.
+  rescue_from ActiveRecord::RecordNotFound do
+    error!('404 Not Found', 404)
+  end
 
   # TODO: needs to be tested,
   # source: http://funonrails.com/2014/03/api-authentication-using-devise-token/
@@ -28,8 +37,9 @@ class API < Grape::API
       @current_user ||= detect_current_user
     end
 
+    # To make the FE/BE split easier, first check for JWT before going into the warden session
     def detect_current_user
-      detect_current_user_from_session || detect_current_user_from_api_token || detect_current_user_from_jwt
+      detect_current_user_from_jwt || detect_current_user_from_api_token || detect_current_user_from_session
     end
 
     def detect_current_user_from_session
@@ -37,11 +47,16 @@ class API < Grape::API
     end
 
     def detect_current_user_from_jwt
+      return unless token_in_header?
+
       decoded_token = JsonWebToken.decode(current_token)
       user_id = decoded_token[:user_id]
 
       User.find(user_id)
-    rescue StandardError
+    rescue StandardError => e
+      Rails.logger.debug('Ran into an exception')
+      Rails.logger.debug(e.message)
+      Rails.logger.debug(e.backtrace.join("\n"))
       nil
     end
 
@@ -57,7 +72,7 @@ class API < Grape::API
     end
 
     def current_token
-      request.headers['Authorization'].split.last if token_in_header?
+      request.headers['Authorization'].split.last
     end
 
     def token_in_header?
@@ -190,6 +205,7 @@ class API < Grape::API
   mount Chemotion::ScreenAPI
   mount Chemotion::UserAPI
   mount Chemotion::GroupAPI
+  mount Chemotion::GroupSettingsAPI
   mount Chemotion::UserLabelAPI
   mount Chemotion::ReactionSvgAPI
   mount Chemotion::PermissionAPI
@@ -198,6 +214,7 @@ class API < Grape::API
   mount Chemotion::ReportAPI
   mount Chemotion::AttachmentAPI
   mount Chemotion::PublicAPI
+  mount Chemotion::MetricsAPI
   mount Chemotion::ProfileAPI
   mount Chemotion::CodeLogAPI
   mount Chemotion::DeviceAPI
@@ -212,6 +229,9 @@ class API < Grape::API
   mount Chemotion::MessageAPI
   mount Chemotion::AdminAPI
   mount Chemotion::AdminUserAPI
+  mount Chemotion::TenantSettingsAPI
+  mount Chemotion::AuditEventsAPI
+  mount Chemotion::ServiceStatusAPI
   mount Chemotion::AdminInfoSupportAPI
   mount Chemotion::EditorAPI
   mount Chemotion::UiAPI

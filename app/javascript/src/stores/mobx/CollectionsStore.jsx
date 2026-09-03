@@ -117,6 +117,33 @@ export const CollectionShares = types.model({
   shared_with_users: types.array(types.late(() => SharedWithUser)),
 });
 
+// One external invitation / guest grant (REQ-ELN-17), as served by
+// GET /api/v1/collection_shares/invitations (Entities::GuestGrantEntity).
+// state: pending (not yet logged in) | active (converted) | revoked.
+export const GuestInvitation = types.model({
+  id: types.identifierNumber,
+  collection_id: types.maybeNull(types.number),
+  federated_id: types.maybeNull(types.string),
+  email: types.maybeNull(types.string),
+  state: types.string,
+  expires_at: types.maybeNull(types.string),
+  celllinesample_detail_level: types.number,
+  devicedescription_detail_level: types.number,
+  element_detail_level: types.number,
+  permission_level: types.number,
+  reaction_detail_level: types.number,
+  researchplan_detail_level: types.number,
+  sample_detail_level: types.number,
+  screen_detail_level: types.number,
+  sequencebasedmacromoleculesample_detail_level: types.number,
+  wellplate_detail_level: types.number,
+});
+
+export const CollectionInvitations = types.model({
+  id: types.identifierNumber,
+  invitations: types.array(types.late(() => GuestInvitation)),
+});
+
 const presort = (a, b) => {
   const number_of_parents_a = a.ancestry.split('/').filter(Number).length;
   const number_of_parents_b = b.ancestry.split('/').filter(Number).length;
@@ -180,6 +207,9 @@ export const CollectionsStore = types
     // Per shared-to-me collection (keyed by its id), the current user's own contributing shares
     // (direct + per group), lazily fetched for the provenance popover.
     my_collection_shares: types.array(CollectionShares),
+    // Per collection (keyed by its id), the external invitations / guest grants
+    // (REQ-ELN-17), lazily fetched for the manage-shares modal.
+    collection_invitations: types.array(CollectionInvitations),
     update_tree: types.maybeNull(types.boolean, false),
     toggled_tree_items: types.array(types.string, []),
   })
@@ -367,6 +397,67 @@ export const CollectionsStore = types
         self.fetchCollections()
         self.getSharedWithUsers(collectionId)
       }
+    }),
+    // External invitations (REQ-ELN-17). Failure convention as in TenantSettingsStore:
+    // flows resolve true/false, a rejected fetch maps onto the same path as a falsy body.
+    getInvitations: flow(function* getInvitations(collectionId) {
+      let invitations
+      try {
+        invitations = yield CollectionSharesFetcher.getInvitations(collectionId)
+      } catch (error) {
+        invitations = undefined
+      }
+      if (!invitations) return false
+
+      const index = self.collection_invitations.findIndex((entry) => entry.id == collectionId)
+      if (index == -1) {
+        self.collection_invitations.push({ id: collectionId, invitations: invitations })
+      } else {
+        self.collection_invitations[index].invitations = invitations
+      }
+      return true
+    }),
+    addInvitation: flow(function* addInvitation(params) {
+      let invitation
+      try {
+        invitation = yield CollectionSharesFetcher.addInvitation(params)
+      } catch (error) {
+        invitation = undefined
+      }
+      if (!invitation) {
+        // covers the policy gates too: inbound collaboration off (403), guest
+        // permission cap (403), identity of a local user (422)
+        getRoot(self).notificationsStore.add({
+          title: 'External sharing',
+          message: 'The invitation could not be created. External sharing may be '
+            + 'disabled on this instance, or the permission level exceeds the guest maximum.',
+          level: 'error',
+          autoDismiss: 10,
+        })
+        return false
+      }
+
+      yield self.getInvitations(params.collection_id)
+      // a known guest gets the CollectionShare immediately — refresh the share list too
+      self.getSharedWithUsers(params.collection_id)
+      getRoot(self).notificationsStore.add({
+        title: 'External sharing',
+        message: invitation.state === 'active'
+          ? 'The guest already has an account here — the collection is shared with them now.'
+          : 'Invitation saved. It converts into a share on the guest\'s first federated login.',
+        level: 'success',
+        autoDismiss: 5,
+      })
+      return true
+    }),
+    revokeInvitation: flow(function* revokeInvitation(invitationId, collectionId) {
+      const success = yield CollectionSharesFetcher.revokeInvitation(invitationId)
+      if (success) {
+        self.getInvitations(collectionId)
+        self.getSharedWithUsers(collectionId)
+        self.fetchCollections()
+      }
+      return Boolean(success)
     }),
     addElementsToCollection: flow(function* addElementsToCollection(collectionId, uiState, errorTitle, isNewCollection) {
       const response = yield CollectionElementsFetcher.addElementsToCollection({ collection_id: collectionId, ui_state: uiState })
@@ -759,5 +850,6 @@ export const CollectionsStore = types
     get sharedCollectionIds() { return self.shared_with_me_collections.flatMap(collection => collection.idAndDescendantIds) },
     descendantIds(collection) { return collection.children.flatMap(collection => collection.idAndDescendantIds) },
     sharedWithUsers(collection_id) { return self.collection_shares.find((share) => share.id == collection_id) },
+    invitationsFor(collection_id) { return self.collection_invitations.find((entry) => entry.id == collection_id) },
     mySharesFor(collection_id) { return self.my_collection_shares.find((entry) => entry.id == collection_id) },
   }));

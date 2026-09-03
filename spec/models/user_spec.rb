@@ -255,6 +255,128 @@ RSpec.describe User do
     end
   end
 
+  describe 'role management (user_roles RBAC)' do
+    let(:user) { create(:person) }
+    let(:admin) { create(:admin) }
+
+    describe '#has_role? / #grant_role! / #revoke_role!' do
+      it 'is false without a grant' do
+        expect(user.has_role?(UserRole::MOLECULE_EDITOR)).to be false
+      end
+
+      it 'is true after a grant and records who granted' do
+        user.grant_role!(UserRole::MOLECULE_EDITOR, granted_by: admin.id)
+
+        expect(user.has_role?(UserRole::MOLECULE_EDITOR)).to be true
+        expect(user.user_roles.find_by(name: UserRole::MOLECULE_EDITOR).granted_by).to eq(admin.id)
+      end
+
+      it 'distinguishes scopes' do
+        user.grant_role!(UserRole::GENERIC_ADMIN, scope_type: 'elements')
+
+        expect(user.has_role?(UserRole::GENERIC_ADMIN, scope_type: 'elements')).to be true
+        expect(user.has_role?(UserRole::GENERIC_ADMIN, scope_type: 'segments')).to be false
+      end
+
+      it 'grants idempotently' do
+        user.grant_role!(UserRole::MOLECULE_EDITOR)
+        expect { user.grant_role!(UserRole::MOLECULE_EDITOR) }.not_to change(UserRole, :count)
+      end
+
+      it 'revokes a granted role and is a no-op when absent' do
+        user.grant_role!(UserRole::MOLECULE_EDITOR)
+
+        expect { user.revoke_role!(UserRole::MOLECULE_EDITOR) }.to change(UserRole, :count).by(-1)
+        expect(user.has_role?(UserRole::MOLECULE_EDITOR)).to be false
+        expect { user.revoke_role!(UserRole::MOLECULE_EDITOR) }.not_to change(UserRole, :count)
+      end
+
+      it 'rejects a role name outside the operator-defined set' do
+        expect { user.grant_role!('self_invented') }.to raise_error(ActiveRecord::RecordInvalid)
+      end
+    end
+
+    describe 'audit trail' do
+      it 'logs a structured line on grant' do
+        allow(Rails.logger).to receive(:info)
+
+        user.grant_role!(UserRole::MOLECULE_EDITOR, granted_by: admin.id)
+
+        expect(Rails.logger).to have_received(:info).with(
+          a_string_including('"event":"user_role.granted"')
+            .and(a_string_including("\"user_id\":#{user.id}"))
+            .and(a_string_including('"role":"molecule_editor"'))
+            .and(a_string_including("\"by\":#{admin.id}")),
+        )
+      end
+
+      it 'logs a structured line on revoke' do
+        user.grant_role!(UserRole::MOLECULE_EDITOR)
+        allow(Rails.logger).to receive(:info)
+
+        user.revoke_role!(UserRole::MOLECULE_EDITOR, revoked_by: admin.id)
+
+        expect(Rails.logger).to have_received(:info).with(
+          a_string_including('"event":"user_role.revoked"')
+            .and(a_string_including("\"by\":#{admin.id}")),
+        )
+      end
+    end
+
+    describe 'profile-flag facade' do
+      it 'keeps the boolean reader contract', :aggregate_failures do
+        expect(user.is_templates_moderator).to be false
+        expect(user.molecule_editor).to be false
+        expect(user.converter_admin).to be false
+        expect(user.global_text_template_editor).to be false
+
+        user.grant_role!(UserRole::TEMPLATES_MODERATOR)
+        user.grant_role!(UserRole::MOLECULE_EDITOR)
+        user.grant_role!(UserRole::CONVERTER_ADMIN)
+        user.grant_role!(UserRole::GLOBAL_TEXT_TEMPLATE_EDITOR)
+
+        expect(user.is_templates_moderator).to be true
+        expect(user.molecule_editor).to be true
+        expect(user.converter_admin).to be true
+        expect(user.global_text_template_editor).to be true
+      end
+
+      it 'keeps the generic_admin hash contract (string keys, granted scopes true)' do
+        expect(user.generic_admin).to eq({})
+
+        user.grant_role!(UserRole::GENERIC_ADMIN, scope_type: 'elements')
+        user.grant_role!(UserRole::GENERIC_ADMIN, scope_type: 'datasets')
+
+        expect(user.generic_admin).to eq('elements' => true, 'datasets' => true)
+        expect(user.generic_admin.values_at('elements', 'segments', 'datasets').any?).to be true
+      end
+
+      it 'returns the same values after backfill as the legacy profile.data read did', :aggregate_failures do
+        profile = user.profile
+        profile.update_columns( # rubocop:disable Rails/SkipsModelValidations
+          data: (profile.data || {}).merge(
+            'is_templates_moderator' => true,
+            'molecule_editor' => false,
+            'converter_admin' => true,
+            'global_text_template_editor' => false,
+            'generic_admin' => { 'elements' => true, 'segments' => false },
+          ),
+        )
+        legacy = profile.reload.data
+
+        UserRole.backfill_from_profile_data!
+
+        expect(user.is_templates_moderator).to eq(legacy['is_templates_moderator'])
+        expect(user.molecule_editor).to eq(legacy['molecule_editor'])
+        expect(user.converter_admin).to eq(legacy['converter_admin'])
+        expect(user.global_text_template_editor).to eq(legacy['global_text_template_editor'])
+        # hash contract: absent key instead of stored false — same truthiness per scope
+        expect(!user.generic_admin['elements']).to eq(!legacy['generic_admin']['elements'])
+        expect(!user.generic_admin['segments']).to eq(!legacy['generic_admin']['segments'])
+      end
+    end
+  end
+
   describe '#increment_counter' do
     let(:described_method) { :increment_counter }
     let(:element) { described_class::COUNTER_KEYS.sample }

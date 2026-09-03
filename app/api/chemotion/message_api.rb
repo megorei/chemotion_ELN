@@ -3,15 +3,21 @@
 module Chemotion
   # Publish-Subscription MessageAPI
   class MessageAPI < Grape::API
+    helpers GroupAdminHelpers
+
     resource :messages do
       desc 'Get message configuration'
       get 'config' do
-        # Floors protect every client from a misconfigured .env driving a runaway polling loop —
-        # regardless of what MESSAGE_AUTO_INTERNAL/MESSAGE_IDLE_TIME are set to (including non-numeric
+        # WP 03: resolved through AppConfig at request time (DB tenant tier >
+        # legacy MESSAGE_* ENV) — a tenant_settings change applies without restart.
+        # Floors protect every client from a misconfigured value driving a runaway polling loop —
+        # regardless of what auto_interval/idle_time resolve to (including non-numeric
         # garbage, which .to_i coerces to 0), the served values can never go below these.
-        { messageEnable: ENV['MESSAGE_ENABLE'] || 'true',
-          messageAutoInterval: [(ENV['MESSAGE_AUTO_INTERNAL'] || 6000).to_i, 500].max,
-          idleTimeout: [(ENV['MESSAGE_IDLE_TIME'] || 12).to_i, 5].max }
+        enable = AppConfig.get(:messaging, :enable)
+        enable = true if enable.nil? # only an explicit false disables
+        { messageEnable: enable.to_s,
+          messageAutoInterval: [(AppConfig.get(:messaging, :auto_interval) || 6000).to_i, 500].max,
+          idleTimeout: [(AppConfig.get(:messaging, :idle_time) || 12).to_i, 5].max }
       end
 
       desc 'Return messages of the current user'
@@ -130,6 +136,18 @@ module Chemotion
                               coerce_with: ->(val) { val.filter { |id| id.is_a?(Integer) } }
         end
         post do
+          # WP 07 (REQ-ELN-12), deny-by-default: this endpoint used to trust
+          # client-supplied channel_id/user_ids, letting any authenticated user
+          # spoof notifications to arbitrary receivers. Instance Admins keep
+          # the tenant-wide broadcast surface (MessagePublish/UserManagement
+          # admin UI); a group admin may target only members of groups they
+          # administrate (users_admins or user_roles, see GroupAdminHelpers).
+          # Channel-scoped delegation beyond that is REQ-ELN-14 (part 2).
+          unless current_user.is_a?(Admin)
+            target_ids = params[:user_ids].to_a.uniq
+            error!('401 Unauthorized', 401) if target_ids.empty? || (target_ids - administrated_member_ids).any?
+          end
+
           message = Message.create_msg_notification(
             channel_id: params[:channel_id],
             message_content: { data: params[:content] },
