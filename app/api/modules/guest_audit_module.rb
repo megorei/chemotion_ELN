@@ -22,6 +22,16 @@ module GuestAuditModule
   READ_DEDUPE_WINDOW = 10.minutes
   MUTATING = %w[POST PUT PATCH DELETE].freeze
 
+  # POST-as-query endpoints: mutating verb, read-only body (the payload —
+  # a UI selection — is too complex for query params). Recording these as
+  # guest.write_action is pure noise: /permissions/status alone fired ~7
+  # events per page load in a live guest session (found 2026-09-02, no
+  # dedupe on write_action by design since real writes are rare and each
+  # matters — this route just isn't one). Matched on the route suffix, not
+  # the full path (route.origin carries the version as the literal ":version"
+  # placeholder, not the resolved value).
+  QUERY_LIKE_ROUTES = ['/permissions/status'].freeze
+
   included do
     helpers do
       def guest_audit_actor
@@ -75,14 +85,16 @@ module GuestAuditModule
 
     finally do
       user = guest_audit_actor
-      if user && MUTATING.include?(request.request_method)
+      route_path = route&.origin.to_s
+      if user && MUTATING.include?(request.request_method) &&
+         QUERY_LIKE_ROUTES.none? { |suffix| route_path.end_with?(suffix) }
         AuditEvent.record(
           action: 'guest.write_action',
           actor: user,
           subject: (cid = guest_audited_collection_id) ? ['Collection', cid] : nil,
           meta: guest_audit_meta(user).merge(
             method: request.request_method,
-            route: route&.origin.to_s,
+            route: route_path,
             outcome: @guest_request_succeeded ? 'success' : 'denied',
           ),
           ip: request.ip,

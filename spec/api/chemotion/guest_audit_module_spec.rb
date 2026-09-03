@@ -48,6 +48,12 @@ describe 'guest audit module' do
       expect(event.metadata['method']).to eq('PUT')
     end
 
+    it 'does not record a POST-as-query endpoint as a write action' do
+      expect do
+        post '/api/v1/permissions/status', params: { currentCollection: { id: collection.id } }
+      end.not_to change(AuditEvent, :count)
+    end
+
     it 'records a denied write action' do
       foreign_collection = create(:collection, user: owner)
       expect do
