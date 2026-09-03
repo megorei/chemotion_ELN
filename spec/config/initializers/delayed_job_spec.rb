@@ -55,7 +55,12 @@ RSpec.describe 'queuing of a recurring job through delayed_job initializer' do
   end
 
   it 'schedules PubchemLookupJob from CRON_CONFIG_PC_CID' do
-    `#{env_vars} bundle exec rake db:version`
+    # TEST_QUEUE_ADAPTER=delayed_job: without it the subprocess boots with the
+    # suite's default :test adapter (config/environments/test.rb), whose
+    # perform_later is in-memory only — InitCronJobsJob would run but write no
+    # Delayed::Job row for this assertion to find. Same requirement as the
+    # sibling test above.
+    `#{env_vars} TEST_QUEUE_ADAPTER=delayed_job bundle exec rake db:version`
 
     expect(delayed_job_scope.where("handler like '%PubchemLookupJob%'")).to be_present
   end
