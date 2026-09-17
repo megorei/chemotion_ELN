@@ -212,7 +212,7 @@ rspec zurücksetzen.
 
 **Laufende Instanz:** Image aus diesem Branch, frische Instanz im Testnetz
 (volle Migration beim Boot, kein Schema-Load). Ergebnis: healthy nach ~9 min,
-`/ping` 204, keine Boot-Fehler, Browser-Check (Login-Seite rendert, React-Pack
+`/api/v1/public/ping` 204, keine Boot-Fehler, Browser-Check (Login-Seite rendert, React-Pack
 geladen) 3/3. Dazu ein Smoke-Skript per `rails runner` in der Instanz, alle
 9 Prüfungen ok: Laufzeitversionen, Periodensystem, User + Collection, Molekül
 aus Molfile (RDKit/OpenBabel), Sample mit Container, Chemikalien-Export auf
