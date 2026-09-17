@@ -54,11 +54,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      # Deliberately the app's ACTUAL runtime (2.7.8) so EOL/CVEs of the shipped
-      # Ruby are flagged, not the 3.3 lint runtime. Bump this alongside Stage 3.
+      # Deliberately the app's ACTUAL runtime so EOL/CVEs of the shipped Ruby are
+      # flagged, not the 3.3 lint runtime. Keep in step with .tool-versions.
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.7.8'
+          ruby-version: '3.2.11'
       - run: gem install ruby_audit
       - name: audit the Ruby runtime
         run: ruby-audit check

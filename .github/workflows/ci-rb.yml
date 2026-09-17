@@ -150,6 +150,30 @@ jobs:
           touch klasses.json
           bundle config set without ''
 
+      # The shared runner image (complat/chemotion_eln_runner:latest) ships Ruby 2.7.8
+      # only, so asdf finds no Ruby for .tool-versions and `bundle install` dies with
+      # exit 126 before a single spec runs (seen on megorei#37/#38, 2026-08-25). Until
+      # ComPlat publishes an image with the current Ruby, build it here. The build deps
+      # are needed even on a cache hit: psych, openssl and ffi compile against them.
+      - name: install Ruby build dependencies
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq build-essential autoconf bison \
+            libyaml-dev libssl-dev libffi-dev zlib1g-dev libreadline-dev
+
+      - name: restore Ruby toolchain cache
+        uses: actions/cache@v4
+        with:
+          path: /asdf/installs/ruby
+          key: asdf-ruby-${{ hashFiles('.tool-versions') }}
+
+      - name: install Ruby from .tool-versions
+        run: |
+          RUBY_VERSION=$(awk '/^ruby /{print $2}' .tool-versions)
+          asdf list ruby 2>/dev/null | grep -q "$RUBY_VERSION" || asdf install ruby "$RUBY_VERSION"
+          asdf reshim ruby
+          ruby -v
+
       - name: bundle install
         run: bundle install
 
