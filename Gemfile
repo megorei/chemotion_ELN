@@ -69,8 +69,10 @@ gem 'mimemagic', '0.3.10'
 gem 'mime-types'
 
 # locked to enforce latest version of net-scp. without lock net-ssh would be updated first which locks
-# out newer net-scp versions
-gem 'net-scp', '3.0.0'
+# out newer net-scp versions.
+# 4.1.0 (was 3.0.0): net-scp 3.x caps net-ssh below 7, and net-ssh 6.x cannot load RSA keys under
+# OpenSSL 3 ("rsa#set_key= is incompatible with OpenSSL 3.0"), which Ruby 3.2 links against.
+gem 'net-scp', '4.1.0'
 gem 'net-sftp'
 gem 'net-ssh'
 gem 'nokogiri'
