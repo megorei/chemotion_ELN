@@ -237,6 +237,54 @@ eingefrorenem `exec_query`-Ergebnis, labimotion-Reflection zeigt auf
 
 ---
 
+## Woher die Zuversicht kommt
+
+Die Zahlen oben sind eine Momentaufnahme. Der eigentliche Grund, warum wir
+diesen Stand für tragfähig halten, ist ein anderer: **Wir arbeiten seit einem
+Monat darauf.**
+
+Das Update wurde am **22.08.** in unseren Integrations-Branch übernommen.
+Seitdem sind dort **rund 200 Commits** weiterer Arbeit entstanden — nicht am
+Update, sondern *darauf*. Jede dieser Änderungen ist ein weiterer Beleg, dass
+die Basis hält.
+
+Im Testnetz laufen **neun Tenants** aus dieser Codebasis, drei davon unter
+Dauerbeobachtung: seit dem **03.09.** haben ein Heartbeat und ein echter
+Browser-Aufruf zusammen **5.111 Prüfungen** gefahren — **ein** Fehlschlag.
+Der Heartbeat legt dabei jedes Mal ein Sample an, der Browser-Check lädt die
+Anmeldeseite und prüft, dass das React-Pack wirklich gemountet ist.
+
+Was auf dieser Basis inzwischen läuft:
+
+- **Konfiguration aus der Umgebung**, pro Tenant im Admin-UI überschreibbar
+  und ohne Neustart nachladbar, soweit der Schlüssel es erlaubt.
+- **Rollen und Rechte** bis hin zu Gruppen-Admins und Delegation, mit Audit.
+- **Gastzugriff**: Identitäten, Freigaben, Rechtedurchsetzung, UI-Kontext,
+  Audit, Schreib-Eskalation.
+- **Datenaustausch zwischen Tenants** — hier stehen wir am Anfang, aber
+  Provenienz-IDs und das Export-Import-Format sind fertig und zwischen zwei
+  Tenants live durchgespielt.
+- Ein eigenes Betriebswerkzeug, das mehrere Chemotion-Instanzen im Testnetz
+  verwaltet.
+
+**Das erklärt auch, woher die Korrekturen in Abschnitt 2 stammen.** Der
+eingefrorene `ActiveRecord::Result` beim Chemikalien-Export, der
+net-ssh-Bruch unter OpenSSL 3, die falsch aufgelöste `Wellplate`-Assoziation
+in labimotion — keiner davon fiel beim Lesen von Code auf. Sie kamen aus
+laufenden Instanzen und aus vielen Durchläufen der Suite auf einem eigenen
+CI-Rechner (amd64, echtes CI-Image), wo sich Fehler zeigen, die auf einer
+Entwicklermaschine nie auftreten.
+
+Zwei Dinge folgen daraus, die für euch relevant sind:
+
+1. **Dieses Update ist bei uns keine Vorbereitung mehr, sondern Unterbau.**
+   Wir bauen nicht darauf zu, sondern haben bereits darauf gebaut.
+2. **Der zweite Teil dieser Vorarbeit ist der Client-Server-Split**, der
+   ebenfalls noch kommt. Beides zusammen ist die Grundlage, auf der das
+   Übrige steht.
+
+---
+
 ## Wie der Branch entstanden ist
 
 - `complat/main` @ `7395f5d8c` ist die Basis.
@@ -262,9 +310,10 @@ Paket b.
 - **Alles, was nicht zum Update gehört.** Das liegt in `update/b-rails72-plus`
   (baut auf diesem Branch auf; `compare update/a-rails72...update/b-rails72-plus`
   zeigt nur die Extras).
-- **Multitenancy-Arbeit** — kommt später, auf dieser Basis.
-- **Der Client-Server-Split** (`make-login-api-compatible`) — kommt nach dem
-  Update und wird darauf aufgesetzt.
+- **Multitenancy-Arbeit** — die läuft bei uns bereits auf dieser Basis
+  (siehe „Woher die Zuversicht kommt"), gehört aber nicht in dieses Paket.
+- **Der Client-Server-Split** (`make-login-api-compatible`) — der zweite Teil
+  der Vorarbeit, kommt getrennt.
 
 ---
 
