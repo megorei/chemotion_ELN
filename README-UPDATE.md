@@ -41,8 +41,8 @@ Die Linie, entlang der dieses Dokument erzählt:
 
 ## 1. Der Auftrag — das Upgrade
 
-Das Upgrade wurde von **Vivian H** im August in kleinen, jeweils grün
-verifizierten Stufen gebaut. Grundprinzip jeder Stufe: erst alle Vorarbeiten
+Das Upgrade wurde im August in kleinen, jeweils grün verifizierten Stufen
+gebaut. Grundprinzip jeder Stufe: erst alle Vorarbeiten
 auf der alten Version, dann **ein** Versions-Bump, dann die Framework-Defaults
 einzeln durchschalten. Nie mehrere Baustellen gleichzeitig.
 
@@ -60,7 +60,7 @@ einzeln durchschalten. Nie mehrere Baustellen gleichzeitig.
 Test-Runbook: [`DEV_UPGRADE_TEST_RUNBOOK.md`](docs/rails-upgrade/DEV_UPGRADE_TEST_RUNBOOK.md).
 
 **Die Einzelschritte bleiben als Commits erhalten** (`rails-upgrade-6-1-7-10`,
-10 Commits von Vivian). Weil gemergt und nicht rebased wurde, sind sie in der
+10 Commits). Weil gemergt und nicht rebased wurde, sind sie in der
 Historie dieses Branches unverändert nachvollziehbar; die Tabelle oben fasst sie
 nur für das Lesen zusammen (siehe „Wie der Branch entstanden ist").
 
@@ -177,7 +177,7 @@ Abarbeitungsliste, die abgearbeitet ist.
 ## Worauf man beim Ausrollen achten muss
 
 Diese Punkte ändern nichts am Code in diesem Branch, entscheiden aber, ob ein
-Deploy reibungslos läuft. Gesammelt aus Vivians Stufen-Dokumenten.
+Deploy reibungslos läuft. Gesammelt aus den Stufen-Dokumenten.
 
 1. **Alle Nutzer werden einmal ausgeloggt — außer mit Cookie-Rotation.**
    Upstream nutzt schon den JSON-Serializer; was die Sessions ungültig macht,
@@ -241,7 +241,7 @@ eingefrorenem `exec_query`-Ergebnis, labimotion-Reflection zeigt auf
 
 - `complat/main` @ `7395f5d8c` ist die Basis.
 - Gemergt wurde **nicht** der rohe Upgrade-Branch, sondern `befdb2488`: das ist
-  Vivians Branch, der am 25.08. in PR #37 bereits mit `complat/main` versöhnt
+  der Upgrade-Branch, der am 25.08. in PR #37 bereits mit `complat/main` versöhnt
   wurde. Dadurch blieb dessen Konfliktauflösung erhalten und nur die 24
   Upstream-Commits seitdem mussten neu versöhnt werden — zwei Konflikte, beide
   trivial (siehe Merge-Commit `fdd6d03d8`).
