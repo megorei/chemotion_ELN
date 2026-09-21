@@ -1,13 +1,40 @@
 # DEV_UPGRADE_TEST_RUNBOOK.md
 
-**Wiederholbare Verifikations-Suite für Ruby-/Rails-Upgrades.** Genau diese Tests
-wurden für das **Ruby-3.0-Upgrade** gefahren (alle grün); beim nächsten Upgrade
-(3.1, 3.2, …) **identisch erneut** ausführen und gegen die hier dokumentierten
-Baselines halten → so ist sichtbar, ob etwas regressiert.
+> **Übergabe-Dokument — nach der Übernahme löschen.** Es beschreibt, wie dieses
+> Upgrade geprüft wurde, nicht wie das ELN dauerhaft getestet wird. Was davon
+> bleiben soll, gehört in die reguläre Test-Dokumentation; der Rest hat seinen
+> Zweck erfüllt, sobald der Branch übernommen ist.
 
-Prinzip: die Tests decken **beide** Auth-Wege (Session/Devise + JWT), die **Grape-
-API** (nicht Rails-Controller — Grape ist die primäre API), die **Chemie-Pipelines**
-(Sample-Anlage), und die **React-SPA** end-to-end im echten Browser ab.
+**Wiederholbare Verifikations-Suite für Ruby-/Rails-Upgrades.** Beim nächsten
+Sprung (Rails 8, Ruby 3.3/3.4) identisch erneut ausführen und gegen die hier
+dokumentierten Baselines halten — so ist sichtbar, ob etwas regressiert.
+
+**Stand: Ruby 3.2.11 · Rails 7.2.3.2 · Bundler 2.4.22** (Branch
+`update/a-rails72`, Baselines vom 21.09.2026).
+
+Die Suite deckt **beide** Auth-Wege ab (Session/Devise + JWT), die **Grape-API**
+(nicht Rails-Controller — Grape ist die primäre API), die **Chemie-Pipelines**
+(Sample-Anlage bis InChIKey) und die **React-SPA** end-to-end im echten Browser.
+
+## Warum es das neben der CI gibt
+
+Vier der sieben Abschnitte prüfen etwas, das die automatische CI **nicht**
+abdeckt — das ist der Grund, dieses Dokument zu behalten:
+
+| Abschnitt | Auch in `ci-rb.yml`? |
+|---|---|
+| 1 RSpec-Suite | ja — dasselbe Kommando |
+| 2 Boot-Check | implizit (RSpec lädt Rails) |
+| 3 Migrationen von Grund auf | ja — `rake db:create db:migrate` |
+| **4 Deprecation-Sweep** | **nein** |
+| 5 API-Smoke über HTTP + JWT | nur teilweise — RSpec fährt Grape über Rack::Test, nicht gegen einen laufenden Server |
+| **6 Browser-Click-Through + Schreibpfad** | **nein** — `spec/features/**` ist in der CI ausgeschlossen, der Cypress-Workflow läuft nur auf `workflow_dispatch` |
+| 7 Ergebnis-Matrix | — |
+
+Abschnitt 4 fängt Ruby-Verhaltensänderungen, **solange sie noch Warnung sind**,
+bevor sie beim nächsten Sprung zum harten Fehler werden. Abschnitt 6 ist der
+einzige Ort, an dem der **Schreibpfad** wirklich läuft: ein Sample anlegen und
+den InChIKey über OpenBabel/InChI erzeugen.
 
 ---
 
@@ -16,7 +43,7 @@ API** (nicht Rails-Controller — Grape ist die primäre API), die **Chemie-Pipe
 > **Versions-Regel: immer den NEUESTEN Patch der Ziel-Minor pinnen, nie `.0`.**
 > (`asdf list all ruby | grep '^3.2\.'` → letzten nehmen.) Patches rollen Security-/
 > Bugfixes auf, ändern aber **kein** Sprach-Verhalten (Psych 4, kwargs etc. sind über
-> alle `3.x.y` identisch). Bisher genutzt: **3.0.7**, **3.1.7** (nicht .0). Ebenso:
+> alle `3.x.y` identisch). Bisher genutzt: **3.0.7**, **3.1.7**, **3.2.11**. Ebenso:
 > Native-Gems müssen auf der Ziel-ABI **neu kompiliert** werden (Image-Rebuild) —
 > gleiche Versionen, kein Bump (bis 3.3: dann `nokogiri ≥ 1.16`).
 
@@ -24,12 +51,12 @@ Alles läuft **im Container** `chemotion_eln-app-1`. Die zu testende Ruby-Versio
 isoliert neben 2.7.8 installieren (stört den laufenden 2.7-Dev-Server nicht):
 
 ```bash
-# Ruby X.Y.Z installieren (Beispiel 3.0.7)
-docker exec chemotion_eln-app-1 bash -lc 'asdf install ruby 3.0.7'
+# Ruby X.Y.Z installieren (Beispiel 3.2.11)
+docker exec chemotion_eln-app-1 bash -lc 'asdf install ruby 3.2.11'
 # passende Bundler-Version (aus Gemfile.lock BUNDLED WITH) für diese Ruby
-docker exec chemotion_eln-app-1 bash -lc 'export PATH=$HOME/.asdf/installs/ruby/3.0.7/bin:$PATH && gem install bundler -v 2.4.22'
+docker exec chemotion_eln-app-1 bash -lc 'export PATH=$HOME/.asdf/installs/ruby/3.2.11/bin:$PATH && gem install bundler -v 2.4.22'
 # Gems auf der Ziel-ABI bauen (native chem-Gems!). --frozen schützt den Lock.
-docker exec chemotion_eln-app-1 bash -lc 'export PATH=$HOME/.asdf/installs/ruby/3.0.7/bin:$PATH && cd /home/ubuntu/app && bundle _2.4.22_ install --frozen'
+docker exec chemotion_eln-app-1 bash -lc 'export PATH=$HOME/.asdf/installs/ruby/3.2.11/bin:$PATH && cd /home/ubuntu/app && bundle _2.4.22_ install --frozen'
 ```
 
 > In allen Befehlen unten: `export PATH=$HOME/.asdf/installs/ruby/<VER>/bin:$PATH`
@@ -45,24 +72,39 @@ docker exec chemotion_eln-app-1 bash -lc 'export PATH=$HOME/.asdf/installs/ruby/
 
 ```bash
 docker exec chemotion_eln-app-1 bash -lc '
-  export PATH=$HOME/.asdf/installs/ruby/3.0.7/bin:$PATH; cd /home/ubuntu/app &&
+  export PATH=$HOME/.asdf/installs/ruby/3.2.11/bin:$PATH; cd /home/ubuntu/app &&
   RAILS_ENV=test bundle _2.4.22_ exec rspec \
     --exclude-pattern "spec/{features}/**/*_spec.rb" spec --seed 57765'
 ```
 
-**Baseline (MUSS identisch sein):** `2260 examples, 11 failures, 48 pending`.
-Die **11 Fehlschläge sind rein umgebungsbedingt** (kein Code-Fehler) und müssen
-**exakt diese** sein — Seed **fixiert auf 57765**:
+**Baseline im CI-Image:** `3689 examples, 0 failures, 44 pending`, Line Coverage
+72,47 %, Laufzeit ~15 min (Stand 21.09.2026, Branch `update/a-rails72`; identisch
+auf dem Xeon-Runner und in GitHub Actions). **Im CI-Image ist grün die Vorgabe** —
+jeder Fehlschlag ist einer.
 
-| # | Spec | Ursache (Umgebung) |
-|---|------|--------------------|
-| 7× | `spec/lib/datacollector/collector_spec.rb` (SSH/SFTP-Cases) | kein `ssh-agent`/Keys lokal |
-| 3× | `spec/services/rdkit_extension_service_spec.rb` (:15/:21/:35) | lokales Postgres ohne RDKit-Extension |
-| 1× | `spec/api/chemotion/admin_device_api_spec.rb:76` | SFTP-Verbindung nicht herstellbar |
+Auf einer Entwicklermaschine fehlen Dinge, die das CI-Image mitbringt. Was dort
+zusätzlich rot wird, ist Umgebung und kein Code-Fehler:
 
-> **Regel:** Regression = jede **abweichende** Fail-Menge (vorher grün → jetzt rot
-> oder neu/unerklärt). Die Beispiel-**Zahl** darf driften (neue Specs); Anker ist
-> die **11er-Fail-Menge**, nicht die Zahl.
+| Spec | Ursache (Umgebung) | Abhilfe |
+|---|---|---|
+| `spec/services/rdkit_extension_service_spec.rb` (3×) | lokales Postgres ohne RDKit-Extension | Image `complat/dev:postgres16-rdkit` benutzen |
+| `spec/lib/datacollector/collector_spec.rb` (SSH/SFTP) | kein `ssh-agent`/Keys | Abschnitt 0 oder in Kauf nehmen |
+
+> **Korrektur gegenüber der Fassung von 2026-08:** Dort standen 11 Fehlschläge als
+> „rein umgebungsbedingt", darunter 7 SFTP-Fälle mit der Begründung „kein
+> ssh-agent/Keys lokal". Das war falsch. Es war ein echter Fehler: `net-ssh` 6.1
+> baut RSA-Schlüssel über eine Methode, die OpenSSL 3 unveränderlich gemacht hat
+> (`rsa#set_key= is incompatible with OpenSSL 3.0`) — sichtbar erst unter Ruby
+> 3.2. Behoben in diesem Branch mit `net-ssh` 7.3.3. Eine Fail-Menge als
+> „Umgebung" abzuhaken, verdeckt darin versteckte echte Fehler; deshalb ist die
+> Vorgabe jetzt Null und nicht eine Liste.
+
+> **Regel:** Regression = jeder Fehlschlag im CI-Image. Die Beispiel-**Zahl** darf
+> driften (neue Specs kommen dazu); Anker ist die **Null**.
+
+> **Nur ein RSpec-Prozess gleichzeitig.** Zwei Läufe auf derselbe Test-DB reißen
+> mit `ActiveRecord::Deadlocked` in `DatabaseCleaner.clean_with(:truncation)` ab —
+> 0 Beispiele, Exit 1. Das ist kein Spec-Fehler.
 
 ---
 
@@ -72,22 +114,22 @@ Die **11 Fehlschläge sind rein umgebungsbedingt** (kein Code-Fehler) und müsse
 
 ```bash
 docker exec chemotion_eln-app-1 bash -lc '
-  export PATH=$HOME/.asdf/installs/ruby/3.0.7/bin:$PATH; cd /home/ubuntu/app &&
+  export PATH=$HOME/.asdf/installs/ruby/3.2.11/bin:$PATH; cd /home/ubuntu/app &&
   RAILS_ENV=test bundle _2.4.22_ exec rails runner \
     "puts %(BOOT: Rails #{Rails.version} on Ruby #{RUBY_VERSION})"'
 ```
-**Erwartet:** `BOOT: Rails 6.1.7.10 on Ruby <VER>` ohne Load-Fehler.
+**Erwartet:** `BOOT: Rails 7.2.3.2 on Ruby 3.2.11` ohne Load-Fehler.
 
 ---
 
 ## 3. Migrationen von Grund auf
 
 **Deckt ab:** alle 431 Migrationen (Data-Migrations mit `YAML.load` etc. — der
-Psych-4-Knackpunkt ab Ruby 3.1, siehe `DEV_RAILS_UPGRADE_3-1.md`).
+Psych-4-Knackpunkt ab Ruby 3.1, siehe `DEV_UPGRADE.md`, Abschnitt A2).
 
 ```bash
 docker exec chemotion_eln-app-1 bash -lc '
-  export PATH=$HOME/.asdf/installs/ruby/3.0.7/bin:$PATH; cd /home/ubuntu/app &&
+  export PATH=$HOME/.asdf/installs/ruby/3.2.11/bin:$PATH; cd /home/ubuntu/app &&
   RAILS_ENV=test bundle _2.4.22_ exec rake db:migrate:reset 2>&1 | tail -5'
 ```
 **Erwartet:** läuft durch, kein `Psych::DisallowedClass`/Abbruch.
@@ -101,7 +143,7 @@ harten Fehler werden (v. a. kwargs 2.7→3.0).
 
 ```bash
 docker exec chemotion_eln-app-1 bash -lc '
-  export PATH=$HOME/.asdf/installs/ruby/3.0.7/bin:$PATH; cd /home/ubuntu/app &&
+  export PATH=$HOME/.asdf/installs/ruby/3.2.11/bin:$PATH; cd /home/ubuntu/app &&
   RUBYOPT="-W:deprecated" RAILS_ENV=test bundle _2.4.22_ exec rspec \
     --exclude-pattern "spec/{features}/**/*_spec.rb" spec --seed 57765 2>&1 \
   | grep -E "Using the last argument as keyword|maybe \*\* should" | grep "/home/ubuntu/app/" \
@@ -124,7 +166,7 @@ Server-Start) auf `:3001`, dann:
 
 ```bash
 docker exec chemotion_eln-app-1 bash -lc '
-  export PATH=$HOME/.asdf/installs/ruby/3.0.7/bin:$PATH; cd /home/ubuntu/app
+  export PATH=$HOME/.asdf/installs/ruby/3.2.11/bin:$PATH; cd /home/ubuntu/app
   TOKEN=$(bundle _2.4.22_ exec rails runner -e development "puts JsonWebToken.encode(user_id: User.first.id)" 2>/dev/null | tail -1)
   for p in users/current.json collections.json collections/all.json samples.json reactions.json; do
     echo "$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:3001/api/v1/$p" -H "Authorization: Bearer $TOKEN")  $p"
@@ -150,7 +192,7 @@ via socat auf Host `:13001`).
 **Schritt A — Server auf Ziel-Ruby starten + Host-Forward:**
 ```bash
 docker exec chemotion_eln-app-1 bash -lc '
-  export PATH=$HOME/.asdf/installs/ruby/3.0.7/bin:$PATH; cd /home/ubuntu/app
+  export PATH=$HOME/.asdf/installs/ruby/3.2.11/bin:$PATH; cd /home/ubuntu/app
   nohup bundle _2.4.22_ exec rails server -e development -p 3001 -b 0.0.0.0 \
     -P tmp/pids/server-rubytest.pid > /tmp/servertest.log 2>&1 & echo "PID $!"'
 docker run -d --name chemotion_test_fwd --network chemotion_eln_default -p 13001:13001 \
@@ -180,7 +222,7 @@ sleep 30  # boot
 **Schritt B — Throwaway-User anlegen (NIE einen Seed-User umbauen!):**
 ```bash
 docker exec chemotion_eln-app-1 bash -lc '
-  export PATH=$HOME/.asdf/installs/ruby/3.0.7/bin:$PATH; cd /home/ubuntu/app
+  export PATH=$HOME/.asdf/installs/ruby/3.2.11/bin:$PATH; cd /home/ubuntu/app
   bundle _2.4.22_ exec rails runner -e development "
     User.find_by(email: %q{test-upgrade@example.com})&.destroy
     User.create!(email: %q{test-upgrade@example.com}, password: %q{TestUpgrade1!},
@@ -298,7 +340,7 @@ const errors=[],api=[];
 ```
 </details>
 
-**Was die Skripte prüfen & Baseline (grün auf 3.0.7 UND 3.1.7):**
+**Was die Skripte prüfen & Baseline (grün auf 3.0.7, 3.1.7 UND 3.2.11):**
 - `clickthrough.js`: Login → `/mydb/collection/all`; Collection-Tree + Tabs.
   **Baseline:** `TOTAL_FAILED_API: 0`, `PAGE_ERRORS: 0`.
 - `create_sample.js`: **CREATE-Menü öffnet alle Element-Typen** (Create Sample/
@@ -350,13 +392,13 @@ docker rm -f chemotion_test_fwd
 
 ---
 
-## 7. Ergebnis-Matrix (Baseline, grün auf **Ruby 3.0.7 UND 3.1.7**, 2026-08)
+## 7. Ergebnis-Matrix (Baseline **Ruby 3.2.11 / Rails 7.2.3.2**, 21.09.2026)
 
 | Test | Deckt ab | Baseline / Erwartung |
 |---|---|---|
-| 1 RSpec | Models/APIs/Usecases/Services/lib | 2260 ex, **11** env-Failures, 48 pending |
-| 2 Boot | Load/Boot | `Rails 6.1.7.10 on Ruby X` |
-| 3 Migrationen | 431 Migrationen (Psych-4 + kwargs-Pfade) | läuft durch; **auf ABBRÜCHE prüfen, nicht nur kwargs-Warnungen** |
+| 1 RSpec | Models/APIs/Usecases/Services/lib | **3689 ex, 0 failures**, 44 pending (CI-Image) |
+| 2 Boot | Load/Boot | `Rails 7.2.3.2 on Ruby 3.2.11` |
+| 3 Migrationen | alle Migrationen von Grund auf (Psych-4 + kwargs-Pfade) | läuft durch; **auf ABBRÜCHE prüfen, nicht nur kwargs-Warnungen** |
 | 4 Deprecations | kwargs & Co. | **0** App/Lib-Warnungen |
 | 5 API-Smoke | Grape: user/collection/sample/reaction/molecule + JWT | 200er + 401; molecules 405 |
 | 6 Browser-SPA | Devise-Login, SPA, Collections, CREATE-Menü **alle Element-Typen**, `reaction_svg`, permissions | 0 failed API, 0 page-errors, Label generiert |

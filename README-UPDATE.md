@@ -5,8 +5,12 @@
 
 Dieses Dokument erklärt, was in diesem Branch passiert ist, warum, und worauf
 beim Review, Testen und Ausrollen zu achten ist. Die Details der einzelnen
-Upgrade-Stufen liegen weiterhin in [`docs/rails-upgrade/`](docs/rails-upgrade/);
-hier steht, was man davon wissen muss.
+Upgrade-Stufen stehen in [`docs/rails-upgrade/`](docs/rails-upgrade/); hier
+steht, was man davon wissen muss.
+
+> **Die Dokumente unter `docs/rails-upgrade/` sind Übergabe-Material und sollen
+> nach der Übernahme wieder verschwinden** — jedes trägt oben einen
+> entsprechenden Vermerk. Eine Ausnahme ist dort benannt.
 
 ---
 
@@ -45,12 +49,12 @@ einzeln durchschalten. Nie mehrere Baustellen gleichzeitig.
 | Stufe | Was sie tatsächlich gebrochen hat | Wie gelöst | Detail |
 |---|---|---|---|
 | Rails 6.1.7.7 → 6.1.7.10 | nichts | Gem-Bump (upstream steht inzwischen selbst auf 6.1.7.10) | — |
-| Ruby 2.7.8 → 3.0.7 | `URI.escape`, `URI.encode` mit eigenem Zeichensatz, `ERB.new` mit Positionsargumenten — alle entfernt | Drop-in-Ersatz (`URI::DEFAULT_PARSER.escape`, Keyword-Signatur) | [3-0](docs/rails-upgrade/DEV_RAILS_UPGRADE_3-0.md) |
-| Ruby 3.0 → 3.1 | **Psych 4**: `YAML.load` ist sicher per Default und bricht bei Aliases/Symbolen — u. a. in einer alten Migration und beim Laden des Periodensystems | 5 Stellen auf `YAML.unsafe_load` / `unsafe_load_file` (das alte `load`-Verhalten) | [3-1](docs/rails-upgrade/DEV_RAILS_UPGRADE_3-1.md) |
-| Rails 6.1 → 7.0 | **Zeitwerk** statt classic autoloader (der dicke Brocken), `Rails.application.secrets`, offene Redirects im RADAR-OAuth | Zeitwerk-Migration, Secrets abgelöst, `allow_other_host` | [7-0](docs/rails-upgrade/DEV_RAILS_UPGRADE_7-0.md) |
-| Rails 7.0 → 7.1 | `devise-two-factor` musste auf 4.x, `paranoia`-Bump, `lib` fällt vom `$LOAD_PATH` | Gem-Bumps, Override `add_autoload_paths_to_load_path = true` | [7-1](docs/rails-upgrade/DEV_RAILS_UPGRADE_7-1.md) |
-| Rails 7.1 → 7.2 | `config/secrets.yml` entfällt, `secret_key_base` muss aus ENV kommen | Secrets entkoppelt | [7-2](docs/rails-upgrade/DEV_RAILS_UPGRADE_7-2.md) |
-| Ruby 3.1 → 3.2 | `thumbnailer`-Gem nutzt das entfernte `File.exists?` — Thumbnails brachen **still** | Gem ersetzt durch `image_processing` (MiniMagick, gleiches Verhalten: 800 px, JPEG q75, PDF 200 dpi) | [3-2](docs/rails-upgrade/DEV_RAILS_UPGRADE_3-2.md) |
+| Ruby 2.7.8 → 3.0.7 | `URI.escape`, `URI.encode` mit eigenem Zeichensatz, `ERB.new` mit Positionsargumenten — alle entfernt | Drop-in-Ersatz (`URI::DEFAULT_PARSER.escape`, Keyword-Signatur) | [A1](docs/rails-upgrade/DEV_UPGRADE.md) |
+| Ruby 3.0 → 3.1 | **Psych 4**: `YAML.load` ist sicher per Default und bricht bei Aliases/Symbolen — u. a. in einer alten Migration und beim Laden des Periodensystems | 5 Stellen auf `YAML.unsafe_load` / `unsafe_load_file` (das alte `load`-Verhalten) | [A2](docs/rails-upgrade/DEV_UPGRADE.md) |
+| Rails 6.1 → 7.0 | **Zeitwerk** statt classic autoloader (der dicke Brocken), `Rails.application.secrets`, offene Redirects im RADAR-OAuth | Zeitwerk-Migration, Secrets abgelöst, `allow_other_host` | [B1](docs/rails-upgrade/DEV_UPGRADE.md) |
+| Rails 7.0 → 7.1 | `devise-two-factor` musste auf 4.x, `paranoia`-Bump, `lib` fällt vom `$LOAD_PATH` | Gem-Bumps, Override `add_autoload_paths_to_load_path = true` | [B2](docs/rails-upgrade/DEV_UPGRADE.md) |
+| Rails 7.1 → 7.2 | `config/secrets.yml` entfällt, `secret_key_base` muss aus ENV kommen | Secrets entkoppelt | [B3](docs/rails-upgrade/DEV_UPGRADE.md) |
+| Ruby 3.1 → 3.2 | `thumbnailer`-Gem nutzt das entfernte `File.exists?` — Thumbnails brachen **still** | Gem ersetzt durch `image_processing` (MiniMagick, gleiches Verhalten: 800 px, JPEG q75, PDF 200 dpi) | [Teil C](docs/rails-upgrade/DEV_UPGRADE.md) |
 
 Übersicht und Reihenfolge: [`DEV_UPGRADE.md`](docs/rails-upgrade/DEV_UPGRADE.md).
 Test-Runbook: [`DEV_UPGRADE_TEST_RUNBOOK.md`](docs/rails-upgrade/DEV_UPGRADE_TEST_RUNBOOK.md).
@@ -149,12 +153,24 @@ die Begründung steht in der Datei. Bug-Report an labimotion ist vorbereitet.
 Ein Subprozess-Aufruf setzte `TEST_QUEUE_ADAPTER` nicht und lief damit gegen
 den falschen Adapter. Spec-seitig, kein Produktivcode.
 
-### 2.8 Aufräumen — `814e294c0`
+### 2.8 Aufräumen — `814e294c0` und Folgearbeit
 
-Die zehn Stufen-Dokumente und die `test_fails`-Liste vom 18.08. lagen im
-Root (rund 5.000 Zeilen). Sie liegen unverändert unter
-[`docs/rails-upgrade/`](docs/rails-upgrade/); `test_fails` heißt dort
-`test_fails-2026-08-18.txt`, weil es ein Stand dieses Tages ist.
+Die zehn Stufen-Dokumente und die `test_fails`-Liste vom 18.08. lagen im Root
+(rund 5.000 Zeilen). Sie wanderten zunächst nach
+[`docs/rails-upgrade/`](docs/rails-upgrade/) und wurden vor der Übergabe auf das
+eingedampft, was ein Außenstehender wirklich braucht:
+
+| Datei | Was sie beantwortet |
+|---|---|
+| `DEV_UPGRADE.md` | Was wurde gemacht, Stufe für Stufe, mit jedem Bruch und seiner Lösung |
+| `DEV_UPGRADE_TEST_RUNBOOK.md` | Wie prüft man es nach — inklusive der vier Abschnitte, die die automatische CI **nicht** abdeckt |
+| `DEV_UPGRADING_ASSET_PIPELINE.md` | Wie der Frontend-Aufbau aussieht (zwei Pipelines nebeneinander) — keine Upgrade-Doku, sondern Bestandsaufnahme |
+| `DEV_UPGRADING.md` | Acht Fallstricke beim lokalen Arbeiten, die aus keinem Commit hervorgehen |
+
+Entfallen sind die sechs Stufen-Einzeldokumente (2.641 Zeilen; ihr Inhalt steht
+konsolidiert in `DEV_UPGRADE.md`, die Langfassung in der Historie von
+`rails-upgrade-6-1-7-10`) und `test_fails-2026-08-18.txt` — eine
+Abarbeitungsliste, die abgearbeitet ist.
 
 ---
 

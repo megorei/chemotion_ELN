@@ -1,10 +1,15 @@
 # DEV_UPGRADE.md
 
 Gesamt-Zusammenfassung **aller** Ruby- und Rails-Upgrade-Schritte im Chemotion ELN —
-Schritt für Schritt, mit jedem Issue und seiner Lösung. Konsolidiert aus den Einzel-Docs
-(`DEV_RAILS_UPGRADE_3-0/3-1/3-2.md` = Ruby, `DEV_RAILS_UPGRADE_7-0/7-1/7-2.md` = Rails).
-Branch `rails-upgrade-6-1-7-10`, Stand 2026-08.
+Schritt für Schritt, mit jedem Issue und seiner Lösung. **Dies ist die Langfassung** —
+die sechs Einzel-Dokumente, aus denen sie konsolidiert wurde, sind aus dem Branch
+entfernt; sie stehen unverändert in der Historie von `rails-upgrade-6-1-7-10`.
 
+
+> **Übergabe-Dokument — nach der Übernahme löschen.** Es erklärt einen einmaligen
+> Sprung, nicht den Dauerzustand des Repos. Sobald der Branch übernommen ist, hat
+> es seinen Zweck erfüllt; die Einzelschritte bleiben als Commits auf
+> `rails-upgrade-6-1-7-10` nachvollziehbar.
 ## Upgrade-Leiter (verschachtelte Reihenfolge)
 
 ```
@@ -91,7 +96,7 @@ Full-Suite non-feature **`2260/11`** (identisch); 307 Gems auf 3.1-ABI neu gebau
 **Deploy-TODO:** Image auf 3.1.7 + CI. **Ausblick:** `nokogiri 1.15.7` (`< 3.3.dev`) läuft **nicht** auf
 Ruby 3.3 → erst beim 3.3-Schritt auf ≥ 1.16 heben (für 3.0/3.1/3.2 ok).
 
-## A3. Ruby 3.1 → 3.2  ⏸ AUFGESCHOBEN (statisch analysiert, nicht ausgeführt)
+## A3. Ruby 3.1 → 3.2  ✅ (hier die Vorab-Analyse; ausgeführt wurde er als **Teil C**, unten)
 
 **Reihenfolge-Entscheid:** 3.2 nur wenn nötig; Rails 7.0/7.1/7.2 liefen alle auf 3.1.7. Ruby 3.2.2+
 wird erst für **Rails 8.0** gebraucht → 3.2 ist der nächste Ruby-Schritt (vor Rails 8).
@@ -302,7 +307,7 @@ Trittstein zu Rails 8.0 (≥ 3.2.2). Im Kern **Pin-Bump + native Gems für 3.2-A
 (9 Failures). **Gelöst durch Ersatz des Gems durch `image_processing`** (MiniMagick-Backend, bereits vorhandene
 Dep; gleiche Binaries convert/gs, Verhalten identisch: 800 px, weiß gepaddet, JPEG q75, PDF @ 200 dpi). Suite
 zurück auf Baseline: **`2267/11`** non-feature (2260 + 7 neue Generator-Specs). Details:
-`DEV_RAILS_UPGRADE_3-2.md` (§A2 + §D/§E).
+`Teil C` (§A2 + §D/§E).
 
 **Deploy-TODO:** Base-/Runner-Image auf 3.2.11 bauen + CI umstellen. ⚠️ Ruby 3.2.11 ist bereits EOL (bewusst als
 Trittstein) — nach Rails 8.0 zeitnah auf 3.3/3.4 (gemsseitig via nokogiri 1.18.10 frei).

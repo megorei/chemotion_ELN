@@ -1,5 +1,11 @@
 # DEV_UPGRADING_ASSET_PIPELINE.md
 
+> **Übergabe-Dokument — nach der Übernahme entscheiden, nicht blind löschen.**
+> Anders als die übrigen Dateien hier beschreibt dieses keinen Upgrade-Schritt,
+> sondern den **Ist-Zustand der Frontend-Architektur**. Es gilt weiter, wenn das
+> Upgrade längst durch ist. Wenn es bleiben soll, gehört es aus
+> `rails-upgrade/` heraus in die reguläre Architektur-Dokumentation.
+
 Ist-Aufnahme der **Frontend-Asset-Architektur** im Chemotion ELN. Das Projekt
 betreibt **zwei nebeneinander laufende, unabhängige Asset-Pipelines** — sauber
 nach Asset-Typ getrennt. Dieses Dokument nimmt **beide** auf: woraus sie
