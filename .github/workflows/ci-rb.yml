@@ -148,7 +148,6 @@ jobs:
           cp -f radar.yml.example radar.yml
           cp -f converter.yml.example converter.yml
           touch klasses.json
-          bundle config set without ''
 
       # The shared runner image (complat/chemotion_eln_runner:latest) ships Ruby 2.7.8
       # only, so asdf finds no Ruby for .tool-versions and `bundle install` dies with
@@ -175,7 +174,9 @@ jobs:
           ruby -v
 
       - name: bundle install
-        run: bundle install
+        run: |
+          bundle config set without ''
+          bundle install
 
       - name: yarn install
         run: |
