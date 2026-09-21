@@ -35,7 +35,15 @@ jobs:
         run: gem install rubocop pronto pronto-rubocop rubocop-rspec rubocop-rails rubocop-performance
 
       - name: run Pronto
-        run: pronto run -f github_status github_pr_review -c origin/${{ github.base_ref }}
+        # DIVERGES FROM UPSTREAM (fork decision, 2026-09-21): upstream also passes
+        # `github_status`. We do not. That formatter posts a red commit status for
+        # any advisory warning, and pronto lints the lines a PR touches — on an
+        # upgrade or an upstream sync that is mostly code we did not write and must
+        # not change (dinge#2: all 15 findings were ComPlat's own). A red mark
+        # nobody may act on trains people to ignore red marks. The findings still
+        # arrive as review comments on the diff, which is where they are useful.
+        # On the next sync: keep our line, or re-decide — do not merge blindly.
+        run: pronto run -f github_pr_review -c origin/${{ github.base_ref }}
         env:
           PRONTO_GITHUB_ACCESS_TOKEN: "${{ github.token }}"
         if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name    # don't run on PRs from forks because of missing write permission: https://github.com/orgs/community/discussions/26829
