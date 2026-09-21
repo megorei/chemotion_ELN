@@ -154,11 +154,18 @@ jobs:
       # exit 126 before a single spec runs (seen on megorei#37/#38, 2026-08-25). Until
       # ComPlat publishes an image with the current Ruby, build it here. The build deps
       # are needed even on a cache hit: psych, openssl and ffi compile against them.
+      # The list mirrors the self-hosted runner's, which is proven to build this
+      # bundle on the pinned Ruby. It is not only Ruby's own build deps: with a
+      # Ruby the image does not ship, every native gem is rebuilt too — that is
+      # what pulled in icu (charlock_holmes), magic (ruby-filemagic) and the
+      # ImageMagick headers. apt skips whatever the image already has.
       - name: install Ruby build dependencies
         run: |
           apt-get update -qq
-          apt-get install -y -qq build-essential autoconf bison \
-            libyaml-dev libssl-dev libffi-dev zlib1g-dev libreadline-dev
+          apt-get install -y -qq build-essential autoconf bison wget \
+            libyaml-dev libssl-dev libffi-dev zlib1g-dev libreadline-dev \
+            cmake libpq-dev swig libmagickcore-dev libmagickwand-dev imagemagick \
+            libicu-dev libmagic-dev librsvg2-bin ghostscript locales postgresql-client
 
       - name: restore Ruby toolchain cache
         uses: actions/cache@v4
