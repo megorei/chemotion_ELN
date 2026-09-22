@@ -204,16 +204,19 @@ Deploy reibungslos läuft. Gesammelt aus den Stufen-Dokumenten.
 
 ## Wie man es prüft
 
-**Specs** laufen auf dem Xeon-CI-Runner (amd64, echtes CI-Image, siehe
-`CLAUDE.md` Abschnitt „Xeon-CI-Runner"). Branch hinpushen, nicht rsyncen:
+**Specs** laufen bei uns auf einem eigenen Runner — amd64 nativ, mit dem
+echten CI-Image `complat/chemotion_eln_runner:latest` und einem
+RDKit-Postgres daneben. Der Aufbau folgt `ci-rb.yml`: dieselben apt-Pakete,
+Ruby aus `.tool-versions`, dann
 
 ```bash
-git push ssh://root@192.168.178.150/root/chemotion-ci/src update/a-rails72:update/a-rails72 --force
-ssh root@192.168.178.150 'cd /root/chemotion-ci/src && git checkout -f update/a-rails72'
-ssh root@192.168.178.150 'cd /root/chemotion-ci && rm -f src/tmp/ci-run.exit && \
-  docker exec -d chemotion-ci-runner-1 bash -c \
-  "bash /ci-run.sh > /workspace/tmp/ci-run.log 2>&1; echo \$? > /workspace/tmp/ci-run.exit"'
+RAILS_ENV=test bundle exec rspec --exclude-pattern "spec/{features}/**/*_spec.rb" spec
 ```
+
+Das ist nichts, was ihr nachbauen müsst — GitHub Actions fährt denselben
+Schnitt. Wir nennen es nur, weil die Zahlen unten von dort stammen und weil
+sich auf amd64 nativ Fehler zeigen, die auf einer Entwicklermaschine nie
+auftreten (der net-ssh-Bruch aus 2.5 war so einer).
 
 **Immer nur ein Lauf gleichzeitig**, und den Branch nicht unter einem laufenden
 rspec zurücksetzen.
