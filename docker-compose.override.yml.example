@@ -1,0 +1,33 @@
+# Local additions to docker-compose.dev.yml. Copy to docker-compose.override.yml
+# (git-ignored); Compose merges it automatically.
+#
+# OnlyOffice document server for the /editor app, as used during the
+# client-server split. Use the published image; put the secret in .env
+# (ONLYOFFICE_JWT_SECRET), never here.
+
+services:
+  onlyoffice-documentserver:
+    image: onlyoffice/documentserver
+    container_name: onlyoffice-documentserver
+    environment:
+      - JWT_ENABLED=true
+      - JWT_SECRET=${ONLYOFFICE_JWT_SECRET:?set ONLYOFFICE_JWT_SECRET in .env}
+      - JWT_HEADER=Authorization
+      - JWT_IN_BODY=true
+    ports:
+      - '8080:80'
+      - '4430:443'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/info/info.json"]
+      interval: 30s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+    restart: always
+    stop_grace_period: 60s
+    volumes:
+      - /var/www/onlyoffice/Data
+      - /var/log/onlyoffice
+      - /var/lib/onlyoffice/documentserver/App_Data/cache/files
+      - /var/www/onlyoffice/documentserver-example/public/files
+      - /usr/share/fonts
