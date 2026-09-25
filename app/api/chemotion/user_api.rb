@@ -118,6 +118,11 @@ module Chemotion
         end
       end
 
+      desc 'Log out current_user (deprecated: the client uses DELETE /users/sign_out; kept for API compatibility)'
+      delete 'sign_out' do
+        status 204
+      end
+
       namespace :auth_token do
         desc 'Generate Token'
         params do
