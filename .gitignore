@@ -37,6 +37,7 @@
 /.devcontainer/docker-compose.dev*
 /.devcontainer/.env.development
 /docker-compose.services.yml
+/docker-compose.override.yml
 
 /config/matrices.json
 /config/mailcollector.yml
