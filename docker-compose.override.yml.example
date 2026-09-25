@@ -1,22 +1,11 @@
 # Local additions to docker-compose.dev.yml. Copy to docker-compose.override.yml
 # (git-ignored); Compose merges it automatically.
 #
-# Two things that used to live in docker-compose.dev.yml during the
-# client-server split and belong to the individual machine, not the repo:
-#
-# 1. Apple Silicon: the dev image is amd64 only. Uncomment `platform` on the
-#    services you run.
-# 2. OnlyOffice document server for the /editor app. Use the published image;
-#    put the secret in .env (ONLYOFFICE_JWT_SECRET), never here.
+# OnlyOffice document server for the /editor app, as used during the
+# client-server split. Use the published image; put the secret in .env
+# (ONLYOFFICE_JWT_SECRET), never here.
 
 services:
-  # app:
-  #   platform: linux/amd64
-  # webpacker:
-  #   platform: linux/amd64
-  # postgres:
-  #   platform: linux/amd64
-
   onlyoffice-documentserver:
     image: onlyoffice/documentserver
     container_name: onlyoffice-documentserver
