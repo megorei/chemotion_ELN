@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable react/destructuring-assignment */
+/* eslint-disable react/prop-types */
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import {
   Form, Button, ButtonToolbar, Alert
 } from 'react-bootstrap';
@@ -12,7 +12,6 @@ import {
 } from 'lodash';
 import { absOlsTermId } from 'chem-generic-ui';
 import Attachment from 'src/models/Attachment';
-import UserStore from 'src/stores/alt/stores/UserStore';
 import GenericDS from 'src/models/GenericDS';
 import GenericDSDetails from 'src/components/generic/GenericDSDetails';
 import InboxActions from 'src/stores/alt/actions/InboxActions';
@@ -73,6 +72,24 @@ export function classifyAttachments(attachments) {
   });
 
   return groups;
+}
+
+// Processed group names are "<archive>.<curveIndex>" (from the "N_bagit" filename token), e.g.
+// "results.1" / "results.2" for a two-curve archive. Label each series by its position among its
+// siblings so they read as "Experiment 1 / 2 of results" rather than as near-identical duplicates.
+export function getProcessedGroupTitle(groupName, allGroupNames) {
+  const match = groupName.match(/^(.*)\.(\d+)$/);
+  if (!match) return `Processed: ${groupName}`;
+
+  const [, archiveName, curveIndex] = match;
+  const siblingCount = allGroupNames.filter((name) => {
+    const siblingMatch = name.match(/^(.*)\.(\d+)$/);
+    return siblingMatch && siblingMatch[1] === archiveName;
+  }).length;
+
+  return siblingCount > 1
+    ? `Experiment ${curveIndex} / ${siblingCount} of ${archiveName}`
+    : `Experiment ${curveIndex} of ${archiveName}`;
 }
 
 export class ContainerDatasetModalContent extends Component {
@@ -137,7 +154,8 @@ export class ContainerDatasetModalContent extends Component {
     const prevAttachments = [...attachments];
 
     // Sync instrumentInputValue when datasetContainer.extended_metadata.instrument changes
-    if (prevProps.datasetContainer?.extended_metadata?.instrument !== this.props.datasetContainer?.extended_metadata?.instrument) {
+    const propsInstrument = this.props.datasetContainer?.extended_metadata?.instrument;
+    if (prevProps.datasetContainer?.extended_metadata?.instrument !== propsInstrument) {
       this.setState({
         instrumentInputValue: this.props.datasetContainer?.extended_metadata?.instrument || ''
       });
@@ -501,7 +519,7 @@ export class ContainerDatasetModalContent extends Component {
       filteredAttachments, sortDirection, attachmentGroups
     } = this.state;
     const { datasetContainer } = this.props;
-    const { currentUser } = UserStore.getState();
+    const { currentUser } = this.context.userStore;
 
     const renderGroup = (attachments, title, key) => (
       <div key={key} className="mt-2">
@@ -515,7 +533,8 @@ export class ContainerDatasetModalContent extends Component {
       </div>
     );
 
-    const hasProcessedAttachments = Object.keys(attachmentGroups.Processed).some(
+    const processedGroupNames = Object.keys(attachmentGroups.Processed);
+    const hasProcessedAttachments = processedGroupNames.some(
       (groupName) => attachmentGroups.Processed[groupName].length > 0
     );
 
@@ -548,12 +567,16 @@ export class ContainerDatasetModalContent extends Component {
                 && renderGroup(attachmentGroups.Pending, 'Pending')}
               {attachmentGroups.Original.length > 0 && renderGroup(attachmentGroups.Original, 'Original')}
               {attachmentGroups.BagitZip.length > 0 && renderGroup(attachmentGroups.BagitZip, 'Bagit / Zip')}
-              {hasProcessedAttachments && Object.keys(attachmentGroups.Processed)
+              {hasProcessedAttachments && processedGroupNames
                 .map((groupName) => attachmentGroups.Processed[groupName].length > 0
-                  && renderGroup(attachmentGroups.Processed[groupName], `Processed: ${groupName}`, groupName))}
+                  && renderGroup(
+                    attachmentGroups.Processed[groupName],
+                    getProcessedGroupTitle(groupName, processedGroupNames),
+                    groupName
+                  ))}
               {attachmentGroups.Combined.length > 0 && renderGroup(attachmentGroups.Combined, 'Combined')}
             </div>
-            <Alert variant="warning" show={UserStore.isUserQuotaExceeded(filteredAttachments)}>
+            <Alert variant="warning" show={this.context.userStore.isUserQuotaExceeded(filteredAttachments)}>
               Uploading attachments will fail; User quota
               {currentUser !== null ? ` (${currentUser.allocated_space / 1024 / 1024} MB) ` : ' '}
               will be exceeded.
@@ -576,7 +599,7 @@ export class ContainerDatasetModalContent extends Component {
       readOnly, disabled, kind, element
     } = this.props;
     const termId = absOlsTermId(kind);
-    const klasses = (UserStore.getState() && UserStore.getState().dsKlasses) || [];
+    const klasses = this.context.userStore.dsKlasses || [];
     let klass = {};
     const idx = findIndex(klasses, (o) => o.ols_term_id === termId);
     if (idx > -1) {

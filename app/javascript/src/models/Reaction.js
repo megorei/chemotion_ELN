@@ -13,7 +13,6 @@ import Component from 'src/models/Component';
 import Container from 'src/models/Container';
 import { isSbmmSample } from 'src/utilities/ElementUtils';
 
-import UserStore from 'src/stores/alt/stores/UserStore';
 import Segment from 'src/models/Segment';
 import WeightPercentageReactionActions from 'src/stores/alt/actions/WeightPercentageReactionActions';
 import { rootStore } from 'src/stores/mobx/RootStore';
@@ -25,6 +24,21 @@ const TemperatureDefault = {
   userText: '',
   data: []
 };
+
+const TemperatureNumberPattern = '-?(?:\\d+(?:[.,]\\d*)?|[.,]\\d+)';
+const NumericTemperatureTextPattern = new RegExp(
+  `^(${TemperatureNumberPattern})(?:\\s*(?:~|-|–|to)\\s*(${TemperatureNumberPattern}))?$`,
+  'i'
+);
+
+const parseNumericTemperatureText = (text) => {
+  if (typeof text !== 'string' || text === '') { return null; }
+
+  const match = text.trim().match(NumericTemperatureTextPattern);
+  return match ? match.slice(1).filter((value) => value !== undefined) : null;
+};
+
+const isNumericTemperatureText = (text) => parseNumericTemperatureText(text) !== null;
 
 export const convertTemperature = (temperature, fromUnit, toUnit) => {
   if (fromUnit === toUnit) {
@@ -177,7 +191,7 @@ export default class Reaction extends Element {
   }
 
   static buildReactionShortLabel() {
-    const { currentUser } = UserStore.getState();
+    const { currentUser } = rootStore.userStore;
     if (!currentUser) { return 'New Reaction'; }
 
     const number = currentUser.reactions_count + 1;
@@ -203,6 +217,26 @@ export default class Reaction extends Element {
 
   isInteractionReaction() {
     return this.reaction_type === 'interaction';
+  }
+
+  schemeSvgRequest() {
+    const productsOnly = this.isInteractionReaction();
+
+    return {
+      materialsSvgPaths: {
+        starting_materials: this.starting_materials.map((material) => material.svgPath),
+        reactants: this.reactantsWithSbmm.map((material) => material.svgPath),
+        products: this.products.map((material) => [material.svgPath, material.equivalent])
+      },
+      temperature: this.temperature_display_with_unit,
+      solvents: this.solvents
+        .map((solvent) => solvent.preferred_label)
+        .filter((solvent) => solvent),
+      duration: this.duration,
+      conditions: this.conditions,
+      productsOnly,
+      showYield: !productsOnly,
+    };
   }
 
   phValueForSerialize() {
@@ -381,6 +415,15 @@ export default class Reaction extends Element {
     return `${minTemp} ~ ${maxTemp}`;
   }
 
+  // Temperature label for the reaction scheme, e.g. "25 °C" or "21 ~ 25 °C".
+  // Numeric single values and ranges get the unit; free text (e.g. "reflux") is left as-is.
+  // Validate the rendered value so typed text and chart-derived data use the same grammar.
+  get temperature_display_with_unit() {
+    const temperature = this.temperature_display;
+    const numeric = isNumericTemperatureText(String(temperature));
+    return numeric ? `${temperature} ${this._temperature.valueUnit}` : temperature;
+  }
+
   get temperature() {
     return this._temperature;
   }
@@ -409,9 +452,12 @@ export default class Reaction extends Element {
     const oldUnit = temperature.valueUnit;
     temperature.valueUnit = newUnit;
 
-    // If userText is number only, treat as normal temperature value
-    if (/^[\-|\d]\d*\.{0,1}\d{0,2}$/.test(temperature.userText)) {
-      temperature.userText = convertTemperature(temperature.userText, oldUnit, newUnit).toFixed(2);
+    // Convert numeric user text, including both endpoints of a temperature range.
+    const numericValues = parseNumericTemperatureText(temperature.userText);
+    if (numericValues) {
+      temperature.userText = numericValues
+        .map((value) => convertTemperature(value.replace(',', '.'), oldUnit, newUnit).toFixed(2))
+        .join(' ~ ');
     }
 
     temperature.data.forEach((data, index, theArray) => {
@@ -761,7 +807,7 @@ export default class Reaction extends Element {
       // Temporary set true, to fit with server side logical
       material.isSplit = true;
       material.reaction_product = false;
-    } else if (newGroup == "starting_materials") {
+    } else if (newGroup == 'starting_materials') {
       material.isSplit = true;
       material.reaction_product = false;
 

@@ -29,7 +29,7 @@ import GreenChemistry from 'src/apps/mydb/elements/details/reactions/greenChemis
 import Utils from 'src/utilities/Functions';
 import UIStore from 'src/stores/alt/stores/UIStore';
 import UIActions from 'src/stores/alt/actions/UIActions';
-import UserStore from 'src/stores/alt/stores/UserStore';
+import { StoreContext } from 'src/stores/mobx/RootStore';
 import { setReactionByType } from 'src/apps/mydb/elements/details/reactions/ReactionDetailsShare';
 import { aviatorNavigation } from 'src/utilities/routesUtils';
 import ReactionSvgFetcher from 'src/fetchers/ReactionSvgFetcher';
@@ -98,17 +98,20 @@ const productLink = (product, active) => {
 };
 
 export default class ReactionDetails extends Component {
-  constructor(props) {
-    super(props);
+  static contextType = StoreContext;
+
+  constructor(props, context) {
+    super(props, context);
 
     const { reaction } = props;
+    const { currentUser } = context.userStore || {};
     this.state = {
       reaction,
       activeTab: UIStore.getState().reaction.activeTab,
       activeAnalysisTab: UIStore.getState().reaction.activeAnalysisTab,
       visible: List(),
       sfn: UIStore.getState().hasSfn,
-      currentUser: (UserStore.getState() && UserStore.getState().currentUser) || {},
+      currentUser,
       reactionSvgVersion: 0, // Bumped when graphic is updated so shouldComponentUpdate sees a state change (we mutate reaction in place)
       isRefreshingGraphic: false,
       isEditingHeaderName: false,
@@ -440,7 +443,7 @@ export default class ReactionDetails extends Component {
     } else if (type === 'rfValue') {
       value = rfValueFormat(event.target.value) || '';
     } else {
-      value = event.target.value;
+      ({ value } = event.target);
     }
 
     const { reaction } = this.state;
@@ -638,33 +641,7 @@ export default class ReactionDetails extends Component {
     }
 
     this.isUpdatingGraphic = true;
-    const materialsSvgPaths = {
-      starting_materials: reaction.starting_materials.map((material) => material.svgPath),
-      reactants: reaction.reactantsWithSbmm.map((material) => material.svgPath),
-      products: reaction.products.map((material) => [material.svgPath, material.equivalent])
-    };
-
-    const solvents = reaction.solvents.map((s) => {
-      const name = s.preferred_label;
-      return name;
-    }).filter((s) => s);
-
-    let temperature = reaction.temperature_display;
-    if (/^[\-|\d]\d*\.{0,1}\d{0,2}$/.test(temperature)) {
-      temperature = `${temperature} ${reaction.temperature.valueUnit}`;
-    }
-    const productsOnly = reaction.isInteractionReaction();
-    const showYield = !productsOnly;
-
-    ReactionSvgFetcher.fetchByMaterialsSvgPaths(
-      materialsSvgPaths,
-      temperature,
-      solvents,
-      reaction.duration,
-      reaction.conditions,
-      productsOnly,
-      showYield
-    ).then((result) => {
+    ReactionSvgFetcher.fetchByReaction(reaction).then((result) => {
       if (result && result.reaction_svg && result.reaction_svg !== reaction.reaction_svg_file) {
         // Update reaction_svg_file and state - image will reload automatically via ReactionSchemeGraphic useEffect
         reaction.reaction_svg_file = result.reaction_svg;

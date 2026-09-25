@@ -69,7 +69,9 @@ module Chemotion
       namespace :omniauth_providers do
         desc 'get omniauth providers'
         get do
-          { providers: Devise.omniauth_configs.keys, current_user: current_user }
+          # Only the linked-provider ids are used by the frontend (OmniauthCredential.js); serializing
+          # the full current_user leaked encrypted_otp_secret/otp_secret/otp_backup_codes.
+          { providers: Devise.omniauth_configs.keys, current_user: { providers: current_user.providers } }
         end
       end
 
@@ -114,11 +116,6 @@ module Chemotion
           current_user.counters['reactions'] = params[:reactions_count].to_s
           current_user.save!
         end
-      end
-
-      desc 'Log out current_user'
-      delete 'sign_out' do
-        status 204
       end
 
       namespace :auth_token do

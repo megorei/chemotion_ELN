@@ -1,0 +1,176 @@
+import expect from 'expect';
+import NMRiumDisplayer from 'src/components/nmriumWrapper/NMRiumDisplayer';
+
+// Exercises the reopen-path patching directly on the instance: these methods are pure transforms
+// over a parsed .nmrium document plus `state.fetchedSpectra`, so there is nothing to mount.
+const displayerWith = (fetchedSpectra) => {
+  const displayer = new NMRiumDisplayer({});
+  displayer.state = { ...displayer.state, fetchedSpectra };
+  return displayer;
+};
+
+const TPA = 'https://eln.test/api/v1/public/third_party_apps';
+
+describe('NMRiumDisplayer', () => {
+  describe('.patchZipAndJcampReference()', () => {
+    // findMatchingZip names one archive for the whole document - read off the first spectrum that
+    // has a name - and that pick used to be applied to every spectrum. With two archives in one
+    // dataset the second spectrum's member paths were rewritten onto the first archive's url, and
+    // the cleaning pass that follows then pruned the second source as unreferenced: the second
+    // curve was served, silently, out of the wrong file. Each spectrum's own persisted reference
+    // says which archive it came from, so it is asked first.
+    const twoZipDocument = () => ({
+      sources: [
+        { id: 'src-a', entries: [{ baseURL: 'chemotion-attachment://eln', relativePath: '/11/a.zip' }] },
+        { id: 'src-b', entries: [{ baseURL: 'chemotion-attachment://eln', relativePath: '/22/b.zip' }] },
+      ],
+      spectra: [
+        {
+          info: { dimension: 2, name: 'a.zip' },
+          display: { name: 'a.zip' },
+          selector: { root: 'src-a' },
+          sourceSelector: { files: ['exp1/pdata/1/2rr'] },
+        },
+        {
+          info: { dimension: 2, name: 'b.zip' },
+          display: { name: 'b.zip' },
+          selector: { root: 'src-b' },
+          sourceSelector: { files: ['exp2/pdata/1/2rr'] },
+        },
+      ],
+    });
+
+    const twoZips = [
+      { id: 11, label: 'a.zip', kind: 'zip', url: `${TPA}/TOKEN-A` },
+      { id: 22, label: 'b.zip', kind: 'zip', url: `${TPA}/TOKEN-B` },
+    ];
+
+    it('points each spectrum at the archive its own reference names', () => {
+      const displayer = displayerWith(twoZips);
+      const nmriumObj = twoZipDocument();
+      displayer.patchZipAndJcampReference(nmriumObj, undefined, twoZips[0].url, twoZips[0].label);
+
+      expect(nmriumObj.spectra[0].sourceSelector.files)
+        .toEqual([`${TPA}/TOKEN-A/file.zip/exp1/pdata/1/2rr`]);
+      expect(nmriumObj.spectra[1].sourceSelector.files)
+        .toEqual([`${TPA}/TOKEN-B/file.zip/exp2/pdata/1/2rr`]);
+    });
+
+    it('keeps each spectrum named after its own archive', () => {
+      const displayer = displayerWith(twoZips);
+      const nmriumObj = twoZipDocument();
+      displayer.patchZipAndJcampReference(nmriumObj, undefined, twoZips[0].url, twoZips[0].label);
+
+      expect(nmriumObj.spectra.map((s) => s.display.name)).toEqual(['a.zip', 'b.zip']);
+      expect(nmriumObj.spectra.map((s) => s.info.name)).toEqual(['a.zip', 'b.zip']);
+    });
+
+    // A document written before references existed carries no per-spectrum answer, so the
+    // document-wide pick has to keep applying to every spectrum exactly as it did.
+    it('falls back to the document-wide archive when a spectrum names none', () => {
+      const displayer = displayerWith([twoZips[0]]);
+      const nmriumObj = {
+        spectra: [{
+          info: { dimension: 2, name: 'a.zip' },
+          display: { name: 'a.zip' },
+          sourceSelector: { files: ['exp1/pdata/1/2rr'] },
+        }],
+      };
+      displayer.patchZipAndJcampReference(nmriumObj, undefined, twoZips[0].url, twoZips[0].label);
+
+      expect(nmriumObj.spectra[0].sourceSelector.files)
+        .toEqual([`${TPA}/TOKEN-A/file.zip/exp1/pdata/1/2rr`]);
+    });
+  });
+
+  // The analysis-level button hands over every dataset's files, but a session is saved back into
+  // one dataset. Loading all of them into one session and saving into whichever came first wrote
+  // one dataset's document into another; both sides now follow the same anchor.
+  describe('dataset anchoring', () => {
+    const spcInfos = [
+      { idx: 1, idDt: 10, label: 'a.jdx' },
+      { idx: 2, idDt: 20, label: 'b.1_bagit.jdx' },
+      { idx: 3, idDt: 20, label: 'b.2_bagit.jdx' },
+      { idx: 4, idDt: 20, label: 'b.nmrium' },
+    ];
+    const fetched = [
+      { id: 1, kind: 'jcamp', label: 'a.jdx', url: `${TPA}/A` },
+      { id: 2, kind: 'jcamp', label: 'b.1_bagit.jdx', url: `${TPA}/B1` },
+      { id: 3, kind: 'jcamp', label: 'b.2_bagit.jdx', url: `${TPA}/B2` },
+    ];
+
+    const displayerFor = (infos, fetchedSpectra, props = {}) => {
+      const displayer = new NMRiumDisplayer(props);
+      displayer.state = { ...displayer.state, spcInfos: infos, fetchedSpectra };
+      return displayer;
+    };
+
+    it('anchors on the dataset holding the .nmrium document', () => {
+      expect(displayerFor(spcInfos, fetched).getSpcInfo().idDt).toEqual(20);
+    });
+
+    it('ignores a stale spcIdx left in the shared store by the spectra editor', () => {
+      const displayer = displayerFor(spcInfos, fetched);
+      displayer.state.spcIdx = 1;
+      expect(displayer.getSpcInfo().idDt).toEqual(20);
+    });
+
+    it('falls back to the first file when no .nmrium exists', () => {
+      const infos = spcInfos.filter((si) => !si.label.endsWith('.nmrium'));
+      expect(displayerFor(infos, fetched).getSpcInfo().idDt).toEqual(10);
+    });
+
+    it('loads every curve of the anchored dataset and nothing from the others', async () => {
+      // No .nmrium, and a dataset-20 file listed first, so the anchor is dataset 20.
+      const infos = spcInfos.filter((si) => !si.label.endsWith('.nmrium')).reverse();
+      const displayer = displayerFor(infos, fetched, { sample: { molfile: null } });
+      Object.assign(displayer.state, { isIframeLoaded: true, showModalNMRDisplayer: true });
+      const posted = [];
+      displayer.postToNMRium = (message) => posted.push(message);
+
+      await displayer.trySendUrlsToNMRium();
+
+      const sources = posted[0].data.data.spectra.map((spc) => spc.source.jcampURL);
+      expect(sources).toEqual([`${TPA}/B1/file.jdx`, `${TPA}/B2/file.jdx`]);
+    });
+
+    it('saves into the anchored dataset', () => {
+      const datasets = [{ id: 10, attachments: [] }, { id: 20, attachments: [] }];
+      const sample = { datasetContainers: () => datasets };
+      const displayer = displayerFor(spcInfos, fetched, { sample });
+      expect(displayer.prepareDatasets().id).toEqual(20);
+    });
+
+    // A save always writes "<stem>.nmrium". A per-curve document left by an earlier save (listed
+    // ahead of it) must not keep being reopened in its place, or the save never shows up again.
+    describe('when the dataset also holds a per-curve .nmrium', () => {
+      const perCurve = { idx: 5, idDt: 20, label: 'b.1_bagit.nmrium' };
+      const infos = [...spcInfos.slice(0, 3), perCurve, spcInfos[3]];
+      const withDocs = [
+        ...fetched,
+        { id: 5, kind: 'nmrium', label: 'b.1_bagit.nmrium', file: 'e30=' },
+        { id: 4, kind: 'nmrium', label: 'b.nmrium', file: 'e30=' },
+      ];
+
+      it('anchors on the document a save writes', () => {
+        expect(displayerFor(infos, withDocs).getSpcInfo().idx).toEqual(4);
+      });
+
+      it('loads that same document', async () => {
+        const displayer = displayerFor(infos, withDocs, { sample: { molfile: null } });
+        Object.assign(displayer.state, { isIframeLoaded: true, showModalNMRDisplayer: true });
+        let loaded = null;
+        displayer.sendPatchedNmrium = async (nmrium) => { loaded = nmrium; };
+
+        await displayer.trySendUrlsToNMRium();
+
+        expect(loaded.id).toEqual(4);
+      });
+
+      it('still anchors on a per-curve document when it is the only one', () => {
+        const onlyPerCurve = [...spcInfos.slice(0, 3), perCurve];
+        expect(displayerFor(onlyPerCurve, withDocs).getSpcInfo().idx).toEqual(5);
+      });
+    });
+  });
+});
